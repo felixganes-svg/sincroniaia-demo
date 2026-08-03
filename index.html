@@ -409,12 +409,23 @@ function quickAction(action,label){
     const val=action.replace('res_personas_','');
     if(val==='9mas'){
       flujoLocal.paso='personas';
-      appendMessage('¿Cuántas personas serán en total?','incoming'); return;
+      appendMessage('¿Cuántas personas serán en total?','incoming');
+      return;
     }
     flujoLocal.datos.personas=parseInt(val,10);
-    flujoLocal.paso='alergias';
-    appendMessage('👥 Perfecto, mesa para '+val+' personas.\n\n¿Alguna persona tiene alguna alergia o intolerancia alimentaria?','incoming');
-    showQuickOptions([['No','res_alergia_no'],['Sí, indicar','res_alergia_si']]); return;
+    flujoLocal.paso='alergias_tipo';
+    appendMessage('👥 Perfecto, mesa para '+val+' personas.\n\n¿Alguna persona tiene alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
+    showQuickOptions([
+      ['✅ Ninguna','res_food_none'],
+      ['🥛 Lactosa','res_food_lactosa'],
+      ['🌾 Gluten / celiaquía','res_food_gluten'],
+      ['🥜 Frutos secos','res_food_frutos_secos'],
+      ['🦐 Marisco','res_food_marisco'],
+      ['🥚 Huevo','res_food_huevo'],
+      ['🌱 Vegetariano / vegano','res_food_veg'],
+      ['✏️ Otra / indicar','res_food_otra']
+    ]);
+    return;
   }
   if(action==='res_alergia_no'||action==='res_alergia_si'){
     if(!flujoLocal) return;
@@ -678,15 +689,41 @@ function manejarFlujoLocal(text){
         flujoLocal.paso='nombre';
         appendMessage('👥 De acuerdo: '+d.personas+' personas.\n\n⚠️ También he anotado la siguiente información alimentaria: '+d.alergias+'.\n\n¿A qué nombre hacemos la reserva?','incoming');
       }else{
-        flujoLocal.paso='alergias';
-        appendMessage('👥 De acuerdo: '+d.personas+' personas. ¿Alguna persona tiene alguna alergia o intolerancia alimentaria que debamos indicar al restaurante?','incoming');
-        showQuickOptions([['No','res_alergia_no'],['Sí, indicar','res_alergia_si']]);
+        flujoLocal.paso='alergias_tipo';
+        appendMessage('👥 De acuerdo: '+d.personas+' personas.\n\n¿Alguna persona tiene alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
+        showQuickOptions([
+          ['✅ Ninguna','res_food_none'],
+          ['🥛 Lactosa','res_food_lactosa'],
+          ['🌾 Gluten / celiaquía','res_food_gluten'],
+          ['🥜 Frutos secos','res_food_frutos_secos'],
+          ['🦐 Marisco','res_food_marisco'],
+          ['🥚 Huevo','res_food_huevo'],
+          ['🌱 Vegetariano / vegano','res_food_veg'],
+          ['✏️ Otra / indicar','res_food_otra']
+        ]);
       }
       return true;
     }
+    if(flujoLocal.paso==='alergias_afectados_manual'){
+      const num=extraerNumeroPersonas(text);
+      const item=(d.alergiaPendiente||'necesidad alimentaria')+' — '+num+' personas';
+      d.alergias = (!d.alergias || d.alergias==='No') ? item : d.alergias+', '+item;
+      delete d.alergiaPendiente;
+      flujoLocal.paso='alergias_otra';
+      appendMessage('⚠️ Anotado: '+item+'.\\n\\n¿Desea indicar alguna otra?','incoming');
+      showQuickOptions([['➕ Añadir otra','res_food_add'],['Continuar','res_food_continue']]);
+      return true;
+    }
     if(flujoLocal.paso==='alergias_detalle'){
-      d.alergias=text.trim(); flujoLocal.paso='nombre';
-      appendMessage('⚠️ Perfecto. He anotado '+d.alergias+' y quedará indicado en la reserva para que el restaurante pueda tenerlo en cuenta. Para alergias graves, recomendamos confirmarlo también directamente con el establecimiento.\n\n¿A qué nombre hacemos la reserva?','incoming'); return true;
+      d.alergiaPendiente=text.trim();
+      flujoLocal.paso='alergias_afectados';
+      const max=Math.min(parseInt(d.personas,10)||1,8);
+      const opts=[];
+      for(let i=1;i<=max;i++) opts.push([String(i),'res_food_afectados_'+i]);
+      if((parseInt(d.personas,10)||0)>8) opts.push(['9 o más','res_food_afectados_9mas']);
+      appendMessage('¿A cuántas personas afecta '+d.alergiaPendiente+'?','incoming');
+      showQuickOptions(opts);
+      return true;
     }
     if(flujoLocal.paso==='nombre'){
       d.nombre=text.trim(); flujoLocal.paso='telefono';
