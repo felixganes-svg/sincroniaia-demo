@@ -425,6 +425,54 @@ function jsonp(params){
   });
 }
 
+
+function normalizarConsulta(text){
+  return String(text||'')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .trim();
+}
+
+function responderLocalEscrito(text){
+  const n = normalizarConsulta(text);
+
+  if(demoActual==='restaurante'){
+    if(/horario|hora|abren|cierran|cocina/.test(n)){
+      appendMessage('🕒 Horario comercial: 12:00 a 23:30.\n\n🍽️ Comidas: 13:00 a 15:30\n🌙 Cenas: 20:00 a 22:30','incoming');
+      showQuickOptions([['📅 Reservar Mesa','reservar'],['📜 Ver Carta','carta']]);
+      return true;
+    }
+    if(/carta|menu|comida|que teneis|que tienen/.test(n)){ quickAction('carta',''); return true; }
+    if(/carne|entrecot|chuleton|presa/.test(n)){ quickAction('carnes',''); return true; }
+    if(/pescado|lubina|pulpo/.test(n)){ quickAction('pescados',''); return true; }
+    if(/arroz|paella/.test(n)){ quickAction('arroces',''); return true; }
+    if(/postre|tarta|tiramisu|brownie/.test(n)){ quickAction('postres',''); return true; }
+    if(/domicilio|delivery|pedido|recoger/.test(n)){ quickAction('domicilio',''); return true; }
+    if(/reserv|mesa/.test(n)){ quickAction('reservar',''); return true; }
+  }
+
+  if(demoActual==='fisio'){
+    if(/servicio|fisioterapia|rehabilitacion|valoracion|seguimiento/.test(n)){ quickAction('servicios',''); return true; }
+    if(/horario|hora|abren|cierran/.test(n)){ quickAction('horarios',''); return true; }
+    if(/cita|reserv/.test(n)){ enviarMotor('Quiero pedir una cita'); return true; }
+  }
+
+  if(demoActual==='reformas'){
+    if(/servicio|reforma|reformas|pintura|integral/.test(n)){ quickAction('servicios',''); return true; }
+    if(/bano|baño|cocina/.test(n)){ quickAction('banos',''); return true; }
+    if(/visita/.test(n)){ enviarMotor('Quiero solicitar una visita'); return true; }
+    if(/presupuesto/.test(n)){ enviarMotor('Quiero pedir presupuesto'); return true; }
+  }
+
+  if(/^(adios|adiós|no gracias|gracias|nada mas|nada más)$/.test(n)){
+    appendMessage('Muchas gracias por probar SINCRONIAIA. 👋','incoming');
+    return true;
+  }
+
+  return false;
+}
+
 async function enviarMotor(text){
   if(!demoActual)return;
 
@@ -448,11 +496,11 @@ async function enviarMotor(text){
     if(r&&r.ok&&r.reply){
       appendMessage(r.reply,'incoming');
     }else{
-      appendMessage('No he podido procesar la consulta en este momento.','incoming');
+      appendMessage('Puedo ayudarle con información, horarios y la acción principal de esta demo. ¿Qué desea consultar?','incoming');
     }
   }catch(e){
     document.getElementById('pensando')?.remove();
-    appendMessage('No he podido conectar con el motor en este momento.','incoming');
+    appendMessage('Ahora mismo no puedo usar la conversación libre, pero sí puedo ayudarle con las opciones de esta demo.','incoming');
   }
 }
 
@@ -463,6 +511,8 @@ async function sendTextFromInput(){
   removeQuickOptions();
   appendMessage(text,'outgoing');
   userInput.value='';
+
+  if(responderLocalEscrito(text)) return;
 
   await enviarMotor(text);
 }
