@@ -358,6 +358,22 @@ function opcionesReformas(){
   showQuickOptions([['🏠 Servicios','servicios'],['🚿 Baños / Cocinas','banos'],['📅 Solicitar Visita','visita'],['📋 Presupuesto','presupuesto']]);
 }
 
+
+function mostrarEstudioNegocio(){
+  removeQuickOptions();
+  const wrap=document.createElement('div');
+  wrap.className='quick-options';
+  wrap.innerHTML='<div style="width:100%;padding:14px;border-radius:14px;background:rgba(255,255,255,.08);margin-top:8px"><strong>¿Le gustaría saber cómo funcionaría este sistema en su propio negocio?</strong><br><br><span style="font-size:13px;opacity:.9">Podemos realizar un estudio inicial para detectar qué tareas podría automatizar, cuánto tiempo podría recuperar y qué solución tendría más sentido para su empresa.</span></div>';
+  const b1=document.createElement('button');
+  b1.className='quick-btn'; b1.textContent='📊 Hacer estudio de mi negocio';
+  b1.onclick=()=>{ window.location.href='https://script.google.com/macros/s/AKfycbyeGxhnORaHCy8XiJuM_AMn2PacynMxso8h-6_T3OenbTLMG087eC_6Bo-02deaEhL0/exec?view=demo&utm_source=chatgpt.com&demo='+encodeURIComponent(currentDemo); };
+  const b2=document.createElement('button');
+  b2.className='quick-btn'; b2.textContent='✕ Finalizar demostración';
+  b2.onclick=()=>{ removeQuickOptions(); };
+  wrap.appendChild(b1); wrap.appendChild(b2);
+  chat.appendChild(wrap); chat.scrollTop=chat.scrollHeight;
+}
+
 function quickAction(action,label){
   if(label) appendMessage(label,'outgoing');
   removeQuickOptions();
@@ -385,7 +401,20 @@ function quickAction(action,label){
     flujoLocal.datos.hora=hora;
     flujoLocal.paso='personas';
     appendMessage('Perfecto, '+hora+'. ¿Para cuántas personas sería la mesa?','incoming');
+    showQuickOptions([['1','res_personas_1'],['2','res_personas_2'],['3','res_personas_3'],['4','res_personas_4'],['5','res_personas_5'],['6','res_personas_6'],['7','res_personas_7'],['8','res_personas_8'],['9 o más','res_personas_9mas']]);
     return;
+  }
+  if(action.startsWith('res_personas_')){
+    if(!flujoLocal || flujoLocal.tipo!=='reserva_restaurante') return;
+    const val=action.replace('res_personas_','');
+    if(val==='9mas'){
+      flujoLocal.paso='personas';
+      appendMessage('¿Cuántas personas serán en total?','incoming'); return;
+    }
+    flujoLocal.datos.personas=parseInt(val,10);
+    flujoLocal.paso='alergias';
+    appendMessage('👥 Perfecto, mesa para '+val+' personas.\n\n¿Alguna persona tiene alguna alergia o intolerancia alimentaria?','incoming');
+    showQuickOptions([['No','res_alergia_no'],['Sí, indicar','res_alergia_si']]); return;
   }
   if(action==='res_alergia_no'||action==='res_alergia_si'){
     if(!flujoLocal) return;
@@ -402,7 +431,8 @@ function quickAction(action,label){
   if(action==='cerrar_chat'){
     const d=(flujoLocal&&flujoLocal.datos)||{};
     appendMessage('Muchas gracias por su reserva'+(d.nombre?', '+d.nombre:'')+'.\n\nLe esperamos '+(d.fecha||'el día indicado')+' a las '+(d.hora||'la hora reservada')+'.\n\n📲 Recibirá los recordatorios de su reserva por este mismo medio.\n\nEsperamos que disfruten de su visita. ¡Que tenga un excelente día! 👋','incoming');
-    flujoLocal={tipo:'cerrado',paso:'fin',datos:d}; removeQuickOptions(); return;
+    flujoLocal={tipo:'cerrado',paso:'fin',datos:d}; removeQuickOptions();
+    setTimeout(mostrarEstudioNegocio,400); return;
   }
   if(action==='otra_consulta'){
     flujoLocal=null;
@@ -636,7 +666,9 @@ function manejarFlujoLocal(text){
         return true;
       }
       flujoLocal.paso='personas';
-      appendMessage('Perfecto, '+d.hora+'. ¿Para cuántas personas sería la mesa?','incoming'); return true;
+      appendMessage('Perfecto, '+d.hora+'. ¿Para cuántas personas sería la mesa?','incoming');
+      showQuickOptions([['1','res_personas_1'],['2','res_personas_2'],['3','res_personas_3'],['4','res_personas_4'],['5','res_personas_5'],['6','res_personas_6'],['7','res_personas_7'],['8','res_personas_8'],['9 o más','res_personas_9mas']]);
+      return true;
     }
     if(flujoLocal.paso==='personas'){
       d.personas=extraerNumeroPersonas(text);
@@ -654,7 +686,7 @@ function manejarFlujoLocal(text){
     }
     if(flujoLocal.paso==='alergias_detalle'){
       d.alergias=text.trim(); flujoLocal.paso='nombre';
-      appendMessage('Gracias. ¿A qué nombre hacemos la reserva?','incoming'); return true;
+      appendMessage('⚠️ Perfecto. He anotado '+d.alergias+' y quedará indicado en la reserva para que el restaurante pueda tenerlo en cuenta. Para alergias graves, recomendamos confirmarlo también directamente con el establecimiento.\n\n¿A qué nombre hacemos la reserva?','incoming'); return true;
     }
     if(flujoLocal.paso==='nombre'){
       d.nombre=text.trim(); flujoLocal.paso='telefono';
