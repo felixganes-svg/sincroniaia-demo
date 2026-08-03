@@ -383,8 +383,18 @@ function quickAction(action,label){
   }
   if(action==='res_confirmar'){
     if(!flujoLocal) return; const d=flujoLocal.datos||{};
-    appendMessage('✅ Reserva de demostración confirmada.\n\nMesa para '+d.personas+' el '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.\n\nHemos anotado la información sobre alergias o intolerancias. Para alergias graves, debe confirmarse directamente con el establecimiento.','incoming');
-    flujoLocal=null; opcionesRestaurante(); return;
+    appendMessage('✅ Reserva confirmada.\n\nHemos reservado una mesa para '+d.personas+' personas, '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.'+(d.alergias&&d.alergias!=='No'?'\n\n⚠️ Información alimentaria anotada: '+d.alergias+'.':'')+'\n\n📲 Le enviaremos un recordatorio por este mismo medio el día anterior a la reserva y otro aviso 3 horas antes. Estos avisos serán configurables por el restaurante en la implantación real.\n\n¿Desea que le ayudemos con algo más?','incoming');
+    flujoLocal={tipo:'post_reserva',paso:'algo_mas',datos:d};
+    showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['❓ Otra consulta','otra_consulta'],['No, gracias','cerrar_chat']]); return;
+  }
+  if(action==='cerrar_chat'){
+    const d=(flujoLocal&&flujoLocal.datos)||{};
+    appendMessage('Muchas gracias por su reserva'+(d.nombre?', '+d.nombre:'')+'.\n\nLe esperamos '+(d.fecha||'el día indicado')+' a las '+(d.hora||'la hora reservada')+'.\n\n📲 Recibirá los recordatorios de su reserva por este mismo medio.\n\nEsperamos que disfruten de su visita. ¡Que tenga un excelente día! 👋','incoming');
+    flujoLocal={tipo:'cerrado',paso:'fin',datos:d}; removeQuickOptions(); return;
+  }
+  if(action==='otra_consulta'){
+    flujoLocal=null;
+    appendMessage('Por supuesto. Indíqueme su consulta y trataré de ayudarle.','incoming'); return;
   }
   if(action==='res_cancelar'){ flujoLocal=null; appendMessage('❌ Reserva cancelada. No se ha registrado ninguna solicitud.','incoming'); opcionesRestaurante(); return; }
   if(action==='res_modificar'){ flujoLocal={tipo:'reserva_restaurante',paso:'fecha',datos:{}}; appendMessage('✏️ De acuerdo. ¿Para qué día desea reservar?','incoming'); return; }
@@ -523,6 +533,51 @@ function normalizarConsulta(text){
     .trim();
 }
 
+
+function extraerNumeroPersonas(text){
+  const n=normalize(text);
+  const mapa={una:1,uno:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10};
+  let m=n.match(/\b(\d{1,2})\s*(?:personas?|comensales?)?\b/);
+  if(m) return parseInt(m[1],10);
+  for(const k in mapa){
+    if(new RegExp('\\b'+k+'\\b').test(n)) return mapa[k];
+  }
+  return text.trim();
+}
+
+function extraerAlergiasDesdeTexto(text){
+  const n=normalize(text);
+  const halladas=[];
+  if(/lactosa/.test(n)) halladas.push('intolerancia a la lactosa');
+  if(/gluten|celiac/.test(n)) halladas.push('gluten/celiaquía');
+  if(/frutos secos|nueces|almendra|avellana/.test(n)) halladas.push('frutos secos');
+  if(/marisco/.test(n)) halladas.push('marisco');
+  if(/huevo/.test(n)) halladas.push('huevo');
+  if(/diabet/.test(n)) halladas.push('diabetes (información alimentaria)');
+  return halladas.join(', ');
+}
+
+function normalizarHoraReserva(text){
+  const n=normalize(text);
+  let m=n.match(/\b([01]?\d|2[0-3])[:.h](\d{2})\b/);
+  if(m) return String(parseInt(m[1],10)).padStart(2,'0')+':'+m[2];
+  const horasPalabra={una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12};
+  for(const k in horasPalabra){
+    if(new RegExp('\\b'+k+'\\b').test(n)){
+      let h=horasPalabra[k];
+      if(/tarde|noche/.test(n) && h<12) h+=12;
+      return String(h).padStart(2,'0')+':00';
+    }
+  }
+  m=n.match(/\b(\d{1,2})\b/);
+  if(m){
+    let h=parseInt(m[1],10);
+    if(/tarde|noche/.test(n) && h<12) h+=12;
+    if(h>=0 && h<=23) return String(h).padStart(2,'0')+':00';
+  }
+  return text.trim();
+}
+
 function manejarFlujoLocal(text){
   if(!flujoLocal) return false;
   const n=normalizarConsulta(text);
@@ -532,6 +587,18 @@ function manejarFlujoLocal(text){
     if(demoActual==='restaurante') opcionesRestaurante();
     if(demoActual==='fisio') opcionesFisio();
     if(demoActual==='reformas') opcionesReformas();
+    return true;
+  }
+
+  if(flujoLocal && flujoLocal.tipo==='post_reserva'){
+    if(/no|nada|gracias|cerrar|finalizar/.test(n)){
+      const d=flujoLocal.datos||{};
+      appendMessage('Muchas gracias por su reserva'+(d.nombre?', '+d.nombre:'')+'.\n\nLe esperamos '+(d.fecha||'el día indicado')+' a las '+(d.hora||'la hora reservada')+'.\n\n📲 Recibirá los recordatorios de su reserva por este mismo medio.\n\nEsperamos que disfruten de su visita. ¡Que tenga un excelente día! 👋','incoming');
+      flujoLocal={tipo:'cerrado',paso:'fin',datos:d};
+      removeQuickOptions(); return true;
+    }
+  }
+  if(flujoLocal && flujoLocal.tipo==='cerrado'){
     return true;
   }
 
@@ -547,13 +614,27 @@ function manejarFlujoLocal(text){
         const hs=d.turno==='Cena'?'20:00 · 20:30 · 21:00 · 21:30 · 22:00':'13:00 · 13:30 · 14:00 · 14:30 · 15:00';
         appendMessage('Estas son las horas disponibles de demostración para '+d.fecha+':\n\n'+hs+'\n\n¿Qué hora prefiere?','incoming'); return true;
       }
-      d.hora=text.trim(); flujoLocal.paso='personas';
+      d.hora=normalizarHoraReserva(text);
+      const slots=d.turno==='Cena'?['20:00','20:30','21:00','21:30','22:00']:['13:00','13:30','14:00','14:30','15:00'];
+      if(!slots.includes(d.hora)){
+        appendMessage('Para las '+d.hora+' no tenemos disponibilidad en esta demostración.\n\nLas horas disponibles son:\n'+slots.join(' · ')+'\n\n¿Qué hora prefiere?','incoming'); return true;
+      }
+      flujoLocal.paso='personas';
       appendMessage('Perfecto, '+d.hora+'. ¿Para cuántas personas sería la mesa?','incoming'); return true;
     }
     if(flujoLocal.paso==='personas'){
-      d.personas=text.trim(); flujoLocal.paso='alergias';
-      appendMessage('👥 De acuerdo. ¿Alguna persona tiene alguna alergia o intolerancia alimentaria que debamos indicar al restaurante?','incoming');
-      showQuickOptions([['No','res_alergia_no'],['Sí, indicar','res_alergia_si']]); return true;
+      d.personas=extraerNumeroPersonas(text);
+      const alergiaDetectada=extraerAlergiasDesdeTexto(text);
+      if(alergiaDetectada){
+        d.alergias=alergiaDetectada;
+        flujoLocal.paso='nombre';
+        appendMessage('👥 De acuerdo: '+d.personas+' personas.\n\n⚠️ También he anotado la siguiente información alimentaria: '+d.alergias+'.\n\n¿A qué nombre hacemos la reserva?','incoming');
+      }else{
+        flujoLocal.paso='alergias';
+        appendMessage('👥 De acuerdo: '+d.personas+' personas. ¿Alguna persona tiene alguna alergia o intolerancia alimentaria que debamos indicar al restaurante?','incoming');
+        showQuickOptions([['No','res_alergia_no'],['Sí, indicar','res_alergia_si']]);
+      }
+      return true;
     }
     if(flujoLocal.paso==='alergias_detalle'){
       d.alergias=text.trim(); flujoLocal.paso='nombre';
@@ -565,7 +646,7 @@ function manejarFlujoLocal(text){
     }
     if(flujoLocal.paso==='telefono'){
       d.telefono=text.trim(); flujoLocal.paso='confirmar';
-      appendMessage('📋 RESUMEN DE LA RESERVA\n\n📅 Día: '+d.fecha+'\n'+(d.turno==='Cena'?'🌙':'🍽️')+' Turno: '+d.turno+'\n🕒 Hora: '+d.hora+'\n👥 Personas: '+d.personas+'\n⚠️ Alergias/intolerancias: '+(d.alergias||'No')+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
+      appendMessage('📋 RESUMEN DE LA RESERVA\n\n📅 Día: '+d.fecha+'\n'+(d.turno==='Cena'?'🌙':'🍽️')+' Turno: '+d.turno+'\n🕒 Hora: '+d.hora+'\n👥 Personas: '+d.personas+'\n⚠️ Información alimentaria: '+(d.alergias||'No indicada')+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
       showQuickOptions([['✅ Confirmar reserva','res_confirmar'],['✏️ Modificar','res_modificar'],['❌ Cancelar','res_cancelar']]); return true;
     }
     if(flujoLocal.paso==='confirmar'){
