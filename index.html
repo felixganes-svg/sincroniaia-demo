@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SINCRONIAIA — Demo Restaurante</title>
-    <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SINCRONIAIA — Demo Pública</title>
+<style>
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -13,28 +14,42 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background-color: #efeae2;
+        body {
+            background-color: #0b141a;
+            color: #e9edef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            height: 100dvh;
             overflow: hidden;
         }
 
+        /* Contenedor principal estilo móvil */
         .mobile-container {
             width: 100%;
-            height: 100vh;
-            height: 100dvh;
+            max-width: 480px;
+            height: 100%;
             background-color: #efeae2;
             display: flex;
             flex-direction: column;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
+        @media (min-width: 481px) {
+            .mobile-container {
+                height: 92vh;
+                border-radius: 20px;
+                overflow: hidden;
+            }
+        }
+
+        /* Cabecera WhatsApp */
         .wa-header {
             background-color: #00a884;
             color: #ffffff;
-            padding: 12px 16px;
+            padding: 10px 16px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -63,6 +78,7 @@
             opacity: 0.85;
         }
 
+        /* Cuerpo del chat */
         .wa-chat-body {
             flex: 1;
             padding: 16px;
@@ -75,12 +91,14 @@
             background-color: #efeae2;
         }
 
+        /* Burbujas de mensajes */
         .message {
             max-width: 85%;
             padding: 9px 12px;
             border-radius: 7.5px;
             font-size: 15px;
             line-height: 1.45;
+            position: relative;
             word-wrap: break-word;
             box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
             color: #111b21;
@@ -107,13 +125,14 @@
             margin-top: 4px;
         }
 
+        /* Botones de opciones rápidas (Chips tipo WhatsApp Business) */
         .quick-options {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
             margin-top: 4px;
             align-self: flex-start;
-            max-width: 95%;
+            max-width: 90%;
         }
 
         .quick-chip {
@@ -126,12 +145,14 @@
             cursor: pointer;
             font-weight: 500;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: background 0.15s;
         }
 
         .quick-chip:active {
             background-color: #e2fbf0;
         }
 
+        /* Barra inferior */
         .wa-footer {
             background-color: #f0f2f5;
             padding: 10px 16px;
@@ -152,6 +173,10 @@
             outline: none;
         }
 
+        .wa-input::placeholder {
+            color: #8696a0;
+        }
+
         .wa-send-btn {
             background-color: #00a884;
             color: white;
@@ -165,89 +190,286 @@
             cursor: pointer;
             flex-shrink: 0;
         }
-    </style>
+    
+
+.demo-selector {
+  position:fixed; inset:0; z-index:100;
+  background:#efeae2; display:flex; flex-direction:column;
+}
+.demo-selector.hidden{display:none}
+.selector-header{background:#00a884;color:white;padding:18px 16px}
+.selector-header h1{font-size:22px;font-weight:600}
+.selector-header p{margin-top:4px;font-size:13px;opacity:.9}
+.selector-body{flex:1;padding:18px 16px;overflow:auto}
+.selector-card{background:#fff;color:#111b21;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.12);cursor:pointer}
+.selector-card h2{font-size:18px;margin-bottom:6px}
+.selector-card p{font-size:14px;line-height:1.4;color:#667781}
+.selector-card:active{background:#e2fbf0}
+.back-btn{margin-left:auto;background:transparent;color:white;border:1px solid rgba(255,255,255,.65);border-radius:16px;padding:6px 10px;font-size:12px;cursor:pointer}
+.wa-header{justify-content:flex-start}
+</style>
 </head>
 <body>
 
-    <div class="mobile-container">
-        <div class="wa-header">
-            <div class="wa-avatar">🍽️</div>
-            <div class="wa-contact-info">
-                <h1>Restaurante Demo</h1>
-                <p>en línea</p>
-            </div>
-        </div>
-
-        <div class="wa-chat-body" id="chatBody">
-            <div class="message incoming">
-                ¡Hola! Bienvenido a nuestro restaurante. ¿En qué te podemos ayudar hoy?
-                <span class="message-time">17:00</span>
-            </div>
-
-            <div class="quick-options" id="initialOptions">
-                <button class="quick-chip" onclick="handleUserChoice('Ver Carnes 🥩')">🥩 Ver Carnes</button>
-                <button class="quick-chip" onclick="handleUserChoice('Ver Horarios 🕒')">🕒 Horarios</button>
-                <button class="quick-chip" onclick="handleUserChoice('Hacer una Reserva 📅')">📅 Hacer Reserva</button>
-            </div>
-        </div>
-
-        <div class="wa-footer">
-            <input type="text" class="wa-input" id="userInput" placeholder="Escribe un mensaje..." autocomplete="off">
-            <button class="wa-send-btn" id="sendBtn" onclick="sendTextFromInput()">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"></svg>
-            </button>
-        </div>
+<div id="demoSelector" class="demo-selector">
+  <div class="selector-header">
+    <h1>∞ SINCRONIAIA</h1>
+    <p>Elija una demostración</p>
+  </div>
+  <div class="selector-body">
+    <div class="selector-card" onclick="startDemo('restaurante')">
+      <h2>🍽️ Restaurante Demo</h2>
+      <p>Carta, información, horarios y reservas.</p>
     </div>
+    <div class="selector-card" onclick="startDemo('fisio')">
+      <h2>🏥 Fisioterapia Demo</h2>
+      <p>Servicios, horarios, consultas y citas.</p>
+    </div>
+    <div class="selector-card" onclick="startDemo('reformas')">
+      <h2>🔧 Reformas Demo</h2>
+      <p>Servicios, visitas y solicitudes de presupuesto.</p>
+    </div>
+  </div>
+</div>
 
-    <script>
-        const chatBody = document.getElementById('chatBody');
-        const userInput = document.getElementById('userInput');
+<div class="mobile-container">
+  <div class="wa-header">
+    <div class="wa-avatar" id="demoAvatar">∞</div>
+    <div class="wa-contact-info">
+      <h1 id="demoTitle">SINCRONIAIA</h1>
+      <p id="demoStatus">en línea</p>
+    </div>
+    <button class="back-btn" onclick="volverSelector()">Cambiar demo</button>
+  </div>
 
-        function appendMessage(text, sender) {
-            const msgDiv = document.createElement('div');
-            msgDiv.classList.add('message', sender);
-            msgDiv.innerHTML = `${text} <span class="message-time">17:01 ${sender === 'outgoing' ? '✓✓' : ''}</span>`;
-            chatBody.appendChild(msgDiv);
-            chatBody.scrollTop = chatBody.scrollHeight;
-        }
+  <div class="wa-chat-body" id="chatBody"></div>
 
-        function removeQuickOptions() {
-            const opts = document.getElementById('initialOptions');
-            if (opts) opts.remove();
-        }
+  <div class="wa-footer">
+    <input type="text" class="wa-input" id="userInput" placeholder="Escribe un mensaje..." autocomplete="off">
+    <button class="wa-send-btn" id="sendBtn" onclick="sendTextFromInput()">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+        <path d="M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"></path>
+      </svg>
+    </button>
+  </div>
+</div>
 
-        function handleUserChoice(choice) {
-            removeQuickOptions();
-            appendMessage(choice, 'outgoing');
+<script>
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
+const chatBody = document.getElementById('chatBody');
+const userInput = document.getElementById('userInput');
 
-            setTimeout(() => {
-                if (choice.includes('Carnes')) {
-                    appendMessage("🥩 *Nuestras Carnes a la parrilla:*\n\n• Entrecot de vaca vieja (maduración 40 días)\n• Chuletón de Simmental\n• Presa ibérica de bellota\n\n¿Te gustaría reservar mesa para probar alguna de nuestras especialidades?", 'incoming');
-                } else if (choice.includes('Horarios')) {
-                    appendMessage("🕒 *Nuestro horario comercial es de 12:00 a 23:30.*\n\n🍽️ Comidas: 13:00 a 15:30\n🌙 Cenas: 20:00 a 22:30\n\n¿Le gustaría reservar?", 'incoming');
-                } else if (choice.includes('Reserva')) {
-                    appendMessage("📅 ¡Perfecto! Vamos a gestionar tu reserva.\n\n¿Para cuántas personas sería?", 'incoming');
-                } else {
-                    appendMessage("He recibido tu mensaje.", 'incoming');
-                }
-            }, 600);
-        }
+let demoActual = '';
+let historial = [];
+let callbackSeq = 0;
 
-        function sendTextFromInput() {
-            const text = userInput.value.trim();
-            if(!text) return;
-            removeQuickOptions();
-            appendMessage(text, 'outgoing');
-            userInput.value = '';
+const DEMOS = {
+  restaurante: {
+    titulo:'Restaurante Demo', avatar:'🍽️',
+    bienvenida:'¡Hola! Bienvenido a Restaurante Demo. ¿En qué le podemos ayudar hoy?',
+    botones:[['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['🛵 A Domicilio','domicilio']]
+  },
+  fisio: {
+    titulo:'Fisioterapia Demo', avatar:'🏥',
+    bienvenida:'¡Hola! Bienvenido a Fisioterapia Demo. ¿En qué le podemos ayudar hoy?',
+    botones:[['🩺 Servicios','servicios'],['🕒 Horarios','horarios'],['📅 Pedir Cita','cita'],['💬 Consulta','consulta']]
+  },
+  reformas: {
+    titulo:'Reformas Demo', avatar:'🔧',
+    bienvenida:'¡Hola! Bienvenido a Reformas Demo. ¿En qué le podemos ayudar hoy?',
+    botones:[['🏠 Servicios','servicios'],['🚿 Baños / Cocinas','banos'],['📅 Solicitar Visita','visita'],['📋 Presupuesto','presupuesto']]
+  }
+};
 
-            setTimeout(() => {
-                appendMessage("Entendido. Procesando tu consulta...", 'incoming');
-            }, 600);
-        }
+function horaActual(){
+  const d=new Date();
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
 
-        userInput.addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') sendTextFromInput();
-        });
-    </script>
+function appendMessage(text,sender){
+  const msg=document.createElement('div');
+  msg.classList.add('message',sender);
+
+  const body=document.createElement('span');
+  body.textContent=String(text||'').replace(/\\n/g,'\n');
+
+  const time=document.createElement('span');
+  time.className='message-time';
+  time.textContent=horaActual()+(sender==='outgoing'?' ✓✓':'');
+
+  msg.append(body,time);
+  chatBody.appendChild(msg);
+  chatBody.scrollTop=chatBody.scrollHeight;
+
+  historial.push({
+    rol:sender==='outgoing'?'user':'assistant',
+    texto:String(text||'')
+  });
+}
+
+function removeQuickOptions(){
+  chatBody.querySelectorAll('.quick-options').forEach(el=>el.remove());
+}
+
+function showQuickOptions(items){
+  removeQuickOptions();
+  const box=document.createElement('div');
+  box.className='quick-options';
+  items.forEach(([label,action])=>{
+    const btn=document.createElement('button');
+    btn.className='quick-chip';
+    btn.textContent=label;
+    btn.onclick=()=>quickAction(action,label);
+    box.appendChild(btn);
+  });
+  chatBody.appendChild(box);
+  chatBody.scrollTop=chatBody.scrollHeight;
+}
+
+function startDemo(tipo){
+  demoActual=tipo;
+  historial=[];
+  chatBody.innerHTML='';
+  const d=DEMOS[tipo];
+
+  document.getElementById('demoTitle').textContent=d.titulo;
+  document.getElementById('demoAvatar').textContent=d.avatar;
+  document.getElementById('demoSelector').classList.add('hidden');
+
+  appendMessage(d.bienvenida,'incoming');
+  showQuickOptions(d.botones);
+}
+
+function volverSelector(){
+  document.getElementById('demoSelector').classList.remove('hidden');
+}
+
+function quickAction(action,label){
+  if(label) appendMessage(label,'outgoing');
+  removeQuickOptions();
+
+  if(demoActual==='restaurante'){
+    if(action==='carta'){
+      appendMessage('📜 Carta de demostración\n\n🥗 Entrantes y ensaladas\n🍚 Arroces\n🐟 Pescados\n🥩 Carnes a la parrilla\n🍰 Postres','incoming');
+      showQuickOptions([['🥗 Entrantes','entrantes'],['🍚 Arroces','arroces'],['🐟 Pescados','pescados'],['🥩 Carnes','carnes'],['🍰 Postres','postres']]);
+      return;
+    }
+    if(action==='horarios'){
+      appendMessage('🕒 Horario comercial: 12:00 a 23:30.\n\n🍽️ Comidas: 13:00 a 15:30\n🌙 Cenas: 20:00 a 22:30','incoming');
+      showQuickOptions([['📅 Reservar Mesa','reservar'],['📜 Ver Carta','carta']]);
+      return;
+    }
+    if(action==='domicilio'){
+      appendMessage('🛵 Puede consultar la carta y simular qué pediría para recoger o recibir en casa.','incoming');
+      showQuickOptions([['📜 Ver Carta','carta']]);
+      return;
+    }
+    if(action==='entrantes'){appendMessage('🥗 Entrantes y ensaladas\n\n• Ensalada de la Huerta con Burrata\n• Croquetas Caseras de Jamón Ibérico\n• Bravas de la Casa','incoming');return;}
+    if(action==='arroces'){appendMessage('🍚 Arroces\n\n• Arroz Seco del Señoret\n• Arroz Caldoso de Bogavante\n• Arroz de Montaña','incoming');return;}
+    if(action==='pescados'){appendMessage('🐟 Pescados\n\n• Lomo de Lubina a la Bilbaína\n• Pulpo a la Brasa\n• Pesca del Día a la Plancha','incoming');return;}
+    if(action==='carnes'){appendMessage('🥩 Carnes a la parrilla\n\n• Entrecot de vaca vieja\n• Chuletón de Simmental\n• Presa ibérica de bellota','incoming');return;}
+    if(action==='postres'){appendMessage('🍰 Postres\n\n• Tarta de queso cremosa\n• Tiramisú tradicional\n• Brownie de chocolate negro','incoming');return;}
+  }
+
+  if(demoActual==='fisio'){
+    if(action==='servicios'){
+      appendMessage('🩺 Servicios de demostración\n\n• Valoración inicial\n• Fisioterapia\n• Rehabilitación\n• Seguimiento','incoming');
+      return;
+    }
+    if(action==='horarios'){
+      appendMessage('🕒 Horarios demo\n\n09:00, 09:30, 10:00, 10:30\n17:00, 17:30, 18:00, 18:30','incoming');
+      return;
+    }
+    if(action==='consulta'){
+      appendMessage('Cuénteme qué desea consultar. La IA responderá sin diagnosticar ni inventar información.','incoming');
+      return;
+    }
+  }
+
+  if(demoActual==='reformas'){
+    if(action==='servicios'){
+      appendMessage('🏠 Servicios de demostración\n\n• Reformas de baños\n• Reformas de cocinas\n• Pintura\n• Pequeñas reformas\n• Reformas integrales','incoming');
+      return;
+    }
+    if(action==='banos'){
+      appendMessage('🚿 Podemos mostrar cómo el asistente recogería información sobre una reforma de baño o cocina y prepararía una solicitud de visita o presupuesto.','incoming');
+      return;
+    }
+  }
+
+  enviarMotor(label||action);
+}
+
+function jsonp(params){
+  return new Promise((resolve,reject)=>{
+    const cb='__sincroniaia_cb_'+(++callbackSeq);
+    const script=document.createElement('script');
+
+    window[cb]=data=>{
+      try{resolve(data);}
+      finally{delete window[cb];script.remove();}
+    };
+
+    params.callback=cb;
+    params._=Date.now();
+
+    script.src=BACKEND_URL+'?'+new URLSearchParams(params).toString();
+
+    script.onerror=()=>{
+      delete window[cb];
+      script.remove();
+      reject(new Error('No se pudo contactar con el backend.'));
+    };
+
+    document.body.appendChild(script);
+  });
+}
+
+async function enviarMotor(text){
+  if(!demoActual)return;
+
+  const pensando=document.createElement('div');
+  pensando.className='message incoming';
+  pensando.id='pensando';
+  pensando.textContent='…';
+  chatBody.appendChild(pensando);
+  chatBody.scrollTop=chatBody.scrollHeight;
+
+  try{
+    const r=await jsonp({
+      api:'chat',
+      tipo:demoActual,
+      mensaje:text,
+      historial:JSON.stringify(historial.slice(-10))
+    });
+
+    document.getElementById('pensando')?.remove();
+
+    if(r&&r.ok&&r.reply){
+      appendMessage(r.reply,'incoming');
+    }else{
+      appendMessage('No he podido procesar la consulta en este momento.','incoming');
+    }
+  }catch(e){
+    document.getElementById('pensando')?.remove();
+    appendMessage('No he podido conectar con el motor en este momento.','incoming');
+  }
+}
+
+async function sendTextFromInput(){
+  const text=userInput.value.trim();
+  if(!text||!demoActual)return;
+
+  removeQuickOptions();
+  appendMessage(text,'outgoing');
+  userInput.value='';
+
+  await enviarMotor(text);
+}
+
+userInput.addEventListener('keypress',e=>{
+  if(e.key==='Enter')sendTextFromInput();
+});
+</script>
 </body>
 </html>
