@@ -363,15 +363,28 @@ function mostrarEstudioNegocio(){
   removeQuickOptions();
   const wrap=document.createElement('div');
   wrap.className='quick-options';
-  wrap.innerHTML='<div style="width:100%;padding:14px;border-radius:14px;background:rgba(255,255,255,.08);margin-top:8px"><strong>¿Le gustaría saber cómo funcionaría este sistema en su propio negocio?</strong><br><br><span style="font-size:13px;opacity:.9">Podemos realizar un estudio inicial para detectar qué tareas podría automatizar, cuánto tiempo podría recuperar y qué solución tendría más sentido para su empresa.</span></div>';
+  const card=document.createElement('div');
+  card.style.cssText='width:100%;padding:14px;border-radius:14px;background:rgba(255,255,255,.08);margin-top:8px';
+  card.innerHTML='<strong>¿Le gustaría saber cómo funcionaría este sistema en su propio negocio?</strong><br><br><span style="font-size:13px;opacity:.9">Podemos realizar un estudio inicial para detectar qué tareas podría automatizar, cuánto tiempo podría recuperar y qué solución tendría más sentido para su empresa.</span>';
+  wrap.appendChild(card);
+
   const b1=document.createElement('button');
-  b1.className='quick-btn'; b1.textContent='📊 Hacer estudio de mi negocio';
-  b1.onclick=()=>{ window.location.href='https://script.google.com/macros/s/AKfycbyeGxhnORaHCy8XiJuM_AMn2PacynMxso8h-6_T3OenbTLMG087eC_6Bo-02deaEhL0/exec?view=demo&utm_source=chatgpt.com&demo='+encodeURIComponent(currentDemo); };
+  b1.className='quick-btn';
+  b1.textContent='📊 Hacer estudio de mi negocio';
+  b1.onclick=()=>{
+    const demo = (typeof demoActual!=='undefined' && demoActual) ? demoActual : 'restaurante';
+    window.location.href='https://script.google.com/macros/s/AKfycbyeGxhnORaHCy8XiJuM_AMn2PacynMxso8h-6_T3OenbTLMG087eC_6Bo-02deaEhL0/exec?view=demo&utm_source=chatgpt.com&demo='+encodeURIComponent(demo);
+  };
+
   const b2=document.createElement('button');
-  b2.className='quick-btn'; b2.textContent='✕ Finalizar demostración';
-  b2.onclick=()=>{ removeQuickOptions(); };
-  wrap.appendChild(b1); wrap.appendChild(b2);
-  chat.appendChild(wrap); chat.scrollTop=chat.scrollHeight;
+  b2.className='quick-btn';
+  b2.textContent='✕ Finalizar demostración';
+  b2.onclick=()=>removeQuickOptions();
+
+  wrap.appendChild(b1);
+  wrap.appendChild(b2);
+  chatBody.appendChild(wrap);
+  chatBody.scrollTop=chatBody.scrollHeight;
 }
 
 function quickAction(action,label){
@@ -413,32 +426,40 @@ function quickAction(action,label){
       return;
     }
     flujoLocal.datos.personas=parseInt(val,10);
-    flujoLocal.paso='alergias_simple';
-    appendMessage('👥 Perfecto, mesa para '+val+' personas.
-
-⚠️ ¿Hay alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
+    flujoLocal.paso='alimentaria';
+    appendMessage('👥 Perfecto, mesa para '+val+' personas.\n\n⚠️ ¿Hay alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
     showQuickOptions([['No','res_food_no'],['Sí','res_food_si']]);
     return;
   }
-  if(action==='res_alergia_no'||action==='res_alergia_si'){
-    if(!flujoLocal) return;
-    if(action==='res_alergia_no'){ flujoLocal.datos.alergias='No'; flujoLocal.paso='nombre'; appendMessage('Perfecto. ¿A qué nombre hacemos la reserva?','incoming'); }
-    else { flujoLocal.paso='alergias_detalle'; appendMessage('Indíqueme la alergia o intolerancia y, si lo sabe, a cuántas personas afecta.','incoming'); }
+
+  if(action==='res_food_no'){
+    if(!flujoLocal || flujoLocal.tipo!=='reserva_restaurante') return;
+    flujoLocal.datos.alergias='No';
+    flujoLocal.paso='nombre';
+    appendMessage('Perfecto. ¿A qué nombre hacemos la reserva?','incoming');
     return;
   }
-  if(action==='res_confirmar'){
-    if(!flujoLocal) return; const d=flujoLocal.datos||{};
-    appendMessage('✅ Reserva confirmada.\n\nHemos reservado una mesa para '+d.personas+' personas, '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.'+(d.alergias&&d.alergias!=='No'?'
 
-⚠️ Información alimentaria: Sí — comunicar al restaurante.':'')+'\n\n📲 Le enviaremos un recordatorio por este mismo medio el día anterior a la reserva y otro aviso 3 horas antes. Estos avisos serán configurables por el restaurante en la implantación real.\n\n¿Desea que le ayudemos con algo más?','incoming');
+  if(action==='res_food_si'){
+    if(!flujoLocal || flujoLocal.tipo!=='reserva_restaurante') return;
+    flujoLocal.datos.alergias='Sí — comunicar al restaurante';
+    flujoLocal.paso='nombre';
+    appendMessage('⚠️ Información alimentaria anotada.\n\nEsta información quedará asociada a la reserva para que el restaurante pueda tenerla en cuenta.\n\nPara alergias graves, recomendamos confirmarlo también directamente con el establecimiento.\n\n👤 ¿A qué nombre hacemos la reserva?','incoming');
+    return;
+  }
+
+  if(action==='res_confirmar'){
+    if(!flujoLocal) return;
+    const d=flujoLocal.datos||{};
+    appendMessage('✅ Reserva confirmada.\n\nHemos reservado una mesa para '+d.personas+' personas, '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.'+(d.alergias&&d.alergias!=='No'?'\n\n⚠️ Información alimentaria: Sí — comunicar al restaurante.':'')+'\n\n📲 Le enviaremos un recordatorio por este mismo medio el día anterior a la reserva y otro aviso 3 horas antes.\n\n¿Desea que le ayudemos con algo más?','incoming');
     flujoLocal={tipo:'post_reserva',paso:'algo_mas',datos:d};
-    showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['❓ Otra consulta','otra_consulta'],['No, gracias','cerrar_chat']]); return;
+    showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['❓ Otra consulta','otra_consulta'],['No, gracias','cerrar_chat']]);
+    return;
   }
   if(action==='cerrar_chat'){
     const d=(flujoLocal&&flujoLocal.datos)||{};
     appendMessage('Muchas gracias por su reserva'+(d.nombre?', '+d.nombre:'')+'.\n\nLe esperamos '+(d.fecha||'el día indicado')+' a las '+(d.hora||'la hora reservada')+'.\n\n📲 Recibirá los recordatorios de su reserva por este mismo medio.\n\nEsperamos que disfruten de su visita. ¡Que tenga un excelente día! 👋','incoming');
-    flujoLocal={tipo:'cerrado',paso:'fin',datos:d}; removeQuickOptions();
-    setTimeout(mostrarEstudioNegocio,400); return;
+    flujoLocal={tipo:'cerrado',paso:'fin',datos:d}; removeQuickOptions(); return;
   }
   if(action==='otra_consulta'){
     flujoLocal=null;
@@ -682,42 +703,17 @@ function manejarFlujoLocal(text){
       if(alimentaria){
         d.alergias='Sí — comunicar al restaurante';
         flujoLocal.paso='nombre';
-        appendMessage('👥 De acuerdo: '+d.personas+' personas.
-
-⚠️ Información alimentaria anotada. Esta información quedará asociada a la reserva para que el restaurante pueda tenerla en cuenta.
-
-Para alergias graves, recomendamos confirmarlo también directamente con el establecimiento.
-
-👤 ¿A qué nombre hacemos la reserva?','incoming');
+        appendMessage('👥 De acuerdo: '+d.personas+' personas.\n\n⚠️ Información alimentaria anotada.\n\nEsta información quedará asociada a la reserva para que el restaurante pueda tenerla en cuenta.\n\nPara alergias graves, recomendamos confirmarlo también directamente con el establecimiento.\n\n👤 ¿A qué nombre hacemos la reserva?','incoming');
       }else{
-        flujoLocal.paso='alergias_simple';
-        appendMessage('👥 De acuerdo: '+d.personas+' personas.
-
-⚠️ ¿Hay alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
+        flujoLocal.paso='alimentaria';
+        appendMessage('👥 De acuerdo: '+d.personas+' personas.\n\n⚠️ ¿Hay alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
         showQuickOptions([['No','res_food_no'],['Sí','res_food_si']]);
       }
       return true;
     }
-    if(flujoLocal.paso==='alergias_afectados_manual'){
-      const num=extraerNumeroPersonas(text);
-      const item=(d.alergiaPendiente||'necesidad alimentaria')+' — '+num+' personas';
-      d.alergias = (!d.alergias || d.alergias==='No') ? item : d.alergias+', '+item;
-      delete d.alergiaPendiente;
-      flujoLocal.paso='alergias_otra';
-      appendMessage('⚠️ Anotado: '+item+'.\\n\\n¿Desea indicar alguna otra?','incoming');
-      showQuickOptions([['➕ Añadir otra','res_food_add'],['Continuar','res_food_continue']]);
-      return true;
-    }
     if(flujoLocal.paso==='alergias_detalle'){
-      d.alergiaPendiente=text.trim();
-      flujoLocal.paso='alergias_afectados';
-      const max=Math.min(parseInt(d.personas,10)||1,8);
-      const opts=[];
-      for(let i=1;i<=max;i++) opts.push([String(i),'res_food_afectados_'+i]);
-      if((parseInt(d.personas,10)||0)>8) opts.push(['9 o más','res_food_afectados_9mas']);
-      appendMessage('¿A cuántas personas afecta '+d.alergiaPendiente+'?','incoming');
-      showQuickOptions(opts);
-      return true;
+      d.alergias=text.trim(); flujoLocal.paso='nombre';
+      appendMessage('Gracias. ¿A qué nombre hacemos la reserva?','incoming'); return true;
     }
     if(flujoLocal.paso==='nombre'){
       d.nombre=text.trim(); flujoLocal.paso='telefono';
@@ -725,7 +721,7 @@ Para alergias graves, recomendamos confirmarlo también directamente con el esta
     }
     if(flujoLocal.paso==='telefono'){
       d.telefono=text.trim(); flujoLocal.paso='confirmar';
-      appendMessage('📋 RESUMEN DE LA RESERVA\n\n📅 Día: '+d.fecha+'\n'+(d.turno==='Cena'?'🌙':'🍽️')+' Turno: '+d.turno+'\n🕒 Hora: '+d.hora+'\n👥 Personas: '+d.personas+'\n⚠️ Información alimentaria: '+(d.alergias||'No')+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
+      appendMessage('📋 RESUMEN DE LA RESERVA\n\n📅 Día: '+d.fecha+'\n'+(d.turno==='Cena'?'🌙':'🍽️')+' Turno: '+d.turno+'\n🕒 Hora: '+d.hora+'\n👥 Personas: '+d.personas+'\n⚠️ Información alimentaria: '+(d.alergias||'No indicada')+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
       showQuickOptions([['✅ Confirmar reserva','res_confirmar'],['✏️ Modificar','res_modificar'],['❌ Cancelar','res_cancelar']]); return true;
     }
     if(flujoLocal.paso==='confirmar'){
