@@ -413,18 +413,11 @@ function quickAction(action,label){
       return;
     }
     flujoLocal.datos.personas=parseInt(val,10);
-    flujoLocal.paso='alergias_tipo';
-    appendMessage('👥 Perfecto, mesa para '+val+' personas.\n\n¿Alguna persona tiene alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
-    showQuickOptions([
-      ['✅ Ninguna','res_food_none'],
-      ['🥛 Lactosa','res_food_lactosa'],
-      ['🌾 Gluten / celiaquía','res_food_gluten'],
-      ['🥜 Frutos secos','res_food_frutos_secos'],
-      ['🦐 Marisco','res_food_marisco'],
-      ['🥚 Huevo','res_food_huevo'],
-      ['🌱 Vegetariano / vegano','res_food_veg'],
-      ['✏️ Otra / indicar','res_food_otra']
-    ]);
+    flujoLocal.paso='alergias_simple';
+    appendMessage('👥 Perfecto, mesa para '+val+' personas.
+
+⚠️ ¿Hay alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
+    showQuickOptions([['No','res_food_no'],['Sí','res_food_si']]);
     return;
   }
   if(action==='res_alergia_no'||action==='res_alergia_si'){
@@ -435,7 +428,9 @@ function quickAction(action,label){
   }
   if(action==='res_confirmar'){
     if(!flujoLocal) return; const d=flujoLocal.datos||{};
-    appendMessage('✅ Reserva confirmada.\n\nHemos reservado una mesa para '+d.personas+' personas, '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.'+(d.alergias&&d.alergias!=='No'?'\n\n⚠️ Información alimentaria anotada: '+d.alergias+'.':'')+'\n\n📲 Le enviaremos un recordatorio por este mismo medio el día anterior a la reserva y otro aviso 3 horas antes. Estos avisos serán configurables por el restaurante en la implantación real.\n\n¿Desea que le ayudemos con algo más?','incoming');
+    appendMessage('✅ Reserva confirmada.\n\nHemos reservado una mesa para '+d.personas+' personas, '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.'+(d.alergias&&d.alergias!=='No'?'
+
+⚠️ Información alimentaria: Sí — comunicar al restaurante.':'')+'\n\n📲 Le enviaremos un recordatorio por este mismo medio el día anterior a la reserva y otro aviso 3 horas antes. Estos avisos serán configurables por el restaurante en la implantación real.\n\n¿Desea que le ayudemos con algo más?','incoming');
     flujoLocal={tipo:'post_reserva',paso:'algo_mas',datos:d};
     showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['❓ Otra consulta','otra_consulta'],['No, gracias','cerrar_chat']]); return;
   }
@@ -683,24 +678,23 @@ function manejarFlujoLocal(text){
     }
     if(flujoLocal.paso==='personas'){
       d.personas=extraerNumeroPersonas(text);
-      const alergiaDetectada=extraerAlergiasDesdeTexto(text);
-      if(alergiaDetectada){
-        d.alergias=alergiaDetectada;
+      const alimentaria=extraerAlergiasDesdeTexto(text);
+      if(alimentaria){
+        d.alergias='Sí — comunicar al restaurante';
         flujoLocal.paso='nombre';
-        appendMessage('👥 De acuerdo: '+d.personas+' personas.\n\n⚠️ También he anotado la siguiente información alimentaria: '+d.alergias+'.\n\n¿A qué nombre hacemos la reserva?','incoming');
+        appendMessage('👥 De acuerdo: '+d.personas+' personas.
+
+⚠️ Información alimentaria anotada. Esta información quedará asociada a la reserva para que el restaurante pueda tenerla en cuenta.
+
+Para alergias graves, recomendamos confirmarlo también directamente con el establecimiento.
+
+👤 ¿A qué nombre hacemos la reserva?','incoming');
       }else{
-        flujoLocal.paso='alergias_tipo';
-        appendMessage('👥 De acuerdo: '+d.personas+' personas.\n\n¿Alguna persona tiene alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
-        showQuickOptions([
-          ['✅ Ninguna','res_food_none'],
-          ['🥛 Lactosa','res_food_lactosa'],
-          ['🌾 Gluten / celiaquía','res_food_gluten'],
-          ['🥜 Frutos secos','res_food_frutos_secos'],
-          ['🦐 Marisco','res_food_marisco'],
-          ['🥚 Huevo','res_food_huevo'],
-          ['🌱 Vegetariano / vegano','res_food_veg'],
-          ['✏️ Otra / indicar','res_food_otra']
-        ]);
+        flujoLocal.paso='alergias_simple';
+        appendMessage('👥 De acuerdo: '+d.personas+' personas.
+
+⚠️ ¿Hay alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
+        showQuickOptions([['No','res_food_no'],['Sí','res_food_si']]);
       }
       return true;
     }
@@ -731,7 +725,7 @@ function manejarFlujoLocal(text){
     }
     if(flujoLocal.paso==='telefono'){
       d.telefono=text.trim(); flujoLocal.paso='confirmar';
-      appendMessage('📋 RESUMEN DE LA RESERVA\n\n📅 Día: '+d.fecha+'\n'+(d.turno==='Cena'?'🌙':'🍽️')+' Turno: '+d.turno+'\n🕒 Hora: '+d.hora+'\n👥 Personas: '+d.personas+'\n⚠️ Información alimentaria: '+(d.alergias||'No indicada')+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
+      appendMessage('📋 RESUMEN DE LA RESERVA\n\n📅 Día: '+d.fecha+'\n'+(d.turno==='Cena'?'🌙':'🍽️')+' Turno: '+d.turno+'\n🕒 Hora: '+d.hora+'\n👥 Personas: '+d.personas+'\n⚠️ Información alimentaria: '+(d.alergias||'No')+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
       showQuickOptions([['✅ Confirmar reserva','res_confirmar'],['✏️ Modificar','res_modificar'],['❌ Cancelar','res_cancelar']]); return true;
     }
     if(flujoLocal.paso==='confirmar'){
