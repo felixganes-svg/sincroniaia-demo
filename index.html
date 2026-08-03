@@ -262,6 +262,7 @@ const userInput = document.getElementById('userInput');
 let demoActual = '';
 let historial = [];
 let callbackSeq = 0;
+let flujoLocal = null;
 
 const DEMOS = {
   restaurante: {
@@ -329,6 +330,7 @@ function showQuickOptions(items){
 function startDemo(tipo){
   demoActual=tipo;
   historial=[];
+  flujoLocal=null;
   chatBody.innerHTML='';
   const d=DEMOS[tipo];
 
@@ -344,62 +346,122 @@ function volverSelector(){
   document.getElementById('demoSelector').classList.remove('hidden');
 }
 
+function opcionesRestaurante(){
+  showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['🛵 A Domicilio','domicilio']]);
+}
+
+function opcionesFisio(){
+  showQuickOptions([['🩺 Servicios','servicios'],['🕒 Horarios','horarios'],['📅 Pedir Cita','cita'],['💬 Consulta','consulta']]);
+}
+
+function opcionesReformas(){
+  showQuickOptions([['🏠 Servicios','servicios'],['🚿 Baños / Cocinas','banos'],['📅 Solicitar Visita','visita'],['📋 Presupuesto','presupuesto']]);
+}
+
 function quickAction(action,label){
   if(label) appendMessage(label,'outgoing');
   removeQuickOptions();
 
   if(demoActual==='restaurante'){
     if(action==='carta'){
+      flujoLocal=null;
       appendMessage('📜 Carta de demostración\n\n🥗 Entrantes y ensaladas\n🍚 Arroces\n🐟 Pescados\n🥩 Carnes a la parrilla\n🍰 Postres','incoming');
-      showQuickOptions([['🥗 Entrantes','entrantes'],['🍚 Arroces','arroces'],['🐟 Pescados','pescados'],['🥩 Carnes','carnes'],['🍰 Postres','postres']]);
+      showQuickOptions([['🥗 Entrantes','entrantes'],['🍚 Arroces','arroces'],['🐟 Pescados','pescados'],['🥩 Carnes','carnes'],['🍰 Postres','postres'],['📅 Reservar Mesa','reservar'],['🕒 Horarios','horarios']]);
       return;
     }
     if(action==='horarios'){
+      flujoLocal=null;
       appendMessage('🕒 Horario comercial: 12:00 a 23:30.\n\n🍽️ Comidas: 13:00 a 15:30\n🌙 Cenas: 20:00 a 22:30','incoming');
-      showQuickOptions([['📅 Reservar Mesa','reservar'],['📜 Ver Carta','carta']]);
+      showQuickOptions([['📅 Reservar Mesa','reservar'],['📜 Ver Carta','carta'],['🛵 A Domicilio','domicilio']]);
       return;
     }
     if(action==='domicilio'){
+      flujoLocal=null;
       appendMessage('🛵 Puede consultar la carta y simular qué pediría para recoger o recibir en casa.','incoming');
-      showQuickOptions([['📜 Ver Carta','carta']]);
+      showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar']]);
       return;
     }
-    if(action==='entrantes'){appendMessage('🥗 Entrantes y ensaladas\n\n• Ensalada de la Huerta con Burrata\n• Croquetas Caseras de Jamón Ibérico\n• Bravas de la Casa','incoming');return;}
-    if(action==='arroces'){appendMessage('🍚 Arroces\n\n• Arroz Seco del Señoret\n• Arroz Caldoso de Bogavante\n• Arroz de Montaña','incoming');return;}
-    if(action==='pescados'){appendMessage('🐟 Pescados\n\n• Lomo de Lubina a la Bilbaína\n• Pulpo a la Brasa\n• Pesca del Día a la Plancha','incoming');return;}
-    if(action==='carnes'){appendMessage('🥩 Carnes a la parrilla\n\n• Entrecot de vaca vieja\n• Chuletón de Simmental\n• Presa ibérica de bellota','incoming');return;}
-    if(action==='postres'){appendMessage('🍰 Postres\n\n• Tarta de queso cremosa\n• Tiramisú tradicional\n• Brownie de chocolate negro','incoming');return;}
+    if(action==='reservar'){
+      flujoLocal={tipo:'reserva_restaurante',paso:'datos'};
+      appendMessage('📅 Perfecto. Para simular la reserva, indíqueme en un solo mensaje el día, la hora y para cuántas personas.\n\nEjemplo: mañana a las 20:30 para 4 personas.','incoming');
+      showQuickOptions([['🕒 Ver horas disponibles','horas_reserva'],['📜 Ver Carta','carta']]);
+      return;
+    }
+    if(action==='horas_reserva'){
+      appendMessage('Horas disponibles de demostración:\n\n🍽️ 13:00 · 13:30 · 14:00 · 14:30\n🌙 20:00 · 20:30 · 21:00 · 21:30','incoming');
+      showQuickOptions([['📅 Reservar Mesa','reservar'],['📜 Ver Carta','carta']]);
+      return;
+    }
+    const carta={
+      entrantes:'🥗 Entrantes y ensaladas\n\n• Ensalada de la Huerta con Burrata\n• Croquetas Caseras de Jamón Ibérico\n• Bravas de la Casa',
+      arroces:'🍚 Arroces\n\n• Arroz Seco del Señoret\n• Arroz Caldoso de Bogavante\n• Arroz de Montaña',
+      pescados:'🐟 Pescados\n\n• Lomo de Lubina a la Bilbaína\n• Pulpo a la Brasa\n• Pesca del Día a la Plancha',
+      carnes:'🥩 Carnes a la parrilla\n\n• Entrecot de vaca vieja\n• Chuletón de Simmental\n• Presa ibérica de bellota',
+      postres:'🍰 Postres\n\n• Tarta de queso cremosa\n• Tiramisú tradicional\n• Brownie de chocolate negro'
+    };
+    if(carta[action]){
+      appendMessage(carta[action],'incoming');
+      showQuickOptions([['📜 Volver a Carta','carta'],['📅 Reservar Mesa','reservar'],['🕒 Horarios','horarios']]);
+      return;
+    }
   }
 
   if(demoActual==='fisio'){
     if(action==='servicios'){
+      flujoLocal=null;
       appendMessage('🩺 Servicios de demostración\n\n• Valoración inicial\n• Fisioterapia\n• Rehabilitación\n• Seguimiento','incoming');
+      opcionesFisio();
       return;
     }
     if(action==='horarios'){
+      flujoLocal=null;
       appendMessage('🕒 Horarios demo\n\n09:00, 09:30, 10:00, 10:30\n17:00, 17:30, 18:00, 18:30','incoming');
+      showQuickOptions([['📅 Pedir Cita','cita'],['🩺 Servicios','servicios']]);
       return;
     }
     if(action==='consulta'){
+      flujoLocal=null;
       appendMessage('Cuénteme qué desea consultar. La IA responderá sin diagnosticar ni inventar información.','incoming');
+      showQuickOptions([['🩺 Servicios','servicios'],['🕒 Horarios','horarios'],['📅 Pedir Cita','cita']]);
+      return;
+    }
+    if(action==='cita'){
+      flujoLocal={tipo:'cita_fisio',paso:'datos'};
+      appendMessage('📅 Perfecto. Para simular la cita, indíqueme el día y la hora que prefiere.\n\nHoras demo: 09:00, 09:30, 10:00, 10:30, 17:00, 17:30, 18:00, 18:30.','incoming');
+      showQuickOptions([['🕒 Ver horarios','horarios'],['🩺 Servicios','servicios']]);
       return;
     }
   }
 
   if(demoActual==='reformas'){
     if(action==='servicios'){
+      flujoLocal=null;
       appendMessage('🏠 Servicios de demostración\n\n• Reformas de baños\n• Reformas de cocinas\n• Pintura\n• Pequeñas reformas\n• Reformas integrales','incoming');
+      opcionesReformas();
       return;
     }
     if(action==='banos'){
+      flujoLocal=null;
       appendMessage('🚿 Podemos mostrar cómo el asistente recogería información sobre una reforma de baño o cocina y prepararía una solicitud de visita o presupuesto.','incoming');
+      showQuickOptions([['📅 Solicitar Visita','visita'],['📋 Presupuesto','presupuesto'],['🏠 Servicios','servicios']]);
+      return;
+    }
+    if(action==='visita'){
+      flujoLocal={tipo:'visita_reformas',paso:'datos'};
+      appendMessage('📅 Perfecto. Para simular la solicitud de visita, indíqueme qué desea reformar y en qué población se encuentra el inmueble.','incoming');
+      showQuickOptions([['📋 Pedir Presupuesto','presupuesto'],['🏠 Ver Servicios','servicios']]);
+      return;
+    }
+    if(action==='presupuesto'){
+      flujoLocal={tipo:'presupuesto_reformas',paso:'datos'};
+      appendMessage('📋 Perfecto. Para preparar una solicitud de presupuesto, cuénteme brevemente qué quiere reformar. No mostraremos precios inventados.','incoming');
+      showQuickOptions([['📅 Solicitar Visita','visita'],['🏠 Ver Servicios','servicios']]);
       return;
     }
   }
 
   enviarMotor(label||action);
 }
-
 function jsonp(params){
   return new Promise((resolve,reject)=>{
     const cb='__sincroniaia_cb_'+(++callbackSeq);
@@ -434,10 +496,55 @@ function normalizarConsulta(text){
     .trim();
 }
 
+function manejarFlujoLocal(text){
+  if(!flujoLocal) return false;
+  const n=normalizarConsulta(text);
+  if(/^(cancelar|salir|volver|no gracias|nada mas|nada más)$/.test(n)){
+    flujoLocal=null;
+    appendMessage('De acuerdo. ¿En qué más le puedo ayudar?','incoming');
+    if(demoActual==='restaurante') opcionesRestaurante();
+    if(demoActual==='fisio') opcionesFisio();
+    if(demoActual==='reformas') opcionesReformas();
+    return true;
+  }
+
+  if(flujoLocal.tipo==='reserva_restaurante'){
+    flujoLocal=null;
+    appendMessage('✅ Solicitud de reserva de demostración recogida.\n\nHe anotado: '+text+'\n\nEn una implantación real, el sistema comprobaría disponibilidad y confirmaría la reserva antes de cerrarla.','incoming');
+    opcionesRestaurante();
+    return true;
+  }
+  if(flujoLocal.tipo==='cita_fisio'){
+    flujoLocal=null;
+    appendMessage('✅ Solicitud de cita de demostración recogida.\n\nPreferencia indicada: '+text+'\n\nEn una implantación real, el sistema comprobaría agenda y confirmaría la cita.','incoming');
+    opcionesFisio();
+    return true;
+  }
+  if(flujoLocal.tipo==='visita_reformas'){
+    flujoLocal=null;
+    appendMessage('✅ Solicitud de visita de demostración recogida.\n\nDetalle: '+text+'\n\nEn una implantación real, estos datos pasarían al negocio para coordinar la visita.','incoming');
+    opcionesReformas();
+    return true;
+  }
+  if(flujoLocal.tipo==='presupuesto_reformas'){
+    flujoLocal=null;
+    appendMessage('✅ Solicitud de presupuesto de demostración recogida.\n\nDetalle: '+text+'\n\nEl siguiente paso real sería completar los datos necesarios y valorar el trabajo sin inventar precios.','incoming');
+    opcionesReformas();
+    return true;
+  }
+  return false;
+}
+
 function responderLocalEscrito(text){
   const n = normalizarConsulta(text);
 
   if(demoActual==='restaurante'){
+    if(/no (quiero|deseo) reserv|solo (quiero )?informacion|solo informacion|sin reservar/.test(n)){
+      flujoLocal=null;
+      appendMessage('Por supuesto. Puede consultar la carta, los horarios, el servicio a domicilio o cualquier información del restaurante sin realizar ninguna reserva.','incoming');
+      opcionesRestaurante();
+      return true;
+    }
     if(/horario|hora|abren|cierran|cocina/.test(n)){
       appendMessage('🕒 Horario comercial: 12:00 a 23:30.\n\n🍽️ Comidas: 13:00 a 15:30\n🌙 Cenas: 20:00 a 22:30','incoming');
       showQuickOptions([['📅 Reservar Mesa','reservar'],['📜 Ver Carta','carta']]);
@@ -455,14 +562,14 @@ function responderLocalEscrito(text){
   if(demoActual==='fisio'){
     if(/servicio|fisioterapia|rehabilitacion|valoracion|seguimiento/.test(n)){ quickAction('servicios',''); return true; }
     if(/horario|hora|abren|cierran/.test(n)){ quickAction('horarios',''); return true; }
-    if(/cita|reserv/.test(n)){ enviarMotor('Quiero pedir una cita'); return true; }
+    if(/cita|reserv/.test(n)){ quickAction('cita',''); return true; }
   }
 
   if(demoActual==='reformas'){
     if(/servicio|reforma|reformas|pintura|integral/.test(n)){ quickAction('servicios',''); return true; }
     if(/bano|baño|cocina/.test(n)){ quickAction('banos',''); return true; }
-    if(/visita/.test(n)){ enviarMotor('Quiero solicitar una visita'); return true; }
-    if(/presupuesto/.test(n)){ enviarMotor('Quiero pedir presupuesto'); return true; }
+    if(/visita/.test(n)){ quickAction('visita',''); return true; }
+    if(/presupuesto/.test(n)){ quickAction('presupuesto',''); return true; }
   }
 
   if(/^(adios|adiós|no gracias|gracias|nada mas|nada más)$/.test(n)){
@@ -512,6 +619,7 @@ async function sendTextFromInput(){
   appendMessage(text,'outgoing');
   userInput.value='';
 
+  if(manejarFlujoLocal(text)) return;
   if(responderLocalEscrito(text)) return;
 
   await enviarMotor(text);
