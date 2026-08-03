@@ -387,6 +387,14 @@ function mostrarEstudioNegocio(){
   chatBody.scrollTop=chatBody.scrollHeight;
 }
 
+
+function formatearNombreReserva(nombre){
+  return String(nombre||'').trim().replace(/\s+/g,' ').split(' ').map(p=>{
+    if(!p) return p;
+    return p.charAt(0).toLocaleUpperCase('es-ES')+p.slice(1).toLocaleLowerCase('es-ES');
+  }).join(' ');
+}
+
 function quickAction(action,label){
   if(label) appendMessage(label,'outgoing');
   removeQuickOptions();
@@ -716,7 +724,8 @@ function manejarFlujoLocal(text){
       appendMessage('Gracias. ¿A qué nombre hacemos la reserva?','incoming'); return true;
     }
     if(flujoLocal.paso==='nombre'){
-      d.nombre=text.trim(); flujoLocal.paso='telefono';
+      d.nombre=formatearNombreReserva(text);
+      flujoLocal.paso='telefono';
       appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming'); return true;
     }
     if(flujoLocal.paso==='telefono'){
