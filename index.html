@@ -268,7 +268,7 @@ const DEMOS = {
   restaurante: {
     titulo:'Restaurante Demo', avatar:'🍽️',
     bienvenida:'¡Hola! Bienvenido a Restaurante Demo. ¿En qué le podemos ayudar hoy?',
-    botones:[['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['🛵 A Domicilio','domicilio']]
+    botones:[['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['❓ Otras consultas','otra_consulta']]
   },
   fisio: {
     titulo:'Fisioterapia Demo', avatar:'🏥',
@@ -347,7 +347,7 @@ function volverSelector(){
 }
 
 function opcionesRestaurante(){
-  showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['🛵 A Domicilio','domicilio']]);
+  showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['❓ Otras consultas','otra_consulta']]);
 }
 
 function opcionesFisio(){
@@ -372,8 +372,20 @@ function quickAction(action,label){
     const turno=action==='res_turno_cenar'?'Cena':'Comida';
     flujoLocal=flujoLocal||{tipo:'reserva_restaurante',datos:{fecha:'el día indicado'}};
     flujoLocal.datos=flujoLocal.datos||{}; flujoLocal.datos.turno=turno; flujoLocal.paso='hora';
-    const hs=turno==='Cena'?'20:00 · 20:30 · 21:00 · 21:30 · 22:00':'13:00 · 13:30 · 14:00 · 14:30 · 15:00';
-    appendMessage((turno==='Cena'?'🌙':'🍽️')+' Para '+flujoLocal.datos.fecha+' tenemos estas horas disponibles de demostración:\n\n'+hs+'\n\n¿Qué hora prefiere?','incoming'); return;
+    const slots=turno==='Cena'?['20:00','20:30','21:00','21:30','22:00']:['13:00','13:30','14:00','14:30','15:00'];
+    appendMessage((turno==='Cena'?'🌙':'🍽️')+' Para '+flujoLocal.datos.fecha+' tenemos estas horas disponibles de demostración. Seleccione la que prefiera o escríbala con sus palabras.','incoming');
+    showQuickOptions(slots.map(h=>[h,'res_hora_'+h.replace(':','')]));
+    return;
+  }
+  if(action.startsWith('res_hora_')){
+    if(!flujoLocal || flujoLocal.tipo!=='reserva_restaurante') return;
+    const raw=action.replace('res_hora_','');
+    const hora=raw.slice(0,2)+':'+raw.slice(2);
+    flujoLocal.datos=flujoLocal.datos||{};
+    flujoLocal.datos.hora=hora;
+    flujoLocal.paso='personas';
+    appendMessage('Perfecto, '+hora+'. ¿Para cuántas personas sería la mesa?','incoming');
+    return;
   }
   if(action==='res_alergia_no'||action==='res_alergia_si'){
     if(!flujoLocal) return;
@@ -409,13 +421,13 @@ function quickAction(action,label){
     if(action==='horarios'){
       flujoLocal=null;
       appendMessage('🕒 Horario comercial: 12:00 a 23:30.\n\n🍽️ Comidas: 13:00 a 15:30\n🌙 Cenas: 20:00 a 22:30','incoming');
-      showQuickOptions([['📅 Reservar Mesa','reservar'],['📜 Ver Carta','carta'],['🛵 A Domicilio','domicilio']]);
+      showQuickOptions([['📅 Reservar Mesa','reservar'],['📜 Ver Carta','carta']]);
       return;
     }
     if(action==='domicilio'){
       flujoLocal=null;
       appendMessage('🛵 Puede consultar la carta y simular qué pediría para recoger o recibir en casa.','incoming');
-      showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar']]);
+      showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['❓ Otras consultas','otra_consulta']]);
       return;
     }
     if(action==='reservar'){
@@ -535,7 +547,7 @@ function normalizarConsulta(text){
 
 
 function extraerNumeroPersonas(text){
-  const n=normalize(text);
+  const n=normalizarConsulta(text);
   const mapa={una:1,uno:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10};
   let m=n.match(/\b(\d{1,2})\s*(?:personas?|comensales?)?\b/);
   if(m) return parseInt(m[1],10);
@@ -546,7 +558,7 @@ function extraerNumeroPersonas(text){
 }
 
 function extraerAlergiasDesdeTexto(text){
-  const n=normalize(text);
+  const n=normalizarConsulta(text);
   const halladas=[];
   if(/lactosa/.test(n)) halladas.push('intolerancia a la lactosa');
   if(/gluten|celiac/.test(n)) halladas.push('gluten/celiaquía');
@@ -558,7 +570,7 @@ function extraerAlergiasDesdeTexto(text){
 }
 
 function normalizarHoraReserva(text){
-  const n=normalize(text);
+  const n=normalizarConsulta(text);
   let m=n.match(/\b([01]?\d|2[0-3])[:.h](\d{2})\b/);
   if(m) return String(parseInt(m[1],10)).padStart(2,'0')+':'+m[2];
   const horasPalabra={una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12};
@@ -611,13 +623,17 @@ function manejarFlujoLocal(text){
     }
     if(flujoLocal.paso==='hora'){
       if(/horario|horas|disponib|que teneis|que tienen/.test(n)){
-        const hs=d.turno==='Cena'?'20:00 · 20:30 · 21:00 · 21:30 · 22:00':'13:00 · 13:30 · 14:00 · 14:30 · 15:00';
-        appendMessage('Estas son las horas disponibles de demostración para '+d.fecha+':\n\n'+hs+'\n\n¿Qué hora prefiere?','incoming'); return true;
+        const slots=d.turno==='Cena'?['20:00','20:30','21:00','21:30','22:00']:['13:00','13:30','14:00','14:30','15:00'];
+        appendMessage('Estas son las horas disponibles de demostración para '+d.fecha+'. Seleccione la que prefiera.','incoming');
+        showQuickOptions(slots.map(h=>[h,'res_hora_'+h.replace(':','')]));
+        return true;
       }
       d.hora=normalizarHoraReserva(text);
       const slots=d.turno==='Cena'?['20:00','20:30','21:00','21:30','22:00']:['13:00','13:30','14:00','14:30','15:00'];
       if(!slots.includes(d.hora)){
-        appendMessage('Para las '+d.hora+' no tenemos disponibilidad en esta demostración.\n\nLas horas disponibles son:\n'+slots.join(' · ')+'\n\n¿Qué hora prefiere?','incoming'); return true;
+        appendMessage('Para las '+d.hora+' no tenemos disponibilidad en esta demostración. Seleccione una de las horas libres.','incoming');
+        showQuickOptions(slots.map(h=>[h,'res_hora_'+h.replace(':','')]));
+        return true;
       }
       flujoLocal.paso='personas';
       appendMessage('Perfecto, '+d.hora+'. ¿Para cuántas personas sería la mesa?','incoming'); return true;
