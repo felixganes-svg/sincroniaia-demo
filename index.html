@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="portal-mode">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -412,9 +412,36 @@
   .portal-card h2{font-size:18px}
 }
 
+
+/* ===== SINCRONIAIA PORTAL v1.8.2 · SCROLL FIX REAL ===== */
+html.portal-mode{
+  height:auto !important;
+  min-height:100% !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+}
+body.portal-mode{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:100vh !important;
+  max-height:none !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  align-items:initial !important;
+  justify-content:initial !important;
+  background:#f7fbfa !important;
+}
+body.portal-mode #portalSincronia{
+  position:relative !important;
+  min-height:100vh !important;
+  height:auto !important;
+  overflow:visible !important;
+}
+
 </style>
 </head>
-<body>
+<body class="portal-mode">
 <div id="portalSincronia">
 <header class="portal-top"><div class="portal-brand"><span class="infinity">∞</span><div>SINCRONIAIA<small>La IA trabaja. Tú vuelves a vivir.</small></div></div><div class="portal-security">🛡️ Acceso seguro · Sistemas separados</div></header>
 <main class="portal-wrap"><section class="portal-hero"><h1>Bienvenido a SINCRONIAIA</h1><p>Conozca su negocio, pruebe la IA o acceda a sus herramientas de gestión.</p></section><section class="portal-grid">
@@ -1599,8 +1626,22 @@ autoEntradaDesdeURL();
  const portal=document.getElementById('portalSincronia'),app=document.getElementById('sincroniaDemoApp'),open=document.getElementById('portalAbrirDemos');
  if(!portal||!app||!open)return;
  const back=document.createElement('button');back.type='button';back.className='portal-back';back.textContent='← Inicio SINCRONIAIA';back.style.display='none';document.body.appendChild(back);
- open.addEventListener('click',()=>{portal.style.display='none';app.style.display='';back.style.display='block';window.scrollTo(0,0)});
- back.addEventListener('click',()=>{app.style.display='none';portal.style.display='';back.style.display='none';window.scrollTo(0,0)});
+ open.addEventListener('click',()=>{
+   document.documentElement.classList.remove('portal-mode');
+   document.body.classList.remove('portal-mode');
+   portal.style.display='none';
+   app.style.display='';
+   back.style.display='block';
+   window.scrollTo(0,0);
+ });
+ back.addEventListener('click',()=>{
+   app.style.display='none';
+   portal.style.display='';
+   back.style.display='none';
+   document.documentElement.classList.add('portal-mode');
+   document.body.classList.add('portal-mode');
+   window.scrollTo(0,0);
+ });
 })();
 </script>
 </body>
