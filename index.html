@@ -361,9 +361,28 @@
   .access-main{padding-left:10px;padding-right:10px}
 }
 
+
+#portalSincronia{min-height:100vh;background:radial-gradient(circle at 85% 12%,rgba(15,157,122,.10),transparent 28%),linear-gradient(180deg,#fff 0%,#f7fbfa 100%);color:#073b34;font-family:inherit}
+.portal-top{min-height:84px;padding:18px clamp(20px,5vw,64px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #dceae6;background:#fff}.portal-brand{display:flex;align-items:center;gap:12px;font-size:25px;font-weight:900}.portal-brand .infinity{font-size:34px;color:#07956f}.portal-brand small{display:block;font-size:12px;color:#07956f;margin-top:2px}.portal-security{border:1px solid #cde6df;border-radius:14px;padding:10px 14px;font-size:13px;color:#31564f}
+.portal-wrap{max-width:1180px;margin:auto;padding:52px 24px 44px}.portal-hero{text-align:center;margin-bottom:34px}.portal-hero h1{font-size:clamp(34px,5vw,56px);line-height:1.04;margin:0 0 14px;color:#063b34}.portal-hero p{font-size:clamp(17px,2vw,21px);color:#526863;margin:0}.portal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.portal-card{background:#fff;border:1px solid #d9e8e4;border-radius:22px;padding:28px 25px 24px;box-shadow:0 12px 36px rgba(13,66,56,.07);display:flex;flex-direction:column;min-height:390px}.portal-card.study{border-color:#b8dfd1}.portal-card.demo{border-color:#c9dcf8}.portal-card.private{border-color:#ddd0f4}.portal-icon{width:82px;height:82px;border-radius:50%;display:grid;place-items:center;font-size:38px;margin:0 auto 20px;background:#edf8f4}.demo .portal-icon{background:#edf4ff}.private .portal-icon{background:#f4effc}
+.portal-card h2{text-align:center;font-size:23px;line-height:1.15;margin:0 0 15px;color:#074b3e}.demo h2{color:#1458bd}.private h2{color:#5d35a8}.portal-card p{text-align:center;color:#4b5e5a;line-height:1.55;margin:0 0 18px}.portal-points{margin:0 0 22px;padding:0;list-style:none;display:grid;gap:10px;font-size:14px;color:#304b45}.portal-points li:before{content:"✓";font-weight:900;color:#07956f;margin-right:9px}.portal-card .portal-btn{margin-top:auto}
+.portal-btn{width:100%;min-height:52px;border:0;border-radius:12px;font-weight:900;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;color:#fff;background:#078c6a}.demo .portal-btn{background:#1765d5}.private .portal-btn{background:#6941b5}.portal-note{text-align:center;font-size:12px;margin-top:13px;color:#6b7e79}.portal-bottom{margin-top:34px;padding:22px;border:1px solid #dceae6;border-radius:18px;background:#fff;display:flex;justify-content:space-between;gap:20px}.portal-bottom strong{font-size:18px}.portal-bottom span{color:#60736e;font-size:14px}
+.portal-back{position:fixed;z-index:9999;left:14px;bottom:14px;border:0;border-radius:999px;padding:11px 15px;background:#063b34;color:#fff;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.18);cursor:pointer}
+@media(max-width:820px){.portal-top{min-height:70px;padding:14px 18px}.portal-brand{font-size:20px}.portal-brand .infinity{font-size:28px}.portal-security{display:none}.portal-wrap{padding:34px 16px 28px}.portal-hero{margin-bottom:25px}.portal-grid{grid-template-columns:1fr;gap:16px}.portal-card{min-height:0;padding:22px 20px}.portal-icon{width:68px;height:68px;font-size:32px;margin-bottom:15px}.portal-card h2{font-size:20px}.portal-bottom{display:block;text-align:center}.portal-bottom span{display:block;margin-top:7px}}
+
 </style>
 </head>
 <body>
+<div id="portalSincronia">
+<header class="portal-top"><div class="portal-brand"><span class="infinity">∞</span><div>SINCRONIAIA<small>La IA trabaja. Tú vuelves a vivir.</small></div></div><div class="portal-security">🛡️ Acceso seguro · Sistemas separados</div></header>
+<main class="portal-wrap"><section class="portal-hero"><h1>Bienvenido a SINCRONIAIA</h1><p>Conozca su negocio, pruebe la IA o acceda a sus herramientas de gestión.</p></section><section class="portal-grid">
+<article class="portal-card study"><div class="portal-icon">🔎</div><h2>INVESTIGACIÓN DE CAMPO</h2><p>Comprenda cómo funciona realmente su negocio y detecte oportunidades para recuperar tiempo y mejorar la organización.</p><ul class="portal-points"><li>Estudio empresarial guiado</li><li>Sin compromiso ni presión comercial</li><li>Primera valoración personalizada</li></ul><a class="portal-btn" href="https://script.google.com/macros/s/AKfycbyeGxhnORaHCy8XiJuM_AMn2PacynMxso8h-6_T3OenbTLMG087eC_6Bo-02deaEhL0/exec">COMENZAR ESTUDIO →</a><div class="portal-note">Acceso al Estudio Empresarial SINCRONIAIA</div></article>
+<article class="portal-card demo"><div class="portal-icon">🤖</div><h2>PRUEBE CÓMO LA IA PUEDE ATENDER SU NEGOCIO</h2><p>Conversaciones reales, reservas, citas y solicitudes. Así puede trabajar su asistente 24/7.</p><ul class="portal-points"><li>Demo personalizada con código</li><li>Restaurante · Fisioterapia · Reformas</li><li>Puede probar sin registrarse</li></ul><button class="portal-btn" id="portalAbrirDemos" type="button">PROBAR DEMOSTRACIÓN →</button><div class="portal-note">Con código o mediante demos públicas</div></article>
+<article class="portal-card private"><div class="portal-icon">🔐</div><h2>ACCESO PRIVADO SINCRONIAIA</h2><p>Entrada reservada a las herramientas internas de gestión y preparación de demostraciones.</p><ul class="portal-points"><li>Control de Captación</li><li>PRODUCTO 001 y Centro de Demos</li><li>Gestión interna SINCRONIAIA</li></ul><a class="portal-btn" href="https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec">ENTRAR AL ÁREA PRIVADA →</a><div class="portal-note">El código se valida en el sistema privado, no en GitHub</div></article>
+</section><section class="portal-bottom"><strong>∞ No vendemos IA. Devolvemos tiempo para vivir.</strong><span>La IA trabaja. Tú vuelves a vivir.</span></section></main></div>
+<div id="sincroniaDemoApp" style="display:none">
+
 
 <div id="accessGateway" class="access-gateway">
   <div class="access-page">
@@ -590,6 +609,7 @@ let demoActual = '';
 let historial = [];
 let callbackSeq = 0;
 let flujoLocal = null;
+let categoriasCartaVistas = new Set();
 
 const DEMOS = {
   restaurante: {
@@ -658,6 +678,7 @@ function startDemo(tipo){
   demoActual=tipo;
   historial=[];
   flujoLocal=null;
+  categoriasCartaVistas=new Set();
   chatBody.innerHTML='';
   const d=DEMOS[tipo];
 
@@ -670,6 +691,23 @@ function startDemo(tipo){
 }
 
 function volverSelector(){ removeQuickOptions(); abrirPuertaAcceso(); }
+
+
+function opcionesCartaPendientes(){
+  const categorias=[
+    ['🥗 Entrantes','entrantes'],
+    ['🍚 Arroces','arroces'],
+    ['🐟 Pescados','pescados'],
+    ['🥩 Carnes','carnes'],
+    ['🍰 Postres','postres']
+  ].filter(item=>!categoriasCartaVistas.has(item[1]));
+
+  return categorias.concat([
+    ['📅 Reservar Mesa','reservar'],
+    ['🕒 Horarios','horarios'],
+    ['❓ Otras consultas','otra_consulta']
+  ]);
+}
 
 function opcionesRestaurante(){
   showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['❓ Otras consultas','otra_consulta']]);
@@ -993,7 +1031,7 @@ function quickAction(action,label){
     if(action==='carta'){
       flujoLocal=null;
       appendMessage('📜 Carta de demostración\n\n🥗 Entrantes y ensaladas\n🍚 Arroces\n🐟 Pescados\n🥩 Carnes a la parrilla\n🍰 Postres','incoming');
-      showQuickOptions([['🥗 Entrantes','entrantes'],['🍚 Arroces','arroces'],['🐟 Pescados','pescados'],['🥩 Carnes','carnes'],['🍰 Postres','postres'],['📅 Reservar Mesa','reservar'],['🕒 Horarios','horarios'],['❓ Otras consultas','otra_consulta']]);
+      showQuickOptions(opcionesCartaPendientes());
       return;
     }
     if(action==='horarios'){
@@ -1027,19 +1065,9 @@ function quickAction(action,label){
       postres:'🍰 Postres\n\n• Tarta de queso cremosa\n• Tiramisú tradicional\n• Brownie de chocolate negro'
     };
     if(carta[action]){
+      categoriasCartaVistas.add(action);
       appendMessage(carta[action],'incoming');
-      const categoriasCarta=[
-        ['🥗 Entrantes','entrantes'],
-        ['🍚 Arroces','arroces'],
-        ['🐟 Pescados','pescados'],
-        ['🥩 Carnes','carnes'],
-        ['🍰 Postres','postres']
-      ].filter(item=>item[1]!==action);
-      showQuickOptions(categoriasCarta.concat([
-        ['📅 Reservar Mesa','reservar'],
-        ['🕒 Horarios','horarios'],
-        ['❓ Otras consultas','otra_consulta']
-      ]));
+      showQuickOptions(opcionesCartaPendientes());
       return;
     }
   }
@@ -1523,6 +1551,16 @@ userInput.addEventListener('keypress',e=>{
 });
 
 autoEntradaDesdeURL();
+</script>
+</div>
+<script>
+(function(){
+ const portal=document.getElementById('portalSincronia'),app=document.getElementById('sincroniaDemoApp'),open=document.getElementById('portalAbrirDemos');
+ if(!portal||!app||!open)return;
+ const back=document.createElement('button');back.type='button';back.className='portal-back';back.textContent='← Inicio SINCRONIAIA';back.style.display='none';document.body.appendChild(back);
+ open.addEventListener('click',()=>{portal.style.display='none';app.style.display='';back.style.display='block';window.scrollTo(0,0)});
+ back.addEventListener('click',()=>{app.style.display='none';portal.style.display='';back.style.display='none';window.scrollTo(0,0)});
+})();
 </script>
 </body>
 </html>
