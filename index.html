@@ -207,9 +207,240 @@
 .selector-card:active{background:#e2fbf0}
 .back-btn{margin-left:auto;background:transparent;color:white;border:1px solid rgba(255,255,255,.65);border-radius:16px;padding:6px 10px;font-size:12px;cursor:pointer}
 .wa-header{justify-content:flex-start}
+
+/* ===== SINCRONIAIA v1.7 · PUERTA DE ACCESO APROBADA ===== */
+.access-gateway{
+  position:fixed; inset:0; z-index:300;
+  background:#f7faf9;
+  color:#0c2d29;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.access-page{
+  min-height:100%;
+  background:
+    radial-gradient(circle at 90% 12%,rgba(92,219,190,.17),transparent 24rem),
+    radial-gradient(circle at 8% 35%,rgba(124,231,207,.14),transparent 28rem),
+    #fbfdfc;
+}
+.access-top{
+  height:78px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;
+  background:#fff;
+  border-bottom:1px solid #e4ece9;
+}
+.access-logo{
+  display:flex;align-items:center;gap:10px;
+  font-weight:900;font-size:21px;letter-spacing:.01em;color:#0c2d29;
+}
+.access-logo .inf{font-size:34px;line-height:1;color:#00a884;font-weight:900}
+.access-badge{
+  border:1px solid #75cfbc;color:#087861;background:#f7fffc;
+  border-radius:999px;padding:8px 14px;font-size:12px;font-weight:900;
+}
+.access-main{width:min(100%,1040px);margin:0 auto;padding:52px 28px 0}
+.access-hero{text-align:center;margin-bottom:34px}
+.access-hero h1{
+  margin:0 auto 13px;max-width:650px;
+  font-size:clamp(31px,4.7vw,52px);line-height:1.08;letter-spacing:-.035em;
+  color:#082f2b;font-weight:900;
+}
+.access-hero p{
+  margin:0 auto;max-width:620px;color:#405d59;
+  font-size:17px;line-height:1.55;
+}
+.access-entry-grid{
+  display:grid;grid-template-columns:1fr 62px 1fr;align-items:stretch;
+  gap:16px;margin:0 auto 38px;max-width:930px;
+}
+.access-card{
+  background:rgba(255,255,255,.93);
+  border:1px solid #cfe4df;border-radius:16px;padding:27px 26px;
+  box-shadow:0 9px 30px rgba(7,67,56,.08);
+}
+.access-card.code{background:linear-gradient(145deg,#f4fffb,#ffffff)}
+.access-card.free{background:linear-gradient(145deg,#f5f9ff,#ffffff);border-color:#d7e2f3}
+.access-card h2{margin:0 0 10px;font-size:20px;text-align:center;color:#0b765f}
+.access-card.free h2{color:#1e53b5}
+.access-card p{margin:0 auto 18px;max-width:340px;text-align:center;color:#4c625f;font-size:14px;line-height:1.55}
+.access-code-input{
+  display:block;width:100%;height:48px;border:1px solid #d2dfdc;border-radius:8px;
+  padding:0 14px;font-size:16px;outline:none;text-transform:uppercase;letter-spacing:.08em;
+  margin-bottom:10px;color:#0b2b27;background:#fff;
+}
+.access-code-input:focus{border-color:#00a884;box-shadow:0 0 0 3px rgba(0,168,132,.12)}
+.access-btn{
+  display:block;width:100%;height:48px;border:0;border-radius:8px;
+  font-size:13px;font-weight:900;cursor:pointer;letter-spacing:.01em;
+}
+.access-btn.green{background:linear-gradient(180deg,#05876d,#006c58);color:#fff}
+.access-btn.blue{background:linear-gradient(180deg,#1164d8,#0c4fb9);color:#fff}
+.access-card-foot{text-align:center;margin-top:13px;color:#5d716e;font-size:12px}
+.access-card-foot strong{color:#08765f}
+.access-status{min-height:20px;margin-top:10px;text-align:center;font-size:13px;color:#667781;line-height:1.4}
+.access-status.error{color:#b42318}
+.access-or{
+  display:flex;align-items:center;justify-content:center;
+  color:#123c37;font-weight:900;font-size:17px;
+}
+.access-or span{
+  width:48px;height:48px;border-radius:50%;display:grid;place-items:center;
+  background:#fff;box-shadow:0 4px 15px rgba(10,69,58,.12);border:1px solid #e0e9e6;
+}
+.access-demos{padding:4px 0 40px}
+.access-section-title{text-align:center;font-size:21px;font-weight:900;margin:0 0 20px;color:#0b342f}
+.access-demo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.access-demo-card{
+  background:#fff;border:1px solid #e4e8e6;border-radius:14px;
+  padding:22px 20px;text-align:center;box-shadow:0 7px 20px rgba(18,64,56,.06)
+}
+.access-demo-card.rest{background:linear-gradient(180deg,#fff9ee,#fffdf8)}
+.access-demo-card.fisio{background:linear-gradient(180deg,#f3f9ff,#fbfdff)}
+.access-demo-card.ref{background:linear-gradient(180deg,#f5fbf5,#fbfefb)}
+.access-demo-icon{
+  width:58px;height:58px;border-radius:50%;display:grid;place-items:center;
+  margin:0 auto 13px;color:#fff;font-size:26px;font-weight:800;
+}
+.rest .access-demo-icon{background:#ee9207}
+.fisio .access-demo-icon{background:#228ccc}
+.ref .access-demo-icon{background:#2f994c}
+.access-demo-card h3{font-size:16px;margin:0 0 8px}
+.rest h3{color:#d87b00}.fisio h3{color:#1170b8}.ref h3{color:#238540}
+.access-demo-card p{min-height:44px;margin:0 0 15px;color:#4e605d;font-size:13px;line-height:1.45}
+.access-demo-btn{
+  width:100%;border:0;border-radius:7px;padding:11px 10px;
+  color:#fff;font-size:12px;font-weight:900;cursor:pointer
+}
+.rest .access-demo-btn{background:#eb8b00}
+.fisio .access-demo-btn{background:#1260cc}
+.ref .access-demo-btn{background:#159048}
+.access-capabilities{
+  background:#fff;border-top:1px solid #e5ece9;border-bottom:1px solid #e5ece9;
+  margin-top:4px;padding:24px 16px;
+}
+.access-cap-title{text-align:center;font-size:17px;font-weight:900;margin-bottom:18px;color:#0a312c}
+.access-cap-grid{
+  width:min(100%,900px);margin:0 auto;
+  display:grid;grid-template-columns:repeat(5,1fr);gap:18px;
+}
+.access-cap{text-align:center;color:#183e39;font-size:12px;line-height:1.4}
+.access-cap .ico{font-size:27px;margin-bottom:7px;color:#00876d}
+.access-footer{background:#073d37;color:#fff;text-align:center;padding:19px 16px 23px}
+.access-footer strong{display:block;font-size:16px;margin-bottom:5px}
+.access-footer span{font-size:12px;opacity:.88}
+.access-hidden{display:none!important}
+.personalized-note{
+  width:calc(100% - 16px);margin:8px 8px 4px;padding:11px 13px;border-radius:12px;
+  background:#e7f7f1;border:1px solid #a8dccd;color:#16483c;font-size:13px;line-height:1.45
+}
+@media(max-width:760px){
+  .access-top{height:64px;padding:0 15px}
+  .access-logo{font-size:16px}.access-logo .inf{font-size:28px}
+  .access-badge{font-size:10px;padding:6px 9px}
+  .access-main{padding:31px 13px 0}
+  .access-hero{margin-bottom:24px}
+  .access-hero h1{font-size:31px;max-width:390px}
+  .access-hero p{font-size:14px;max-width:360px}
+  .access-entry-grid{grid-template-columns:1fr;gap:10px;margin-bottom:27px}
+  .access-or{height:42px}
+  .access-or span{width:40px;height:40px;font-size:14px}
+  .access-card{padding:20px 17px}
+  .access-card h2{font-size:17px}
+  .access-card p{font-size:13px}
+  .access-demo-grid{grid-template-columns:1fr;gap:12px}
+  .access-demo-card{display:grid;grid-template-columns:58px 1fr;column-gap:14px;text-align:left;align-items:center;padding:16px}
+  .access-demo-icon{grid-row:1/4;margin:0}
+  .access-demo-card p{min-height:0;margin-bottom:10px}
+  .access-demo-btn{grid-column:2}
+  .access-cap-grid{grid-template-columns:repeat(2,1fr);gap:20px}
+}
+@media(max-width:420px){
+  .access-badge{display:none}
+  .access-hero h1{font-size:27px}
+  .access-main{padding-left:10px;padding-right:10px}
+}
+
 </style>
 </head>
 <body>
+
+<div id="accessGateway" class="access-gateway">
+  <div class="access-page">
+    <div class="access-top">
+      <div class="access-logo"><span class="inf">∞</span><span>SINCRONIAIA</span></div>
+      <div class="access-badge">DEMO PÚBLICA</div>
+    </div>
+
+    <div class="access-main">
+      <section class="access-hero">
+        <h1>Pruebe cómo la IA puede atender su negocio</h1>
+        <p>Conversaciones reales, reservas, citas y solicitudes.<br>Así trabaja su asistente 24/7.</p>
+      </section>
+
+      <section class="access-entry-grid">
+        <div class="access-card code">
+          <h2>🔑 TENGO UN CÓDIGO</h2>
+          <p>Si SINCRONIAIA ha preparado una demostración para su negocio, introduzca aquí su código.</p>
+          <input id="publicCode" class="access-code-input" maxlength="12" placeholder="Ejemplo: 3JHTH8" autocomplete="off">
+          <button class="access-btn green" type="button" onclick="entrarConCodigo()">ENTRAR A MI DEMO</button>
+          <div id="codeStatus" class="access-status"></div>
+          <div class="access-card-foot">🔒 <strong>Acceso personalizado</strong> para su negocio</div>
+        </div>
+
+        <div class="access-or"><span>o</span></div>
+
+        <div class="access-card free">
+          <h2>👁️ PROBAR SIN CÓDIGO</h2>
+          <p>Puede probar libremente uno de nuestros asistentes de ejemplo.</p>
+          <button class="access-btn blue" type="button" onclick="scrollDemos()">VER DEMOS DISPONIBLES</button>
+          <div class="access-card-foot">👥 Demos generales sin registro</div>
+        </div>
+      </section>
+
+      <section class="access-demos" id="publicDemos">
+        <h2 class="access-section-title">🏪 DEMOS DISPONIBLES</h2>
+        <div class="access-demo-grid">
+          <article class="access-demo-card rest">
+            <div class="access-demo-icon">🍴</div>
+            <h3>RESTAURANTE</h3>
+            <p>Información, carta, horarios, reservas y consultas.</p>
+            <button class="access-demo-btn" type="button" onclick="entrarDemoLibre('restaurante')">PROBAR RESTAURANTE</button>
+          </article>
+          <article class="access-demo-card fisio">
+            <div class="access-demo-icon">🩺</div>
+            <h3>FISIOTERAPIA</h3>
+            <p>Servicios, horarios, citas y consultas.</p>
+            <button class="access-demo-btn" type="button" onclick="entrarDemoLibre('fisio')">PROBAR FISIOTERAPIA</button>
+          </article>
+          <article class="access-demo-card ref">
+            <div class="access-demo-icon">🔧</div>
+            <h3>REFORMAS</h3>
+            <p>Servicios, visitas, presupuestos y consultas.</p>
+            <button class="access-demo-btn" type="button" onclick="entrarDemoLibre('reformas')">PROBAR REFORMAS</button>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <section class="access-capabilities">
+      <div class="access-cap-title">¿QUÉ PUEDE HACER SU ASISTENTE?</div>
+      <div class="access-cap-grid">
+        <div class="access-cap"><div class="ico">💬</div>Atención automática<br>e inteligente</div>
+        <div class="access-cap"><div class="ico">📅</div>Gestión de citas<br>y reservas</div>
+        <div class="access-cap"><div class="ico">🕒</div>Respuestas 24/7,<br>incluso fuera de horario</div>
+        <div class="access-cap"><div class="ico">📋</div>Recogida de solicitudes<br>y datos</div>
+        <div class="access-cap"><div class="ico">📊</div>Información útil<br>y adaptada a su negocio</div>
+      </div>
+    </section>
+
+    <footer class="access-footer">
+      <strong>∞ SINCRONIAIA</strong>
+      <span>La IA trabaja. Tú vuelves a vivir.</span>
+    </footer>
+  </div>
+</div>
+
 
 <div id="demoSelector" class="demo-selector">
   <div class="selector-header">
@@ -256,6 +487,102 @@
 
 <script>
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
+
+let accesoPersonalizado = null;
+
+function scrollDemos(){
+  document.getElementById('publicDemos')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function normalizarTipoDesdeFicha(data){
+  const texto=((data&&data.sector)||'')+' '+((data&&data.actividad)||'');
+  const n=texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  if(/restaurante|hosteler|bar|cafeter|comida|alimentacion|carnicer/.test(n)) return 'restaurante';
+  if(/fisio|fisioter|rehabilit|clinica|salud|terapia/.test(n)) return 'fisio';
+  if(/reforma|constru|obra|pintura|albanil|cocina|bano/.test(n)) return 'reformas';
+  return '';
+}
+function cerrarPuertaAcceso(){ document.getElementById('accessGateway')?.classList.add('access-hidden'); }
+function abrirPuertaAcceso(){ flujoLocal=null; accesoPersonalizado=null; document.getElementById('accessGateway')?.classList.remove('access-hidden'); }
+function entrarDemoLibre(tipo){ accesoPersonalizado=null; cerrarPuertaAcceso(); startDemo(tipo); }
+
+async function entrarConCodigo(){
+  const input=document.getElementById('publicCode');
+  const status=document.getElementById('codeStatus');
+  const codigo=String(input.value||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(!codigo){ status.className='access-status error'; status.textContent='Introduzca el código recibido.'; return; }
+  status.className='access-status'; status.textContent='Comprobando código…';
+
+  try{
+    const r=await jsonp({api:'codigo',codigo:codigo});
+    if(!r || r.ok===false){
+      status.className='access-status error';
+      status.textContent=(r&&r.error)?r.error:'Código no válido o caducado.';
+      return;
+    }
+    accesoPersonalizado=r;
+    const tipo=normalizarTipoDesdeFicha(r);
+    if(!tipo){
+      status.className='access-status';
+      status.textContent='Código correcto. Seleccione el tipo de demostración:';
+      mostrarSelectorTipoParaCodigo();
+      return;
+    }
+    abrirDemoPersonalizada(tipo,r);
+  }catch(e){
+    status.className='access-status error';
+    status.textContent='No se ha podido comprobar el código. Inténtelo de nuevo.';
+  }
+}
+
+function mostrarSelectorTipoParaCodigo(){
+  const status=document.getElementById('codeStatus');
+  status.innerHTML='';
+  const box=document.createElement('div');
+  box.style.cssText='display:grid;gap:7px;margin-top:10px';
+  [['🍽️ Restaurante','restaurante'],['🏥 Fisioterapia','fisio'],['🔧 Reformas','reformas']].forEach(([label,tipo])=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.textContent=label;
+    b.style.cssText='border:1px solid #cfe0dc;background:#f6fbf9;border-radius:8px;padding:10px;font-weight:700;cursor:pointer';
+    b.onclick=()=>abrirDemoPersonalizada(tipo,accesoPersonalizado);
+    box.appendChild(b);
+  });
+  status.appendChild(box);
+}
+
+function abrirDemoPersonalizada(tipo,data){
+  cerrarPuertaAcceso();
+  startDemo(tipo);
+
+  const negocio=String((data&&data.negocio)||'Su negocio').trim();
+  const responsable=String((data&&data.responsable)||'').trim();
+  document.getElementById('demoTitle').textContent=negocio;
+
+  const note=document.createElement('div');
+  note.className='personalized-note';
+  note.textContent='✨ Demostración preparada para '+negocio+(responsable?' · '+responsable:'')+'.';
+  chatBody.insertBefore(note,chatBody.firstChild);
+
+  const firstMessage=chatBody.querySelector('.message.incoming');
+  if(firstMessage){
+    const firstText=firstMessage.querySelector('span:first-child');
+    if(firstText){
+      firstText.textContent='¡Hola! Bienvenido a '+negocio+'. Esta demostración se ha preparado para su negocio. ¿En qué le podemos ayudar hoy?';
+    }
+  }
+}
+
+function autoEntradaDesdeURL(){
+  const params=new URLSearchParams(window.location.search);
+  const code=String(params.get('code')||'').trim();
+  if(code){
+    const input=document.getElementById('publicCode');
+    input.value=code.toUpperCase();
+    setTimeout(entrarConCodigo,150);
+  }
+}
+
 const chatBody = document.getElementById('chatBody');
 const userInput = document.getElementById('userInput');
 
@@ -342,9 +669,7 @@ function startDemo(tipo){
   showQuickOptions(d.botones);
 }
 
-function volverSelector(){
-  document.getElementById('demoSelector').classList.remove('hidden');
-}
+function volverSelector(){ removeQuickOptions(); abrirPuertaAcceso(); }
 
 function opcionesRestaurante(){
   showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['❓ Otras consultas','otra_consulta']]);
@@ -1173,6 +1498,8 @@ async function sendTextFromInput(){
 userInput.addEventListener('keypress',e=>{
   if(e.key==='Enter')sendTextFromInput();
 });
+
+autoEntradaDesdeURL();
 </script>
 </body>
 </html>
