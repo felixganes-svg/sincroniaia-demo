@@ -626,6 +626,48 @@ body.portal-mode #portalSincronia{
   }
 }
 
+
+/* ===== SINCRONIAIA v1.8.6 · CÓDIGO = CLIENTE, DEMO = EJEMPLO ===== */
+.personalized-access{
+  margin-top:14px!important;
+  padding:16px!important;
+  border:1px solid #b8dfd1!important;
+  border-radius:16px!important;
+  background:#f8fcfa!important;
+  color:#183a33!important;
+}
+.personalized-access-head strong{color:#087b60;font-size:16px}
+.personalized-business{font-size:22px;font-weight:900;color:#063b34;margin-top:8px}
+.personalized-owner{font-size:13px;color:#60736e;margin-top:2px}
+.personalized-access-head p{font-size:13px;line-height:1.45;margin:9px 0 0}
+.personalized-demo-options{display:grid;gap:9px;margin-top:14px}
+.personalized-demo-option{
+  width:100%;
+  display:grid;
+  grid-template-columns:44px 1fr;
+  gap:10px;
+  align-items:center;
+  text-align:left;
+  border:1px solid #cee1dc;
+  border-radius:12px;
+  padding:11px;
+  background:#fff;
+  color:#173b34;
+  cursor:pointer;
+}
+.personalized-demo-option:hover{border-color:#00a884;background:#f4fbf8}
+.personalized-demo-icon{font-size:27px;text-align:center}
+.personalized-demo-option strong{display:block;font-size:14px;color:#063b34}
+.personalized-demo-option small{display:block;font-size:11px;font-weight:800;color:#1765d5;margin-top:2px}
+.personalized-demo-option em{display:block;font-size:11px;font-style:normal;color:#657974;line-height:1.35;margin-top:3px}
+
+@media(max-width:820px){
+  .personalized-access{padding:13px!important}
+  .personalized-business{font-size:20px}
+  .personalized-demo-option{min-height:72px;padding:10px}
+  .personalized-demo-option strong{font-size:14px}
+}
+
 </style>
 </head>
 <body class="portal-mode">
@@ -764,46 +806,61 @@ const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kq
 
 let accesoPersonalizado = null;
 
+function escHtml(value){
+  return String(value??'').replace(/[&<>"']/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
 function scrollDemos(){
   document.getElementById('publicDemos')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function normalizarTipoDesdeFicha(data){
-  const texto=((data&&data.sector)||'')+' '+((data&&data.actividad)||'');
-  const n=texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  if(/restaurante|hosteler|bar|cafeter|comida|alimentacion|carnicer/.test(n)) return 'restaurante';
-  if(/fisio|fisioter|rehabilit|clinica|salud|terapia/.test(n)) return 'fisio';
-  if(/reforma|constru|obra|pintura|albanil|cocina|bano/.test(n)) return 'reformas';
-  return '';
-}
 function cerrarPuertaAcceso(){ document.getElementById('accessGateway')?.classList.add('access-hidden'); }
-function abrirPuertaAcceso(){ flujoLocal=null; accesoPersonalizado=null; document.getElementById('accessGateway')?.classList.remove('access-hidden'); }
-function entrarDemoLibre(tipo){ accesoPersonalizado=null; cerrarPuertaAcceso(); startDemo(tipo); }
+
+function abrirPuertaAcceso(){
+  flujoLocal=null;
+  document.getElementById('accessGateway')?.classList.remove('access-hidden');
+  if(accesoPersonalizado){
+    mostrarSelectorTipoParaCodigo();
+  }else{
+    const status=document.getElementById('codeStatus');
+    if(status){ status.className='access-status'; status.innerHTML=''; }
+  }
+}
+
+function entrarDemoLibre(tipo){
+  accesoPersonalizado=null;
+  cerrarPuertaAcceso();
+  startDemo(tipo);
+}
 
 async function entrarConCodigo(){
   const input=document.getElementById('publicCode');
   const status=document.getElementById('codeStatus');
   const codigo=String(input.value||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
-  if(!codigo){ status.className='access-status error'; status.textContent='Introduzca el código recibido.'; return; }
-  status.className='access-status'; status.textContent='Comprobando código…';
+  if(!codigo){
+    status.className='access-status error';
+    status.textContent='Introduzca el código recibido.';
+    return;
+  }
+
+  status.className='access-status';
+  status.textContent='Comprobando código…';
 
   try{
     const r=await jsonp({api:'codigo',codigo:codigo});
     if(!r || r.ok===false){
+      accesoPersonalizado=null;
       status.className='access-status error';
       status.textContent=(r&&r.error)?r.error:'Código no válido o caducado.';
       return;
     }
+
     accesoPersonalizado=r;
-    const tipo=normalizarTipoDesdeFicha(r);
-    if(!tipo){
-      status.className='access-status';
-      status.textContent='Código correcto. Seleccione el tipo de demostración:';
-      mostrarSelectorTipoParaCodigo();
-      return;
-    }
-    abrirDemoPersonalizada(tipo,r);
+    mostrarSelectorTipoParaCodigo();
   }catch(e){
+    accesoPersonalizado=null;
     status.className='access-status error';
     status.textContent='No se ha podido comprobar el código. Inténtelo de nuevo.';
   }
@@ -811,18 +868,47 @@ async function entrarConCodigo(){
 
 function mostrarSelectorTipoParaCodigo(){
   const status=document.getElementById('codeStatus');
+  if(!status || !accesoPersonalizado) return;
+
+  const negocio=String(accesoPersonalizado.negocio||'Su negocio').trim();
+  const responsable=String(accesoPersonalizado.responsable||'').trim();
+
+  status.className='access-status personalized-access';
   status.innerHTML='';
+
+  const head=document.createElement('div');
+  head.className='personalized-access-head';
+  head.innerHTML='<strong>✅ Código correcto</strong>'+
+    '<div class="personalized-business">'+escHtml(negocio)+'</div>'+
+    (responsable?'<div class="personalized-owner">'+escHtml(responsable)+'</div>':'')+
+    '<p>Hemos preparado tres ejemplos para que pueda comprobar distintas formas de trabajar con SINCRONIAIA.</p>'+
+    '<p><strong>No representan exactamente su actividad.</strong> Elija el ejemplo que quiera probar.</p>';
+  status.appendChild(head);
+
   const box=document.createElement('div');
-  box.style.cssText='display:grid;gap:7px;margin-top:10px';
-  [['🍽️ Restaurante','restaurante'],['🏥 Fisioterapia','fisio'],['🔧 Reformas','reformas']].forEach(([label,tipo])=>{
+  box.className='personalized-demo-options';
+
+  [
+    ['🍽️','Reservas y atención','Restaurante Demo','Información, horarios, carta y reservas.','restaurante'],
+    ['🏥','Citas y agenda','Fisioterapia Demo','Servicios, consultas, horarios y citas.','fisio'],
+    ['🏠','Solicitudes y oportunidades','Reformas Demo','Consultas, visitas y solicitudes de presupuesto.','reformas']
+  ].forEach(([icon,title,demo,desc,tipo])=>{
     const b=document.createElement('button');
     b.type='button';
-    b.textContent=label;
-    b.style.cssText='border:1px solid #cfe0dc;background:#f6fbf9;border-radius:8px;padding:10px;font-weight:700;cursor:pointer';
+    b.className='personalized-demo-option';
+    b.innerHTML='<span class="personalized-demo-icon">'+icon+'</span>'+
+      '<span><strong>'+title+'</strong><small>'+demo+'</small><em>'+desc+'</em></span>';
     b.onclick=()=>abrirDemoPersonalizada(tipo,accesoPersonalizado);
     box.appendChild(b);
   });
+
   status.appendChild(box);
+}
+
+function nombreDemoEjemplo(tipo){
+  return tipo==='restaurante'?'Restaurante':
+    tipo==='fisio'?'Fisioterapia':
+    tipo==='reformas'?'Reformas':'Demostración';
 }
 
 function abrirDemoPersonalizada(tipo,data){
@@ -831,18 +917,16 @@ function abrirDemoPersonalizada(tipo,data){
 
   const negocio=String((data&&data.negocio)||'Su negocio').trim();
   const responsable=String((data&&data.responsable)||'').trim();
-  document.getElementById('demoTitle').textContent=negocio;
+  const ejemplo=nombreDemoEjemplo(tipo);
 
-  const note=document.createElement('div');
-  note.className='personalized-note';
-  note.textContent='✨ Demostración preparada para '+negocio+(responsable?' · '+responsable:'')+'.';
-  chatBody.insertBefore(note,chatBody.firstChild);
+  document.getElementById('demoTitle').textContent=negocio;
+  document.getElementById('demoStatus').textContent='Ejemplo: '+ejemplo+' · en línea';
 
   const firstMessage=chatBody.querySelector('.message.incoming');
   if(firstMessage){
     const firstText=firstMessage.querySelector('span:first-child');
     if(firstText){
-      firstText.textContent='¡Hola! Bienvenido a '+negocio+'. Esta demostración se ha preparado para su negocio. ¿En qué le podemos ayudar hoy?';
+      firstText.textContent='Hola 👋 Pruébelo como si fuera un cliente. ¿En qué le podemos ayudar?';
     }
   }
 }
@@ -945,7 +1029,13 @@ function startDemo(tipo){
   showQuickOptions(d.botones);
 }
 
-function volverSelector(){ removeQuickOptions(); abrirPuertaAcceso(); }
+function volverSelector(){
+  removeQuickOptions();
+  abrirPuertaAcceso();
+  if(accesoPersonalizado){
+    document.getElementById('codeStatus')?.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
 
 
 function opcionesCartaPendientes(){
