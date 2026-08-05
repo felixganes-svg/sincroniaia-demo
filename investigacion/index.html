@@ -70,7 +70,7 @@ button,input,textarea,select{font:inherit}button{touch-action:manipulation}
   padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#132238;
   display:grid;grid-template-columns:minmax(0,1fr) 56px;gap:9px;border-top:1px solid #30445f
 }
-.composer textarea{min-height:54px;max-height:128px;resize:none;border-radius:12px;pointer-events:auto;touch-action:manipulation;-webkit-user-select:text;user-select:text}
+.composer textarea{min-height:54px;max-height:128px;resize:none;border-radius:12px;pointer-events:auto;touch-action:manipulation;-webkit-user-select:text;user-select:text;scroll-margin-bottom:90px}
 .send{width:56px;height:56px;border-radius:50%;border:0;background:#0ea5e9;color:#fff;font-size:23px;font-weight:900}
 .hidden{display:none!important}.status{margin-top:10px;font-size:14px;color:#cbd5e1}
 .success{background:#123a31;border:1px solid #28765f;color:#d1fae5;border-radius:13px;padding:14px;line-height:1.5}
@@ -114,6 +114,12 @@ E('answerInput').addEventListener('input',()=>{
   a.style.height='auto';
   a.style.height=Math.min(a.scrollHeight,128)+'px';
 });
+E('answerInput').addEventListener('focus',()=>{
+  setTimeout(()=>{
+    try{E('answerInput').scrollIntoView({behavior:'smooth',block:'center'});}catch(_){}
+    scrollBottom();
+  },300);
+});
 E('composer').addEventListener('pointerdown',e=>{
   if(e.target===E('composer')) setTimeout(focusAnswer,0);
 });
@@ -122,7 +128,14 @@ if(window.visualViewport){
   const syncViewport=()=>{
     document.documentElement.style.setProperty('--vvh', window.visualViewport.height+'px');
     document.querySelector('.app').style.height=window.visualViewport.height+'px';
-    if(!E('composer').classList.contains('hidden')) setTimeout(scrollBottom,50);
+    if(!E('composer').classList.contains('hidden')) {
+      setTimeout(()=>{
+        scrollBottom();
+        if(document.activeElement===E('answerInput')){
+          try{E('answerInput').scrollIntoView({behavior:'smooth',block:'center'});}catch(_){}
+        }
+      },80);
+    }
   };
   window.visualViewport.addEventListener('resize',syncViewport);
   window.visualViewport.addEventListener('scroll',syncViewport);
