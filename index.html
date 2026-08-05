@@ -412,6 +412,13 @@
   .portal-card h2{font-size:18px}
 }
 
+/* ===== SINCRONIAIA v1.8.6.2 · MOBILE CHAT · INICIO NO TAPA ESCRITURA ===== */
+@media(max-width:820px){
+  body.demo-chat-active .portal-back{
+    display:none !important;
+  }
+}
+
 
 /* ===== SINCRONIAIA PORTAL v1.8.2 · SCROLL FIX REAL ===== */
 html.portal-mode{
@@ -820,6 +827,7 @@ function cerrarPuertaAcceso(){ document.getElementById('accessGateway')?.classLi
 
 function abrirPuertaAcceso(){
   flujoLocal=null;
+  document.body.classList.remove('demo-chat-active');
   document.getElementById('accessGateway')?.classList.remove('access-hidden');
   if(accesoPersonalizado){
     mostrarSelectorTipoParaCodigo();
@@ -1042,6 +1050,7 @@ function showQuickOptions(items){
 
 function startDemo(tipo){
   demoActual=tipo;
+  document.body.classList.add('demo-chat-active');
   historial=[];
   flujoLocal=null;
   categoriasCartaVistas=new Set();
@@ -1941,6 +1950,7 @@ autoEntradaDesdeURL();
    window.scrollTo(0,0);
  });
  back.addEventListener('click',()=>{
+   document.body.classList.remove('demo-chat-active');
    app.style.display='none';
    portal.style.display='';
    back.style.display='none';
