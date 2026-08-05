@@ -668,128 +668,6 @@ body.portal-mode #portalSincronia{
   .personalized-demo-option strong{font-size:14px}
 }
 
-
-/* ===== SINCRONIAIA v1.8.8 · PARIDAD PC/MÓVIL EN ACCESO CON CÓDIGO ===== */
-@media(min-width:821px){
-  #accessGateway .access-page{
-    min-height:100vh;
-  }
-
-  #accessGateway .access-main{
-    max-width:1180px;
-    margin:0 auto;
-    padding:42px 28px 54px;
-  }
-
-  #accessGateway .access-hero{
-    max-width:860px;
-    margin:0 auto 28px;
-    text-align:center;
-  }
-
-  #accessGateway .access-entry-grid{
-    align-items:start;
-  }
-
-  #codeStatus.personalized-access{
-    width:min(980px, calc(100vw - 80px));
-    margin:22px auto 0!important;
-    padding:24px!important;
-    border-radius:18px!important;
-  }
-
-  #codeStatus .personalized-access-head{
-    text-align:center;
-    max-width:760px;
-    margin:0 auto;
-  }
-
-  #codeStatus .personalized-business{
-    font-size:30px;
-    line-height:1.1;
-    margin-top:10px;
-  }
-
-  #codeStatus .personalized-owner{
-    font-size:14px;
-  }
-
-  #codeStatus .personalized-access-head p{
-    font-size:15px;
-    line-height:1.5;
-  }
-
-  #codeStatus .personalized-demo-options{
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:16px;
-    margin-top:22px;
-  }
-
-  #codeStatus .personalized-demo-option{
-    min-height:170px;
-    grid-template-columns:1fr;
-    text-align:center;
-    align-content:center;
-    padding:20px 18px;
-  }
-
-  #codeStatus .personalized-demo-icon{
-    font-size:38px;
-    margin-bottom:4px;
-  }
-
-  #codeStatus .personalized-demo-option strong{
-    font-size:18px;
-    line-height:1.2;
-  }
-
-  #codeStatus .personalized-demo-option small{
-    font-size:12px;
-    margin-top:5px;
-  }
-
-  #codeStatus .personalized-demo-option em{
-    font-size:13px;
-    line-height:1.45;
-    margin-top:8px;
-  }
-
-  /* Cuando ya hay código válido, mantener visible el contenedor del selector
-     personalizado y ocultar únicamente los elementos públicos redundantes. */
-  body.code-personalized-active #accessGateway .access-entry-grid{
-    display:block!important;
-    max-width:1040px!important;
-    margin:0 auto!important;
-  }
-
-  body.code-personalized-active #accessGateway .access-card.code{
-    width:100%!important;
-    max-width:none!important;
-    border:0!important;
-    box-shadow:none!important;
-    background:transparent!important;
-    padding:0!important;
-  }
-
-  body.code-personalized-active #accessGateway .access-card.code > h2,
-  body.code-personalized-active #accessGateway .access-card.code > p,
-  body.code-personalized-active #accessGateway .access-card.code > input,
-  body.code-personalized-active #accessGateway .access-card.code > button,
-  body.code-personalized-active #accessGateway .access-card.code > .access-card-foot,
-  body.code-personalized-active #accessGateway .access-or,
-  body.code-personalized-active #accessGateway .access-card.free{
-    display:none!important;
-  }
-
-  body.code-personalized-active #accessGateway #publicDemos{
-    display:none!important;
-  }
-
-  body.code-personalized-active #accessGateway .access-capabilities{
-    margin-top:30px;
-  }
-}
-
 </style>
 </head>
 <body class="portal-mode">
@@ -943,7 +821,6 @@ function cerrarPuertaAcceso(){ document.getElementById('accessGateway')?.classLi
 function abrirPuertaAcceso(){
   flujoLocal=null;
   document.getElementById('accessGateway')?.classList.remove('access-hidden');
-  if(!accesoPersonalizado) document.body.classList.remove('code-personalized-active');
   if(accesoPersonalizado){
     mostrarSelectorTipoParaCodigo();
   }else{
@@ -954,7 +831,6 @@ function abrirPuertaAcceso(){
 
 function entrarDemoLibre(tipo){
   accesoPersonalizado=null;
-  document.body.classList.remove('code-personalized-active');
   cerrarPuertaAcceso();
   startDemo(tipo);
 }
@@ -999,7 +875,6 @@ function mostrarSelectorTipoParaCodigo(){
 
   status.className='access-status personalized-access';
   status.innerHTML='';
-  document.body.classList.add('code-personalized-active');
 
   const head=document.createElement('div');
   head.className='personalized-access-head';
@@ -2020,6 +1895,7 @@ userInput.addEventListener('keypress',e=>{
   if(e.key==='Enter')sendTextFromInput();
 });
 
+autoEntradaDesdeURL();
 </script>
 </div>
 <script>
@@ -2027,23 +1903,22 @@ userInput.addEventListener('keypress',e=>{
  const portal=document.getElementById('portalSincronia'),app=document.getElementById('sincroniaDemoApp'),open=document.getElementById('portalAbrirDemos');
  if(!portal||!app||!open)return;
  const back=document.createElement('button');back.type='button';back.className='portal-back';back.textContent='← Inicio SINCRONIAIA';back.style.display='none';document.body.appendChild(back);
- function abrirZonaDemos(mostrarVolver){
-   document.documentElement.classList.remove('portal-mode');document.body.classList.remove('portal-mode');
-   portal.style.display='none';app.style.display='';back.style.display=mostrarVolver===false?'none':'block';window.scrollTo(0,0);
- }
- open.addEventListener('click',()=>abrirZonaDemos(true));
- back.addEventListener('click',()=>{
-   app.style.display='none';portal.style.display='';back.style.display='none';
-   document.documentElement.classList.add('portal-mode');document.body.classList.add('portal-mode');window.scrollTo(0,0);
+ open.addEventListener('click',()=>{
+   document.documentElement.classList.remove('portal-mode');
+   document.body.classList.remove('portal-mode');
+   portal.style.display='none';
+   app.style.display='';
+   back.style.display='block';
+   window.scrollTo(0,0);
  });
- const params=new URLSearchParams(window.location.search);
- const code=String(params.get('code')||'').trim();
- if(code){
-   abrirZonaDemos(false);
-   const input=document.getElementById('publicCode');
-   if(input) input.value=code.toUpperCase();
-   setTimeout(entrarConCodigo,150);
- }
+ back.addEventListener('click',()=>{
+   app.style.display='none';
+   portal.style.display='';
+   back.style.display='none';
+   document.documentElement.classList.add('portal-mode');
+   document.body.classList.add('portal-mode');
+   window.scrollTo(0,0);
+ });
 })();
 </script>
 
