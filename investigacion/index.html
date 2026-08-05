@@ -1,617 +1,440 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0b1220" />
-  <title>SINCRONIAIA — Investigación de Campo</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1b2a">
+  <title>SINCRONIAIA · Estudio empresarial</title>
   <style>
     :root{
-      --bg:#07101f;
-      --panel:#0f1b2d;
-      --panel-2:#13243a;
-      --text:#f7fafc;
-      --muted:#a8b6c8;
-      --line:#263a54;
-      --accent:#4fd1c5;
-      --accent-2:#7dd3fc;
-      --danger:#fca5a5;
-      --ok:#86efac;
-      --shadow:0 18px 50px rgba(0,0,0,.28);
-      --radius:20px;
+      --bg:#f5f7fb;
+      --panel:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#d9e2ec;
+      --accent:#0f766e;
+      --accent2:#0ea5e9;
+      --soft:#eef8f7;
+      --danger:#b91c1c;
+      --shadow:0 10px 30px rgba(15,23,42,.08);
+      --radius:18px;
     }
     *{box-sizing:border-box}
-    html{font-size:16px}
+    html{-webkit-text-size-adjust:100%}
     body{
       margin:0;
-      min-height:100vh;
-      background:
-        radial-gradient(circle at top right, rgba(79,209,197,.12), transparent 35%),
-        linear-gradient(180deg,#07101f 0%,#0b1526 100%);
+      background:var(--bg);
       color:var(--text);
-      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      -webkit-font-smoothing:antialiased;
+      font-family:Arial, Helvetica, sans-serif;
+      line-height:1.5;
     }
-    button,input,textarea,select{font:inherit}
-    button{touch-action:manipulation}
-    .app{
-      width:min(100%,720px);
+    .wrap{
+      width:min(100%,820px);
       margin:0 auto;
-      min-height:100vh;
-      padding:env(safe-area-inset-top) 16px calc(24px + env(safe-area-inset-bottom));
+      padding:18px 14px 40px;
     }
-    .topbar{
-      padding:20px 2px 14px;
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:flex-start;
-    }
-    .brand{font-weight:900;letter-spacing:.08em;font-size:1.05rem}
-    .subtitle{margin-top:5px;color:var(--muted);font-size:.92rem}
-    .status{
-      white-space:nowrap;
-      border:1px solid var(--line);
-      color:var(--muted);
-      border-radius:999px;
-      padding:8px 10px;
-      font-size:.78rem;
-      background:rgba(255,255,255,.03);
-    }
-    .progress-wrap{margin:2px 0 18px}
-    .progress-meta{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      color:var(--muted);
-      font-size:.86rem;
-      margin-bottom:8px;
-    }
-    .progress{
-      height:9px;
-      background:#16253a;
-      border-radius:999px;
-      overflow:hidden;
-      border:1px solid #1f334d;
-    }
-    .progress > span{
-      display:block;
-      height:100%;
-      width:0;
-      background:linear-gradient(90deg,var(--accent),var(--accent-2));
-      border-radius:inherit;
-      transition:width .25s ease;
+    .brand{
+      font-weight:800;
+      color:var(--accent);
+      letter-spacing:.02em;
+      margin-bottom:10px;
+      font-size:1rem;
     }
     .card{
-      background:linear-gradient(180deg,rgba(19,36,58,.97),rgba(15,27,45,.98));
+      background:var(--panel);
       border:1px solid var(--line);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       padding:22px;
+      margin-bottom:18px;
     }
-    .eyebrow{
-      color:var(--accent);
-      font-size:.82rem;
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:.07em;
-      margin-bottom:10px;
+    h1{
+      font-size:clamp(1.9rem,7vw,2.6rem);
+      line-height:1.08;
+      margin:0 0 16px;
     }
-    h1,h2,p{margin-top:0}
-    h1{font-size:clamp(1.75rem,7vw,2.65rem);line-height:1.06;margin-bottom:14px}
-    h2{font-size:clamp(1.45rem,5.5vw,2rem);line-height:1.15;margin-bottom:10px}
-    .lead{color:var(--muted);font-size:1rem;line-height:1.55;margin-bottom:0}
-    .field{margin-top:20px}
-    label{display:block;font-weight:800;margin-bottom:9px}
-    input,textarea,select{
+    h2{
+      font-size:1.35rem;
+      margin:0 0 16px;
+    }
+    p{margin:0 0 14px}
+    .lead{font-size:1.02rem;color:#374151}
+    .stats{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin-top:20px;
+    }
+    .stat{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px;
+      background:#fafcfe;
+      text-align:center;
+    }
+    .stat strong{
+      display:block;
+      font-size:1.05rem;
+      margin-bottom:2px;
+    }
+    label{
+      display:block;
+      font-weight:700;
+      margin:0 0 7px;
+    }
+    input, textarea, select{
       width:100%;
+      border:1px solid #b8c6d6;
+      border-radius:12px;
+      padding:14px;
+      font-size:16px;
+      background:#fff;
       color:var(--text);
-      background:#091425;
-      border:1px solid #324965;
-      border-radius:15px;
-      padding:16px;
-      min-height:54px;
       outline:none;
     }
-    textarea{min-height:150px;resize:vertical;line-height:1.45}
-    input:focus,textarea:focus,select:focus{
-      border-color:var(--accent);
-      box-shadow:0 0 0 3px rgba(79,209,197,.13);
+    textarea{
+      min-height:135px;
+      resize:vertical;
     }
-    .chips{display:grid;grid-template-columns:1fr;gap:10px;margin-top:16px}
-    .chip{
+    input:focus, textarea:focus, select:focus{
+      border-color:var(--accent2);
+      box-shadow:0 0 0 3px rgba(14,165,233,.12);
+    }
+    .field{margin-bottom:16px}
+    .question{
+      padding:18px 0;
+      border-top:1px solid var(--line);
+    }
+    .question:first-child{border-top:0;padding-top:0}
+    .qtitle{
+      font-weight:800;
+      margin-bottom:10px;
+      font-size:1.03rem;
+    }
+    .next-btn, .main-btn, .secondary-btn{
       width:100%;
-      border:1px solid #35506f;
-      background:#0b1729;
-      color:var(--text);
-      border-radius:15px;
-      padding:15px 16px;
-      min-height:54px;
-      text-align:left;
-      font-weight:750;
+      min-height:50px;
+      border-radius:12px;
+      padding:12px 16px;
+      font-size:1rem;
+      font-weight:800;
       cursor:pointer;
     }
-    .chip.selected{
-      border-color:var(--accent);
-      background:rgba(79,209,197,.12);
-      box-shadow:0 0 0 2px rgba(79,209,197,.08);
+    .next-btn{
+      margin-top:10px;
+      border:1px solid #bae6fd;
+      background:#f0f9ff;
+      color:#0369a1;
+    }
+    .main-btn{
+      border:0;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      color:white;
+    }
+    .secondary-btn{
+      border:1px solid var(--line);
+      background:white;
+      color:var(--text);
     }
     .actions{
       display:grid;
       grid-template-columns:1fr;
       gap:10px;
-      margin-top:22px;
-    }
-    .btn{
-      min-height:56px;
-      border-radius:15px;
-      border:0;
-      padding:14px 18px;
-      font-weight:900;
-      cursor:pointer;
-    }
-    .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#06202a}
-    .btn-secondary{background:#172841;color:var(--text);border:1px solid #314a68}
-    .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
-    .btn-danger{background:transparent;color:var(--danger);border:1px solid rgba(252,165,165,.35)}
-    .hint{color:var(--muted);font-size:.86rem;line-height:1.4;margin-top:10px}
-    .error{color:var(--danger);font-size:.9rem;margin-top:10px;display:none}
-    .saved{
-      display:none;
-      margin-top:14px;
-      color:var(--ok);
-      font-weight:750;
-      font-size:.9rem;
-    }
-    .summary{
       margin-top:18px;
-      display:grid;
-      gap:10px;
-    }
-    .summary-item{
-      background:#091425;
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:13px 14px;
-    }
-    .summary-item strong{display:block;color:var(--muted);font-size:.79rem;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
-    .summary-item span{white-space:pre-wrap;word-break:break-word}
-    .footer{
-      text-align:center;
-      color:#75869c;
-      font-size:.8rem;
-      padding:18px 8px 4px;
-      line-height:1.45;
     }
     .hidden{display:none!important}
-    @media(min-width:560px){
-      .app{padding-left:24px;padding-right:24px}
-      .card{padding:30px}
-      .chips.two{grid-template-columns:1fr 1fr}
+    .result-box{
+      margin-top:16px;
+      padding:14px;
+      border-radius:12px;
+      background:var(--soft);
+      border:1px solid #b7e4df;
+    }
+    .error{
+      color:var(--danger);
+      font-weight:700;
+      margin-top:10px;
+    }
+    .note{
+      color:var(--muted);
+      font-size:.92rem;
+    }
+    @media(min-width:640px){
+      .wrap{padding:28px 18px 50px}
+      .card{padding:28px}
+      .stats{grid-template-columns:repeat(3,1fr)}
       .actions.two{grid-template-columns:1fr 1fr}
     }
   </style>
 </head>
 <body>
-  <main class="app">
-    <header class="topbar">
-      <div>
-        <div class="brand">SINCRONIAIA</div>
-        <div class="subtitle">Asistente de Estudio · Investigación de Campo</div>
-      </div>
-      <div class="status" id="saveStatus">Guardado local</div>
-    </header>
+  <main class="wrap">
+    <div class="brand">SINCRONIAIA · Estudio empresarial</div>
 
-    <section class="progress-wrap" id="progressWrap">
-      <div class="progress-meta">
-        <span id="stepLabel">Inicio</span>
-        <span id="stepCount">0 / 14</span>
-      </div>
-      <div class="progress"><span id="progressBar"></span></div>
-    </section>
+    <section class="card">
+      <h1>Bienvenido a SINCRONIAIA</h1>
+      <p class="lead">Hola, soy Félix Rodríguez Pozo, fundador de SINCRONIAIA.</p>
+      <p>Este cuestionario tiene un único objetivo: comprender cómo funciona realmente su negocio para detectar oportunidades que le permitan recuperar tiempo, mejorar la organización y reducir tareas repetitivas.</p>
+      <p>No intentaremos venderle nada durante el cuestionario. Al finalizar, recibirá gratuitamente su Pasaporte Digital del Negocio, con una primera valoración personalizada.</p>
 
-    <section class="card" id="welcome">
-      <div class="eyebrow">Investigación de Campo</div>
-      <h1>Escuchar primero. Proponer después.</h1>
-      <p class="lead">Esta herramienta permite recoger lo que ocurre realmente en el negocio, con una pregunta cada vez y desde el móvil. Los datos se guardan en este dispositivo mientras completamos la conexión con Google Apps Script.</p>
-      <div class="actions">
-        <button class="btn btn-primary" id="startBtn">Empezar estudio</button>
-        <button class="btn btn-secondary hidden" id="resumeBtn">Continuar estudio guardado</button>
-      </div>
-      <p class="hint">No se modifica el portal principal ni otras demos de SINCRONIAIA.</p>
-    </section>
-
-    <section class="card hidden" id="questionCard">
-      <div class="eyebrow" id="sectionName">Bloque</div>
-      <h2 id="questionTitle">Pregunta</h2>
-      <p class="lead" id="questionHelp"></p>
-
-      <div class="field" id="inputWrap"></div>
-      <div class="chips two hidden" id="chipsWrap"></div>
-      <div class="error" id="errorBox">Complete este campo para continuar.</div>
-      <div class="saved" id="savedBox">✓ Guardado en este dispositivo</div>
-
-      <div class="actions two">
-        <button class="btn btn-secondary" id="backBtn">← Anterior</button>
-        <button class="btn btn-primary" id="nextBtn">Siguiente →</button>
+      <div class="stats">
+        <div class="stat"><strong>5 minutos</strong><span>para completarlo</span></div>
+        <div class="stat"><strong>Sin compromiso</strong><span>y sin presión comercial</span></div>
+        <div class="stat"><strong>Resultado personal</strong><span>adaptado a su negocio</span></div>
       </div>
     </section>
 
-    <section class="card hidden" id="finishCard">
-      <div class="eyebrow">Estudio completado</div>
-      <h2>Registro preparado</h2>
-      <p class="lead">Revise el resumen. En esta versión el registro queda guardado localmente en este dispositivo. La conexión con Google Apps Script será el siguiente paso.</p>
-      <div class="summary" id="summary"></div>
-      <div class="actions">
-        <button class="btn btn-primary" id="newBtn">Nuevo estudio</button>
-        <button class="btn btn-secondary" id="copyBtn">Copiar resumen</button>
-        <button class="btn btn-ghost" id="downloadBtn">Guardar copia JSON</button>
-      </div>
-    </section>
+    <form id="studyForm">
+      <section class="card">
+        <h2>Datos generales y contacto</h2>
+        <div class="field">
+          <label for="negocio">Nombre del negocio</label>
+          <input id="negocio" name="negocio" type="text" autocomplete="organization">
+        </div>
+        <div class="field">
+          <label for="contacto">Persona de contacto / propietario/a</label>
+          <input id="contacto" name="contacto" type="text" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="sector">Sector</label>
+          <input id="sector" name="sector" type="text">
+        </div>
+        <div class="field">
+          <label for="telefono">WhatsApp o teléfono</label>
+          <input id="telefono" name="telefono" type="tel" inputmode="tel" autocomplete="tel">
+        </div>
+        <div class="field">
+          <label for="email">Correo electrónico</label>
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email">
+        </div>
+      </section>
 
-    <footer class="footer">
-      SINCRONIAIA · Investigación de Campo · v0.1 candidata
-    </footer>
+      <section class="card">
+        <h2>Cuestionario</h2>
+
+        <div class="question">
+          <div class="qtitle">1. ¿Cuánto tiempo lleva funcionando el negocio?</div>
+          <textarea name="q1"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">2. ¿Cómo es un día normal desde que abre hasta que cierra?</div>
+          <textarea name="q2"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">3. ¿Cuántas personas trabajan actualmente?</div>
+          <textarea name="q3"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">4. ¿Participa directamente o principalmente organiza y decide?</div>
+          <textarea name="q4"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">5. ¿Qué parte del negocio solo puede hacer usted? ¿Por qué?</div>
+          <textarea name="q5"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">6. Si mañana no pudiera venir, ¿qué quedaría pendiente?</div>
+          <textarea name="q6"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">7. ¿Hay una tarea que solamente sepa realizar una persona?</div>
+          <textarea name="q7"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">8. ¿Qué sucede cuando esa persona no está disponible?</div>
+          <textarea name="q8"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">9. Si pudiera eliminar una tarea de mañana, ¿cuál sería?</div>
+          <textarea name="q9"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">10. ¿Qué suele dejar siempre para mañana?</div>
+          <textarea name="q10"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">11. ¿Qué le frustra más al coordinarse con clientes o proveedores?</div>
+          <textarea name="q11"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">12. ¿Cómo gestiona avisos, encargos o reservas dentro del horario?</div>
+          <textarea name="q12"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">13. ¿También recibe avisos fuera del horario? ¿Cómo los gestiona?</div>
+          <textarea name="q13"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">14. Cuando llega a casa, ¿qué se lleva todavía del negocio?</div>
+          <textarea name="q14"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">15. ¿Cuántos días trabaja a la semana?</div>
+          <textarea name="q15"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">16. ¿Cuántas horas trabaja al día o a la semana?</div>
+          <textarea name="q16"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">17. ¿Tiene tiempo libre para usted?</div>
+          <textarea name="q17"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">18. ¿Qué haría si tuviera dos horas libres cada día?</div>
+          <textarea name="q18"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">19. ¿Qué tendría que cambiar para que dentro de un año dijera que ha merecido la pena?</div>
+          <textarea name="q19"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">20. ¿Cómo encuentra la gente el negocio?</div>
+          <textarea name="q20"></textarea>
+          <button type="button" class="next-btn">Siguiente pregunta →</button>
+        </div>
+
+        <div class="question">
+          <div class="qtitle">21. ¿Hay algo importante que no le hayamos preguntado?</div>
+          <textarea name="q21"></textarea>
+          <button type="button" class="next-btn">Continuar al estudio →</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>¿Desea recibir un estudio inicial de su negocio?</h2>
+        <div class="field">
+          <label for="estudio">Seleccione una opción</label>
+          <select id="estudio" name="estudio">
+            <option value="">Seleccione una opción</option>
+            <option value="Sí">Sí</option>
+            <option value="No">No</option>
+            <option value="Más adelante">Más adelante</option>
+          </select>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="secondary-btn" id="continuarBtn">Continuar →</button>
+          <button type="submit" class="main-btn">Enviar cuestionario</button>
+          <button type="button" class="secondary-btn" id="verDatosBtn">Ver datos</button>
+        </div>
+
+        <div id="msg" class="result-box hidden"></div>
+      </section>
+    </form>
   </main>
 
-<script>
-(() => {
-  const STORAGE_KEY = "sincroniaia_investigacion_campo_v01";
+  <script>
+    (function(){
+      const form = document.getElementById('studyForm');
+      const msg = document.getElementById('msg');
+      const STORAGE_KEY = 'sincroniaia_estudio_empresarial_v1';
 
-  const questions = [
-    {
-      key:"negocio", section:"1 · Identificación",
-      title:"¿Cómo se llama el negocio?",
-      help:"Escriba el nombre comercial tal como lo conoce el cliente.",
-      type:"text", placeholder:"Ej.: Cafetería Central"
-    },
-    {
-      key:"sector", section:"1 · Identificación",
-      title:"¿A qué se dedica principalmente?",
-      help:"Describa el sector o actividad con palabras sencillas.",
-      type:"text", placeholder:"Ej.: bar y cafetería, reformas, estética…"
-    },
-    {
-      key:"persona", section:"1 · Identificación",
-      title:"¿Con quién estamos hablando?",
-      help:"Nombre de la persona y, si procede, su función en el negocio.",
-      type:"text", placeholder:"Ej.: Marta, propietaria"
-    },
-    {
-      key:"contacto", section:"1 · Identificación",
-      title:"¿Qué dato de contacto podemos anotar?",
-      help:"Teléfono, WhatsApp o correo. Si no desea facilitarlo ahora, escriba «pendiente».",
-      type:"text", placeholder:"Teléfono / WhatsApp / email"
-    },
-    {
-      key:"problema_principal", section:"2 · Realidad actual",
-      title:"¿Cuál es el problema que más le hace perder tiempo hoy?",
-      help:"Apunte sus palabras, sin traducirlas a lenguaje técnico.",
-      type:"textarea", placeholder:"Escriba literalmente lo que explica…"
-    },
-    {
-      key:"tareas_repetitivas", section:"2 · Realidad actual",
-      title:"¿Qué tareas repite una y otra vez durante el día?",
-      help:"Piense en llamadas, mensajes, citas, presupuestos, consultas, seguimiento, administración…",
-      type:"textarea", placeholder:"Tareas repetitivas…"
-    },
-    {
-      key:"interrupciones", section:"2 · Realidad actual",
-      title:"¿Qué le interrumpe más mientras está trabajando?",
-      help:"Buscamos detectar qué rompe el ritmo del negocio.",
-      type:"textarea", placeholder:"Llamadas, WhatsApp, preguntas frecuentes…"
-    },
-    {
-      key:"perdidas", section:"3 · Oportunidades perdidas",
-      title:"¿Hay clientes o ventas que se pierdan por no poder responder a tiempo?",
-      help:"Seleccione la opción que mejor encaje y añada detalle después si lo desea.",
-      type:"choice", options:["Sí, ocurre con frecuencia","A veces","Muy poco","No lo sabe todavía"]
-    },
-    {
-      key:"cuando_no_responde", section:"3 · Oportunidades perdidas",
-      title:"¿Qué suele pasar cuando no puede responder?",
-      help:"Ej.: el cliente llama a otro, abandona, escribe varias veces o vuelve más tarde.",
-      type:"textarea", placeholder:"Qué ocurre normalmente…"
-    },
-    {
-      key:"horas_semana", section:"4 · Tiempo",
-      title:"¿Cuántas horas a la semana cree que se van en estas tareas?",
-      help:"Una aproximación es suficiente.",
-      type:"number", placeholder:"Ej.: 8", min:"0", step:"0.5"
-    },
-    {
-      key:"valor_hora", section:"4 · Tiempo",
-      title:"¿Cuánto valora una hora de su tiempo de trabajo?",
-      help:"Puede ser una estimación. Escriba el importe aproximado en euros.",
-      type:"number", placeholder:"Ej.: 25", min:"0", step:"1"
-    },
-    {
-      key:"prioridad", section:"5 · Prioridad",
-      title:"Si pudiera quitarse una sola tarea de encima, ¿cuál elegiría?",
-      help:"Esta respuesta ayuda a detectar dónde tendría más valor actuar primero.",
-      type:"textarea", placeholder:"La tarea que eliminaría primero…"
-    },
-    {
-      key:"interes", section:"5 · Prioridad",
-      title:"¿Le interesaría ver una demostración aplicada a su propio negocio?",
-      help:"No es una venta. Solo queremos saber si tendría sentido preparar una demostración.",
-      type:"choice", options:["Sí","Quizá, si es sencilla","Más adelante","No por ahora"]
-    },
-    {
-      key:"notas", section:"6 · Observación",
-      title:"¿Qué ha observado usted que no debería perderse?",
-      help:"Anote frases textuales, actitud, silencios, objeciones, urgencia o cualquier detalle útil.",
-      type:"textarea", placeholder:"Notas de campo…", optional:true
-    }
-  ];
+      function serialize(){
+        const fd = new FormData(form);
+        const data = {};
+        for(const [k,v] of fd.entries()) data[k] = v;
+        data.fecha = new Date().toISOString();
+        return data;
+      }
 
-  const state = {
-    index: 0,
-    answers: {},
-    startedAt: null,
-    updatedAt: null
-  };
+      function saveLocal(){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(serialize()));
+      }
 
-  const els = {
-    welcome: document.getElementById("welcome"),
-    questionCard: document.getElementById("questionCard"),
-    finishCard: document.getElementById("finishCard"),
-    startBtn: document.getElementById("startBtn"),
-    resumeBtn: document.getElementById("resumeBtn"),
-    backBtn: document.getElementById("backBtn"),
-    nextBtn: document.getElementById("nextBtn"),
-    newBtn: document.getElementById("newBtn"),
-    copyBtn: document.getElementById("copyBtn"),
-    downloadBtn: document.getElementById("downloadBtn"),
-    sectionName: document.getElementById("sectionName"),
-    questionTitle: document.getElementById("questionTitle"),
-    questionHelp: document.getElementById("questionHelp"),
-    inputWrap: document.getElementById("inputWrap"),
-    chipsWrap: document.getElementById("chipsWrap"),
-    errorBox: document.getElementById("errorBox"),
-    savedBox: document.getElementById("savedBox"),
-    stepLabel: document.getElementById("stepLabel"),
-    stepCount: document.getElementById("stepCount"),
-    progressBar: document.getElementById("progressBar"),
-    summary: document.getElementById("summary"),
-    saveStatus: document.getElementById("saveStatus")
-  };
+      function restore(){
+        try{
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if(!raw) return;
+          const data = JSON.parse(raw);
+          Object.keys(data).forEach(k=>{
+            const el = form.elements[k];
+            if(el && typeof data[k] === 'string') el.value = data[k];
+          });
+        }catch(e){}
+      }
 
-  function loadSaved(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return null;
-      const saved = JSON.parse(raw);
-      if(saved && saved.answers) return saved;
-    }catch(e){}
-    return null;
-  }
+      form.addEventListener('input', saveLocal);
+      form.addEventListener('change', saveLocal);
 
-  function saveState(){
-    state.updatedAt = new Date().toISOString();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    els.saveStatus.textContent = "Guardado local ✓";
-    els.savedBox.style.display = "block";
-    clearTimeout(saveState._t);
-    saveState._t = setTimeout(() => els.savedBox.style.display = "none", 1200);
-  }
-
-  function resetState(){
-    state.index = 0;
-    state.answers = {};
-    state.startedAt = new Date().toISOString();
-    state.updatedAt = state.startedAt;
-    localStorage.removeItem(STORAGE_KEY);
-  }
-
-  function showScreen(name){
-    els.welcome.classList.add("hidden");
-    els.questionCard.classList.add("hidden");
-    els.finishCard.classList.add("hidden");
-    els[name].classList.remove("hidden");
-    window.scrollTo({top:0, behavior:"smooth"});
-  }
-
-  function renderQuestion(){
-    showScreen("questionCard");
-    const q = questions[state.index];
-    els.sectionName.textContent = q.section;
-    els.questionTitle.textContent = q.title;
-    els.questionHelp.textContent = q.help || "";
-    els.errorBox.style.display = "none";
-
-    els.stepLabel.textContent = q.section;
-    els.stepCount.textContent = `${state.index + 1} / ${questions.length}`;
-    els.progressBar.style.width = `${((state.index + 1) / questions.length) * 100}%`;
-
-    els.inputWrap.innerHTML = "";
-    els.chipsWrap.innerHTML = "";
-    els.inputWrap.classList.remove("hidden");
-    els.chipsWrap.classList.add("hidden");
-
-    const current = state.answers[q.key] ?? "";
-
-    if(q.type === "choice"){
-      els.inputWrap.classList.add("hidden");
-      els.chipsWrap.classList.remove("hidden");
-      q.options.forEach(opt => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "chip" + (current === opt ? " selected" : "");
-        b.textContent = opt;
-        b.addEventListener("click", () => {
-          state.answers[q.key] = opt;
-          [...els.chipsWrap.children].forEach(x => x.classList.remove("selected"));
-          b.classList.add("selected");
-          saveState();
+      document.querySelectorAll('.next-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const current = btn.closest('.question');
+          const next = current.nextElementSibling;
+          if(next && next.classList.contains('question')){
+            next.scrollIntoView({behavior:'smooth', block:'start'});
+            const field = next.querySelector('textarea,input,select');
+            if(field) setTimeout(()=>field.focus(),300);
+          }else{
+            document.getElementById('estudio').scrollIntoView({behavior:'smooth', block:'center'});
+          }
         });
-        els.chipsWrap.appendChild(b);
       });
-    } else if(q.type === "textarea"){
-      const ta = document.createElement("textarea");
-      ta.id = "answerInput";
-      ta.placeholder = q.placeholder || "";
-      ta.value = current;
-      ta.autocomplete = "off";
-      ta.addEventListener("input", () => {
-        state.answers[q.key] = ta.value;
-        saveState();
+
+      document.getElementById('continuarBtn').addEventListener('click', ()=>{
+        document.querySelector('button[type="submit"]').scrollIntoView({behavior:'smooth', block:'center'});
       });
-      els.inputWrap.appendChild(ta);
-      setTimeout(() => ta.focus(), 50);
-    } else {
-      const input = document.createElement("input");
-      input.id = "answerInput";
-      input.type = q.type === "number" ? "number" : "text";
-      input.placeholder = q.placeholder || "";
-      input.value = current;
-      if(q.min != null) input.min = q.min;
-      if(q.step != null) input.step = q.step;
-      input.autocomplete = "off";
-      input.addEventListener("input", () => {
-        state.answers[q.key] = input.value;
-        saveState();
+
+      document.getElementById('verDatosBtn').addEventListener('click', ()=>{
+        const data = serialize();
+        msg.classList.remove('hidden');
+        msg.innerHTML = '<strong>Datos guardados en este dispositivo:</strong><pre style="white-space:pre-wrap;word-break:break-word;margin-bottom:0;">'
+          + escapeHtml(JSON.stringify(data,null,2)) + '</pre>';
       });
-      input.addEventListener("keydown", e => {
-        if(e.key === "Enter"){ e.preventDefault(); goNext(); }
+
+      form.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        saveLocal();
+        msg.classList.remove('hidden');
+        msg.innerHTML = '<strong>Cuestionario preparado y guardado localmente.</strong><br><span class="note">La conexión con Google Apps Script no se modifica en esta versión.</span>';
       });
-      els.inputWrap.appendChild(input);
-      setTimeout(() => input.focus(), 50);
-    }
 
-    els.backBtn.style.visibility = state.index === 0 ? "hidden" : "visible";
-    els.nextBtn.textContent = state.index === questions.length - 1 ? "Finalizar estudio" : "Siguiente →";
-  }
+      function escapeHtml(s){
+        return s.replace(/[&<>"']/g, m=>({
+          '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+        })[m]);
+      }
 
-  function currentValue(){
-    const q = questions[state.index];
-    return (state.answers[q.key] ?? "").toString().trim();
-  }
-
-  function goNext(){
-    const q = questions[state.index];
-    if(!q.optional && !currentValue()){
-      els.errorBox.style.display = "block";
-      return;
-    }
-    saveState();
-    if(state.index < questions.length - 1){
-      state.index += 1;
-      saveState();
-      renderQuestion();
-    } else {
-      renderFinish();
-    }
-  }
-
-  function goBack(){
-    if(state.index > 0){
-      state.index -= 1;
-      saveState();
-      renderQuestion();
-    }
-  }
-
-  function labelFor(key){
-    const q = questions.find(x => x.key === key);
-    return q ? q.title : key;
-  }
-
-  function renderFinish(){
-    saveState();
-    showScreen("finishCard");
-    els.stepLabel.textContent = "Completado";
-    els.stepCount.textContent = `${questions.length} / ${questions.length}`;
-    els.progressBar.style.width = "100%";
-    els.summary.innerHTML = "";
-
-    questions.forEach(q => {
-      const val = (state.answers[q.key] ?? "").toString().trim();
-      if(!val && q.optional) return;
-      const item = document.createElement("div");
-      item.className = "summary-item";
-      const strong = document.createElement("strong");
-      strong.textContent = q.title;
-      const span = document.createElement("span");
-      span.textContent = val || "—";
-      item.append(strong, span);
-      els.summary.appendChild(item);
-    });
-  }
-
-  function summaryText(){
-    const lines = [
-      "SINCRONIAIA — INVESTIGACIÓN DE CAMPO",
-      `Inicio: ${state.startedAt || ""}`,
-      `Actualizado: ${state.updatedAt || ""}`,
-      ""
-    ];
-    questions.forEach(q => {
-      lines.push(q.title);
-      lines.push((state.answers[q.key] ?? "").toString() || "—");
-      lines.push("");
-    });
-    return lines.join("\n");
-  }
-
-  els.startBtn.addEventListener("click", () => {
-    resetState();
-    saveState();
-    renderQuestion();
-  });
-
-  els.resumeBtn.addEventListener("click", () => {
-    const saved = loadSaved();
-    if(saved){
-      state.index = Math.min(Number(saved.index) || 0, questions.length - 1);
-      state.answers = saved.answers || {};
-      state.startedAt = saved.startedAt || new Date().toISOString();
-      state.updatedAt = saved.updatedAt || state.startedAt;
-    }
-    renderQuestion();
-  });
-
-  els.backBtn.addEventListener("click", goBack);
-  els.nextBtn.addEventListener("click", goNext);
-
-  els.newBtn.addEventListener("click", () => {
-    if(confirm("¿Desea iniciar un nuevo estudio? El registro local actual se sustituirá.")){
-      resetState();
-      saveState();
-      renderQuestion();
-    }
-  });
-
-  els.copyBtn.addEventListener("click", async () => {
-    try{
-      await navigator.clipboard.writeText(summaryText());
-      els.copyBtn.textContent = "Copiado ✓";
-      setTimeout(() => els.copyBtn.textContent = "Copiar resumen", 1600);
-    }catch(e){
-      alert("No se pudo copiar automáticamente. Puede seleccionar el resumen manualmente.");
-    }
-  });
-
-  els.downloadBtn.addEventListener("click", () => {
-    const payload = {
-      version:"0.1-candidata",
-      origen:"SINCRONIAIA Investigación de Campo",
-      ...state
-    };
-    const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `sincroniaia_investigacion_${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  });
-
-  const saved = loadSaved();
-  if(saved && saved.answers && Object.keys(saved.answers).length){
-    els.resumeBtn.classList.remove("hidden");
-  }
-})();
-</script>
+      restore();
+    })();
+  </script>
 </body>
 </html>
