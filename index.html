@@ -754,8 +754,30 @@ body.portal-mode #portalSincronia{
     margin-top:8px;
   }
 
-  /* Cuando ya hay código válido, ocultar bloques públicos redundantes en PC */
+  /* Cuando ya hay código válido, mantener visible el contenedor del selector
+     personalizado y ocultar únicamente los elementos públicos redundantes. */
   body.code-personalized-active #accessGateway .access-entry-grid{
+    display:block!important;
+    max-width:1040px!important;
+    margin:0 auto!important;
+  }
+
+  body.code-personalized-active #accessGateway .access-card.code{
+    width:100%!important;
+    max-width:none!important;
+    border:0!important;
+    box-shadow:none!important;
+    background:transparent!important;
+    padding:0!important;
+  }
+
+  body.code-personalized-active #accessGateway .access-card.code > h2,
+  body.code-personalized-active #accessGateway .access-card.code > p,
+  body.code-personalized-active #accessGateway .access-card.code > input,
+  body.code-personalized-active #accessGateway .access-card.code > button,
+  body.code-personalized-active #accessGateway .access-card.code > .access-card-foot,
+  body.code-personalized-active #accessGateway .access-or,
+  body.code-personalized-active #accessGateway .access-card.free{
     display:none!important;
   }
 
