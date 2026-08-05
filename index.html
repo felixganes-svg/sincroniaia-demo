@@ -931,14 +931,41 @@ function abrirDemoPersonalizada(tipo,data){
   }
 }
 
+let autoCodigoProcesado=false;
+
+function activarDemoDesdeCodigoURL(){
+  const portal=document.getElementById('portalSincronia');
+  const app=document.getElementById('sincroniaDemoApp');
+
+  document.documentElement.classList.remove('portal-mode');
+  document.body.classList.remove('portal-mode');
+
+  if(portal) portal.style.display='none';
+  if(app) app.style.display='';
+
+  window.scrollTo(0,0);
+}
+
 function autoEntradaDesdeURL(){
+  if(autoCodigoProcesado) return;
+
   const params=new URLSearchParams(window.location.search);
-  const code=String(params.get('code')||'').trim();
-  if(code){
-    const input=document.getElementById('publicCode');
-    input.value=code.toUpperCase();
-    setTimeout(entrarConCodigo,150);
-  }
+  const code=String(params.get('code')||'')
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g,'');
+
+  if(!code) return;
+
+  autoCodigoProcesado=true;
+  activarDemoDesdeCodigoURL();
+
+  const input=document.getElementById('publicCode');
+  if(input) input.value=code;
+
+  setTimeout(()=>{
+    entrarConCodigo();
+  },150);
 }
 
 const chatBody = document.getElementById('chatBody');
@@ -1903,6 +1930,8 @@ autoEntradaDesdeURL();
  const portal=document.getElementById('portalSincronia'),app=document.getElementById('sincroniaDemoApp'),open=document.getElementById('portalAbrirDemos');
  if(!portal||!app||!open)return;
  const back=document.createElement('button');back.type='button';back.className='portal-back';back.textContent='← Inicio SINCRONIAIA';back.style.display='none';document.body.appendChild(back);
+ const codeEnURL=String(new URLSearchParams(window.location.search).get('code')||'').trim();
+ if(codeEnURL && app.style.display!=='none') back.style.display='block';
  open.addEventListener('click',()=>{
    document.documentElement.classList.remove('portal-mode');
    document.body.classList.remove('portal-mode');
