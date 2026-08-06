@@ -681,7 +681,7 @@ body.portal-mode #portalSincronia{
 <div id="portalSincronia">
 <header class="portal-top"><div class="portal-brand"><span class="infinity">∞</span><div>SINCRONIAIA<small>La IA trabaja. Tú vuelves a vivir.</small></div></div><div class="portal-security">🛡️ Acceso seguro · Sistemas separados</div></header>
 <main class="portal-wrap"><section class="portal-hero"><h1>Bienvenido a SINCRONIAIA</h1><p>Conozca su negocio, pruebe la IA o acceda a sus herramientas de gestión.</p></section><section class="portal-grid">
-<article class="portal-card study"><div class="portal-icon">🔎</div><h2>INVESTIGACIÓN DE CAMPO</h2><p>Comprenda cómo funciona realmente su negocio y detecte oportunidades para recuperar tiempo y mejorar la organización.</p><ul class="portal-points"><li>Estudio empresarial guiado</li><li>Sin compromiso ni presión comercial</li><li>Primera valoración personalizada</li></ul><a class="portal-btn" href="https://script.google.com/macros/s/AKfycbyeGxhnORaHCy8XiJuM_AMn2PacynMxso8h-6_T3OenbTLMG087eC_6Bo-02deaEhL0/exec">COMENZAR ESTUDIO →</a><div class="portal-note">Acceso al Estudio Empresarial SINCRONIAIA</div></article>
+<article class="portal-card study"><div class="portal-icon">🔎</div><h2>INVESTIGACIÓN DE CAMPO</h2><p>Comprenda cómo funciona realmente su negocio y detecte oportunidades para recuperar tiempo y mejorar la organización.</p><ul class="portal-points"><li>Estudio empresarial guiado</li><li>Sin compromiso ni presión comercial</li><li>Primera valoración personalizada</li></ul><a class="portal-btn" href="https://felixganes-svg.github.io/sincroniaia-demo/investigacion/">COMENZAR ESTUDIO →</a><div class="portal-note">Acceso al Estudio Empresarial SINCRONIAIA</div></article>
 <article class="portal-card demo"><div class="portal-icon">🤖</div><h2>PRUEBE CÓMO LA IA PUEDE ATENDER SU NEGOCIO</h2><p>Conversaciones reales, reservas, citas y solicitudes. Así puede trabajar su asistente 24/7.</p><ul class="portal-points"><li>Demo personalizada con código</li><li>Restaurante · Fisioterapia · Reformas</li><li>Puede probar sin registrarse</li></ul><button class="portal-btn" id="portalAbrirDemos" type="button">PROBAR DEMOSTRACIÓN →</button><div class="portal-note">Con código o mediante demos públicas</div></article>
 <article class="portal-card private"><div class="portal-icon">🔐</div><h2>ACCESO PRIVADO SINCRONIAIA</h2><p>Entrada reservada a las herramientas internas de gestión y preparación de demostraciones.</p><ul class="portal-points"><li>Control de Captación</li><li>PRODUCTO 001 y Centro de Demos</li><li>Gestión interna SINCRONIAIA</li></ul><a class="portal-btn" id="abrirCentroPrivadoSeguro" href="https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec">ENTRAR AL ÁREA PRIVADA →</a><div class="portal-note">La clave se solicita y valida en el sistema privado, nunca en GitHub</div></article>
 </section><section class="portal-bottom"><strong>∞ No vendemos IA. Devolvemos tiempo para vivir.</strong><span>La IA trabaja. Tú vuelves a vivir.</span></section></main></div>
@@ -874,33 +874,68 @@ async function entrarConCodigo(){
   }
 }
 
+function detectarDemoPersonalizada(data){
+  const texto=[
+    data&&data.sector,
+    data&&data.actividad,
+    data&&data.tipo,
+    data&&data.tipo_demo,
+    data&&data.categoria
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  if(/restaur|bar|cafeter|hosteler/.test(texto)) return 'restaurante';
+  if(/fisio|fisioter|rehabilit|clinica|clínica/.test(texto)) return 'fisio';
+  if(/reforma|obra|constru|albañ|alban/.test(texto)) return 'reformas';
+  return '';
+}
+
+function datosDemoPersonalizada(tipo){
+  if(tipo==='restaurante') return ['🍽️','Probar mi asistente','Restaurante Demo','Información, horarios, carta y reservas.','restaurante'];
+  if(tipo==='fisio') return ['🏥','Probar mi asistente','Fisioterapia Demo','Servicios, consultas, horarios y citas.','fisio'];
+  if(tipo==='reformas') return ['🏠','Probar mi asistente','Reformas Demo','Consultas, visitas y solicitudes de presupuesto.','reformas'];
+  return null;
+}
+
 function mostrarSelectorTipoParaCodigo(){
   const status=document.getElementById('codeStatus');
   if(!status || !accesoPersonalizado) return;
 
   const negocio=String(accesoPersonalizado.negocio||'Su negocio').trim();
   const responsable=String(accesoPersonalizado.responsable||'').trim();
+  const tipoDetectado=detectarDemoPersonalizada(accesoPersonalizado);
 
   status.className='access-status personalized-access';
   status.innerHTML='';
 
   const head=document.createElement('div');
   head.className='personalized-access-head';
-  head.innerHTML='<strong>✅ Código correcto</strong>'+
-    '<div class="personalized-business">'+escHtml(negocio)+'</div>'+
-    (responsable?'<div class="personalized-owner">'+escHtml(responsable)+'</div>':'')+
-    '<p>Hemos preparado tres ejemplos para que pueda comprobar distintas formas de trabajar con SINCRONIAIA.</p>'+
-    '<p><strong>No representan exactamente su actividad.</strong> Elija el ejemplo que quiera probar.</p>';
+
+  if(tipoDetectado){
+    head.innerHTML='<strong>✅ Código correcto</strong>'+
+      '<div class="personalized-business">'+escHtml(negocio)+'</div>'+
+      (responsable?'<div class="personalized-owner">'+escHtml(responsable)+'</div>':'')+
+      '<p>Hemos preparado una demostración para que pueda probar la experiencia <strong>como si fuera uno de sus clientes</strong>.</p>';
+  }else{
+    head.innerHTML='<strong>✅ Código correcto</strong>'+
+      '<div class="personalized-business">'+escHtml(negocio)+'</div>'+
+      (responsable?'<div class="personalized-owner">'+escHtml(responsable)+'</div>':'')+
+      '<p>Elija el ejemplo que mejor se aproxime a su actividad.</p>';
+  }
+
   status.appendChild(head);
 
   const box=document.createElement('div');
   box.className='personalized-demo-options';
 
-  [
-    ['🍽️','Reservas y atención','Restaurante Demo','Información, horarios, carta y reservas.','restaurante'],
-    ['🏥','Citas y agenda','Fisioterapia Demo','Servicios, consultas, horarios y citas.','fisio'],
-    ['🏠','Solicitudes y oportunidades','Reformas Demo','Consultas, visitas y solicitudes de presupuesto.','reformas']
-  ].forEach(([icon,title,demo,desc,tipo])=>{
+  const opciones=tipoDetectado
+    ? [datosDemoPersonalizada(tipoDetectado)]
+    : [
+        ['🍽️','Reservas y atención','Restaurante Demo','Información, horarios, carta y reservas.','restaurante'],
+        ['🏥','Citas y agenda','Fisioterapia Demo','Servicios, consultas, horarios y citas.','fisio'],
+        ['🏠','Solicitudes y oportunidades','Reformas Demo','Consultas, visitas y solicitudes de presupuesto.','reformas']
+      ];
+
+  opciones.filter(Boolean).forEach(([icon,title,demo,desc,tipo])=>{
     const b=document.createElement('button');
     b.type='button';
     b.className='personalized-demo-option';
