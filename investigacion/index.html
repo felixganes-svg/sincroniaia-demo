@@ -89,7 +89,7 @@ button,input,textarea,select{font:inherit}button{touch-action:manipulation}
 
 Este cuestionario tiene un único objetivo: comprender cómo funciona realmente su negocio para detectar oportunidades que le permitan recuperar tiempo, mejorar la organización y reducir tareas repetitivas.
 
-No intentaremos venderle nada durante el cuestionario. Al finalizar, recibirá gratuitamente su Pasaporte Digital del Negocio, con una primera valoración personalizada.</div></div><div class="row"><div class="bubble">Primero necesito sus datos generales.</div></div><section class="card" id="generalCard"><h2>Datos generales y contacto</h2><p>Complete estos datos una sola vez. Después iremos pregunta a pregunta. <strong style="font-size:11px">INVESTIGACIÓN v0.3.9 · PRECARGA VERIFICABLE</strong></p><div class="field"><label>Nombre del negocio</label><input id="businessName" autocomplete="organization"></div><div class="field"><label>Persona de contacto / propietario/a</label><input id="owner" autocomplete="name"></div><div class="field"><label>Sector</label><input id="sector"></div><div class="field"><label>WhatsApp o teléfono</label><input id="whatsapp" type="tel" inputmode="tel" autocomplete="tel"></div><div class="field"><label>Correo electrónico</label><input id="email" type="email" inputmode="email" autocomplete="email"></div><div id="prefillStatus" style="margin:10px 0 12px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;font-size:13px;font-weight:700"></div><button class="primary" id="startBtn" type="button">Comenzar cuestionario →</button></section><div id="conversation"></div><section class="card hidden" id="studyCard"><h2>Estudio inicial</h2><div class="field"><label>¿Desea recibir un estudio inicial de su negocio?</label><select id="wantsStudy"><option value="">Seleccione</option><option value="Sí">Sí, deseo recibirlo</option><option value="No">No, de momento no</option></select></div><div id="studyExtra" class="hidden"><div class="field"><label>¿Prefiere una demostración en directo o una demostración preparada?</label><input id="demoType"></div><div class="field"><label>¿Qué día le iría mejor para hablar?</label><input id="bestDay"></div><div class="field"><label>¿En qué horario tiene más disponibilidad?</label><input id="bestTime"></div><div class="field"><label>¿Por qué canal prefiere el contacto?</label><select id="preferredChannel"><option value="">Seleccione</option><option>WhatsApp</option><option>Llamada</option><option>Email</option></select></div></div><button class="primary" id="reviewBtn" type="button">Revisar y enviar →</button></section><section class="card hidden" id="reviewCard"><h2>Revisión final</h2><p>Compruebe los datos antes de enviar el estudio.</p><div class="review" id="reviewBox"></div><button class="primary" id="submitBtn" type="button" style="margin-top:12px">Enviar estudio</button><button class="secondary" id="backStudyBtn" type="button" style="margin-top:8px">← Volver</button><div id="submitStatus" class="status"></div></section><section class="card hidden" id="doneCard"><div class="success"><strong>Estudio recibido correctamente.</strong><br><br>Referencia: <strong id="resultId">—</strong><br><span id="resultEmail"></span><br><br>Muchas gracias por dedicar unos minutos a conocer mejor su negocio.<br><br>Revisaremos la información facilitada y nos pondremos en contacto con usted para comentar los resultados y los posibles siguientes pasos.<br><br><strong>SINCRONIAIA — Devolvemos tiempo para vivir.</strong></div><button class="primary" id="closeBtn" type="button" style="margin-top:12px">Cerrar</button></section><section class="card hidden" id="closedCard"><div class="success" style="text-align:center"><strong>✓ Estudio finalizado</strong><br><br>Muchas gracias.<br>Ya puede cerrar esta página.</div></section></main><div class="composer hidden" id="composer"><textarea id="answerInput" rows="1" placeholder="Escriba su respuesta..."></textarea><button class="send" id="sendBtn" type="button" aria-label="Enviar">➤</button></div><iframe name="sincroniaSubmitFrame" id="sincroniaSubmitFrame" class="hidden"></iframe></div><script>
+No intentaremos venderle nada durante el cuestionario. Al finalizar, recibirá gratuitamente su Pasaporte Digital del Negocio, con una primera valoración personalizada.</div></div><div class="row"><div class="bubble">Primero necesito sus datos generales.</div></div><section class="card" id="generalCard"><h2>Datos generales y contacto</h2><p>Complete estos datos una sola vez. Después iremos pregunta a pregunta. <strong id="buildMark" style="display:inline-block;margin-left:6px;font-size:11px;padding:3px 7px;border:1px solid currentColor;border-radius:999px">v0.4.0 PRECARGA VALIDADA</strong></p><div class="field"><label>Nombre del negocio</label><input id="businessName" autocomplete="organization"></div><div class="field"><label>Persona de contacto / propietario/a</label><input id="owner" autocomplete="name"></div><div class="field"><label>Sector</label><input id="sector"></div><div class="field"><label>WhatsApp o teléfono</label><input id="whatsapp" type="tel" inputmode="tel" autocomplete="tel"></div><div class="field"><label>Correo electrónico</label><input id="email" type="email" inputmode="email" autocomplete="email"></div><div id="prefillStatus" style="margin:10px 0 12px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;font-size:13px;font-weight:700"></div><button class="primary" id="startBtn" type="button">Comenzar cuestionario →</button></section><div id="conversation"></div><section class="card hidden" id="studyCard"><h2>Estudio inicial</h2><div class="field"><label>¿Desea recibir un estudio inicial de su negocio?</label><select id="wantsStudy"><option value="">Seleccione</option><option value="Sí">Sí, deseo recibirlo</option><option value="No">No, de momento no</option></select></div><div id="studyExtra" class="hidden"><div class="field"><label>¿Prefiere una demostración en directo o una demostración preparada?</label><input id="demoType"></div><div class="field"><label>¿Qué día le iría mejor para hablar?</label><input id="bestDay"></div><div class="field"><label>¿En qué horario tiene más disponibilidad?</label><input id="bestTime"></div><div class="field"><label>¿Por qué canal prefiere el contacto?</label><select id="preferredChannel"><option value="">Seleccione</option><option>WhatsApp</option><option>Llamada</option><option>Email</option></select></div></div><button class="primary" id="reviewBtn" type="button">Revisar y enviar →</button></section><section class="card hidden" id="reviewCard"><h2>Revisión final</h2><p>Compruebe los datos antes de enviar el estudio.</p><div class="review" id="reviewBox"></div><button class="primary" id="submitBtn" type="button" style="margin-top:12px">Enviar estudio</button><button class="secondary" id="backStudyBtn" type="button" style="margin-top:8px">← Volver</button><div id="submitStatus" class="status"></div></section><section class="card hidden" id="doneCard"><div class="success"><strong>Estudio recibido correctamente.</strong><br><br>Referencia: <strong id="resultId">—</strong><br><span id="resultEmail"></span><br><br>Muchas gracias por dedicar unos minutos a conocer mejor su negocio.<br><br>Revisaremos la información facilitada y nos pondremos en contacto con usted para comentar los resultados y los posibles siguientes pasos.<br><br><strong>SINCRONIAIA — Devolvemos tiempo para vivir.</strong></div><button class="primary" id="closeBtn" type="button" style="margin-top:12px">Cerrar</button></section><section class="card hidden" id="closedCard"><div class="success" style="text-align:center"><strong>✓ Estudio finalizado</strong><br><br>Muchas gracias.<br>Ya puede cerrar esta página.</div></section></main><div class="composer hidden" id="composer"><textarea id="answerInput" rows="1" placeholder="Escriba su respuesta..."></textarea><button class="send" id="sendBtn" type="button" aria-label="Enviar">➤</button></div><iframe name="sincroniaSubmitFrame" id="sincroniaSubmitFrame" class="hidden"></iframe></div><script>
 const BACKEND_URL="https://script.google.com/macros/s/AKfycbyeGxhnORaHCy8XiJuM_AMn2PacynMxso8h-6_T3OenbTLMG087eC_6Bo-02deaEhL0/exec"; const QUESTIONS=[["time", "1. ¿Cuánto tiempo lleva funcionando el negocio?", "input"], ["day", "2. ¿Cómo es un día normal desde que abre hasta que cierra?", "textarea"], ["people", "3. ¿Cuántas personas trabajan actualmente?", "input"], ["role", "4. ¿Participa directamente o principalmente organiza y decide?", "input"], ["onlyyou", "5. ¿Qué parte del negocio solo puede hacer usted? ¿Por qué?", "textarea"], ["tomorrow", "6. Si mañana no pudiera venir, ¿qué quedaría pendiente?", "textarea"], ["oneperson", "7. ¿Hay una tarea que solamente sepa realizar una persona?", "input"], ["absence", "8. ¿Qué sucede cuando esa persona no está disponible?", "textarea"], ["eliminate", "9. Si pudiera eliminar una tarea de mañana, ¿cuál sería?", "input"], ["tomorrowpro", "10. ¿Qué suele dejar siempre para mañana?", "input"], ["frustration", "11. ¿Qué le frustra más al coordinarse con clientes o proveedores?", "textarea"], ["workhours", "12. ¿Cómo gestiona avisos, encargos o reservas dentro del horario?", "input"], ["afterhours", "13. ¿También recibe avisos fuera del horario? ¿Cómo los gestiona?", "input"], ["home", "14. Cuando llega a casa, ¿qué se lleva todavía del negocio?", "input"], ["daysweek", "15. ¿Cuántos días trabaja a la semana?", "input"], ["hoursweek", "16. ¿Cuántas horas trabaja al día o a la semana?", "input"], ["freetime", "17. ¿Tiene tiempo libre para usted?", "input"], ["twohours", "18. ¿Qué haría si tuviera dos horas libres cada día?", "input"], ["oneyear", "19. ¿Qué tendría que cambiar para que dentro de un año dijera que ha merecido la pena?", "textarea"], ["online", "20. ¿Cómo encuentra la gente el negocio?", "input"], ["important", "21. ¿Hay algo importante que no le hayamos preguntado?", "textarea"]]; let answers={},index=0,sending=false,clientToken=''; const E=id=>document.getElementById(id); const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); function scrollBottom(){requestAnimationFrame(()=>{E('chat').scrollTop=E('chat').scrollHeight})}
 function focusAnswer(){
   const input=E('answerInput');
@@ -110,72 +110,60 @@ function focusAnswer(){
 }
 function clearQuestionView(){E('conversation').innerHTML=''}
 function bubble(text,me=false){const r=document.createElement('div');r.className='row'+(me?' me':'');const b=document.createElement('div');b.className='bubble';b.textContent=text;r.appendChild(b);E('conversation').appendChild(r);scrollBottom()} function updateProgress(){E('progressBar').style.width=((index/QUESTIONS.length)*100)+'%'} function validGeneral(){if(!E('businessName').value.trim()){alert('Indique el nombre del negocio.');E('businessName').focus();return false}if(!E('owner').value.trim()){alert('Indique la persona de contacto.');E('owner').focus();return false}if(!E('sector').value.trim()){alert('Indique el sector.');E('sector').focus();return false}return true} function showQuestion(){if(index>=QUESTIONS.length){E('composer').classList.add('hidden');clearQuestionView();bubble('Gracias. Hemos terminado las 21 preguntas. A continuación puede revisar y completar el estudio.');E('studyCard').classList.remove('hidden');E('progressBar').style.width='100%';E('studyCard').scrollIntoView({behavior:'smooth',block:'start'});return}clearQuestionView();const [id,label,type]=QUESTIONS[index];bubble(label);E('answerInput').value=answers[id]||'';E('answerInput').placeholder=type==='textarea'?'Escriba su respuesta con sus palabras...':'Escriba su respuesta...';E('composer').classList.remove('hidden');updateProgress();scrollBottom();setTimeout(focusAnswer,120)} function sendAnswer(){const val=E('answerInput').value.trim();if(!val){focusAnswer();return}const [id]=QUESTIONS[index];answers[id]=val;bubble(val,true);index++;E('answerInput').value='';showQuestion();setTimeout(focusAnswer,160)} 
-function sincroniaLeerClienteUrl_(){
-  const salida={negocio:'',persona:'',sector:'',telefono:'',email:'',ref:''};
-
-  function aplicar(params){
-    if(!params) return;
-    salida.negocio  = salida.negocio  || params.get('negocio')      || params.get('businessName') || '';
-    salida.persona  = salida.persona  || params.get('persona')      || params.get('owner')        || '';
-    salida.sector   = salida.sector   || params.get('sector')       || '';
-    salida.telefono = salida.telefono || params.get('telefono')     || params.get('whatsapp')     || '';
-    salida.email    = salida.email    || params.get('email')        || '';
-    salida.ref      = salida.ref      || params.get('ref')          || '';
-  }
-
-  try{ aplicar(new URLSearchParams(window.location.search || '')); }catch(_){}
-  try{
-    const h=(window.location.hash||'').replace(/^#/,'');
-    if(h) aplicar(new URLSearchParams(h));
-  }catch(_){}
-
-  return salida;
-}
-
-function sincroniaAplicarClienteUrl_(){
-  const d=sincroniaLeerClienteUrl_();
-  const asignaciones=[
-    ['businessName',d.negocio],
-    ['owner',d.persona],
-    ['sector',d.sector],
-    ['whatsapp',d.telefono],
-    ['email',d.email]
+function sincroniaPrefillV040(){
+  const params=new URLSearchParams(window.location.search||'');
+  const data={
+    negocio: params.get('negocio') || params.get('businessName') || '',
+    persona: params.get('persona') || params.get('owner') || '',
+    sector: params.get('sector') || '',
+    telefono: params.get('telefono') || params.get('whatsapp') || '',
+    email: params.get('email') || '',
+    ref: params.get('ref') || ''
+  };
+  const pairs=[
+    ['businessName',data.negocio],
+    ['owner',data.persona],
+    ['sector',data.sector],
+    ['whatsapp',data.telefono],
+    ['email',data.email]
   ];
-
-  let cargados=0;
-  asignaciones.forEach(([id,valor])=>{
-    const campo=document.getElementById(id);
-    if(campo && valor){
-      campo.value=valor;
-      campo.setAttribute('value',valor);
-      cargados++;
+  let loaded=0;
+  pairs.forEach(([id,value])=>{
+    const node=document.getElementById(id);
+    if(node && value){
+      node.value=value;
+      node.setAttribute('value',value);
+      node.dispatchEvent(new Event('input',{bubbles:true}));
+      node.dispatchEvent(new Event('change',{bubbles:true}));
+      loaded++;
     }
   });
-
-  const estado=document.getElementById('prefillStatus');
-  if(estado){
-    if(cargados===5){
-      estado.style.borderColor='#16a34a';
-      estado.style.color='#166534';
-      estado.textContent='✓ Cliente cargado: '+d.negocio+' · 5 datos precargados';
-    }else if(cargados>0){
-      estado.style.borderColor='#f59e0b';
-      estado.style.color='#92400e';
-      estado.textContent='⚠ Cliente recibido parcialmente: '+cargados+' de 5 datos';
+  const st=document.getElementById('prefillStatus');
+  if(st){
+    if(loaded===5){
+      st.textContent='✓ Cliente cargado: '+data.negocio+' · 5 datos precargados';
+      st.setAttribute('data-prefill','ok');
+      st.style.color='#166534';
+      st.style.borderColor='#16a34a';
+    }else if(loaded>0){
+      st.textContent='⚠ Cliente cargado parcialmente: '+loaded+' de 5 datos';
+      st.setAttribute('data-prefill','partial');
+      st.style.color='#92400e';
+      st.style.borderColor='#f59e0b';
     }else{
-      estado.style.borderColor='#dc2626';
-      estado.style.color='#991b1b';
-      estado.textContent='✕ Esta página no ha recibido datos del cliente';
+      st.textContent='Formulario abierto sin datos de cliente';
+      st.setAttribute('data-prefill','empty');
+      st.style.color='#991b1b';
+      st.style.borderColor='#dc2626';
     }
   }
-
-  if(d.ref) document.documentElement.dataset.clienteRef=d.ref;
-  return {datos:d,cargados:cargados};
+  if(data.ref) document.documentElement.setAttribute('data-cliente-ref',data.ref);
+  document.documentElement.setAttribute('data-prefill-loaded',String(loaded));
+  return loaded;
 }
-
-const SINCRONIA_PREFILL_RESULT=sincroniaAplicarClienteUrl_();
-window.addEventListener('pageshow',sincroniaAplicarClienteUrl_);
-window.addEventListener('load',()=>setTimeout(sincroniaAplicarClienteUrl_,50));
+// Ejecutar ahora: el script está al final del documento y los campos ya existen.
+sincroniaPrefillV040();
+window.addEventListener('pageshow',()=>setTimeout(sincroniaPrefillV040,0));
 
 E('startBtn').onclick=()=>{if(!validGeneral())return;E('generalCard').classList.add('hidden');bubble('Perfecto. Empezamos.');showQuestion()};E('sendBtn').onclick=sendAnswer;
 E('answerInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAnswer()}});
