@@ -1,2000 +1,308 @@
-<!DOCTYPE html>
-<html lang="es" class="portal-mode">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>SINCRONIAIA — Demo Pública</title>
-<style>
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        body {
-            background-color: #0b141a;
-            color: #e9edef;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            height: 100dvh;
-            overflow: hidden;
-        }
-
-        /* Contenedor principal estilo móvil */
-        .mobile-container {
-            width: 100%;
-            max-width: 480px;
-            height: 100%;
-            background-color: #efeae2;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        }
-
-        @media (min-width: 481px) {
-            .mobile-container {
-                height: 92vh;
-                border-radius: 20px;
-                overflow: hidden;
-            }
-        }
-
-        /* Cabecera WhatsApp */
-        .wa-header {
-            background-color: #00a884;
-            color: #ffffff;
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            z-index: 10;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-        }
-
-        .wa-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #25d366;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .wa-contact-info h1 {
-            font-size: 16px;
-            font-weight: 500;
-        }
-
-        .wa-contact-info p {
-            font-size: 12px;
-            opacity: 0.85;
-        }
-
-        /* Cuerpo del chat */
-        .wa-chat-body {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            background-image: radial-gradient(#d1d7db 0.75px, transparent 0.75px);
-            background-size: 24px 24px;
-            background-color: #efeae2;
-        }
-
-        /* Burbujas de mensajes */
-        .message {
-            max-width: 85%;
-            padding: 9px 12px;
-            border-radius: 7.5px;
-            font-size: 15px;
-            line-height: 1.45;
-            position: relative;
-            word-wrap: break-word;
-            box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
-            color: #111b21;
-            white-space: pre-line;
-        }
-
-        .message.incoming {
-            background-color: #ffffff;
-            align-self: flex-start;
-            border-top-left-radius: 0;
-        }
-
-        .message.outgoing {
-            background-color: #d9fdd3;
-            align-self: flex-end;
-            border-top-right-radius: 0;
-        }
-
-        .message-time {
-            font-size: 11px;
-            color: #667781;
-            float: right;
-            margin-left: 8px;
-            margin-top: 4px;
-        }
-
-        /* Botones de opciones rápidas (Chips tipo WhatsApp Business) */
-        .quick-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 4px;
-            align-self: flex-start;
-            max-width: 90%;
-        }
-
-        .quick-chip {
-            background-color: #ffffff;
-            color: #00a884;
-            border: 1px solid #00a884;
-            padding: 8px 14px;
-            border-radius: 16px;
-            font-size: 13px;
-            cursor: pointer;
-            font-weight: 500;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            transition: background 0.15s;
-        }
-
-        .quick-chip:active {
-            background-color: #e2fbf0;
-        }
-
-        /* Barra inferior */
-        .wa-footer {
-            background-color: #f0f2f5;
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 10;
-        }
-
-        .wa-input {
-            flex: 1;
-            background-color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 16px;
-            font-size: 15px;
-            color: #111b21;
-            outline: none;
-        }
-
-        .wa-input::placeholder {
-            color: #8696a0;
-        }
-
-        .wa-send-btn {
-            background-color: #00a884;
-            color: white;
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-    
-
-.demo-selector {
-  position:fixed; inset:0; z-index:100;
-  background:#efeae2; display:flex; flex-direction:column;
-}
-.demo-selector.hidden{display:none}
-.selector-header{background:#00a884;color:white;padding:18px 16px}
-.selector-header h1{font-size:22px;font-weight:600}
-.selector-header p{margin-top:4px;font-size:13px;opacity:.9}
-.selector-body{flex:1;padding:18px 16px;overflow:auto}
-.selector-card{background:#fff;color:#111b21;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.12);cursor:pointer}
-.selector-card h2{font-size:18px;margin-bottom:6px}
-.selector-card p{font-size:14px;line-height:1.4;color:#667781}
-.selector-card:active{background:#e2fbf0}
-.back-btn{margin-left:auto;background:transparent;color:white;border:1px solid rgba(255,255,255,.65);border-radius:16px;padding:6px 10px;font-size:12px;cursor:pointer}
-.wa-header{justify-content:flex-start}
-
-/* ===== SINCRONIAIA v1.7 · PUERTA DE ACCESO APROBADA ===== */
-.access-gateway{
-  position:fixed; inset:0; z-index:300;
-  background:#f7faf9;
-  color:#0c2d29;
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-}
-.access-page{
-  min-height:100%;
-  background:
-    radial-gradient(circle at 90% 12%,rgba(92,219,190,.17),transparent 24rem),
-    radial-gradient(circle at 8% 35%,rgba(124,231,207,.14),transparent 28rem),
-    #fbfdfc;
-}
-.access-top{
-  height:78px;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 28px;
-  background:#fff;
-  border-bottom:1px solid #e4ece9;
-}
-.access-logo{
-  display:flex;align-items:center;gap:10px;
-  font-weight:900;font-size:21px;letter-spacing:.01em;color:#0c2d29;
-}
-.access-logo .inf{font-size:34px;line-height:1;color:#00a884;font-weight:900}
-.access-badge{
-  border:1px solid #75cfbc;color:#087861;background:#f7fffc;
-  border-radius:999px;padding:8px 14px;font-size:12px;font-weight:900;
-}
-.access-main{width:min(100%,1040px);margin:0 auto;padding:52px 28px 0}
-.access-hero{text-align:center;margin-bottom:34px}
-.access-hero h1{
-  margin:0 auto 13px;max-width:650px;
-  font-size:clamp(31px,4.7vw,52px);line-height:1.08;letter-spacing:-.035em;
-  color:#082f2b;font-weight:900;
-}
-.access-hero p{
-  margin:0 auto;max-width:620px;color:#405d59;
-  font-size:17px;line-height:1.55;
-}
-.access-entry-grid{
-  display:grid;grid-template-columns:1fr 62px 1fr;align-items:stretch;
-  gap:16px;margin:0 auto 38px;max-width:930px;
-}
-.access-card{
-  background:rgba(255,255,255,.93);
-  border:1px solid #cfe4df;border-radius:16px;padding:27px 26px;
-  box-shadow:0 9px 30px rgba(7,67,56,.08);
-}
-.access-card.code{background:linear-gradient(145deg,#f4fffb,#ffffff)}
-.access-card.free{background:linear-gradient(145deg,#f5f9ff,#ffffff);border-color:#d7e2f3}
-.access-card h2{margin:0 0 10px;font-size:20px;text-align:center;color:#0b765f}
-.access-card.free h2{color:#1e53b5}
-.access-card p{margin:0 auto 18px;max-width:340px;text-align:center;color:#4c625f;font-size:14px;line-height:1.55}
-.access-code-input{
-  display:block;width:100%;height:48px;border:1px solid #d2dfdc;border-radius:8px;
-  padding:0 14px;font-size:16px;outline:none;text-transform:uppercase;letter-spacing:.08em;
-  margin-bottom:10px;color:#0b2b27;background:#fff;
-}
-.access-code-input:focus{border-color:#00a884;box-shadow:0 0 0 3px rgba(0,168,132,.12)}
-.access-btn{
-  display:block;width:100%;height:48px;border:0;border-radius:8px;
-  font-size:13px;font-weight:900;cursor:pointer;letter-spacing:.01em;
-}
-.access-btn.green{background:linear-gradient(180deg,#05876d,#006c58);color:#fff}
-.access-btn.blue{background:linear-gradient(180deg,#1164d8,#0c4fb9);color:#fff}
-.access-card-foot{text-align:center;margin-top:13px;color:#5d716e;font-size:12px}
-.access-card-foot strong{color:#08765f}
-.access-status{min-height:20px;margin-top:10px;text-align:center;font-size:13px;color:#667781;line-height:1.4}
-.access-status.error{color:#b42318}
-.access-or{
-  display:flex;align-items:center;justify-content:center;
-  color:#123c37;font-weight:900;font-size:17px;
-}
-.access-or span{
-  width:48px;height:48px;border-radius:50%;display:grid;place-items:center;
-  background:#fff;box-shadow:0 4px 15px rgba(10,69,58,.12);border:1px solid #e0e9e6;
-}
-.access-demos{padding:4px 0 40px}
-.access-section-title{text-align:center;font-size:21px;font-weight:900;margin:0 0 20px;color:#0b342f}
-.access-demo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.access-demo-card{
-  background:#fff;border:1px solid #e4e8e6;border-radius:14px;
-  padding:22px 20px;text-align:center;box-shadow:0 7px 20px rgba(18,64,56,.06)
-}
-.access-demo-card.rest{background:linear-gradient(180deg,#fff9ee,#fffdf8)}
-.access-demo-card.fisio{background:linear-gradient(180deg,#f3f9ff,#fbfdff)}
-.access-demo-card.ref{background:linear-gradient(180deg,#f5fbf5,#fbfefb)}
-.access-demo-icon{
-  width:58px;height:58px;border-radius:50%;display:grid;place-items:center;
-  margin:0 auto 13px;color:#fff;font-size:26px;font-weight:800;
-}
-.rest .access-demo-icon{background:#ee9207}
-.fisio .access-demo-icon{background:#228ccc}
-.ref .access-demo-icon{background:#2f994c}
-.access-demo-card h3{font-size:16px;margin:0 0 8px}
-.rest h3{color:#d87b00}.fisio h3{color:#1170b8}.ref h3{color:#238540}
-.access-demo-card p{min-height:44px;margin:0 0 15px;color:#4e605d;font-size:13px;line-height:1.45}
-.access-demo-btn{
-  width:100%;border:0;border-radius:7px;padding:11px 10px;
-  color:#fff;font-size:12px;font-weight:900;cursor:pointer
-}
-.rest .access-demo-btn{background:#eb8b00}
-.fisio .access-demo-btn{background:#1260cc}
-.ref .access-demo-btn{background:#159048}
-.access-capabilities{
-  background:#fff;border-top:1px solid #e5ece9;border-bottom:1px solid #e5ece9;
-  margin-top:4px;padding:24px 16px;
-}
-.access-cap-title{text-align:center;font-size:17px;font-weight:900;margin-bottom:18px;color:#0a312c}
-.access-cap-grid{
-  width:min(100%,900px);margin:0 auto;
-  display:grid;grid-template-columns:repeat(5,1fr);gap:18px;
-}
-.access-cap{text-align:center;color:#183e39;font-size:12px;line-height:1.4}
-.access-cap .ico{font-size:27px;margin-bottom:7px;color:#00876d}
-.access-footer{background:#073d37;color:#fff;text-align:center;padding:19px 16px 23px}
-.access-footer strong{display:block;font-size:16px;margin-bottom:5px}
-.access-footer span{font-size:12px;opacity:.88}
-.access-hidden{display:none!important}
-.personalized-note{
-  width:calc(100% - 16px);margin:8px 8px 4px;padding:11px 13px;border-radius:12px;
-  background:#e7f7f1;border:1px solid #a8dccd;color:#16483c;font-size:13px;line-height:1.45
-}
-@media(max-width:760px){
-  .access-top{height:64px;padding:0 15px}
-  .access-logo{font-size:16px}.access-logo .inf{font-size:28px}
-  .access-badge{font-size:10px;padding:6px 9px}
-  .access-main{padding:31px 13px 0}
-  .access-hero{margin-bottom:24px}
-  .access-hero h1{font-size:31px;max-width:390px}
-  .access-hero p{font-size:14px;max-width:360px}
-  .access-entry-grid{grid-template-columns:1fr;gap:10px;margin-bottom:27px}
-  .access-or{height:42px}
-  .access-or span{width:40px;height:40px;font-size:14px}
-  .access-card{padding:20px 17px}
-  .access-card h2{font-size:17px}
-  .access-card p{font-size:13px}
-  .access-demo-grid{grid-template-columns:1fr;gap:12px}
-  .access-demo-card{display:grid;grid-template-columns:58px 1fr;column-gap:14px;text-align:left;align-items:center;padding:16px}
-  .access-demo-icon{grid-row:1/4;margin:0}
-  .access-demo-card p{min-height:0;margin-bottom:10px}
-  .access-demo-btn{grid-column:2}
-  .access-cap-grid{grid-template-columns:repeat(2,1fr);gap:20px}
-}
-@media(max-width:420px){
-  .access-badge{display:none}
-  .access-hero h1{font-size:27px}
-  .access-main{padding-left:10px;padding-right:10px}
-}
-
-
-#portalSincronia{min-height:100vh;background:radial-gradient(circle at 85% 12%,rgba(15,157,122,.10),transparent 28%),linear-gradient(180deg,#fff 0%,#f7fbfa 100%);color:#073b34;font-family:inherit}
-.portal-top{min-height:84px;padding:18px clamp(20px,5vw,64px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #dceae6;background:#fff}.portal-brand{display:flex;align-items:center;gap:12px;font-size:25px;font-weight:900}.portal-brand .infinity{font-size:34px;color:#07956f}.portal-brand small{display:block;font-size:12px;color:#07956f;margin-top:2px}.portal-security{border:1px solid #cde6df;border-radius:14px;padding:10px 14px;font-size:13px;color:#31564f}
-.portal-wrap{max-width:1180px;margin:auto;padding:52px 24px 44px}.portal-hero{text-align:center;margin-bottom:34px}.portal-hero h1{font-size:clamp(34px,5vw,56px);line-height:1.04;margin:0 0 14px;color:#063b34}.portal-hero p{font-size:clamp(17px,2vw,21px);color:#526863;margin:0}.portal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-.portal-card{background:#fff;border:1px solid #d9e8e4;border-radius:22px;padding:28px 25px 24px;box-shadow:0 12px 36px rgba(13,66,56,.07);display:flex;flex-direction:column;min-height:390px}.portal-card.study{border-color:#b8dfd1}.portal-card.demo{border-color:#c9dcf8}.portal-card.private{border-color:#ddd0f4}.portal-icon{width:82px;height:82px;border-radius:50%;display:grid;place-items:center;font-size:38px;margin:0 auto 20px;background:#edf8f4}.demo .portal-icon{background:#edf4ff}.private .portal-icon{background:#f4effc}
-.portal-card h2{text-align:center;font-size:23px;line-height:1.15;margin:0 0 15px;color:#074b3e}.demo h2{color:#1458bd}.private h2{color:#5d35a8}.portal-card p{text-align:center;color:#4b5e5a;line-height:1.55;margin:0 0 18px}.portal-points{margin:0 0 22px;padding:0;list-style:none;display:grid;gap:10px;font-size:14px;color:#304b45}.portal-points li:before{content:"✓";font-weight:900;color:#07956f;margin-right:9px}.portal-card .portal-btn{margin-top:auto}
-.portal-btn{width:100%;min-height:52px;border:0;border-radius:12px;font-weight:900;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;color:#fff;background:#078c6a}.demo .portal-btn{background:#1765d5}.private .portal-btn{background:#6941b5}.portal-note{text-align:center;font-size:12px;margin-top:13px;color:#6b7e79}.portal-bottom{margin-top:34px;padding:22px;border:1px solid #dceae6;border-radius:18px;background:#fff;display:flex;justify-content:space-between;gap:20px}.portal-bottom strong{font-size:18px}.portal-bottom span{color:#60736e;font-size:14px}
-.portal-back{position:fixed;z-index:9999;left:14px;bottom:14px;border:0;border-radius:999px;padding:11px 15px;background:#063b34;color:#fff;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.18);cursor:pointer}
-@media(max-width:820px){.portal-top{min-height:70px;padding:14px 18px}.portal-brand{font-size:20px}.portal-brand .infinity{font-size:28px}.portal-security{display:none}.portal-wrap{padding:34px 16px 28px}.portal-hero{margin-bottom:25px}.portal-grid{grid-template-columns:1fr;gap:16px}.portal-card{min-height:0;padding:22px 20px}.portal-icon{width:68px;height:68px;font-size:32px;margin-bottom:15px}.portal-card h2{font-size:20px}.portal-bottom{display:block;text-align:center}.portal-bottom span{display:block;margin-top:7px}}
-
-
-/* ===== SINCRONIAIA PORTAL v1.8.1 · MOBILE FIX ===== */
-@media(max-width:820px){
-  html,body{width:100%;max-width:100%;overflow-x:hidden}
-  #portalSincronia{width:100%;max-width:100%;overflow-x:hidden}
-  .portal-top{width:100%;padding:12px 14px;min-height:64px}
-  .portal-brand{min-width:0;font-size:18px;gap:9px}
-  .portal-brand .infinity{font-size:27px}
-  .portal-brand small{font-size:10px;line-height:1.2}
-  .portal-wrap{width:100%;max-width:100%;padding:24px 12px 26px;margin:0}
-  .portal-hero{margin:0 0 20px}
-  .portal-hero h1{font-size:28px;line-height:1.08;margin-bottom:10px;padding:0 4px}
-  .portal-hero p{font-size:14px;line-height:1.45;padding:0 6px}
-  .portal-grid{display:block;width:100%;max-width:100%}
-  .portal-card{
-    width:100%;max-width:100%;min-width:0;min-height:0;
-    margin:0 0 14px;padding:18px 16px;border-radius:18px;
-    overflow:hidden
-  }
-  .portal-icon{width:60px;height:60px;font-size:29px;margin-bottom:12px}
-  .portal-card h2{font-size:19px;line-height:1.15;margin-bottom:10px;overflow-wrap:anywhere}
-  .portal-card p{font-size:13.5px;line-height:1.45;margin-bottom:14px}
-  .portal-points{font-size:13px;gap:8px;margin-bottom:17px}
-  .portal-points li{line-height:1.35}
-  .portal-btn{
-    width:100%;max-width:100%;min-height:48px;padding:11px 10px;
-    font-size:13px;line-height:1.25;text-align:center;white-space:normal
-  }
-  .portal-note{font-size:11px;line-height:1.35;margin-top:10px}
-  .portal-bottom{width:100%;padding:17px 13px;margin-top:18px;border-radius:16px}
-  .portal-bottom strong{font-size:16px;line-height:1.3}
-  .portal-bottom span{font-size:12px;line-height:1.35}
-  .portal-back{left:10px;right:auto;bottom:10px;max-width:calc(100vw - 20px);font-size:12px;padding:10px 13px}
-}
-@media(max-width:380px){
-  .portal-wrap{padding-left:9px;padding-right:9px}
-  .portal-hero h1{font-size:25px}
-  .portal-card{padding:16px 14px}
-  .portal-card h2{font-size:18px}
-}
-
-/* ===== SINCRONIAIA v1.8.6.2 · MOBILE CHAT · INICIO NO TAPA ESCRITURA ===== */
-@media(max-width:820px){
-  body.demo-chat-active .portal-back{
-    display:none !important;
-  }
-}
-
-
-/* ===== SINCRONIAIA PORTAL v1.8.2 · SCROLL FIX REAL ===== */
-html.portal-mode{
-  height:auto !important;
-  min-height:100% !important;
-  overflow-x:hidden !important;
-  overflow-y:auto !important;
-}
-body.portal-mode{
-  display:block !important;
-  width:100% !important;
-  height:auto !important;
-  min-height:100vh !important;
-  max-height:none !important;
-  overflow-x:hidden !important;
-  overflow-y:auto !important;
-  align-items:initial !important;
-  justify-content:initial !important;
-  background:#f7fbfa !important;
-}
-body.portal-mode #portalSincronia{
-  position:relative !important;
-  min-height:100vh !important;
-  height:auto !important;
-  overflow:visible !important;
-}
-
-
-/* ===== SINCRONIAIA PORTAL v1.8.3 · PC REFINADO ===== */
-@media(min-width:821px){
-  body.portal-mode{padding-top:0 !important}
-  #portalSincronia{padding-top:0 !important}
-
-  .portal-top{
-    position:sticky !important;
-    top:0 !important;
-    z-index:500 !important;
-    min-height:88px !important;
-    padding:16px 48px !important;
-    background:rgba(255,255,255,.97) !important;
-    backdrop-filter:blur(10px);
-    box-shadow:0 1px 0 rgba(6,59,52,.08);
-  }
-
-  .portal-brand{
-    font-size:24px !important;
-    line-height:1.05 !important;
-  }
-  .portal-brand small{
-    font-size:12px !important;
-    margin-top:5px !important;
-  }
-
-  .portal-wrap{
-    max-width:1240px !important;
-    padding:48px 34px 54px !important;
-  }
-
-  .portal-hero{
-    margin:0 auto 38px !important;
-    padding:10px 0 0 !important;
-    max-width:900px;
-  }
-
-  .portal-hero h1{
-    font-size:48px !important;
-    line-height:1.08 !important;
-    margin:0 0 14px !important;
-    letter-spacing:-.025em;
-  }
-
-  .portal-hero p{
-    font-size:19px !important;
-    line-height:1.45 !important;
-  }
-
-  .portal-grid{
-    gap:24px !important;
-    align-items:stretch !important;
-  }
-
-  .portal-card{
-    min-height:420px !important;
-    padding:30px 28px 26px !important;
-  }
-
-  .portal-card h2{
-    font-size:22px !important;
-    line-height:1.18 !important;
-    margin-bottom:14px !important;
-  }
-
-  .portal-card p{
-    font-size:15px !important;
-    line-height:1.55 !important;
-  }
-
-  .portal-points{
-    font-size:14px !important;
-    line-height:1.45 !important;
-    gap:11px !important;
-  }
-
-  .portal-btn{
-    min-height:54px !important;
-    font-size:14px !important;
-  }
-
-  .portal-bottom{
-    margin-top:34px !important;
-    padding:24px 28px !important;
-  }
-}
-
-
-
-
-/* ===== SINCRONIAIA PORTAL v1.8.4 · IDENTIDAD + ACCESO PRIVADO SEGURO ===== */
-@media(min-width:821px){
-  .portal-brand{font-size:30px !important;gap:14px !important}
-  .portal-brand .infinity{font-size:44px !important;line-height:1 !important}
-  .portal-brand small{
-    font-size:15px !important;
-    line-height:1.25 !important;
-    margin-top:6px !important;
-    font-weight:800 !important;
-  }
-  .portal-bottom{
-    align-items:center !important;
-    min-height:92px !important;
-  }
-  .portal-bottom strong{
-    font-size:24px !important;
-    line-height:1.2 !important;
-    letter-spacing:-.01em !important;
-  }
-  .portal-bottom span{
-    font-size:17px !important;
-    font-weight:800 !important;
-  }
-}
-@media(max-width:820px){
-  .portal-brand{font-size:21px !important}
-  .portal-brand .infinity{font-size:31px !important}
-  .portal-brand small{font-size:11px !important;font-weight:800 !important}
-  .portal-bottom strong{font-size:18px !important;line-height:1.25 !important}
-  .portal-bottom span{font-size:13px !important;font-weight:800 !important}
-}
-
-
-/* ===== SINCRONIAIA PORTAL v1.8.5 · CHAT MOBILE FIX ===== */
-@media(max-width:820px){
-  /* La app demo ocupa exactamente la pantalla visible */
-  #sincroniaDemoApp{
-    width:100% !important;
-    height:100dvh !important;
-    min-height:0 !important;
-    max-height:100dvh !important;
-    overflow:hidden !important;
-  }
-
-  #sincroniaDemoApp .mobile-container{
-    width:100% !important;
-    height:100dvh !important;
-    min-height:0 !important;
-    max-height:100dvh !important;
-    display:flex !important;
-    flex-direction:column !important;
-    overflow:hidden !important;
-  }
-
-  #sincroniaDemoApp .wa-header{
-    flex:0 0 auto !important;
-    position:relative !important;
-    z-index:20 !important;
-  }
-
-  #sincroniaDemoApp .wa-chat-body{
-    flex:1 1 auto !important;
-    min-height:0 !important;
-    height:auto !important;
-    max-height:none !important;
-    overflow-y:auto !important;
-    overflow-x:hidden !important;
-    -webkit-overflow-scrolling:touch !important;
-    overscroll-behavior:contain !important;
-    padding-bottom:14px !important;
-  }
-
-  #sincroniaDemoApp .wa-footer{
-    flex:0 0 auto !important;
-    position:relative !important;
-    z-index:30 !important;
-    width:100% !important;
-    min-height:64px !important;
-  }
-
-  #sincroniaDemoApp .wa-input{
-    min-width:0 !important;
-    width:auto !important;
-  }
-
-  #sincroniaDemoApp .quick-options{
-    flex:0 0 auto !important;
-    max-width:100% !important;
-  }
-
-  /* El historial crece dentro del cuerpo, nunca la pantalla completa */
-  #sincroniaDemoApp .message,
-  #sincroniaDemoApp .quick-options{
-    flex-shrink:0 !important;
-  }
-}
-
-
-/* ===== SINCRONIAIA v1.8.6 · CÓDIGO = CLIENTE, DEMO = EJEMPLO ===== */
-.personalized-access{
-  margin-top:14px!important;
-  padding:16px!important;
-  border:1px solid #b8dfd1!important;
-  border-radius:16px!important;
-  background:#f8fcfa!important;
-  color:#183a33!important;
-}
-.personalized-access-head strong{color:#087b60;font-size:16px}
-.personalized-business{font-size:22px;font-weight:900;color:#063b34;margin-top:8px}
-.personalized-owner{font-size:13px;color:#60736e;margin-top:2px}
-.personalized-access-head p{font-size:13px;line-height:1.45;margin:9px 0 0}
-.personalized-demo-options{display:grid;gap:9px;margin-top:14px}
-.personalized-demo-option{
-  width:100%;
-  display:grid;
-  grid-template-columns:44px 1fr;
-  gap:10px;
-  align-items:center;
-  text-align:left;
-  border:1px solid #cee1dc;
-  border-radius:12px;
-  padding:11px;
-  background:#fff;
-  color:#173b34;
-  cursor:pointer;
-}
-.personalized-demo-option:hover{border-color:#00a884;background:#f4fbf8}
-.personalized-demo-icon{font-size:27px;text-align:center}
-.personalized-demo-option strong{display:block;font-size:14px;color:#063b34}
-.personalized-demo-option small{display:block;font-size:11px;font-weight:800;color:#1765d5;margin-top:2px}
-.personalized-demo-option em{display:block;font-size:11px;font-style:normal;color:#657974;line-height:1.35;margin-top:3px}
-
-@media(max-width:820px){
-  .personalized-access{padding:13px!important}
-  .personalized-business{font-size:20px}
-  .personalized-demo-option{min-height:72px;padding:10px}
-  .personalized-demo-option strong{font-size:14px}
-}
-
-</style>
-</head>
-<body class="portal-mode">
-<div id="portalSincronia">
-<header class="portal-top"><div class="portal-brand"><span class="infinity">∞</span><div>SINCRONIAIA<small>La IA trabaja. Tú vuelves a vivir.</small></div></div><div class="portal-security">🛡️ Acceso seguro · Sistemas separados</div></header>
-<main class="portal-wrap"><section class="portal-hero"><h1>Bienvenido a SINCRONIAIA</h1><p>Conozca su negocio, pruebe la IA o acceda a sus herramientas de gestión.</p></section><section class="portal-grid">
-<article class="portal-card study"><div class="portal-icon">🔎</div><h2>INVESTIGACIÓN DE CAMPO</h2><p>Comprenda cómo funciona realmente su negocio y detecte oportunidades para recuperar tiempo y mejorar la organización.</p><ul class="portal-points"><li>Estudio empresarial guiado</li><li>Sin compromiso ni presión comercial</li><li>Primera valoración personalizada</li></ul><a class="portal-btn" href="https://felixganes-svg.github.io/sincroniaia-demo/investigacion/">COMENZAR ESTUDIO →</a><div class="portal-note">Acceso al Estudio Empresarial SINCRONIAIA</div></article>
-<article class="portal-card demo"><div class="portal-icon">🤖</div><h2>PRUEBE CÓMO LA IA PUEDE ATENDER SU NEGOCIO</h2><p>Conversaciones reales, reservas, citas y solicitudes. Así puede trabajar su asistente 24/7.</p><ul class="portal-points"><li>Demo personalizada con código</li><li>Restaurante · Fisioterapia · Reformas</li><li>Puede probar sin registrarse</li></ul><button class="portal-btn" id="portalAbrirDemos" type="button">PROBAR DEMOSTRACIÓN →</button><div class="portal-note">Con código o mediante demos públicas</div></article>
-<article class="portal-card private"><div class="portal-icon">🔐</div><h2>ACCESO PRIVADO SINCRONIAIA</h2><p>Entrada reservada a las herramientas internas de gestión y preparación de demostraciones.</p><ul class="portal-points"><li>Control de Captación</li><li>PRODUCTO 001 y Centro de Demos</li><li>Gestión interna SINCRONIAIA</li></ul><a class="portal-btn" id="abrirCentroPrivadoSeguro" href="https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec">ENTRAR AL ÁREA PRIVADA →</a><div class="portal-note">La clave se solicita y valida en el sistema privado, nunca en GitHub</div></article>
-</section><section class="portal-bottom"><strong>∞ No vendemos IA. Devolvemos tiempo para vivir.</strong><span>La IA trabaja. Tú vuelves a vivir.</span></section></main></div>
-<div id="sincroniaDemoApp" style="display:none">
-
-
-<div id="accessGateway" class="access-gateway">
-  <div class="access-page">
-    <div class="access-top">
-      <div class="access-logo"><span class="inf">∞</span><span>SINCRONIAIA</span></div>
-      <div class="access-badge">DEMO PÚBLICA</div>
-    </div>
-
-    <div class="access-main">
-      <section class="access-hero">
-        <h1>Pruebe cómo la IA puede atender su negocio</h1>
-        <p>Conversaciones reales, reservas, citas y solicitudes.<br>Así trabaja su asistente 24/7.</p>
-      </section>
-
-      <section class="access-entry-grid">
-        <div class="access-card code">
-          <h2>🔑 TENGO UN CÓDIGO</h2>
-          <p>Si SINCRONIAIA ha preparado una demostración para su negocio, introduzca aquí su código.</p>
-          <input id="publicCode" class="access-code-input" maxlength="12" placeholder="Ejemplo: 3JHTH8" autocomplete="off">
-          <button class="access-btn green" type="button" onclick="entrarConCodigo()">ENTRAR A MI DEMO</button>
-          <div id="codeStatus" class="access-status"></div>
-          <div class="access-card-foot">🔒 <strong>Acceso personalizado</strong> para su negocio</div>
-        </div>
-
-        <div class="access-or"><span>o</span></div>
-
-        <div class="access-card free">
-          <h2>👁️ PROBAR SIN CÓDIGO</h2>
-          <p>Puede probar libremente uno de nuestros asistentes de ejemplo.</p>
-          <button class="access-btn blue" type="button" onclick="scrollDemos()">VER DEMOS DISPONIBLES</button>
-          <div class="access-card-foot">👥 Demos generales sin registro</div>
-        </div>
-      </section>
-
-      <section class="access-demos" id="publicDemos">
-        <h2 class="access-section-title">🏪 DEMOS DISPONIBLES</h2>
-        <div class="access-demo-grid">
-          <article class="access-demo-card rest">
-            <div class="access-demo-icon">🍴</div>
-            <h3>RESTAURANTE</h3>
-            <p>Información, carta, horarios, reservas y consultas.</p>
-            <button class="access-demo-btn" type="button" onclick="entrarDemoLibre('restaurante')">PROBAR RESTAURANTE</button>
-          </article>
-          <article class="access-demo-card fisio">
-            <div class="access-demo-icon">🩺</div>
-            <h3>FISIOTERAPIA</h3>
-            <p>Servicios, horarios, citas y consultas.</p>
-            <button class="access-demo-btn" type="button" onclick="entrarDemoLibre('fisio')">PROBAR FISIOTERAPIA</button>
-          </article>
-          <article class="access-demo-card ref">
-            <div class="access-demo-icon">🔧</div>
-            <h3>REFORMAS</h3>
-            <p>Servicios, visitas, presupuestos y consultas.</p>
-            <button class="access-demo-btn" type="button" onclick="entrarDemoLibre('reformas')">PROBAR REFORMAS</button>
-          </article>
-        </div>
-      </section>
-    </div>
-
-    <section class="access-capabilities">
-      <div class="access-cap-title">¿QUÉ PUEDE HACER SU ASISTENTE?</div>
-      <div class="access-cap-grid">
-        <div class="access-cap"><div class="ico">💬</div>Atención automática<br>e inteligente</div>
-        <div class="access-cap"><div class="ico">📅</div>Gestión de citas<br>y reservas</div>
-        <div class="access-cap"><div class="ico">🕒</div>Respuestas 24/7,<br>incluso fuera de horario</div>
-        <div class="access-cap"><div class="ico">📋</div>Recogida de solicitudes<br>y datos</div>
-        <div class="access-cap"><div class="ico">📊</div>Información útil<br>y adaptada a su negocio</div>
-      </div>
-    </section>
-
-    <footer class="access-footer">
-      <strong>∞ SINCRONIAIA</strong>
-      <span>La IA trabaja. Tú vuelves a vivir.</span>
-    </footer>
-  </div>
-</div>
-
-
-<div id="demoSelector" class="demo-selector">
-  <div class="selector-header">
-    <h1>∞ SINCRONIAIA</h1>
-    <p>Elija una demostración</p>
-  </div>
-  <div class="selector-body">
-    <div class="selector-card" onclick="startDemo('restaurante')">
-      <h2>🍽️ Restaurante Demo</h2>
-      <p>Carta, información, horarios y reservas.</p>
-    </div>
-    <div class="selector-card" onclick="startDemo('fisio')">
-      <h2>🏥 Fisioterapia Demo</h2>
-      <p>Servicios, horarios, consultas y citas.</p>
-    </div>
-    <div class="selector-card" onclick="startDemo('reformas')">
-      <h2>🔧 Reformas Demo</h2>
-      <p>Servicios, visitas y solicitudes de presupuesto.</p>
-    </div>
-  </div>
-</div>
-
-<div class="mobile-container">
-  <div class="wa-header">
-    <div class="wa-avatar" id="demoAvatar">∞</div>
-    <div class="wa-contact-info">
-      <h1 id="demoTitle">SINCRONIAIA</h1>
-      <p id="demoStatus">en línea</p>
-    </div>
-    <button class="back-btn" onclick="volverSelector()">Cambiar demo</button>
-  </div>
-
-  <div class="wa-chat-body" id="chatBody"></div>
-
-  <div class="wa-footer">
-    <input type="text" class="wa-input" id="userInput" placeholder="Escribe un mensaje..." autocomplete="off">
-    <button class="wa-send-btn" id="sendBtn" onclick="sendTextFromInput()">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-        <path d="M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"></path>
-      </svg>
-    </button>
-  </div>
-</div>
-
-<script>
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
-
-let accesoPersonalizado = null;
-
-function escHtml(value){
-  return String(value??'').replace(/[&<>"']/g,c=>({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[c]));
-}
-
-function scrollDemos(){
-  document.getElementById('publicDemos')?.scrollIntoView({behavior:'smooth',block:'start'});
-}
-
-function cerrarPuertaAcceso(){ document.getElementById('accessGateway')?.classList.add('access-hidden'); }
-
-function abrirPuertaAcceso(){
-  flujoLocal=null;
-  document.body.classList.remove('demo-chat-active');
-  document.getElementById('accessGateway')?.classList.remove('access-hidden');
-  if(accesoPersonalizado){
-    mostrarSelectorTipoParaCodigo();
-  }else{
-    const status=document.getElementById('codeStatus');
-    if(status){ status.className='access-status'; status.innerHTML=''; }
-  }
-}
-
-function entrarDemoLibre(tipo){
-  accesoPersonalizado=null;
-  cerrarPuertaAcceso();
-  startDemo(tipo);
-}
-
-async function entrarConCodigo(){
-  const input=document.getElementById('publicCode');
-  const status=document.getElementById('codeStatus');
-  const codigo=String(input.value||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
-  if(!codigo){
-    status.className='access-status error';
-    status.textContent='Introduzca el código recibido.';
-    return;
-  }
-
-  status.className='access-status';
-  status.textContent='Comprobando código…';
-
-  try{
-    const r=await jsonp({api:'codigo',codigo:codigo});
-    if(!r || r.ok===false){
-      accesoPersonalizado=null;
-      status.className='access-status error';
-      status.textContent=(r&&r.error)?r.error:'Código no válido o caducado.';
-      return;
-    }
-
-    accesoPersonalizado=r;
-    mostrarSelectorTipoParaCodigo();
-  }catch(e){
-    accesoPersonalizado=null;
-    status.className='access-status error';
-    status.textContent='No se ha podido comprobar el código. Inténtelo de nuevo.';
-  }
-}
-
-function detectarDemoPersonalizada(data){
-  const texto=[
-    data&&data.sector,
-    data&&data.actividad,
-    data&&data.tipo,
-    data&&data.tipo_demo,
-    data&&data.categoria
-  ].filter(Boolean).join(' ').toLowerCase();
-
-  if(/restaur|bar|cafeter|hosteler/.test(texto)) return 'restaurante';
-  if(/fisio|fisioter|rehabilit|clinica|clínica/.test(texto)) return 'fisio';
-  if(/reforma|obra|constru|albañ|alban/.test(texto)) return 'reformas';
-  return '';
-}
-
-function datosDemoPersonalizada(tipo){
-  if(tipo==='restaurante') return ['🍽️','Probar mi asistente','Restaurante Demo','Información, horarios, carta y reservas.','restaurante'];
-  if(tipo==='fisio') return ['🏥','Probar mi asistente','Fisioterapia Demo','Servicios, consultas, horarios y citas.','fisio'];
-  if(tipo==='reformas') return ['🏠','Probar mi asistente','Reformas Demo','Consultas, visitas y solicitudes de presupuesto.','reformas'];
-  return null;
-}
-
-function mostrarSelectorTipoParaCodigo(){
-  const status=document.getElementById('codeStatus');
-  if(!status || !accesoPersonalizado) return;
-
-  const negocio=String(accesoPersonalizado.negocio||'Su negocio').trim();
-  const responsable=String(accesoPersonalizado.responsable||'').trim();
-  const tipoDetectado=detectarDemoPersonalizada(accesoPersonalizado);
-
-  status.className='access-status personalized-access';
-  status.innerHTML='';
-
-  const head=document.createElement('div');
-  head.className='personalized-access-head';
-
-  if(tipoDetectado){
-    head.innerHTML='<strong>✅ Código correcto</strong>'+
-      '<div class="personalized-business">'+escHtml(negocio)+'</div>'+
-      (responsable?'<div class="personalized-owner">'+escHtml(responsable)+'</div>':'')+
-      '<p>Hemos preparado una demostración para que pueda probar la experiencia <strong>como si fuera uno de sus clientes</strong>.</p>';
-  }else{
-    head.innerHTML='<strong>✅ Código correcto</strong>'+
-      '<div class="personalized-business">'+escHtml(negocio)+'</div>'+
-      (responsable?'<div class="personalized-owner">'+escHtml(responsable)+'</div>':'')+
-      '<p>Elija el ejemplo que mejor se aproxime a su actividad.</p>';
-  }
-
-  status.appendChild(head);
-
-  const box=document.createElement('div');
-  box.className='personalized-demo-options';
-
-  const opciones=tipoDetectado
-    ? [datosDemoPersonalizada(tipoDetectado)]
-    : [
-        ['🍽️','Reservas y atención','Restaurante Demo','Información, horarios, carta y reservas.','restaurante'],
-        ['🏥','Citas y agenda','Fisioterapia Demo','Servicios, consultas, horarios y citas.','fisio'],
-        ['🏠','Solicitudes y oportunidades','Reformas Demo','Consultas, visitas y solicitudes de presupuesto.','reformas']
-      ];
-
-  opciones.filter(Boolean).forEach(([icon,title,demo,desc,tipo])=>{
-    const b=document.createElement('button');
-    b.type='button';
-    b.className='personalized-demo-option';
-    b.innerHTML='<span class="personalized-demo-icon">'+icon+'</span>'+
-      '<span><strong>'+title+'</strong><small>'+demo+'</small><em>'+desc+'</em></span>';
-    b.onclick=()=>abrirDemoPersonalizada(tipo,accesoPersonalizado);
-    box.appendChild(b);
-  });
-
-  status.appendChild(box);
-}
-
-function nombreDemoEjemplo(tipo){
-  return tipo==='restaurante'?'Restaurante':
-    tipo==='fisio'?'Fisioterapia':
-    tipo==='reformas'?'Reformas':'Demostración';
-}
-
-function abrirDemoPersonalizada(tipo,data){
-  cerrarPuertaAcceso();
-  startDemo(tipo);
-
-  const negocio=String((data&&data.negocio)||'Su negocio').trim();
-  const responsable=String((data&&data.responsable)||'').trim();
-  const ejemplo=nombreDemoEjemplo(tipo);
-
-  document.getElementById('demoTitle').textContent=negocio;
-  document.getElementById('demoStatus').textContent='Ejemplo: '+ejemplo+' · en línea';
-
-  const firstMessage=chatBody.querySelector('.message.incoming');
-  if(firstMessage){
-    const firstText=firstMessage.querySelector('span:first-child');
-    if(firstText){
-      firstText.textContent='Hola 👋 Pruébelo como si fuera un cliente. ¿En qué le podemos ayudar?';
-    }
-  }
-}
-
-let autoCodigoProcesado=false;
-
-function activarDemoDesdeCodigoURL(){
-  const portal=document.getElementById('portalSincronia');
-  const app=document.getElementById('sincroniaDemoApp');
-
-  document.documentElement.classList.remove('portal-mode');
-  document.body.classList.remove('portal-mode');
-
-  if(portal) portal.style.display='none';
-  if(app) app.style.display='';
-
-  window.scrollTo(0,0);
-}
-
-function autoEntradaDesdeURL(){
-  if(autoCodigoProcesado) return;
-
-  const params=new URLSearchParams(window.location.search);
-  const code=String(params.get('code')||'')
-    .trim()
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g,'');
-
-  if(!code) return;
-
-  autoCodigoProcesado=true;
-  activarDemoDesdeCodigoURL();
-
-  const input=document.getElementById('publicCode');
-  if(input) input.value=code;
-
-  setTimeout(()=>{
-    entrarConCodigo();
-  },150);
-}
-
-const chatBody = document.getElementById('chatBody');
-const userInput = document.getElementById('userInput');
-
-let demoActual = '';
-let historial = [];
-let callbackSeq = 0;
-let flujoLocal = null;
-let categoriasCartaVistas = new Set();
-
-const DEMOS = {
-  restaurante: {
-    titulo:'Restaurante Demo', avatar:'🍽️',
-    bienvenida:'¡Hola! Bienvenido a Restaurante Demo. ¿En qué le podemos ayudar hoy?',
-    botones:[['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['❓ Otras consultas','otra_consulta']]
-  },
-  fisio: {
-    titulo:'Fisioterapia Demo', avatar:'🏥',
-    bienvenida:'¡Hola! Bienvenido a Fisioterapia Demo. ¿En qué le podemos ayudar hoy?',
-    botones:[['🩺 Ver servicios','fisio_servicios'],['🕒 Horarios','fisio_horarios'],['📅 Pedir cita','fisio_cita'],['❓ Otras consultas','otra_consulta']]
-  },
-  reformas: {
-    titulo:'Reformas Demo', avatar:'🔧',
-    bienvenida:'¡Hola! Bienvenido a Reformas Demo. ¿En qué le podemos ayudar hoy?',
-    botones:[['🏠 Ver servicios','ref_servicios'],['📅 Solicitar visita','ref_visita'],['📋 Pedir presupuesto','ref_presupuesto'],['❓ Otras consultas','otra_consulta']]
-  }
-};
-
-function horaActual(){
-  const d=new Date();
-  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-}
-
-function appendMessage(text,sender){
-  const msg=document.createElement('div');
-  msg.classList.add('message',sender);
-
-  const body=document.createElement('span');
-  body.textContent=String(text||'').replace(/\\n/g,'\n');
-
-  const time=document.createElement('span');
-  time.className='message-time';
-  time.textContent=horaActual()+(sender==='outgoing'?' ✓✓':'');
-
-  msg.append(body,time);
-  chatBody.appendChild(msg);
-  chatBody.scrollTop=chatBody.scrollHeight;
-
-  historial.push({
-    rol:sender==='outgoing'?'user':'assistant',
-    texto:String(text||'')
-  });
-}
-
-function removeQuickOptions(){
-  chatBody.querySelectorAll('.quick-options').forEach(el=>el.remove());
-}
-
-function showQuickOptions(items){
-  removeQuickOptions();
-  const box=document.createElement('div');
-  box.className='quick-options';
-  items.forEach(([label,action])=>{
-    const btn=document.createElement('button');
-    btn.className='quick-chip';
-    btn.textContent=label;
-    btn.onclick=()=>quickAction(action,label);
-    box.appendChild(btn);
-  });
-  chatBody.appendChild(box);
-  chatBody.scrollTop=chatBody.scrollHeight;
-}
-
-function startDemo(tipo){
-  demoActual=tipo;
-  document.body.classList.add('demo-chat-active');
-  historial=[];
-  flujoLocal=null;
-  categoriasCartaVistas=new Set();
-  chatBody.innerHTML='';
-  const d=DEMOS[tipo];
-
-  document.getElementById('demoTitle').textContent=d.titulo;
-  document.getElementById('demoAvatar').textContent=d.avatar;
-  document.getElementById('demoSelector').classList.add('hidden');
-
-  appendMessage(d.bienvenida,'incoming');
-  showQuickOptions(d.botones);
-}
-
-function volverSelector(){
-  removeQuickOptions();
-  abrirPuertaAcceso();
-  if(accesoPersonalizado){
-    document.getElementById('codeStatus')?.scrollIntoView({behavior:'smooth',block:'center'});
-  }
-}
-
-
-function opcionesCartaPendientes(){
-  const categorias=[
-    ['🥗 Entrantes','entrantes'],
-    ['🍚 Arroces','arroces'],
-    ['🐟 Pescados','pescados'],
-    ['🥩 Carnes','carnes'],
-    ['🍰 Postres','postres']
-  ].filter(item=>!categoriasCartaVistas.has(item[1]));
-
-  return categorias.concat([
-    ['📅 Reservar Mesa','reservar'],
-    ['🕒 Horarios','horarios'],
-    ['❓ Otras consultas','otra_consulta']
-  ]);
-}
-
-function opcionesRestaurante(){
-  showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['❓ Otras consultas','otra_consulta']]);
-}
-
-function opcionesFisio(){
-  showQuickOptions([
-    ['🩺 Ver servicios','fisio_servicios'],
-    ['🕒 Horarios','fisio_horarios'],
-    ['📅 Pedir cita','fisio_cita'],
-    ['❓ Otras consultas','otra_consulta']
-  ]);
-}
-
-function opcionesReformas(){
-  showQuickOptions([
-    ['🏠 Ver servicios','ref_servicios'],
-    ['📅 Solicitar visita','ref_visita'],
-    ['📋 Pedir presupuesto','ref_presupuesto'],
-    ['❓ Otras consultas','otra_consulta']
-  ]);
-}
-
-
-
-function finalizarDemoConEstudio(mensajeFinal){
-  if(mensajeFinal) appendMessage(mensajeFinal,'incoming');
-  flujoLocal={tipo:'cerrado',paso:'fin',datos:(flujoLocal&&flujoLocal.datos)||{}};
-  removeQuickOptions();
-  setTimeout(mostrarEstudioNegocio,450);
-}
-
-function mostrarEstudioNegocio(){
-  removeQuickOptions();
-  const wrap=document.createElement('div');
-  wrap.style.cssText='width:calc(100% - 16px);box-sizing:border-box;margin:14px 8px 18px;padding:18px;background:#ffffff;border:1px solid #d7e3df;border-radius:16px;box-shadow:0 5px 18px rgba(0,0,0,.13);color:#172126;';
-  wrap.innerHTML='<div style="font-size:19px;font-weight:800;line-height:1.3;margin-bottom:10px;color:#102b25">✨ ¿Quiere conocer las oportunidades de su propio negocio?</div>'+
-    '<div style="font-size:15px;line-height:1.55;margin-bottom:14px;color:#33433f">Puede realizar gratuitamente el Estudio Empresarial SINCRONIAIA, sin compromiso y sin presión comercial. Le ayudará a detectar:</div>'+
-    '<div style="font-size:15px;line-height:1.75;margin-bottom:16px;color:#172126">⏱️ Tiempo que podría recuperar<br>🤖 Tareas que podría automatizar<br>📊 Qué solución tendría más sentido para su negocio</div>';
-
-  const b1=document.createElement('button');
-  b1.type='button';
-  b1.textContent='📋 REALIZAR ESTUDIO DE MI NEGOCIO';
-  b1.style.cssText='display:block;width:100%;box-sizing:border-box;border:0;border-radius:12px;padding:15px 12px;margin:0 0 10px;background:#00a884;color:#fff;font-size:16px;font-weight:800;cursor:pointer;';
-  b1.onclick=()=>{
-    const demo=(typeof demoActual!=='undefined'&&demoActual)?demoActual:'demo';
-    window.location.href='https://felixganes-svg.github.io/sincroniaia-demo/investigacion/?utm_source=github_demo&demo='+encodeURIComponent(demo);
-  };
-
-  const b2=document.createElement('button');
-  b2.type='button';
-  b2.textContent='👋 Finalizar';
-  b2.style.cssText='display:block;width:100%;box-sizing:border-box;border:1px solid #9aa8a4;border-radius:12px;padding:13px 12px;background:#f7f9f8;color:#263531;font-size:15px;font-weight:700;cursor:pointer;';
-  b2.onclick=()=>wrap.remove();
-
-  wrap.appendChild(b1); wrap.appendChild(b2);
-  chatBody.appendChild(wrap);
-  chatBody.scrollTop=chatBody.scrollHeight;
-}
-function formatearNombreReserva(nombre){
-  return String(nombre||'').trim().replace(/\s+/g,' ').split(' ').map(p=>{
-    if(!p) return p;
-    return p.charAt(0).toLocaleUpperCase('es-ES')+p.slice(1).toLocaleLowerCase('es-ES');
-  }).join(' ');
-}
-
-function horasFisioDemo(){
-  return ['09:00','09:30','10:00','10:30','11:00','11:30','16:00','16:30','17:00','17:30','18:00','18:30'];
-}
-
-function quickAction(action,label){
-  if(label) appendMessage(label,'outgoing');
-  removeQuickOptions();
-
-  if(action==='ref_servicios'){
-    appendMessage('🏠 Servicios de demostración\n\n• Reformas de baños\n• Reformas de cocinas\n• Pintura\n• Pequeñas reformas\n• Reformas integrales\n\nPodemos recoger una solicitud de visita o de presupuesto para que el equipo la revise.','incoming');
-    showQuickOptions([['📅 Solicitar visita','ref_visita'],['📋 Pedir presupuesto','ref_presupuesto'],['❓ Otra consulta','otra_consulta']]);
-    return;
-  }
-
-  if(action==='ref_visita'){
-    flujoLocal={tipo:'visita_reformas',paso:'tipo',datos:{}};
-    appendMessage('📅 Perfecto. ¿Qué tipo de reforma desea realizar?','incoming');
-    showQuickOptions([['🚿 Baño','ref_tipo_bano'],['🍳 Cocina','ref_tipo_cocina'],['🎨 Pintura','ref_tipo_pintura'],['🏠 Reforma integral','ref_tipo_integral'],['✏️ Otra','ref_tipo_otra']]);
-    return;
-  }
-
-  if(action.startsWith('ref_tipo_')){
-    if(!flujoLocal) return;
-    const mapa={ref_tipo_bano:'Baño',ref_tipo_cocina:'Cocina',ref_tipo_pintura:'Pintura',ref_tipo_integral:'Reforma integral'};
-    if(action==='ref_tipo_otra'){
-      flujoLocal.paso='tipo_manual';
-      appendMessage('Indíqueme brevemente qué tipo de reforma desea realizar.','incoming');
-      return;
-    }
-    flujoLocal.datos.tipo_reforma=mapa[action]||'Otra';
-    flujoLocal.paso='poblacion';
-    appendMessage('📍 ¿En qué población se encuentra el inmueble?','incoming');
-    return;
-  }
-
-  if(action==='ref_fecha_hoy'||action==='ref_fecha_manana'){
-    if(!flujoLocal || flujoLocal.tipo!=='visita_reformas') return;
-    flujoLocal.datos.fecha=action==='ref_fecha_hoy'?'hoy':'mañana';
-    flujoLocal.paso='franja';
-    appendMessage('¿Qué franja horaria le va mejor?','incoming');
-    showQuickOptions([['☀️ Mañana','ref_franja_manana'],['🌤️ Tarde','ref_franja_tarde']]);
-    return;
-  }
-
-  if(action==='ref_franja_manana'||action==='ref_franja_tarde'){
-    if(!flujoLocal || flujoLocal.tipo!=='visita_reformas') return;
-    flujoLocal.datos.franja=action==='ref_franja_manana'?'Mañana':'Tarde';
-    flujoLocal.paso='nombre';
-    appendMessage('Perfecto. ¿A qué nombre registramos la solicitud de visita?','incoming');
-    return;
-  }
-
-  if(action==='ref_presupuesto'){
-    flujoLocal={tipo:'presupuesto_reformas',paso:'tipo',datos:{}};
-    appendMessage('📋 Perfecto. ¿Qué desea reformar?','incoming');
-    showQuickOptions([['🚿 Baño','ref_pre_bano'],['🍳 Cocina','ref_pre_cocina'],['🎨 Pintura','ref_pre_pintura'],['🏠 Reforma integral','ref_pre_integral'],['✏️ Otra','ref_pre_otra']]);
-    return;
-  }
-
-  if(action.startsWith('ref_pre_')){
-    if(!flujoLocal || flujoLocal.tipo!=='presupuesto_reformas') return;
-    const mapa={ref_pre_bano:'Baño',ref_pre_cocina:'Cocina',ref_pre_pintura:'Pintura',ref_pre_integral:'Reforma integral'};
-    if(action==='ref_pre_otra'){
-      flujoLocal.paso='tipo_manual';
-      appendMessage('Indíqueme brevemente qué desea reformar.','incoming');
-      return;
-    }
-    flujoLocal.datos.tipo_reforma=mapa[action]||'Otra';
-    flujoLocal.paso='descripcion';
-    appendMessage('Cuénteme brevemente qué trabajo desea realizar. No es necesario entrar en detalles técnicos.','incoming');
-    return;
-  }
-
-  if(action==='ref_confirmar_visita'){
-    if(!flujoLocal || flujoLocal.tipo!=='visita_reformas') return;
-    const d=flujoLocal.datos||{};
-    appendMessage('✅ Solicitud de visita registrada.\n\nHemos anotado su solicitud para '+d.tipo_reforma+' en '+d.poblacion+', '+d.fecha+' por la '+String(d.franja||'').toLowerCase()+'.\n\nUn miembro del equipo revisará la solicitud y se pondrá en contacto con usted para confirmar la visita.\n\n¿Desea que le ayudemos con algo más?','incoming');
-    flujoLocal={tipo:'post_reformas',paso:'algo_mas',datos:d};
-    showQuickOptions([['🏠 Ver servicios','ref_servicios'],['❓ Otra consulta','otra_consulta'],['No, gracias','ref_cerrar']]);
-    return;
-  }
-
-  if(action==='ref_confirmar_presupuesto'){
-    if(!flujoLocal || flujoLocal.tipo!=='presupuesto_reformas') return;
-    const d=flujoLocal.datos||{};
-    appendMessage('✅ Solicitud de presupuesto registrada.\n\nHemos recogido sus datos y la información inicial sobre la reforma.\n\n👤 Un miembro de nuestro equipo revisará la solicitud antes de preparar cualquier valoración o presupuesto.\n\nNo se facilitará ningún precio hasta que la solicitud haya sido revisada por un profesional.\n\nNos pondremos en contacto con usted por este mismo medio cuando haya sido revisada.\n\n¿Desea que le ayudemos con algo más?','incoming');
-    flujoLocal={tipo:'post_reformas',paso:'algo_mas',datos:d};
-    showQuickOptions([['🏠 Ver servicios','ref_servicios'],['❓ Otra consulta','otra_consulta'],['No, gracias','ref_cerrar']]);
-    return;
-  }
-
-  if(action==='ref_cancelar'){
-    flujoLocal=null;
-    appendMessage('De acuerdo. La solicitud ha sido cancelada.','incoming');
-    opcionesReformas();
-    return;
-  }
-
-  if(action==='ref_cerrar'){
-    const d=(flujoLocal&&flujoLocal.datos)||{};
-    finalizarDemoConEstudio('Muchas gracias'+(d.nombre?', '+d.nombre:'')+'.\n\nHemos recogido su solicitud correctamente. El equipo la revisará antes de ponerse en contacto con usted.\n\nQue tenga un excelente día. 👋');
-    return;
-  }
-
-
-  if(action==='fisio_servicios'){
-    appendMessage('🩺 Servicios de demostración:\n\n• Fisioterapia general\n• Terapia manual\n• Rehabilitación\n• Tratamiento de dolor muscular y articular\n• Recuperación funcional\n\nSi lo desea, puede pedir una cita directamente.','incoming');
-    showQuickOptions([['📅 Pedir cita','fisio_cita'],['🕒 Horarios','fisio_horarios'],['❓ Otra consulta','otra_consulta']]);
-    return;
-  }
-
-  if(action==='fisio_horarios'){
-    appendMessage('🕒 Horario de demostración:\n\nMañanas: 09:00 a 12:00\nTardes: 16:00 a 19:00\n\nSi lo desea, puedo mostrarle horas disponibles para pedir cita.','incoming');
-    showQuickOptions([['📅 Pedir cita','fisio_cita'],['🩺 Ver servicios','fisio_servicios']]);
-    return;
-  }
-
-  if(action==='fisio_cita'){
-    flujoLocal={tipo:'cita_fisio',paso:'primera',datos:{}};
-    appendMessage('📅 Perfecto. ¿Es su primera visita con nosotros?','incoming');
-    showQuickOptions([['Sí','fisio_primera_si'],['No','fisio_primera_no']]);
-    return;
-  }
-
-  if(action==='fisio_primera_si'||action==='fisio_primera_no'){
-    if(!flujoLocal || flujoLocal.tipo!=='cita_fisio') return;
-    flujoLocal.datos.primera_visita=action==='fisio_primera_si'?'Sí':'No';
-    flujoLocal.paso='motivo';
-    appendMessage('Gracias. Indíqueme brevemente el motivo principal de la consulta.','incoming');
-    return;
-  }
-
-  if(action==='fisio_fecha_hoy'||action==='fisio_fecha_manana'){
-    const fecha=action==='fisio_fecha_hoy'?'hoy':'mañana';
-    if(!flujoLocal || flujoLocal.tipo!=='cita_fisio') flujoLocal={tipo:'cita_fisio',datos:{}};
-    flujoLocal.datos.fecha=fecha;
-    flujoLocal.paso='hora';
-    const slots=horasFisioDemo();
-    appendMessage('Para '+fecha+' tenemos estas horas disponibles de demostración. Seleccione la que prefiera o escríbala.','incoming');
-    showQuickOptions(slots.map(h=>[h,'fisio_hora_'+h.replace(':','')]));
-    return;
-  }
-
-  if(action.startsWith('fisio_hora_')){
-    if(!flujoLocal || flujoLocal.tipo!=='cita_fisio') return;
-    const raw=action.replace('fisio_hora_','');
-    const hora=raw.slice(0,2)+':'+raw.slice(2);
-    flujoLocal.datos.hora=hora;
-    flujoLocal.paso='nombre';
-    appendMessage('Perfecto, '+hora+'. ¿A qué nombre hacemos la cita?','incoming');
-    return;
-  }
-
-  if(action==='fisio_confirmar'){
-    if(!flujoLocal || flujoLocal.tipo!=='cita_fisio') return;
-    const d=flujoLocal.datos||{};
-    appendMessage('✅ Cita confirmada.\n\nHemos reservado su cita para '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.\n\n📲 Le enviaremos un recordatorio por este mismo medio el día anterior y otro aviso 3 horas antes.\n\n¿Desea que le ayudemos con algo más?','incoming');
-    flujoLocal={tipo:'post_fisio',paso:'algo_mas',datos:d};
-    showQuickOptions([['🩺 Ver servicios','fisio_servicios'],['🕒 Horarios','fisio_horarios'],['❓ Otra consulta','otra_consulta'],['No, gracias','fisio_cerrar']]);
-    return;
-  }
-
-  if(action==='fisio_cancelar'){
-    flujoLocal=null;
-    appendMessage('❌ La cita ha sido cancelada. No se ha registrado ninguna solicitud.','incoming');
-    opcionesFisio();
-    return;
-  }
-
-  if(action==='fisio_cerrar'){
-    const d=(flujoLocal&&flujoLocal.datos)||{};
-    finalizarDemoConEstudio('Muchas gracias por su cita'+(d.nombre?', '+d.nombre:'')+'.\n\nLe esperamos '+(d.fecha||'el día indicado')+' a las '+(d.hora||'la hora reservada')+'.\n\n📲 Recibirá los recordatorios por este mismo medio.\n\nQue tenga un excelente día. 👋');
-    return;
-  }
-
-
-  if(action==='res_fecha_hoy'||action==='res_fecha_manana'){
-    const fecha=action==='res_fecha_hoy'?'hoy':'mañana';
-    flujoLocal={tipo:'reserva_restaurante',paso:'turno',datos:{fecha:fecha}};
-    appendMessage('Perfecto. Para '+fecha+', ¿la reserva sería para comer o para cenar?','incoming');
-    showQuickOptions([['🍽️ Comer','res_turno_comer'],['🌙 Cenar','res_turno_cenar']]); return;
-  }
-  if(action==='res_turno_comer'||action==='res_turno_cenar'){
-    const turno=action==='res_turno_cenar'?'Cena':'Comida';
-    flujoLocal=flujoLocal||{tipo:'reserva_restaurante',datos:{fecha:'el día indicado'}};
-    flujoLocal.datos=flujoLocal.datos||{}; flujoLocal.datos.turno=turno; flujoLocal.paso='hora';
-    const slots=turno==='Cena'?['20:00','20:30','21:00','21:30','22:00']:['13:00','13:30','14:00','14:30','15:00'];
-    appendMessage((turno==='Cena'?'🌙':'🍽️')+' Para '+flujoLocal.datos.fecha+' tenemos estas horas disponibles de demostración. Seleccione la que prefiera o escríbala con sus palabras.','incoming');
-    showQuickOptions(slots.map(h=>[h,'res_hora_'+h.replace(':','')]));
-    return;
-  }
-  if(action.startsWith('res_hora_')){
-    if(!flujoLocal || flujoLocal.tipo!=='reserva_restaurante') return;
-    const raw=action.replace('res_hora_','');
-    const hora=raw.slice(0,2)+':'+raw.slice(2);
-    flujoLocal.datos=flujoLocal.datos||{};
-    flujoLocal.datos.hora=hora;
-    flujoLocal.paso='personas';
-    appendMessage('Perfecto, '+hora+'. ¿Para cuántas personas sería la mesa?','incoming');
-    showQuickOptions([['1','res_personas_1'],['2','res_personas_2'],['3','res_personas_3'],['4','res_personas_4'],['5','res_personas_5'],['6','res_personas_6'],['7','res_personas_7'],['8','res_personas_8'],['9 o más','res_personas_9mas']]);
-    return;
-  }
-  if(action.startsWith('res_personas_')){
-    if(!flujoLocal || flujoLocal.tipo!=='reserva_restaurante') return;
-    const val=action.replace('res_personas_','');
-    if(val==='9mas'){
-      flujoLocal.paso='personas';
-      appendMessage('¿Cuántas personas serán en total?','incoming');
-      return;
-    }
-    flujoLocal.datos.personas=parseInt(val,10);
-    flujoLocal.paso='alimentaria';
-    appendMessage('👥 Perfecto, mesa para '+val+' personas.\n\n⚠️ ¿Hay alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
-    showQuickOptions([['No','res_food_no'],['Sí','res_food_si']]);
-    return;
-  }
-
-  if(action==='res_food_no'){
-    if(!flujoLocal || flujoLocal.tipo!=='reserva_restaurante') return;
-    flujoLocal.datos.alergias='No';
-    flujoLocal.paso='nombre';
-    appendMessage('Perfecto. ¿A qué nombre hacemos la reserva?','incoming');
-    return;
-  }
-
-  if(action==='res_food_si'){
-    if(!flujoLocal || flujoLocal.tipo!=='reserva_restaurante') return;
-    flujoLocal.datos.alergias='Sí — comunicar al restaurante';
-    flujoLocal.paso='nombre';
-    appendMessage('⚠️ Información alimentaria anotada.\n\nEsta información quedará asociada a la reserva para que el restaurante pueda tenerla en cuenta.\n\nPara alergias graves, recomendamos confirmarlo también directamente con el establecimiento.\n\n👤 ¿A qué nombre hacemos la reserva?','incoming');
-    return;
-  }
-
-  if(action==='res_confirmar'){
-    if(!flujoLocal) return;
-    const d=flujoLocal.datos||{};
-    appendMessage('✅ Reserva confirmada.\n\nHemos reservado una mesa para '+d.personas+' personas, '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.'+(d.alergias&&d.alergias!=='No'?'\n\n⚠️ Información alimentaria: Sí — comunicar al restaurante.':'')+'\n\n📲 Le enviaremos un recordatorio por este mismo medio el día anterior a la reserva y otro aviso 3 horas antes.\n\n¿Desea que le ayudemos con algo más?','incoming');
-    flujoLocal={tipo:'post_reserva',paso:'algo_mas',datos:d};
-    showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['❓ Otra consulta','otra_consulta'],['No, gracias','cerrar_chat']]);
-    return;
-  }
-  if(action==='cerrar_chat'){
-    const d=(flujoLocal&&flujoLocal.datos)||{};
-    finalizarDemoConEstudio('Muchas gracias por su reserva'+(d.nombre?', '+d.nombre:'')+'.\n\nLe esperamos '+(d.fecha||'el día indicado')+' a las '+(d.hora||'la hora reservada')+'.\n\n📲 Recibirá los recordatorios de su reserva por este mismo medio.\n\nEsperamos que disfruten de su visita. ¡Que tenga un excelente día! 👋');
-    return;
-  }
-  if(action==='otra_consulta'){
-    flujoLocal=null;
-    appendMessage('Por supuesto. Indíqueme su consulta y trataré de ayudarle.','incoming'); return;
-  }
-  if(action==='res_cancelar'){ flujoLocal=null; appendMessage('❌ Reserva cancelada. No se ha registrado ninguna solicitud.','incoming'); opcionesRestaurante(); return; }
-  if(action==='res_modificar'){ flujoLocal={tipo:'reserva_restaurante',paso:'fecha',datos:{}}; appendMessage('✏️ De acuerdo. ¿Para qué día desea reservar?','incoming'); return; }
-
-  if(demoActual==='restaurante'){
-    if(action==='carta'){
-      flujoLocal=null;
-      appendMessage('📜 Carta de demostración\n\n🥗 Entrantes y ensaladas\n🍚 Arroces\n🐟 Pescados\n🥩 Carnes a la parrilla\n🍰 Postres','incoming');
-      showQuickOptions(opcionesCartaPendientes());
-      return;
-    }
-    if(action==='horarios'){
-      flujoLocal=null;
-      appendMessage('🕒 Horario comercial: 12:00 a 23:30.\n\n🍽️ Comidas: 13:00 a 15:30\n🌙 Cenas: 20:00 a 22:30','incoming');
-      showQuickOptions([['📅 Reservar Mesa','reservar'],['📜 Ver Carta','carta']]);
-      return;
-    }
-    if(action==='domicilio'){
-      flujoLocal=null;
-      appendMessage('🛵 Puede consultar la carta y simular qué pediría para recoger o recibir en casa.','incoming');
-      showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['❓ Otras consultas','otra_consulta']]);
-      return;
-    }
-    if(action==='reservar'){
-      flujoLocal={tipo:'reserva_restaurante',paso:'fecha',datos:{}};
-      appendMessage('📅 Perfecto. ¿Para qué día desea reservar?\n\nPuede escribir: hoy, mañana, sábado o una fecha concreta.','incoming');
-      showQuickOptions([['Hoy','res_fecha_hoy'],['Mañana','res_fecha_manana'],['📜 Ver Carta','carta']]);
-      return;
-    }
-    if(action==='horas_reserva'){
-      appendMessage('Horas disponibles de demostración:\n\n🍽️ 13:00 · 13:30 · 14:00 · 14:30\n🌙 20:00 · 20:30 · 21:00 · 21:30','incoming');
-      showQuickOptions([['📅 Reservar Mesa','reservar'],['📜 Ver Carta','carta']]);
-      return;
-    }
-    const carta={
-      entrantes:'🥗 Entrantes y ensaladas\n\n• Ensalada de la Huerta con Burrata\n• Croquetas Caseras de Jamón Ibérico\n• Bravas de la Casa',
-      arroces:'🍚 Arroces\n\n• Arroz Seco del Señoret\n• Arroz Caldoso de Bogavante\n• Arroz de Montaña',
-      pescados:'🐟 Pescados\n\n• Lomo de Lubina a la Bilbaína\n• Pulpo a la Brasa\n• Pesca del Día a la Plancha',
-      carnes:'🥩 Carnes a la parrilla\n\n• Entrecot de vaca vieja\n• Chuletón de Simmental\n• Presa ibérica de bellota',
-      postres:'🍰 Postres\n\n• Tarta de queso cremosa\n• Tiramisú tradicional\n• Brownie de chocolate negro'
-    };
-    if(carta[action]){
-      categoriasCartaVistas.add(action);
-      appendMessage(carta[action],'incoming');
-      showQuickOptions(opcionesCartaPendientes());
-      return;
-    }
-  }
-
-  if(demoActual==='fisio'){
-    if(action==='servicios'){
-      flujoLocal=null;
-      appendMessage('🩺 Servicios de demostración\n\n• Valoración inicial\n• Fisioterapia\n• Rehabilitación\n• Seguimiento','incoming');
-      opcionesFisio();
-      return;
-    }
-    if(action==='horarios'){
-      flujoLocal=null;
-      appendMessage('🕒 Horarios demo\n\n09:00, 09:30, 10:00, 10:30\n17:00, 17:30, 18:00, 18:30','incoming');
-      showQuickOptions([['📅 Pedir Cita','cita'],['🩺 Servicios','servicios']]);
-      return;
-    }
-    if(action==='consulta'){
-      flujoLocal=null;
-      appendMessage('Cuénteme qué desea consultar. La IA responderá sin diagnosticar ni inventar información.','incoming');
-      showQuickOptions([['🩺 Servicios','servicios'],['🕒 Horarios','horarios'],['📅 Pedir Cita','cita']]);
-      return;
-    }
-    if(action==='cita'){
-      flujoLocal={tipo:'cita_fisio',paso:'datos'};
-      appendMessage('📅 Perfecto. Para simular la cita, indíqueme el día y la hora que prefiere.\n\nHoras demo: 09:00, 09:30, 10:00, 10:30, 17:00, 17:30, 18:00, 18:30.','incoming');
-      showQuickOptions([['🕒 Ver horarios','horarios'],['🩺 Servicios','servicios']]);
-      return;
-    }
-  }
-
-  if(demoActual==='reformas'){
-    if(action==='servicios'){
-      flujoLocal=null;
-      appendMessage('🏠 Servicios de demostración\n\n• Reformas de baños\n• Reformas de cocinas\n• Pintura\n• Pequeñas reformas\n• Reformas integrales','incoming');
-      opcionesReformas();
-      return;
-    }
-    if(action==='banos'){
-      flujoLocal=null;
-      appendMessage('🚿 Podemos mostrar cómo el asistente recogería información sobre una reforma de baño o cocina y prepararía una solicitud de visita o presupuesto.','incoming');
-      showQuickOptions([['📅 Solicitar Visita','visita'],['📋 Presupuesto','presupuesto'],['🏠 Servicios','servicios']]);
-      return;
-    }
-    if(action==='visita'){
-      flujoLocal={tipo:'visita_reformas',paso:'datos'};
-      appendMessage('📅 Perfecto. Para simular la solicitud de visita, indíqueme qué desea reformar y en qué población se encuentra el inmueble.','incoming');
-      showQuickOptions([['📋 Pedir Presupuesto','presupuesto'],['🏠 Ver Servicios','servicios']]);
-      return;
-    }
-    if(action==='presupuesto'){
-      flujoLocal={tipo:'presupuesto_reformas',paso:'datos'};
-      appendMessage('📋 Perfecto. Para preparar una solicitud de presupuesto, cuénteme brevemente qué quiere reformar. No mostraremos precios inventados.','incoming');
-      showQuickOptions([['📅 Solicitar Visita','visita'],['🏠 Ver Servicios','servicios']]);
-      return;
-    }
-  }
-
-  enviarMotor(label||action);
-}
-function jsonp(params){
-  return new Promise((resolve,reject)=>{
-    const cb='__sincroniaia_cb_'+(++callbackSeq);
-    const script=document.createElement('script');
-
-    window[cb]=data=>{
-      try{resolve(data);}
-      finally{delete window[cb];script.remove();}
-    };
-
-    params.callback=cb;
-    params._=Date.now();
-
-    script.src=BACKEND_URL+'?'+new URLSearchParams(params).toString();
-
-    script.onerror=()=>{
-      delete window[cb];
-      script.remove();
-      reject(new Error('No se pudo contactar con el backend.'));
-    };
-
-    document.body.appendChild(script);
-  });
-}
-
-
-function normalizarConsulta(text){
-  return String(text||'')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g,'')
-    .trim();
-}
-
-
-function extraerNumeroPersonas(text){
-  const n=normalizarConsulta(text);
-  const mapa={una:1,uno:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10};
-  let m=n.match(/\b(\d{1,2})\s*(?:personas?|comensales?)?\b/);
-  if(m) return parseInt(m[1],10);
-  for(const k in mapa){
-    if(new RegExp('\\b'+k+'\\b').test(n)) return mapa[k];
-  }
-  return text.trim();
-}
-
-function extraerAlergiasDesdeTexto(text){
-  const n=normalizarConsulta(text);
-  const halladas=[];
-  if(/lactosa/.test(n)) halladas.push('intolerancia a la lactosa');
-  if(/gluten|celiac/.test(n)) halladas.push('gluten/celiaquía');
-  if(/frutos secos|nueces|almendra|avellana/.test(n)) halladas.push('frutos secos');
-  if(/marisco/.test(n)) halladas.push('marisco');
-  if(/huevo/.test(n)) halladas.push('huevo');
-  if(/diabet/.test(n)) halladas.push('diabetes (información alimentaria)');
-  return halladas.join(', ');
-}
-
-function normalizarHoraReserva(text){
-  const n=normalizarConsulta(text);
-  let m=n.match(/\b([01]?\d|2[0-3])[:.h](\d{2})\b/);
-  if(m) return String(parseInt(m[1],10)).padStart(2,'0')+':'+m[2];
-  const horasPalabra={una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12};
-  for(const k in horasPalabra){
-    if(new RegExp('\\b'+k+'\\b').test(n)){
-      let h=horasPalabra[k];
-      if(/tarde|noche/.test(n) && h<12) h+=12;
-      return String(h).padStart(2,'0')+':00';
-    }
-  }
-  m=n.match(/\b(\d{1,2})\b/);
-  if(m){
-    let h=parseInt(m[1],10);
-    if(/tarde|noche/.test(n) && h<12) h+=12;
-    if(h>=0 && h<=23) return String(h).padStart(2,'0')+':00';
-  }
-  return text.trim();
-}
-
-
-function normalizarTelefonoES(text){
-  let digits=String(text||'').trim().replace(/\D/g,'');
-  if(digits.length===11 && digits.startsWith('34')) digits=digits.slice(2);
-  return /^\d{9}$/.test(digits) ? digits : '';
-}
-function pedirTelefonoValido(){
-  appendMessage('📞 El teléfono debe tener 9 dígitos. Por ejemplo: 662527111.\n\nPor favor, revíselo e introdúzcalo de nuevo.','incoming');
-}
-
-function manejarFlujoLocal(text){
-  if(!flujoLocal) return false;
-  const n=normalizarConsulta(text);
-
-  if(flujoLocal && flujoLocal.tipo==='post_reformas'){
-    if(/no|nada|gracias|cerrar|finalizar/.test(n)){
-      const d=flujoLocal.datos||{};
-      finalizarDemoConEstudio('Muchas gracias'+(d.nombre?', '+d.nombre:'')+'.\n\nHemos recogido su solicitud correctamente. El equipo la revisará antes de ponerse en contacto con usted.\n\nQue tenga un excelente día. 👋');
-      return true;
-    }
-  }
-
-  if(flujoLocal && flujoLocal.tipo==='visita_reformas'){
-    const d=flujoLocal.datos||(flujoLocal.datos={});
-    if(flujoLocal.paso==='tipo_manual'){
-      d.tipo_reforma=text.trim(); flujoLocal.paso='poblacion';
-      appendMessage('📍 ¿En qué población se encuentra el inmueble?','incoming'); return true;
-    }
-    if(flujoLocal.paso==='poblacion'){
-      d.poblacion=text.trim(); flujoLocal.paso='fecha';
-      appendMessage('¿Para qué día le gustaría solicitar la visita?','incoming');
-      showQuickOptions([['Hoy','ref_fecha_hoy'],['Mañana','ref_fecha_manana']]); return true;
-    }
-    if(flujoLocal.paso==='fecha'){
-      d.fecha=text.trim(); flujoLocal.paso='franja';
-      appendMessage('¿Qué franja horaria le va mejor?','incoming');
-      showQuickOptions([['☀️ Mañana','ref_franja_manana'],['🌤️ Tarde','ref_franja_tarde']]); return true;
-    }
-    if(flujoLocal.paso==='nombre'){
-      d.nombre=formatearNombreReserva(text); flujoLocal.paso='telefono';
-      appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming'); return true;
-    }
-    if(flujoLocal.paso==='telefono'){
-      const telefono=normalizarTelefonoES(text);
-      if(!telefono){ pedirTelefonoValido(); return true; }
-      d.telefono=telefono; flujoLocal.paso='confirmar';
-      appendMessage('📋 RESUMEN DE LA SOLICITUD DE VISITA\n\n🏠 Reforma: '+d.tipo_reforma+'\n📍 Población: '+d.poblacion+'\n📅 Día solicitado: '+d.fecha+'\n🕒 Franja: '+d.franja+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
-      showQuickOptions([['✅ Confirmar solicitud','ref_confirmar_visita'],['❌ Cancelar','ref_cancelar']]); return true;
-    }
-  }
-
-  if(flujoLocal && flujoLocal.tipo==='presupuesto_reformas'){
-    const d=flujoLocal.datos||(flujoLocal.datos={});
-    if(flujoLocal.paso==='tipo_manual'){
-      d.tipo_reforma=text.trim(); flujoLocal.paso='descripcion';
-      appendMessage('Cuénteme brevemente qué trabajo desea realizar.','incoming'); return true;
-    }
-    if(flujoLocal.paso==='descripcion'){
-      d.descripcion=text.trim(); flujoLocal.paso='poblacion';
-      appendMessage('📍 ¿En qué población se encuentra el inmueble?','incoming'); return true;
-    }
-    if(flujoLocal.paso==='poblacion'){
-      d.poblacion=text.trim(); flujoLocal.paso='nombre';
-      appendMessage('¿A qué nombre registramos la solicitud?','incoming'); return true;
-    }
-    if(flujoLocal.paso==='nombre'){
-      d.nombre=formatearNombreReserva(text); flujoLocal.paso='telefono';
-      appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming'); return true;
-    }
-    if(flujoLocal.paso==='telefono'){
-      const telefono=normalizarTelefonoES(text);
-      if(!telefono){ pedirTelefonoValido(); return true; }
-      d.telefono=telefono; flujoLocal.paso='confirmar';
-      appendMessage('📋 RESUMEN DE LA SOLICITUD DE PRESUPUESTO\n\n🏠 Reforma: '+d.tipo_reforma+'\n📝 Trabajo: '+d.descripcion+'\n📍 Población: '+d.poblacion+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\nEl asistente no facilitará ningún precio. La solicitud será revisada por un profesional antes de preparar cualquier valoración o presupuesto.\n\n¿Son correctos todos los datos?','incoming');
-      showQuickOptions([['✅ Enviar solicitud','ref_confirmar_presupuesto'],['❌ Cancelar','ref_cancelar']]); return true;
-    }
-  }
-
-
-  if(flujoLocal && flujoLocal.tipo==='post_fisio'){
-    if(/no|nada|gracias|cerrar|finalizar/.test(n)){
-      const d=flujoLocal.datos||{};
-      finalizarDemoConEstudio('Muchas gracias por su cita'+(d.nombre?', '+d.nombre:'')+'.\n\nLe esperamos '+(d.fecha||'el día indicado')+' a las '+(d.hora||'la hora reservada')+'.\n\n📲 Recibirá los recordatorios por este mismo medio.\n\nQue tenga un excelente día. 👋');
-      return true;
-    }
-  }
-
-  if(flujoLocal && flujoLocal.tipo==='cita_fisio'){
-    const d=flujoLocal.datos||(flujoLocal.datos={});
-
-    if(flujoLocal.paso==='motivo'){
-      d.motivo=text.trim();
-      flujoLocal.paso='fecha';
-      appendMessage('Gracias. ¿Para qué día desea pedir la cita?','incoming');
-      showQuickOptions([['Hoy','fisio_fecha_hoy'],['Mañana','fisio_fecha_manana']]);
-      return true;
-    }
-
-    if(flujoLocal.paso==='fecha'){
-      d.fecha=text.trim();
-      flujoLocal.paso='hora';
-      const slots=horasFisioDemo();
-      appendMessage('Para '+d.fecha+' tenemos estas horas disponibles de demostración. Seleccione la que prefiera o escríbala.','incoming');
-      showQuickOptions(slots.map(h=>[h,'fisio_hora_'+h.replace(':','')]));
-      return true;
-    }
-
-    if(flujoLocal.paso==='hora'){
-      d.hora=normalizarHoraReserva(text);
-      const slots=horasFisioDemo();
-      if(!slots.includes(d.hora)){
-        appendMessage('Para las '+d.hora+' no tenemos disponibilidad en esta demostración. Seleccione una de las horas libres.','incoming');
-        showQuickOptions(slots.map(h=>[h,'fisio_hora_'+h.replace(':','')]));
-        return true;
-      }
-      flujoLocal.paso='nombre';
-      appendMessage('Perfecto, '+d.hora+'. ¿A qué nombre hacemos la cita?','incoming');
-      return true;
-    }
-
-    if(flujoLocal.paso==='nombre'){
-      d.nombre=formatearNombreReserva(text);
-      flujoLocal.paso='telefono';
-      appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming');
-      return true;
-    }
-
-    if(flujoLocal.paso==='telefono'){
-      const telefono=normalizarTelefonoES(text);
-      if(!telefono){ pedirTelefonoValido(); return true; }
-      d.telefono=telefono;
-      flujoLocal.paso='confirmar';
-      appendMessage('📋 RESUMEN DE LA CITA\n\n🩺 Primera visita: '+d.primera_visita+'\n📝 Motivo: '+d.motivo+'\n📅 Día: '+d.fecha+'\n🕒 Hora: '+d.hora+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
-      showQuickOptions([['✅ Confirmar cita','fisio_confirmar'],['❌ Cancelar','fisio_cancelar']]);
-      return true;
-    }
-
-    if(flujoLocal.paso==='confirmar'){
-      if(/si|sí|correct|confirm/.test(n)){
-        quickAction('fisio_confirmar','');
-        return true;
-      }
-      appendMessage('Puede confirmar o cancelar la cita.','incoming');
-      return true;
-    }
-  }
-
-  if(/^(cancelar|salir|volver)$/.test(n)){
-    flujoLocal=null;
-    appendMessage('De acuerdo. ¿En qué más le puedo ayudar?','incoming');
-    if(demoActual==='restaurante') opcionesRestaurante();
-    if(demoActual==='fisio') opcionesFisio();
-    if(demoActual==='reformas') opcionesReformas();
-    return true;
-  }
-
-  if(flujoLocal && flujoLocal.tipo==='post_reserva'){
-    if(/no|nada|gracias|cerrar|finalizar/.test(n)){
-      const d=flujoLocal.datos||{};
-      finalizarDemoConEstudio('Muchas gracias por su reserva'+(d.nombre?', '+d.nombre:'')+'.\n\nLe esperamos '+(d.fecha||'el día indicado')+' a las '+(d.hora||'la hora reservada')+'.\n\n📲 Recibirá los recordatorios de su reserva por este mismo medio.\n\nEsperamos que disfruten de su visita. ¡Que tenga un excelente día! 👋');
-      return true;
-    }
-  }
-  if(flujoLocal && flujoLocal.tipo==='cerrado'){
-    return true;
-  }
-
-  if(flujoLocal.tipo==='reserva_restaurante'){
-    const d=flujoLocal.datos||(flujoLocal.datos={});
-    if(flujoLocal.paso==='fecha'){
-      d.fecha=text.trim(); flujoLocal.paso='turno';
-      appendMessage('Perfecto. Para '+d.fecha+', ¿la reserva sería para comer o para cenar?','incoming');
-      showQuickOptions([['🍽️ Comer','res_turno_comer'],['🌙 Cenar','res_turno_cenar']]); return true;
-    }
-    if(flujoLocal.paso==='hora'){
-      if(/horario|horas|disponib|que teneis|que tienen/.test(n)){
-        const slots=d.turno==='Cena'?['20:00','20:30','21:00','21:30','22:00']:['13:00','13:30','14:00','14:30','15:00'];
-        appendMessage('Estas son las horas disponibles de demostración para '+d.fecha+'. Seleccione la que prefiera.','incoming');
-        showQuickOptions(slots.map(h=>[h,'res_hora_'+h.replace(':','')]));
-        return true;
-      }
-      d.hora=normalizarHoraReserva(text);
-      const slots=d.turno==='Cena'?['20:00','20:30','21:00','21:30','22:00']:['13:00','13:30','14:00','14:30','15:00'];
-      if(!slots.includes(d.hora)){
-        appendMessage('Para las '+d.hora+' no tenemos disponibilidad en esta demostración. Seleccione una de las horas libres.','incoming');
-        showQuickOptions(slots.map(h=>[h,'res_hora_'+h.replace(':','')]));
-        return true;
-      }
-      flujoLocal.paso='personas';
-      appendMessage('Perfecto, '+d.hora+'. ¿Para cuántas personas sería la mesa?','incoming');
-      showQuickOptions([['1','res_personas_1'],['2','res_personas_2'],['3','res_personas_3'],['4','res_personas_4'],['5','res_personas_5'],['6','res_personas_6'],['7','res_personas_7'],['8','res_personas_8'],['9 o más','res_personas_9mas']]);
-      return true;
-    }
-    if(flujoLocal.paso==='personas'){
-      d.personas=extraerNumeroPersonas(text);
-      const alimentaria=extraerAlergiasDesdeTexto(text);
-      if(alimentaria){
-        d.alergias='Sí — comunicar al restaurante';
-        flujoLocal.paso='nombre';
-        appendMessage('👥 De acuerdo: '+d.personas+' personas.\n\n⚠️ Información alimentaria anotada.\n\nEsta información quedará asociada a la reserva para que el restaurante pueda tenerla en cuenta.\n\nPara alergias graves, recomendamos confirmarlo también directamente con el establecimiento.\n\n👤 ¿A qué nombre hacemos la reserva?','incoming');
-      }else{
-        flujoLocal.paso='alimentaria';
-        appendMessage('👥 De acuerdo: '+d.personas+' personas.\n\n⚠️ ¿Hay alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
-        showQuickOptions([['No','res_food_no'],['Sí','res_food_si']]);
-      }
-      return true;
-    }
-    if(flujoLocal.paso==='alergias_detalle'){
-      d.alergias=text.trim(); flujoLocal.paso='nombre';
-      appendMessage('Gracias. ¿A qué nombre hacemos la reserva?','incoming'); return true;
-    }
-    if(flujoLocal.paso==='nombre'){
-      d.nombre=formatearNombreReserva(text);
-      flujoLocal.paso='telefono';
-      appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming'); return true;
-    }
-    if(flujoLocal.paso==='telefono'){
-      const telefono=normalizarTelefonoES(text);
-      if(!telefono){ pedirTelefonoValido(); return true; }
-      d.telefono=telefono; flujoLocal.paso='confirmar';
-      appendMessage('📋 RESUMEN DE LA RESERVA\n\n📅 Día: '+d.fecha+'\n'+(d.turno==='Cena'?'🌙':'🍽️')+' Turno: '+d.turno+'\n🕒 Hora: '+d.hora+'\n👥 Personas: '+d.personas+'\n⚠️ Información alimentaria: '+(d.alergias||'No indicada')+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
-      showQuickOptions([['✅ Confirmar reserva','res_confirmar'],['✏️ Modificar','res_modificar'],['❌ Cancelar','res_cancelar']]); return true;
-    }
-    if(flujoLocal.paso==='confirmar'){
-      if(/si|sí|correct|confirm/.test(n)){ quickAction('res_confirmar',''); return true; }
-      appendMessage('Puede confirmar, modificar o cancelar la reserva.','incoming'); return true;
-    }
-  }
-  if(flujoLocal.tipo==='cita_fisio'){
-    flujoLocal=null;
-    appendMessage('✅ Solicitud de cita de demostración recogida.\n\nPreferencia indicada: '+text+'\n\nEn una implantación real, el sistema comprobaría agenda y confirmaría la cita.','incoming');
-    opcionesFisio();
-    return true;
-  }
-  if(flujoLocal.tipo==='visita_reformas'){
-    flujoLocal=null;
-    appendMessage('✅ Solicitud de visita de demostración recogida.\n\nDetalle: '+text+'\n\nEn una implantación real, estos datos pasarían al negocio para coordinar la visita.','incoming');
-    opcionesReformas();
-    return true;
-  }
-  if(flujoLocal.tipo==='presupuesto_reformas'){
-    flujoLocal=null;
-    appendMessage('✅ Solicitud de presupuesto de demostración recogida.\n\nDetalle: '+text+'\n\nEl siguiente paso real sería completar los datos necesarios y valorar el trabajo sin inventar precios.','incoming');
-    opcionesReformas();
-    return true;
-  }
-  return false;
-}
-
-function responderLocalEscrito(text){
-  const n = normalizarConsulta(text);
-
-  if(demoActual==='restaurante'){
-    if(/no (quiero|deseo) reserv|solo (quiero )?informacion|solo informacion|sin reservar/.test(n)){
-      flujoLocal=null;
-      appendMessage('Por supuesto. Puede consultar la carta, los horarios, el servicio a domicilio o cualquier información del restaurante sin realizar ninguna reserva.','incoming');
-      opcionesRestaurante();
-      return true;
-    }
-    if(/horario|hora|abren|cierran|cocina/.test(n)){
-      appendMessage('🕒 Horario comercial: 12:00 a 23:30.\n\n🍽️ Comidas: 13:00 a 15:30\n🌙 Cenas: 20:00 a 22:30','incoming');
-      showQuickOptions([['📅 Reservar Mesa','reservar'],['📜 Ver Carta','carta']]);
-      return true;
-    }
-    if(/carta|menu|comida|que teneis|que tienen/.test(n)){ quickAction('carta',''); return true; }
-    if(/carne|entrecot|chuleton|presa/.test(n)){ quickAction('carnes',''); return true; }
-    if(/pescado|lubina|pulpo/.test(n)){ quickAction('pescados',''); return true; }
-    if(/arroz|paella/.test(n)){ quickAction('arroces',''); return true; }
-    if(/postre|tarta|tiramisu|brownie/.test(n)){ quickAction('postres',''); return true; }
-    if(/domicilio|delivery|pedido|recoger/.test(n)){ quickAction('domicilio',''); return true; }
-    if(/reserv|mesa/.test(n)){ quickAction('reservar',''); return true; }
-  }
-
-  if(demoActual==='fisio'){
-    if(/servicio|fisioterapia|rehabilitacion|valoracion|seguimiento/.test(n)){ quickAction('servicios',''); return true; }
-    if(/horario|hora|abren|cierran/.test(n)){ quickAction('horarios',''); return true; }
-    if(/cita|reserv/.test(n)){ quickAction('cita',''); return true; }
-  }
-
-  if(demoActual==='reformas'){
-    if(/servicio|reforma|reformas|pintura|integral/.test(n)){ quickAction('servicios',''); return true; }
-    if(/bano|baño|cocina/.test(n)){ quickAction('banos',''); return true; }
-    if(/visita/.test(n)){ quickAction('visita',''); return true; }
-    if(/presupuesto/.test(n)){ quickAction('presupuesto',''); return true; }
-  }
-
-  if(/^(adios|adiós|no gracias|gracias|nada mas|nada más)$/.test(n)){
-    finalizarDemoConEstudio('Muchas gracias por probar SINCRONIAIA. 👋');
-    return true;
-  }
-
-  return false;
-}
-
-async function enviarMotor(text){
-  if(!demoActual)return;
-
-  const pensando=document.createElement('div');
-  pensando.className='message incoming';
-  pensando.id='pensando';
-  pensando.textContent='…';
-  chatBody.appendChild(pensando);
-  chatBody.scrollTop=chatBody.scrollHeight;
-
-  try{
-    const r=await jsonp({
-      api:'chat',
-      tipo:demoActual,
-      mensaje:text,
-      historial:JSON.stringify(historial.slice(-10))
-    });
-
-    document.getElementById('pensando')?.remove();
-
-    if(r&&r.ok&&r.reply){
-      appendMessage(r.reply,'incoming');
-    }else{
-      appendMessage('Puedo ayudarle con información, horarios y la acción principal de esta demo. ¿Qué desea consultar?','incoming');
-    }
-  }catch(e){
-    document.getElementById('pensando')?.remove();
-    appendMessage('Ahora mismo no puedo usar la conversación libre, pero sí puedo ayudarle con las opciones de esta demo.','incoming');
-  }
-}
-
-async function sendTextFromInput(){
-  const text=userInput.value.trim();
-  if(!text||!demoActual)return;
-
-  removeQuickOptions();
-  appendMessage(text,'outgoing');
-  userInput.value='';
-
-  if(manejarFlujoLocal(text)) return;
-  if(responderLocalEscrito(text)) return;
-
-  await enviarMotor(text);
-}
-
-userInput.addEventListener('keypress',e=>{
-  if(e.key==='Enter')sendTextFromInput();
-});
-
-autoEntradaDesdeURL();
-</script>
-</div>
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#075e54"><title>SINCRONIAIA · Investigación de Campo</title><style>
+
+*{box-sizing:border-box}
+:root{
+  --navy:#071327;--navy2:#0d1b33;--panel:#1b2b43;--cyan:#0ea5e9;
+  --cyan2:#0284c7;--text:#f8fafc;--muted:#cbd5e1;--line:#30445f;
+  --bubble:#18283e;--me:#075985;
+}
+html,body{
+  margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:var(--navy);color:var(--text);-webkit-text-size-adjust:100%
+}
+button,input,textarea,select{font:inherit}button{touch-action:manipulation}
+.app{width:100%;max-width:820px;height:100dvh;min-height:100dvh;margin:0 auto;background:var(--navy);display:flex;flex-direction:column;overflow:hidden}
+.header{
+  position:sticky;top:0;z-index:20;background:#14243c;color:#fff;padding:14px 18px;
+  border-bottom:1px solid #263a55;text-align:center
+}
+.headrow{display:block}.logo{display:none}
+.header b{font-size:13px;display:block;color:#20b8f0;letter-spacing:.08em;text-transform:uppercase}
+.header small{font-size:22px;font-weight:800;opacity:1}
+.progress{margin:12px auto 0;height:4px;border-radius:99px;background:#ffffff20;overflow:hidden;max-width:720px}
+.progress>span{display:block;height:100%;width:0;background:#22b7ee;transition:width .25s}
+.chat{
+  flex:1;min-height:0;padding:26px 18px 18px;overflow-y:auto;overscroll-behavior:contain;background:var(--navy);background-image:none
+}
+.day{display:none}
+.row{display:flex;margin:10px 0}.row.me{justify-content:flex-end}
+.bubble{
+  max-width:88%;background:var(--bubble);color:#fff;border:1px solid var(--line);
+  border-radius:14px;padding:13px 15px;box-shadow:0 3px 12px #0003;font-size:16px;line-height:1.5;white-space:pre-wrap
+}
+.me .bubble{background:var(--me);border-color:#0c79aa}
+.card{
+  background:#1d2c43;border:1px solid #2d4260;border-radius:16px;padding:22px;
+  box-shadow:0 8px 24px #0003;margin:16px 0;color:#fff
+}
+#generalCard{
+  background:linear-gradient(135deg,#087eae 0%,#0b91c6 62%,#0877a8 100%);
+  border-color:#1597c6;padding:28px
+}
+#generalCard:before{
+  content:"SINCRONIAIA · ESTUDIO EMPRESARIAL";display:block;font-size:13px;font-weight:900;
+  letter-spacing:.08em;color:#9be7ff;margin-bottom:12px
+}
+#generalCard h2{font-size:28px;margin-bottom:10px}
+#generalCard h2::before{content:"Bienvenido a SINCRONIAIA";display:block;margin-bottom:18px}
+#generalCard h2{font-size:0}
+#generalCard p{color:#e6f6ff;font-size:16px;line-height:1.55}
+.card h2{font-size:22px;margin:0 0 12px}.card p{font-size:15px;line-height:1.5;color:#d5deea;margin:0 0 14px}
+.field{display:grid;gap:7px;margin:14px 0}.field label{font-size:14px;font-weight:800;color:#fff}
+.field input,.field textarea,.field select,.composer textarea{
+  width:100%;border:1px solid #38506f;border-radius:9px;background:#08152a;color:#fff;
+  min-height:52px;padding:12px 13px;font-size:17px;outline:none
+}
+.field input:focus,.field textarea:focus,.field select:focus,.composer textarea:focus{
+  border-color:#22b7ee;box-shadow:0 0 0 3px #22b7ee25
+}
+.field textarea{min-height:100px;resize:vertical}
+.primary{
+  width:100%;min-height:55px;border:0;border-radius:10px;background:#0ea5e9;color:#fff;
+  font-weight:850;padding:12px 14px
+}
+.secondary{
+  width:100%;min-height:52px;border:1px solid #405774;border-radius:10px;background:#13243b;
+  color:#fff;font-weight:750;padding:11px 14px
+}
+.composer{
+  position:sticky;left:auto;transform:none;bottom:0;z-index:25;width:100%;
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#132238;
+  display:grid;grid-template-columns:minmax(0,1fr) 56px;gap:9px;border-top:1px solid #30445f
+}
+.composer textarea{min-height:54px;max-height:128px;resize:none;border-radius:12px;pointer-events:auto;touch-action:manipulation;-webkit-user-select:text;user-select:text;scroll-margin-bottom:90px}
+.send{width:56px;height:56px;border-radius:50%;border:0;background:#0ea5e9;color:#fff;font-size:23px;font-weight:900}
+.hidden{display:none!important}.status{margin-top:10px;font-size:14px;color:#cbd5e1}
+.success{background:#123a31;border:1px solid #28765f;color:#d1fae5;border-radius:13px;padding:14px;line-height:1.5}
+.error{background:#421d25;border:1px solid #8d3b4c;color:#fecdd3;border-radius:13px;padding:14px}
+.review{font-size:14px;color:#dbe5ef;display:grid;gap:8px}.review div{padding:10px;background:#132238;border-radius:9px}
+@media(max-width:600px){
+  .app{max-width:none}.chat{padding:16px 12px 120px}.card{padding:17px;margin:10px 0}
+  #generalCard{padding:20px}.header{padding:11px 12px}.header small{font-size:18px}
+  .bubble{max-width:94%;font-size:16px}
+}
+@media(min-width:700px){
+  body{padding:0}.app{height:100dvh;min-height:100dvh;border-radius:0;overflow:hidden}.composer{bottom:0;border-radius:0}
+}
+
+
+.data-actions{display:flex;gap:10px;flex-wrap:wrap}.data-actions button{flex:1 1 220px}
+.data-modal{display:none;position:fixed;inset:0;background:rgba(2,8,23,.78);z-index:9999;padding:14px;align-items:center;justify-content:center}
+.data-modal.show{display:flex}.data-panel{width:min(760px,100%);max-height:92vh;overflow:auto;background:#0b172a;color:#fff;border:1px solid #334155;border-radius:18px;padding:18px;box-shadow:0 20px 60px #0008}
+.data-head{display:flex;justify-content:space-between;gap:12px;align-items:center;position:sticky;top:-18px;background:#0b172a;padding:12px 0;z-index:2}.data-head h2{margin:0}.data-close{background:#17243a!important;color:#fff!important;border:1px solid #334155!important;width:auto!important}
+.data-section{margin-top:14px;padding:13px;border:1px solid #26354c;border-radius:13px;background:#091527}.data-section h3{margin:0 0 10px;color:#55c7ff}.data-item{padding:9px 0;border-bottom:1px solid #1e293b}.data-item:last-child{border-bottom:0}.data-label{display:block;color:#aeb9c9;font-size:13px;margin-bottom:4px}.data-value{white-space:pre-wrap;overflow-wrap:anywhere}.data-note{font-size:13px;color:#aeb9c9;margin-top:10px}
+@media(max-width:700px){.data-modal{padding:6px;align-items:flex-end}.data-panel{max-height:96vh;border-radius:18px 18px 10px 10px;padding:14px}.data-head{top:-14px}.data-actions{display:grid;grid-template-columns:1fr}.data-actions button{width:100%;min-height:52px}}
+</style></head><body><div class="app"><header class="header"><div class="headrow"><div class="logo">∞</div><div><b>SINCRONIAIA</b><small>Conoce tu negocio</small></div></div><div class="progress"><span id="progressBar"></span></div></header><main class="chat" id="chat"><div class="day">Hoy</div><div class="row"><div class="bubble">Hola, soy Félix Rodríguez Pozo, fundador de SINCRONIAIA.
+
+Este cuestionario tiene un único objetivo: comprender cómo funciona realmente su negocio para detectar oportunidades que le permitan recuperar tiempo, mejorar la organización y reducir tareas repetitivas.
+
+No intentaremos venderle nada durante el cuestionario. Al finalizar, recibirá gratuitamente su Pasaporte Digital del Negocio, con una primera valoración personalizada.</div></div><div class="row"><div class="bubble">Primero necesito sus datos generales.</div></div><section class="card" id="generalCard"><h2>Datos generales y contacto</h2><p>Complete estos datos una sola vez. Después iremos pregunta a pregunta.</p><div class="field"><label>Nombre del negocio</label><input id="businessName" autocomplete="organization"></div><div class="field"><label>Persona de contacto / propietario/a</label><input id="owner" autocomplete="name"></div><div class="field"><label>Sector</label><input id="sector"></div><div class="field"><label>WhatsApp o teléfono</label><input id="whatsapp" type="tel" inputmode="tel" autocomplete="tel"></div><div class="field"><label>Correo electrónico</label><input id="email" type="email" inputmode="email" autocomplete="email"></div><div id="prefillStatus" style="margin:10px 0 12px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;font-size:13px;font-weight:700"></div><div class="data-actions"><button class="primary" id="startBtn" type="button">Comenzar cuestionario →</button><button class="secondary" id="viewDataBtn" type="button">Ver datos</button></div></section>
 <script>
 (function(){
- const portal=document.getElementById('portalSincronia'),app=document.getElementById('sincroniaDemoApp'),open=document.getElementById('portalAbrirDemos');
- if(!portal||!app||!open)return;
- const back=document.createElement('button');back.type='button';back.className='portal-back';back.textContent='← Inicio SINCRONIAIA';back.style.display='none';document.body.appendChild(back);
- const codeEnURL=String(new URLSearchParams(window.location.search).get('code')||'').trim();
- if(codeEnURL && app.style.display!=='none') back.style.display='block';
- open.addEventListener('click',()=>{
-   document.documentElement.classList.remove('portal-mode');
-   document.body.classList.remove('portal-mode');
-   portal.style.display='none';
-   app.style.display='';
-   back.style.display='block';
-   window.scrollTo(0,0);
- });
- back.addEventListener('click',()=>{
-   document.body.classList.remove('demo-chat-active');
-   app.style.display='none';
-   portal.style.display='';
-   back.style.display='none';
-   document.documentElement.classList.add('portal-mode');
-   document.body.classList.add('portal-mode');
-   window.scrollTo(0,0);
- });
-})();
-</script>
+  function leer(){
+    const q=new URLSearchParams(window.location.search||'');
+    const h=new URLSearchParams((window.location.hash||'').replace(/^#/,''));
+    function get(name,alt){
+      let v=q.get(name);
+      if(v!==null && v!=='') return v;
+      if(alt){v=q.get(alt); if(v!==null && v!=='') return v;}
+      v=h.get(name);
+      if(v!==null && v!=='') return v;
+      if(alt){v=h.get(alt); if(v!==null && v!=='') return v;}
+      return '';
+    }
+    return {
+      negocio:get('negocio','businessName'),
+      persona:get('persona','owner'),
+      sector:get('sector'),
+      telefono:get('telefono','whatsapp'),
+      email:get('email'),
+      ref:get('ref')
+    };
+  }
 
-</body>
-</html>
+  function aplicar(){
+    const d=leer();
+    const pares=[
+      ['businessName',d.negocio],
+      ['owner',d.persona],
+      ['sector',d.sector],
+      ['whatsapp',d.telefono],
+      ['email',d.email]
+    ];
+    let n=0;
+    pares.forEach(function(par){
+      const campo=document.getElementById(par[0]);
+      if(campo && par[1]){
+        campo.value=par[1];
+        campo.defaultValue=par[1];
+        campo.setAttribute('value',par[1]);
+        n++;
+      }
+    });
+    document.documentElement.setAttribute('data-prefill-count',String(n));
+    if(d.ref) document.documentElement.setAttribute('data-cliente-ref',d.ref);
+  }
+
+  aplicar();
+  window.addEventListener('pageshow',aplicar);
+})();
+</script><div id="conversation"></div><section class="card hidden" id="studyCard"><h2>Estudio inicial</h2><div class="field"><label>¿Desea recibir un estudio inicial de su negocio?</label><select id="wantsStudy"><option value="">Seleccione</option><option value="Sí">Sí, deseo recibirlo</option><option value="No">No, de momento no</option></select></div><div id="studyExtra" class="hidden"><div class="field"><label>¿Prefiere una demostración en directo o una demostración preparada?</label><input id="demoType"></div><div class="field"><label>¿Qué día le iría mejor para hablar?</label><input id="bestDay"></div><div class="field"><label>¿En qué horario tiene más disponibilidad?</label><input id="bestTime"></div><div class="field"><label>¿Por qué canal prefiere el contacto?</label><select id="preferredChannel"><option value="">Seleccione</option><option>WhatsApp</option><option>Llamada</option><option>Email</option></select></div></div><button class="primary" id="reviewBtn" type="button">Revisar y enviar →</button></section><section class="card hidden" id="reviewCard"><h2>Revisión final</h2><p>Compruebe los datos antes de enviar el estudio.</p><div class="review" id="reviewBox"></div><button class="primary" id="submitBtn" type="button" style="margin-top:12px">Enviar estudio</button><button class="secondary" id="backStudyBtn" type="button" style="margin-top:8px">← Volver</button><div id="submitStatus" class="status"></div></section><section class="card hidden" id="doneCard"><div class="success"><strong>Estudio recibido correctamente.</strong><br><br>Referencia: <strong id="resultId">—</strong><br><span id="resultEmail"></span><br><br>Muchas gracias por dedicar unos minutos a conocer mejor su negocio.<br><br>Revisaremos la información facilitada y nos pondremos en contacto con usted para comentar los resultados y los posibles siguientes pasos.<br><br><strong>SINCRONIAIA — Devolvemos tiempo para vivir.</strong></div><button class="primary" id="closeBtn" type="button" style="margin-top:12px">Cerrar</button></section><section class="card hidden" id="closedCard"><div class="success" style="text-align:center"><strong>✓ Estudio finalizado</strong><br><br>Muchas gracias.<br>Ya puede cerrar esta página.</div></section></main>
+<div id="dataModal" class="data-modal" aria-hidden="true"><div class="data-panel" role="dialog" aria-modal="true" aria-labelledby="dataTitle"><div class="data-head"><h2 id="dataTitle">Datos del formulario</h2><button id="closeDataBtn" class="data-close" type="button">Cerrar</button></div><div id="dataContent"></div></div></div><div class="composer hidden" id="composer"><textarea id="answerInput" rows="1" placeholder="Escriba su respuesta..."></textarea><button class="send" id="sendBtn" type="button" aria-label="Enviar">➤</button></div><iframe name="sincroniaSubmitFrame" id="sincroniaSubmitFrame" class="hidden"></iframe></div><script>
+const BACKEND_URL="https://script.google.com/macros/s/AKfycbyeGxhnORaHCy8XiJuM_AMn2PacynMxso8h-6_T3OenbTLMG087eC_6Bo-02deaEhL0/exec"; const QUESTIONS=[["time", "1. ¿Cuánto tiempo lleva funcionando el negocio?", "input"], ["day", "2. ¿Cómo es un día normal desde que abre hasta que cierra?", "textarea"], ["people", "3. ¿Cuántas personas trabajan actualmente?", "input"], ["role", "4. ¿Participa directamente o principalmente organiza y decide?", "input"], ["onlyyou", "5. ¿Qué parte del negocio solo puede hacer usted? ¿Por qué?", "textarea"], ["tomorrow", "6. Si mañana no pudiera venir, ¿qué quedaría pendiente?", "textarea"], ["oneperson", "7. ¿Hay una tarea que solamente sepa realizar una persona?", "input"], ["absence", "8. ¿Qué sucede cuando esa persona no está disponible?", "textarea"], ["eliminate", "9. Si pudiera eliminar una tarea de mañana, ¿cuál sería?", "input"], ["tomorrowpro", "10. ¿Qué suele dejar siempre para mañana?", "input"], ["frustration", "11. ¿Qué le frustra más al coordinarse con clientes o proveedores?", "textarea"], ["workhours", "12. ¿Cómo gestiona avisos, encargos o reservas dentro del horario?", "input"], ["afterhours", "13. ¿También recibe avisos fuera del horario? ¿Cómo los gestiona?", "input"], ["home", "14. Cuando llega a casa, ¿qué se lleva todavía del negocio?", "input"], ["daysweek", "15. ¿Cuántos días trabaja a la semana?", "input"], ["hoursweek", "16. ¿Cuántas horas trabaja al día o a la semana?", "input"], ["freetime", "17. ¿Tiene tiempo libre para usted?", "input"], ["twohours", "18. ¿Qué haría si tuviera dos horas libres cada día?", "input"], ["oneyear", "19. ¿Qué tendría que cambiar para que dentro de un año dijera que ha merecido la pena?", "textarea"], ["online", "20. ¿Cómo encuentra la gente el negocio?", "input"], ["important", "21. ¿Hay algo importante que no le hayamos preguntado?", "textarea"]]; let answers={},index=0,sending=false,clientToken=''; const E=id=>document.getElementById(id); const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); function scrollBottom(){requestAnimationFrame(()=>{E('chat').scrollTop=E('chat').scrollHeight})}
+function focusAnswer(){
+  const input=E('answerInput');
+  if(!input)return;
+  input.disabled=false;
+  input.readOnly=false;
+  input.style.pointerEvents='auto';
+  requestAnimationFrame(()=>{
+    try{
+      input.focus({preventScroll:true});
+      const n=input.value.length;
+      input.setSelectionRange(n,n);
+    }catch(e){
+      try{input.focus()}catch(_){}
+    }
+    scrollBottom();
+  });
+}
+function clearQuestionView(){E('conversation').innerHTML=''}
+function bubble(text,me=false){const r=document.createElement('div');r.className='row'+(me?' me':'');const b=document.createElement('div');b.className='bubble';b.textContent=text;r.appendChild(b);E('conversation').appendChild(r);scrollBottom()} function updateProgress(){E('progressBar').style.width=((index/QUESTIONS.length)*100)+'%'} function validGeneral(){if(!E('businessName').value.trim()){alert('Indique el nombre del negocio.');E('businessName').focus();return false}if(!E('owner').value.trim()){alert('Indique la persona de contacto.');E('owner').focus();return false}if(!E('sector').value.trim()){alert('Indique el sector.');E('sector').focus();return false}return true} function showQuestion(){if(index>=QUESTIONS.length){E('composer').classList.add('hidden');clearQuestionView();bubble('Gracias. Hemos terminado las 21 preguntas. A continuación puede revisar y completar el estudio.');E('studyCard').classList.remove('hidden');E('progressBar').style.width='100%';E('studyCard').scrollIntoView({behavior:'smooth',block:'start'});return}clearQuestionView();const [id,label,type]=QUESTIONS[index];bubble(label);E('answerInput').value=answers[id]||'';E('answerInput').placeholder=type==='textarea'?'Escriba su respuesta con sus palabras...':'Escriba su respuesta...';E('composer').classList.remove('hidden');updateProgress();scrollBottom();setTimeout(focusAnswer,120)} function sendAnswer(){const val=E('answerInput').value.trim();if(!val){focusAnswer();return}const [id]=QUESTIONS[index];answers[id]=val;bubble(val,true);index++;E('answerInput').value='';showQuestion();setTimeout(focusAnswer,160)} 
+
+E('startBtn').onclick=()=>{if(!validGeneral())return;E('generalCard').classList.add('hidden');bubble('Perfecto. Empezamos.');showQuestion()};E('sendBtn').onclick=sendAnswer;
+function openDataView(){const general=[['Nombre del negocio',E('businessName').value.trim()],['Persona de contacto / propietario/a',E('owner').value.trim()],['Sector',E('sector').value.trim()],['WhatsApp o teléfono',E('whatsapp').value.trim()],['Correo electrónico',E('email').value.trim()]];let html='<div class="data-section"><h3>Datos generales</h3>'+general.map(x=>'<div class="data-item"><span class="data-label">'+esc(x[0])+'</span><div class="data-value">'+esc(x[1]||'—')+'</div></div>').join('')+'</div>';html+='<div class="data-section"><h3>Cuestionario</h3>';QUESTIONS.forEach(([id,label])=>{html+='<div class="data-item"><span class="data-label">'+esc(label)+'</span><div class="data-value">'+esc(answers[id]||'—')+'</div></div>'});html+='</div><div class="data-note">Vista de solo lectura. No guarda, no modifica ni envía datos.</div>';E('dataContent').innerHTML=html;E('dataModal').classList.add('show');E('dataModal').setAttribute('aria-hidden','false')}
+function closeDataView(){E('dataModal').classList.remove('show');E('dataModal').setAttribute('aria-hidden','true')}
+E('viewDataBtn').onclick=openDataView;E('closeDataBtn').onclick=closeDataView;E('dataModal').addEventListener('click',e=>{if(e.target===E('dataModal'))closeDataView()});
+E('answerInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAnswer()}});
+E('answerInput').addEventListener('input',()=>{
+  const a=E('answerInput');
+  a.style.height='auto';
+  a.style.height=Math.min(a.scrollHeight,128)+'px';
+});
+E('answerInput').addEventListener('focus',()=>{
+  setTimeout(()=>{
+    try{E('answerInput').scrollIntoView({behavior:'smooth',block:'center'});}catch(_){}
+    scrollBottom();
+  },300);
+});
+E('composer').addEventListener('pointerdown',e=>{
+  if(e.target===E('composer')) setTimeout(focusAnswer,0);
+});
+window.addEventListener('resize',()=>{ if(!E('composer').classList.contains('hidden')) setTimeout(scrollBottom,80); });E('wantsStudy').onchange=()=>E('studyExtra').classList.toggle('hidden',E('wantsStudy').value!=='Sí'); function payload(){const d={clientToken:clientToken,businessName:E('businessName').value.trim(),owner:E('owner').value.trim(),sector:E('sector').value.trim(),whatsapp:E('whatsapp').value.trim(),email:E('email').value.trim(),wantsStudy:E('wantsStudy').value,demoType:E('demoType').value.trim(),bestDay:E('bestDay').value.trim(),bestTime:E('bestTime').value.trim(),preferredChannel:E('preferredChannel').value};QUESTIONS.forEach(([id])=>d[id]=answers[id]||'');return d} E('reviewBtn').onclick=()=>{if(!E('wantsStudy').value){alert('Seleccione si desea recibir un estudio inicial.');return}if(E('wantsStudy').value==='Sí'&&(!E('demoType').value.trim()||!E('bestDay').value.trim()||!E('bestTime').value.trim()||!E('preferredChannel').value)){alert('Complete las preferencias de contacto.');return}const d=payload();clearQuestionView();bubble('Conversación completa para revisión:');QUESTIONS.forEach(([id,label])=>{bubble(label);bubble(answers[id]||'—',true)});E('reviewBox').innerHTML='<div><b>Negocio:</b> '+esc(d.businessName)+'</div><div><b>Contacto:</b> '+esc(d.owner)+'</div><div><b>Sector:</b> '+esc(d.sector)+'</div><div><b>Respuestas:</b> 21 de 21</div><div><b>Desea estudio:</b> '+esc(d.wantsStudy)+'</div>';E('studyCard').classList.add('hidden');E('reviewCard').classList.remove('hidden');E('reviewCard').scrollIntoView({behavior:'smooth',block:'start'})};E('backStudyBtn').onclick=()=>{E('reviewCard').classList.add('hidden');E('studyCard').classList.remove('hidden')}; E('submitBtn').onclick=()=>{
+  if(sending||E('submitBtn').dataset.sent==='1')return;
+
+  clientToken='WEB-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);
+  sending=true;
+  E('submitBtn').dataset.sent='1';
+  E('submitBtn').disabled=true;
+  E('submitBtn').textContent='Enviando estudio…';
+  E('submitStatus').innerHTML='<div class="success"><strong>Enviando estudio.</strong><br>Espere unos segundos mientras confirmamos el registro.</div>';
+
+  const f=document.createElement('form');
+  f.method='POST';
+  f.action=BACKEND_URL;
+  f.target='sincroniaSubmitFrame';
+  f.className='hidden';
+
+  const a=document.createElement('input');
+  a.name='api';
+  a.value='estudio_guardar';
+  f.appendChild(a);
+
+  const p=document.createElement('input');
+  p.name='payload';
+  p.value=JSON.stringify(payload());
+  f.appendChild(p);
+
+  document.body.appendChild(f);
+  f.submit();
+  setTimeout(()=>f.remove(),1000);
+
+  comprobarConfirmacionEstudio_(0);
+};
+
+function comprobarConfirmacionEstudio_(intento){
+  if(!clientToken)return;
+
+  const callback='sincroniaEstado_'+Date.now()+'_'+intento;
+  const script=document.createElement('script');
+  const sep=BACKEND_URL.includes('?')?'&':'?';
+
+  window[callback]=(r)=>{
+    try{delete window[callback]}catch(_){}
+    script.remove();
+
+    if(r && r.ok){
+      sending=false;
+      E('reviewCard').classList.add('hidden');
+      E('doneCard').classList.remove('hidden');
+      E('resultId').textContent=r.id||'—';
+      E('resultEmail').textContent=r.emailCliente==='ENVIADO'
+        ?'Su Pasaporte Digital ha sido enviado al correo indicado.'
+        :r.emailCliente==='SIN EMAIL'
+          ?'No se indicó correo electrónico.'
+          :'El estudio está guardado; revise el estado del correo.';
+      E('doneCard').scrollIntoView({behavior:'smooth',block:'start'});
+      return;
+    }
+
+    if(r && r.error){
+      sending=false;
+      E('submitBtn').dataset.sent='';
+      E('submitBtn').disabled=false;
+      E('submitBtn').textContent='Enviar estudio';
+      E('submitStatus').innerHTML='<div class="error">'+esc(r.error)+'</div>';
+      return;
+    }
+
+    if(intento<12){
+      setTimeout(()=>comprobarConfirmacionEstudio_(intento+1),1000);
+    }else{
+      sending=false;
+      E('submitBtn').textContent='Estudio enviado';
+      E('submitStatus').innerHTML='<div class="success"><strong>Envío realizado.</strong><br>No hemos podido mostrar la referencia automáticamente. No vuelva a pulsar el botón.</div>';
+    }
+  };
+
+  script.onerror=()=>{
+    try{delete window[callback]}catch(_){}
+    script.remove();
+    if(intento<12){
+      setTimeout(()=>comprobarConfirmacionEstudio_(intento+1),1000);
+    }else{
+      sending=false;
+      E('submitBtn').textContent='Estudio enviado';
+      E('submitStatus').innerHTML='<div class="success"><strong>Envío realizado.</strong><br>No hemos podido mostrar la referencia automáticamente. No vuelva a pulsar el botón.</div>';
+    }
+  };
+
+  script.src=BACKEND_URL+sep+'api=estado_estudio&token='+encodeURIComponent(clientToken)+'&callback='+encodeURIComponent(callback)+'&_='+Date.now();
+  document.head.appendChild(script);
+}
+
+window.addEventListener('message',e=>{const frame=E('sincroniaSubmitFrame');if(!frame||e.source!==frame.contentWindow)return;const r=e.data&&e.data.sincroniaiaEstudio;if(!r)return;sending=false;if(!r.ok){E('submitBtn').dataset.sent='';E('submitBtn').disabled=false;E('submitBtn').textContent='Enviar estudio';E('submitStatus').innerHTML='<div class="error">'+esc(r.error||'No se pudo guardar el estudio.')+'</div>';return}E('reviewCard').classList.add('hidden');E('doneCard').classList.remove('hidden');E('resultId').textContent=r.id||'—';E('resultEmail').textContent=r.emailCliente==='ENVIADO'?'Su Pasaporte Digital ha sido enviado al correo indicado.':r.emailCliente==='SIN EMAIL'?'No se indicó correo electrónico.':'El estudio está guardado; revise el estado del correo.';E('doneCard').scrollIntoView({behavior:'smooth',block:'start'})});
+E('closeBtn').onclick=()=>{
+  E('doneCard').classList.add('hidden');
+  E('closedCard').classList.remove('hidden');
+  E('composer').classList.add('hidden');
+  E('closedCard').scrollIntoView({behavior:'smooth',block:'center'});
+};
+if(window.visualViewport){
+  const syncViewport=()=>{
+    document.documentElement.style.setProperty('--vvh', window.visualViewport.height+'px');
+    document.querySelector('.app').style.height=window.visualViewport.height+'px';
+    if(!E('composer').classList.contains('hidden')) {
+      setTimeout(()=>{
+        scrollBottom();
+        if(document.activeElement===E('answerInput')){
+          try{E('answerInput').scrollIntoView({behavior:'smooth',block:'center'});}catch(_){}
+        }
+      },80);
+    }
+  };
+  window.visualViewport.addEventListener('resize',syncViewport);
+  window.visualViewport.addEventListener('scroll',syncViewport);
+  syncViewport();
+}
+</script></body></html>
