@@ -276,6 +276,17 @@ window.addEventListener('message',e=>{
     b.textContent='Ver datos';
   }
 });
+
+(function avisarControlFormularioListo(){
+  if(document.documentElement.getAttribute('data-acceso-interno')!=='1')return;
+  if(!window.opener||window.opener.closed)return;
+  try{
+    window.opener.postMessage({sincroniaiaFormularioListo:true},'*');
+  }catch(e){
+    console.error('No se pudo avisar al Control de Captación:',e);
+  }
+})();
+
 E('viewDataBtn').onclick=openDataView;
 E('backControlBtn').onclick=()=>{
   window.location.href='https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec';
