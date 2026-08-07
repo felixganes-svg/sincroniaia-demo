@@ -96,7 +96,28 @@ button,input,textarea,select{font:inherit}button{touch-action:manipulation}
 
 Este cuestionario tiene un único objetivo: comprender cómo funciona realmente su negocio para detectar oportunidades que le permitan recuperar tiempo, mejorar la organización y reducir tareas repetitivas.
 
-No intentaremos venderle nada durante el cuestionario. Al finalizar, recibirá gratuitamente su Pasaporte Digital del Negocio, con una primera valoración personalizada.</div></div><div class="row"><div class="bubble">Primero necesito sus datos generales.</div></div><section class="card" id="generalCard"><h2>Datos generales y contacto</h2><p>Complete estos datos una sola vez. Después iremos pregunta a pregunta.</p><div class="field"><label>Nombre del negocio</label><input id="businessName" autocomplete="organization"></div><div class="field"><label>Persona de contacto / propietario/a</label><input id="owner" autocomplete="name"></div><div class="field"><label>Sector</label><input id="sector"></div><div class="field"><label>WhatsApp o teléfono</label><input id="whatsapp" type="tel" inputmode="tel" autocomplete="tel"></div><div class="field"><label>Correo electrónico</label><input id="email" type="email" inputmode="email" autocomplete="email"></div><div id="prefillStatus" style="margin:10px 0 12px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;font-size:13px;font-weight:700"></div><div class="data-actions"><button class="primary" id="startBtn" type="button">Comenzar cuestionario →</button><button class="secondary" id="viewDataBtn" type="button">Ver datos</button></div></section>
+No intentaremos venderle nada durante el cuestionario. Al finalizar, recibirá gratuitamente su Pasaporte Digital del Negocio, con una primera valoración personalizada.</div></div><div class="row"><div class="bubble">Primero necesito sus datos generales.</div></div><section class="card" id="generalCard"><h2>Datos generales y contacto</h2><p>Complete estos datos una sola vez. Después iremos pregunta a pregunta.</p><div class="field"><label>Nombre del negocio</label><input id="businessName" autocomplete="organization"></div><div class="field"><label>Persona de contacto / propietario/a</label><input id="owner" autocomplete="name"></div><div class="field"><label>Sector</label><select id="sector">
+<option value="">Seleccione una sección…</option>
+<option>Alimentación y comercio alimentario</option>
+<option>Hostelería y restauración</option>
+<option>Comercio minorista</option>
+<option>Automoción y reparación de vehículos</option>
+<option>Construcción, reformas e instalaciones</option>
+<option>Salud y servicios sanitarios</option>
+<option>Belleza, estética y cuidado personal</option>
+<option>Servicios profesionales, técnicos y científicos</option>
+<option>Servicios a empresas y administrativos</option>
+<option>Transporte, logística y almacenamiento</option>
+<option>Industria y fabricación</option>
+<option>Agricultura, ganadería y pesca</option>
+<option>Educación y formación</option>
+<option>Inmobiliaria y servicios relacionados</option>
+<option>Finanzas y seguros</option>
+<option>Información, comunicación y tecnología</option>
+<option>Arte, deporte, ocio y entretenimiento</option>
+<option>Otros servicios</option>
+<option>Otra actividad / Pendiente de clasificar</option>
+</select></div><div class="field"><label>WhatsApp o teléfono</label><input id="whatsapp" type="tel" inputmode="tel" autocomplete="tel"></div><div class="field"><label>Correo electrónico</label><input id="email" type="email" inputmode="email" autocomplete="email"></div><div id="prefillStatus" style="margin:10px 0 12px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;font-size:13px;font-weight:700"></div><div class="data-actions"><button class="primary" id="startBtn" type="button">Comenzar cuestionario →</button><button class="secondary" id="viewDataBtn" type="button">Ver datos</button><button class="secondary hidden" id="backControlBtn" type="button">← Volver al Control de Captación</button></div></section>
 <script>
 (function(){
   function leer(){
@@ -134,6 +155,15 @@ No intentaremos venderle nada durante el cuestionario. Al finalizar, recibirá g
     pares.forEach(function(par){
       const campo=document.getElementById(par[0]);
       if(campo && par[1]){
+        if(campo.tagName==='SELECT'){
+          const existe=Array.from(campo.options).some(o=>o.value===par[1]);
+          if(!existe){
+            const opt=document.createElement('option');
+            opt.value=par[1];
+            opt.textContent=par[1]+' · valor recibido';
+            campo.appendChild(opt);
+          }
+        }
         campo.value=par[1];
         campo.defaultValue=par[1];
         campo.setAttribute('value',par[1]);
@@ -141,7 +171,14 @@ No intentaremos venderle nada durante el cuestionario. Al finalizar, recibirá g
       }
     });
     document.documentElement.setAttribute('data-prefill-count',String(n));
+    const accesoInterno=/^CAP-/i.test(String(d.ref||'').trim());
     if(d.ref) document.documentElement.setAttribute('data-cliente-ref',d.ref);
+
+    const verDatos=document.getElementById('viewDataBtn');
+    const volver=document.getElementById('backControlBtn');
+    if(verDatos) verDatos.classList.toggle('hidden',!accesoInterno);
+    if(volver) volver.classList.toggle('hidden',!accesoInterno);
+    document.documentElement.setAttribute('data-acceso-interno',accesoInterno?'1':'0');
   }
 
   aplicar();
@@ -173,7 +210,10 @@ function bubble(text,me=false){const r=document.createElement('div');r.className
 E('startBtn').onclick=()=>{if(!validGeneral())return;E('generalCard').classList.add('hidden');bubble('Perfecto. Empezamos.');showQuestion()};E('sendBtn').onclick=sendAnswer;
 function openDataView(){const general=[['Nombre del negocio',E('businessName').value.trim()],['Persona de contacto / propietario/a',E('owner').value.trim()],['Sector',E('sector').value.trim()],['WhatsApp o teléfono',E('whatsapp').value.trim()],['Correo electrónico',E('email').value.trim()]];let html='<div class="data-section"><h3>Datos generales</h3>'+general.map(x=>'<div class="data-item"><span class="data-label">'+esc(x[0])+'</span><div class="data-value">'+esc(x[1]||'—')+'</div></div>').join('')+'</div>';html+='<div class="data-section"><h3>Cuestionario</h3>';QUESTIONS.forEach(([id,label])=>{html+='<div class="data-item"><span class="data-label">'+esc(label)+'</span><div class="data-value">'+esc(answers[id]||'—')+'</div></div>'});html+='</div><div class="data-note">Vista de solo lectura. No guarda, no modifica ni envía datos.</div>';E('dataContent').innerHTML=html;E('dataModal').classList.add('show');E('dataModal').setAttribute('aria-hidden','false')}
 function closeDataView(){E('dataModal').classList.remove('show');E('dataModal').setAttribute('aria-hidden','true')}
-E('viewDataBtn').onclick=openDataView;E('closeDataBtn').onclick=closeDataView;E('dataModal').addEventListener('click',e=>{if(e.target===E('dataModal'))closeDataView()});
+E('viewDataBtn').onclick=openDataView;
+E('backControlBtn').onclick=()=>{
+  window.location.href='https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec';
+};E('closeDataBtn').onclick=closeDataView;E('dataModal').addEventListener('click',e=>{if(e.target===E('dataModal'))closeDataView()});
 E('answerInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAnswer()}});
 E('answerInput').addEventListener('input',()=>{
   const a=E('answerInput');
