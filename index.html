@@ -809,6 +809,7 @@ body.portal-mode #portalSincronia{
 </div>
 
 <script>
+/* SINCRONIAIA Demo Pública · Fisioterapia Contextual v1.8.7 · 08/08/2026 */
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
 
 let accesoPersonalizado = null;
@@ -1028,7 +1029,7 @@ const DEMOS = {
   },
   fisio: {
     titulo:'Fisioterapia Demo', avatar:'🏥',
-    bienvenida:'¡Hola! Bienvenido a Fisioterapia Demo. ¿En qué le podemos ayudar hoy?',
+    bienvenida:'¡Hola! Bienvenido a Fisioterapia Demo. ¿En qué podemos ayudarle hoy?',
     botones:[['🩺 Ver servicios','fisio_servicios'],['🕒 Horarios','fisio_horarios'],['📅 Pedir cita','fisio_cita'],['❓ Otras consultas','otra_consulta']]
   },
   reformas: {
@@ -1308,38 +1309,45 @@ function quickAction(action,label){
   }
 
   if(action==='fisio_cita'){
-    flujoLocal={tipo:'cita_fisio',paso:'primera',datos:{}};
-    appendMessage('📅 Perfecto. ¿Es su primera visita con nosotros?','incoming');
-    showQuickOptions([['Sí','fisio_primera_si'],['No','fisio_primera_no']]);
+    flujoLocal={tipo:'cita_fisio',paso:'contexto',datos:{}};
+    avanzarCitaFisio();
     return;
   }
 
   if(action==='fisio_primera_si'||action==='fisio_primera_no'){
     if(!flujoLocal || flujoLocal.tipo!=='cita_fisio') return;
     flujoLocal.datos.primera_visita=action==='fisio_primera_si'?'Sí':'No';
-    flujoLocal.paso='motivo';
-    appendMessage('Gracias. Indíqueme brevemente el motivo principal de la consulta.','incoming');
+    avanzarCitaFisio();
+    return;
+  }
+
+  if(action.startsWith('fisio_motivo_')){
+    if(!flujoLocal || flujoLocal.tipo!=='cita_fisio') return;
+    const mapa={
+      fisio_motivo_valoracion:'Valoración inicial',
+      fisio_motivo_fisio:'Fisioterapia',
+      fisio_motivo_rehabilitacion:'Rehabilitación',
+      fisio_motivo_seguimiento:'Seguimiento'
+    };
+    flujoLocal.datos.motivo=mapa[action]||'Fisioterapia';
+    avanzarCitaFisio();
     return;
   }
 
   if(action==='fisio_fecha_hoy'||action==='fisio_fecha_manana'){
     const fecha=action==='fisio_fecha_hoy'?'hoy':'mañana';
-    if(!flujoLocal || flujoLocal.tipo!=='cita_fisio') flujoLocal={tipo:'cita_fisio',datos:{}};
+    if(!flujoLocal || flujoLocal.tipo!=='cita_fisio') flujoLocal={tipo:'cita_fisio',paso:'contexto',datos:{}};
+    flujoLocal.datos=flujoLocal.datos||{};
     flujoLocal.datos.fecha=fecha;
-    flujoLocal.paso='hora';
-    const slots=horasFisioDemo();
-    appendMessage('Para '+fecha+' tenemos estas horas disponibles de demostración. Seleccione la que prefiera o escríbala.','incoming');
-    showQuickOptions(slots.map(h=>[h,'fisio_hora_'+h.replace(':','')]));
+    avanzarCitaFisio();
     return;
   }
 
   if(action.startsWith('fisio_hora_')){
     if(!flujoLocal || flujoLocal.tipo!=='cita_fisio') return;
     const raw=action.replace('fisio_hora_','');
-    const hora=raw.slice(0,2)+':'+raw.slice(2);
-    flujoLocal.datos.hora=hora;
-    flujoLocal.paso='nombre';
-    appendMessage('Perfecto, '+hora+'. ¿A qué nombre hacemos la cita?','incoming');
+    flujoLocal.datos.hora=raw.slice(0,2)+':'+raw.slice(2);
+    avanzarCitaFisio();
     return;
   }
 
@@ -1488,32 +1496,6 @@ function quickAction(action,label){
     }
   }
 
-  if(demoActual==='fisio'){
-    if(action==='servicios'){
-      flujoLocal=null;
-      appendMessage('🩺 Servicios de demostración\n\n• Valoración inicial\n• Fisioterapia\n• Rehabilitación\n• Seguimiento','incoming');
-      opcionesFisio();
-      return;
-    }
-    if(action==='horarios'){
-      flujoLocal=null;
-      appendMessage('🕒 Horarios demo\n\n09:00, 09:30, 10:00, 10:30\n17:00, 17:30, 18:00, 18:30','incoming');
-      showQuickOptions([['📅 Pedir Cita','cita'],['🩺 Servicios','servicios']]);
-      return;
-    }
-    if(action==='consulta'){
-      flujoLocal=null;
-      appendMessage('Cuénteme qué desea consultar. La IA responderá sin diagnosticar ni inventar información.','incoming');
-      showQuickOptions([['🩺 Servicios','servicios'],['🕒 Horarios','horarios'],['📅 Pedir Cita','cita']]);
-      return;
-    }
-    if(action==='cita'){
-      flujoLocal={tipo:'cita_fisio',paso:'datos'};
-      appendMessage('📅 Perfecto. Para simular la cita, indíqueme el día y la hora que prefiere.\n\nHoras demo: 09:00, 09:30, 10:00, 10:30, 17:00, 17:30, 18:00, 18:30.','incoming');
-      showQuickOptions([['🕒 Ver horarios','horarios'],['🩺 Servicios','servicios']]);
-      return;
-    }
-  }
 
   if(demoActual==='reformas'){
     if(action==='servicios'){
@@ -1633,6 +1615,147 @@ function pedirTelefonoValido(){
   appendMessage('📞 El teléfono debe tener 9 dígitos. Por ejemplo: 662527111.\n\nPor favor, revíselo e introdúzcalo de nuevo.','incoming');
 }
 
+
+function detectarServicioFisio(text){
+  const n=normalizarConsulta(text);
+  if(/valoracion inicial|primera valoracion|valoracion/.test(n)) return 'Valoración inicial';
+  if(/rehabilitacion/.test(n)) return 'Rehabilitación';
+  if(/seguimiento/.test(n)) return 'Seguimiento';
+  if(/fisioterapia|fisio/.test(n)) return 'Fisioterapia';
+  return '';
+}
+function detectarFechaFisio(text){
+  const n=normalizarConsulta(text);
+  if(/\bhoy\b/.test(n)) return 'hoy';
+  if(/\bmanana\b/.test(n)) return 'mañana';
+  const dias=['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
+  for(const d of dias){
+    if(new RegExp('\\b'+d+'\\b').test(n))
+      return d==='miercoles'?'miércoles':d==='sabado'?'sábado':d;
+  }
+  const m=String(text||'').match(/\b(\d{1,2})[\/-](\d{1,2})(?:[\/-](\d{2,4}))?\b/);
+  return m?m[0]:'';
+}
+function detectarHoraFisio(text){
+  const n=normalizarConsulta(text);
+  const contexto=/\b(?:a las|hora|horas|manana|tarde|noche)\b/.test(n)||/\b\d{1,2}[:.h]\d{2}\b/.test(n);
+  if(!contexto) return '';
+  const h=normalizarHoraReserva(text);
+  return /^\d{2}:\d{2}$/.test(h)?h:'';
+}
+function detectarPrimeraVisitaFisio(text){
+  const n=normalizarConsulta(text);
+  if(/primera (?:vez|visita)|nunca he venido|no he venido antes/.test(n)) return 'Sí';
+  if(/ya he venido|he venido antes|no es (?:mi )?primera/.test(n)) return 'No';
+  return '';
+}
+function completarDatosFisioDesdeTexto(text){
+  if(!flujoLocal||flujoLocal.tipo!=='cita_fisio') return;
+  const d=flujoLocal.datos||(flujoLocal.datos={});
+  const servicio=detectarServicioFisio(text);
+  const fecha=detectarFechaFisio(text);
+  const hora=detectarHoraFisio(text);
+  const primera=detectarPrimeraVisitaFisio(text);
+  const telefono=normalizarTelefonoES(text);
+  if(servicio&&!d.motivo)d.motivo=servicio;
+  if(fecha&&!d.fecha)d.fecha=fecha;
+  if(hora&&!d.hora)d.hora=hora;
+  if(primera&&!d.primera_visita)d.primera_visita=primera;
+  if(telefono&&!d.telefono)d.telefono=telefono;
+}
+function avanzarCitaFisio(){
+  if(!flujoLocal||flujoLocal.tipo!=='cita_fisio')return false;
+  const d=flujoLocal.datos||(flujoLocal.datos={});
+  const slots=horasFisioDemo();
+
+  if(!d.primera_visita){
+    flujoLocal.paso='primera';
+    appendMessage('📅 Perfecto. Antes de continuar, ¿es su primera visita con nosotros?','incoming');
+    showQuickOptions([['Sí','fisio_primera_si'],['No','fisio_primera_no']]);
+    return true;
+  }
+  if(!d.motivo){
+    flujoLocal.paso='motivo';
+    appendMessage('Gracias. ¿Qué servicio o motivo principal desea consultar?','incoming');
+    showQuickOptions([
+      ['Valoración inicial','fisio_motivo_valoracion'],
+      ['Fisioterapia','fisio_motivo_fisio'],
+      ['Rehabilitación','fisio_motivo_rehabilitacion'],
+      ['Seguimiento','fisio_motivo_seguimiento']
+    ]);
+    return true;
+  }
+  if(!d.fecha){
+    flujoLocal.paso='fecha';
+    appendMessage('¿Para qué día desea pedir la cita?','incoming');
+    showQuickOptions([['Hoy','fisio_fecha_hoy'],['Mañana','fisio_fecha_manana']]);
+    return true;
+  }
+  if(!d.hora){
+    flujoLocal.paso='hora';
+    appendMessage('Para '+d.fecha+' tenemos estas horas disponibles de demostración. Seleccione la que prefiera o escríbala con sus palabras.','incoming');
+    showQuickOptions(slots.map(h=>[h,'fisio_hora_'+h.replace(':','')]));
+    return true;
+  }
+  if(!slots.includes(d.hora)){
+    const noDisponible=d.hora;
+    d.hora='';
+    flujoLocal.paso='hora';
+    appendMessage('Para las '+noDisponible+' no tenemos disponibilidad en esta demostración. Estas son las horas libres.','incoming');
+    showQuickOptions(slots.map(h=>[h,'fisio_hora_'+h.replace(':','')]));
+    return true;
+  }
+  if(!d.nombre){
+    flujoLocal.paso='nombre';
+    appendMessage(d.telefono
+      ?'Gracias. Ya tengo el teléfono. ¿A qué nombre hacemos la cita?'
+      :'Perfecto. ¿A qué nombre hacemos la cita?','incoming');
+    return true;
+  }
+  if(!d.telefono){
+    flujoLocal.paso='telefono';
+    appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming');
+    return true;
+  }
+  flujoLocal.paso='confirmar';
+  appendMessage(
+    '📋 RESUMEN DE LA CITA\n\n🩺 Primera visita: '+d.primera_visita+
+    '\n📝 Servicio / motivo: '+d.motivo+
+    '\n📅 Día: '+d.fecha+
+    '\n🕒 Hora: '+d.hora+
+    '\n👤 Nombre: '+d.nombre+
+    '\n📞 Teléfono: '+d.telefono+
+    '\n\n¿Son correctos todos los datos?','incoming');
+  showQuickOptions([['✅ Confirmar cita','fisio_confirmar'],['❌ Cancelar','fisio_cancelar']]);
+  return true;
+}
+function iniciarCitaFisioDesdeTexto(text){
+  flujoLocal={tipo:'cita_fisio',paso:'contexto',datos:{}};
+  completarDatosFisioDesdeTexto(text);
+  return avanzarCitaFisio();
+}
+function formalizarRespuestaFisio(text){
+  let s=String(text||'');
+  const cambios=[
+    [/¿En qué te puedo ayudar hoy\?/gi,'¿En qué puedo ayudarle hoy?'],
+    [/¿En qué puedo ayudarte hoy\?/gi,'¿En qué puedo ayudarle hoy?'],
+    [/¿En qué puedo ayudarte\?/gi,'¿En qué puedo ayudarle?'],
+    [/¿Qué servicio necesitas/gi,'¿Qué servicio necesita'],
+    [/¿Qué horario prefieres/gi,'¿Qué horario prefiere'],
+    [/¿Qué día y hora te convienen más\?/gi,'¿Qué día y hora le vienen mejor?'],
+    [/¿te gustaría/gi,'¿le gustaría'],
+    [/¿Tienes /gi,'¿Tiene '],
+    [/Cuéntame/gi,'Cuénteme'],
+    [/te ayudo/gi,'le ayudo'],
+    [/tu nombre/gi,'su nombre'],
+    [/tu teléfono/gi,'su teléfono'],
+    [/te gustaría/gi,'le gustaría'],
+    [/puedes indicarme/gi,'puede indicarme']
+  ];
+  cambios.forEach(([a,b])=>s=s.replace(a,b));
+  return s;
+}
+
 function manejarFlujoLocal(text){
   if(!flujoLocal) return false;
   const n=normalizarConsulta(text);
@@ -1712,62 +1835,52 @@ function manejarFlujoLocal(text){
 
   if(flujoLocal && flujoLocal.tipo==='cita_fisio'){
     const d=flujoLocal.datos||(flujoLocal.datos={});
+    completarDatosFisioDesdeTexto(text);
 
+    if(flujoLocal.paso==='primera'){
+      if(/^(si|sí|correcto|es la primera|primera)$/i.test(n)) d.primera_visita='Sí';
+      else if(/^(no|ya he venido|no es la primera)$/i.test(n)) d.primera_visita='No';
+      if(d.primera_visita){avanzarCitaFisio();return true;}
+      appendMessage('¿Es su primera visita con nosotros?','incoming');
+      showQuickOptions([['Sí','fisio_primera_si'],['No','fisio_primera_no']]);
+      return true;
+    }
     if(flujoLocal.paso==='motivo'){
-      d.motivo=text.trim();
-      flujoLocal.paso='fecha';
-      appendMessage('Gracias. ¿Para qué día desea pedir la cita?','incoming');
-      showQuickOptions([['Hoy','fisio_fecha_hoy'],['Mañana','fisio_fecha_manana']]);
-      return true;
+      if(!d.motivo)d.motivo=text.trim();
+      avanzarCitaFisio();return true;
     }
-
     if(flujoLocal.paso==='fecha'){
-      d.fecha=text.trim();
-      flujoLocal.paso='hora';
-      const slots=horasFisioDemo();
-      appendMessage('Para '+d.fecha+' tenemos estas horas disponibles de demostración. Seleccione la que prefiera o escríbala.','incoming');
-      showQuickOptions(slots.map(h=>[h,'fisio_hora_'+h.replace(':','')]));
-      return true;
+      if(!d.fecha)d.fecha=text.trim();
+      avanzarCitaFisio();return true;
     }
-
     if(flujoLocal.paso==='hora'){
-      d.hora=normalizarHoraReserva(text);
-      const slots=horasFisioDemo();
-      if(!slots.includes(d.hora)){
-        appendMessage('Para las '+d.hora+' no tenemos disponibilidad en esta demostración. Seleccione una de las horas libres.','incoming');
-        showQuickOptions(slots.map(h=>[h,'fisio_hora_'+h.replace(':','')]));
+      if(!d.hora)d.hora=detectarHoraFisio(text);
+      if(!d.hora){
+        appendMessage('No he podido identificar la hora. Puede escribir, por ejemplo, «a las 5 de la tarde» o seleccionar una hora disponible.','incoming');
+        showQuickOptions(horasFisioDemo().map(h=>[h,'fisio_hora_'+h.replace(':','')]));
         return true;
       }
-      flujoLocal.paso='nombre';
-      appendMessage('Perfecto, '+d.hora+'. ¿A qué nombre hacemos la cita?','incoming');
-      return true;
+      avanzarCitaFisio();return true;
     }
-
     if(flujoLocal.paso==='nombre'){
+      const tel=normalizarTelefonoES(text);
+      if(tel){d.telefono=tel;avanzarCitaFisio();return true;}
       d.nombre=formatearNombreReserva(text);
-      flujoLocal.paso='telefono';
-      appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming');
-      return true;
+      avanzarCitaFisio();return true;
     }
-
     if(flujoLocal.paso==='telefono'){
-      const telefono=normalizarTelefonoES(text);
-      if(!telefono){ pedirTelefonoValido(); return true; }
-      d.telefono=telefono;
-      flujoLocal.paso='confirmar';
-      appendMessage('📋 RESUMEN DE LA CITA\n\n🩺 Primera visita: '+d.primera_visita+'\n📝 Motivo: '+d.motivo+'\n📅 Día: '+d.fecha+'\n🕒 Hora: '+d.hora+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
-      showQuickOptions([['✅ Confirmar cita','fisio_confirmar'],['❌ Cancelar','fisio_cancelar']]);
-      return true;
+      const tel=normalizarTelefonoES(text);
+      if(!tel){pedirTelefonoValido();return true;}
+      d.telefono=tel;
+      avanzarCitaFisio();return true;
     }
-
     if(flujoLocal.paso==='confirmar'){
-      if(/si|sí|correct|confirm/.test(n)){
-        quickAction('fisio_confirmar','');
-        return true;
-      }
+      if(/si|sí|correct|confirm/.test(n)){quickAction('fisio_confirmar','');return true;}
+      if(/cancel/.test(n)){quickAction('fisio_cancelar','');return true;}
       appendMessage('Puede confirmar o cancelar la cita.','incoming');
       return true;
     }
+    avanzarCitaFisio();return true;
   }
 
   if(/^(cancelar|salir|volver)$/.test(n)){
@@ -1851,12 +1964,6 @@ function manejarFlujoLocal(text){
       appendMessage('Puede confirmar, modificar o cancelar la reserva.','incoming'); return true;
     }
   }
-  if(flujoLocal.tipo==='cita_fisio'){
-    flujoLocal=null;
-    appendMessage('✅ Solicitud de cita de demostración recogida.\n\nPreferencia indicada: '+text+'\n\nEn una implantación real, el sistema comprobaría agenda y confirmaría la cita.','incoming');
-    opcionesFisio();
-    return true;
-  }
   if(flujoLocal.tipo==='visita_reformas'){
     flujoLocal=null;
     appendMessage('✅ Solicitud de visita de demostración recogida.\n\nDetalle: '+text+'\n\nEn una implantación real, estos datos pasarían al negocio para coordinar la visita.','incoming');
@@ -1897,9 +2004,26 @@ function responderLocalEscrito(text){
   }
 
   if(demoActual==='fisio'){
-    if(/servicio|fisioterapia|rehabilitacion|valoracion|seguimiento/.test(n)){ quickAction('servicios',''); return true; }
-    if(/horario|hora|abren|cierran/.test(n)){ quickAction('horarios',''); return true; }
-    if(/cita|reserv/.test(n)){ quickAction('cita',''); return true; }
+    if(/horario|abren|cierran/.test(n) && !/cita|reserv|quiero|necesito|valoracion|fisioterapia|rehabilitacion|seguimiento/.test(n)){
+      quickAction('fisio_horarios','');return true;
+    }
+    if(/que servicios|qué servicios|ver servicios|servicios disponibles/.test(n)){
+      quickAction('fisio_servicios','');return true;
+    }
+
+    const servicio=detectarServicioFisio(text);
+    const fecha=detectarFechaFisio(text);
+    const hora=detectarHoraFisio(text);
+    const intencion=/cita|reserv|pedir hora|agendar|concertar|quiero.*(?:valoracion|fisioterapia|rehabilitacion|seguimiento)|necesito.*(?:valoracion|fisioterapia|rehabilitacion|seguimiento)/.test(n);
+
+    if(intencion||(servicio&&(fecha||hora))){
+      iniciarCitaFisioDesdeTexto(text);return true;
+    }
+    if(servicio){
+      appendMessage('🩺 Podemos ayudarle con '+servicio.toLowerCase()+'. Si lo desea, puedo mostrarle horarios o iniciar una cita.','incoming');
+      showQuickOptions([['📅 Pedir cita','fisio_cita'],['🕒 Horarios','fisio_horarios'],['🩺 Ver servicios','fisio_servicios']]);
+      return true;
+    }
   }
 
   if(demoActual==='reformas'){
@@ -1938,7 +2062,7 @@ async function enviarMotor(text){
     document.getElementById('pensando')?.remove();
 
     if(r&&r.ok&&r.reply){
-      appendMessage(r.reply,'incoming');
+      appendMessage(demoActual==='fisio'?formalizarRespuestaFisio(r.reply):r.reply,'incoming');
     }else{
       appendMessage('Puedo ayudarle con información, horarios y la acción principal de esta demo. ¿Qué desea consultar?','incoming');
     }
