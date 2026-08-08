@@ -818,7 +818,7 @@ body.portal-mode #portalSincronia{
 </div>
 
 <script>
-/* SINCRONIAIA Demo Pública · Fisioterapia v1.8.11 ESTABLE · Reformas v1.9.1 VALIDADA · Navegación Común v1.12.0 · Base v1.11.0 · 08/08/2026 */
+/* SINCRONIAIA Demo Pública · Fisioterapia v1.8.11 ESTABLE · Reformas v1.9.1 VALIDADA · Navegación Común v1.12.1 · Base v1.11.0 · 08/08/2026 */
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
 
 let accesoPersonalizado = null;
@@ -1153,7 +1153,8 @@ function opcionesPostDemo(tipo){
     fisio:[['🩺 Ver servicios','fisio_servicios'],['🕒 Horarios','fisio_horarios'],['❓ Otra consulta','otra_consulta'],['👋 No, gracias','fisio_cerrar']],
     reformas:[['🏠 Ver servicios','ref_servicios'],['❓ Otra consulta','otra_consulta'],['👋 No, gracias','ref_cerrar']]
   };
-  showQuickOptions(mapa[tipo]||[]);
+  const items=mapa[tipo]||[];
+  showQuickOptions(items);
 }
 
 function opcionesCartaPendientes(){
@@ -2060,7 +2061,20 @@ function manejarFlujoLocal(text){
       appendMessage('¿A qué nombre registramos la solicitud?','incoming'); return true;
     }
     if(flujoLocal.paso==='nombre'){
-      d.nombre=formatearNombreReserva(text); flujoLocal.paso='telefono';
+      const telefonoAnticipado=normalizarTelefonoES(text);
+      if(telefonoAnticipado){
+        d.telefono=telefonoAnticipado;
+        appendMessage('Gracias. Ya tengo el teléfono. ¿A qué nombre registramos la solicitud?','incoming');
+        return true;
+      }
+      d.nombre=formatearNombreReserva(text);
+      if(d.telefono){
+        flujoLocal.paso='confirmar';
+        appendMessage('📋 RESUMEN DE LA SOLICITUD DE PRESUPUESTO\n\n🏠 Reforma: '+d.tipo_reforma+'\n📝 Trabajo: '+d.descripcion+'\n📍 Población: '+d.poblacion+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\nEl asistente no facilitará ningún precio. La solicitud será revisada por un profesional antes de preparar cualquier valoración o presupuesto.\n\n¿Son correctos todos los datos?','incoming');
+        showQuickOptions([['✅ Enviar solicitud','ref_confirmar_presupuesto'],['❌ Cancelar','ref_cancelar']]);
+        return true;
+      }
+      flujoLocal.paso='telefono';
       appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming'); return true;
     }
     if(flujoLocal.paso==='telefono'){
