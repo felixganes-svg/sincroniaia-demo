@@ -129,23 +129,32 @@
         .quick-options {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 4px;
-            align-self: flex-start;
-            max-width: 90%;
+            gap: 8px;
+            margin: 8px 0 4px;
+            align-self: stretch;
+            width: 100%;
+            max-width: 100%;
         }
 
         .quick-chip {
             background-color: #ffffff;
             color: #00a884;
             border: 1px solid #00a884;
-            padding: 8px 14px;
-            border-radius: 16px;
-            font-size: 13px;
+            padding: 10px 14px;
+            min-height: 44px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.2;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 650;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             transition: background 0.15s;
+            flex: 1 1 calc(50% - 8px);
+        }
+
+        @media (max-width: 520px){
+          .quick-options{gap:8px}
+          .quick-chip{font-size:14px;padding:11px 10px;min-height:46px}
         }
 
         .quick-chip:active {
@@ -809,7 +818,7 @@ body.portal-mode #portalSincronia{
 </div>
 
 <script>
-/* SINCRONIAIA Demo Pública · Fisioterapia v1.8.11 ESTABLE · Reformas v1.9.1 VALIDADA · Motor Horario Común v1.11.0 · 08/08/2026 */
+/* SINCRONIAIA Demo Pública · Fisioterapia v1.8.11 ESTABLE · Reformas v1.9.1 VALIDADA · Navegación Común v1.12.0 · Base v1.11.0 · 08/08/2026 */
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
 
 let accesoPersonalizado = null;
@@ -1098,7 +1107,7 @@ function startDemo(tipo){
   document.getElementById('demoSelector').classList.add('hidden');
 
   appendMessage(d.bienvenida,'incoming');
-  showQuickOptions(d.botones);
+  opcionesPrincipalesDemo(tipo);
 }
 
 function volverSelector(){
@@ -1109,6 +1118,43 @@ function volverSelector(){
   }
 }
 
+
+
+const NAVEGACION_DEMO={
+  restaurante:[
+    ['📜 Ver Carta','carta'],
+    ['🕒 Horarios','horarios'],
+    ['📅 Reservar Mesa','reservar'],
+    ['❓ Otras consultas','otra_consulta']
+  ],
+  fisio:[
+    ['🩺 Ver servicios','fisio_servicios'],
+    ['🕒 Horarios','fisio_horarios'],
+    ['📅 Pedir cita','fisio_cita'],
+    ['❓ Otras consultas','otra_consulta']
+  ],
+  reformas:[
+    ['🏠 Ver servicios','ref_servicios'],
+    ['📅 Solicitar visita','ref_visita'],
+    ['📋 Pedir presupuesto','ref_presupuesto'],
+    ['❓ Otras consultas','otra_consulta']
+  ]
+};
+
+function opcionesPrincipalesDemo(tipo){
+  const clave=tipo||demoActual;
+  const items=NAVEGACION_DEMO[clave]||[];
+  showQuickOptions(items);
+}
+
+function opcionesPostDemo(tipo){
+  const mapa={
+    restaurante:[['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['❓ Otra consulta','otra_consulta'],['👋 No, gracias','cerrar_chat']],
+    fisio:[['🩺 Ver servicios','fisio_servicios'],['🕒 Horarios','fisio_horarios'],['❓ Otra consulta','otra_consulta'],['👋 No, gracias','fisio_cerrar']],
+    reformas:[['🏠 Ver servicios','ref_servicios'],['❓ Otra consulta','otra_consulta'],['👋 No, gracias','ref_cerrar']]
+  };
+  showQuickOptions(mapa[tipo]||[]);
+}
 
 function opcionesCartaPendientes(){
   const categorias=[
@@ -1126,27 +1172,11 @@ function opcionesCartaPendientes(){
   ]);
 }
 
-function opcionesRestaurante(){
-  showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['❓ Otras consultas','otra_consulta']]);
-}
+function opcionesRestaurante(){ opcionesPrincipalesDemo('restaurante'); }
 
-function opcionesFisio(){
-  showQuickOptions([
-    ['🩺 Ver servicios','fisio_servicios'],
-    ['🕒 Horarios','fisio_horarios'],
-    ['📅 Pedir cita','fisio_cita'],
-    ['❓ Otras consultas','otra_consulta']
-  ]);
-}
+function opcionesFisio(){ opcionesPrincipalesDemo('fisio'); }
 
-function opcionesReformas(){
-  showQuickOptions([
-    ['🏠 Ver servicios','ref_servicios'],
-    ['📅 Solicitar visita','ref_visita'],
-    ['📋 Pedir presupuesto','ref_presupuesto'],
-    ['❓ Otras consultas','otra_consulta']
-  ]);
-}
+function opcionesReformas(){ opcionesPrincipalesDemo('reformas'); }
 
 
 
@@ -1201,7 +1231,7 @@ function quickAction(action,label){
 
   if(action==='ref_servicios'){
     appendMessage('🏠 Servicios de demostración\n\n• Reformas de baños\n• Reformas de cocinas\n• Pintura\n• Pequeñas reformas\n• Reformas integrales\n\nPodemos recoger una solicitud de visita o de presupuesto para que el equipo la revise.','incoming');
-    showQuickOptions([['📅 Solicitar visita','ref_visita'],['📋 Pedir presupuesto','ref_presupuesto'],['❓ Otra consulta','otra_consulta']]);
+    opcionesPrincipalesDemo('reformas');
     return;
   }
 
@@ -1265,7 +1295,7 @@ function quickAction(action,label){
     const d=flujoLocal.datos||{};
     appendMessage('✅ Solicitud de visita registrada.\n\nHemos anotado su solicitud para '+d.tipo_reforma+' en '+d.poblacion+', '+d.fecha+' a las '+d.hora+'.\n\nUn miembro del equipo revisará la solicitud y se pondrá en contacto con usted para confirmar la visita.\n\n¿Desea que le ayudemos con algo más?','incoming');
     flujoLocal={tipo:'post_reformas',paso:'algo_mas',datos:d};
-    showQuickOptions([['🏠 Ver servicios','ref_servicios'],['❓ Otra consulta','otra_consulta'],['No, gracias','ref_cerrar']]);
+    opcionesPostDemo('reformas');
     return;
   }
 
@@ -1274,7 +1304,7 @@ function quickAction(action,label){
     const d=flujoLocal.datos||{};
     appendMessage('✅ Solicitud de presupuesto registrada.\n\nHemos recogido sus datos y la información inicial sobre la reforma.\n\n👤 Un miembro de nuestro equipo revisará la solicitud antes de preparar cualquier valoración o presupuesto.\n\nNo se facilitará ningún precio hasta que la solicitud haya sido revisada por un profesional.\n\nNos pondremos en contacto con usted por este mismo medio cuando haya sido revisada.\n\n¿Desea que le ayudemos con algo más?','incoming');
     flujoLocal={tipo:'post_reformas',paso:'algo_mas',datos:d};
-    showQuickOptions([['🏠 Ver servicios','ref_servicios'],['❓ Otra consulta','otra_consulta'],['No, gracias','ref_cerrar']]);
+    opcionesPostDemo('reformas');
     return;
   }
 
@@ -1294,13 +1324,13 @@ function quickAction(action,label){
 
   if(action==='fisio_servicios'){
     appendMessage('🩺 Servicios de demostración:\n\n• Fisioterapia general\n• Terapia manual\n• Rehabilitación\n• Tratamiento de dolor muscular y articular\n• Recuperación funcional\n\nSi lo desea, puede pedir una cita directamente.','incoming');
-    showQuickOptions([['📅 Pedir cita','fisio_cita'],['🕒 Horarios','fisio_horarios'],['❓ Otra consulta','otra_consulta']]);
+    opcionesPrincipalesDemo('fisio');
     return;
   }
 
   if(action==='fisio_horarios'){
     appendMessage('🕒 Horario de demostración:\n\nMañanas: 09:00 a 12:00\nTardes: 16:00 a 19:00\n\nSi lo desea, puedo mostrarle horas disponibles para pedir cita.','incoming');
-    showQuickOptions([['📅 Pedir cita','fisio_cita'],['🩺 Ver servicios','fisio_servicios']]);
+    opcionesPrincipalesDemo('fisio');
     return;
   }
 
@@ -1352,7 +1382,7 @@ function quickAction(action,label){
     const d=flujoLocal.datos||{};
     appendMessage('✅ Cita confirmada.\n\nHemos reservado su cita para '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.\n\n📲 Le enviaremos un recordatorio por este mismo medio el día anterior y otro aviso 3 horas antes.\n\n¿Desea que le ayudemos con algo más?','incoming');
     flujoLocal={tipo:'post_fisio',paso:'algo_mas',datos:d};
-    showQuickOptions([['🩺 Ver servicios','fisio_servicios'],['🕒 Horarios','fisio_horarios'],['❓ Otra consulta','otra_consulta'],['No, gracias','fisio_cerrar']]);
+    opcionesPostDemo('fisio');
     return;
   }
 
@@ -1425,7 +1455,7 @@ function quickAction(action,label){
     const d=flujoLocal.datos||{};
     appendMessage('✅ Reserva confirmada.\n\nHemos reservado una mesa para '+d.personas+' personas, '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.'+(d.alergias&&d.alergias!=='No'?'\n\n⚠️ Información alimentaria: '+d.alergias+'.':'')+'\n\n📲 Le enviaremos un recordatorio por este mismo medio el día anterior a la reserva y otro aviso 3 horas antes.\n\n¿Desea que le ayudemos con algo más?','incoming');
     flujoLocal={tipo:'post_reserva',paso:'algo_mas',datos:d};
-    showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['❓ Otra consulta','otra_consulta'],['No, gracias','cerrar_chat']]);
+    opcionesPostDemo('restaurante');
     return;
   }
   if(action==='cerrar_chat'){
