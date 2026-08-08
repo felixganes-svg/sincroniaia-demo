@@ -33,7 +33,7 @@ select{width:100%;min-height:48px;background:#071327;color:#fff;border:1px solid
 <main>
 <div class="brand">SINCRONIAIA</div>
 <h1>Conversación por voz · Motor real</h1>
-<p>Prueba aislada. Su voz se convierte en texto, se envía al mismo motor <strong>api=chat</strong> de las demos públicas y la respuesta se reproduce automáticamente por voz.</p>
+<p>Prueba aislada por turnos. Mantenga pulsado para hablar, suelte al terminar y SINCRONIAIA responderá por voz utilizando el mismo motor <strong>api=chat</strong> de las demos públicas.</p>
 
 <section class="card">
 <label for="tipo"><strong>Demo que utilizará el motor</strong></label>
@@ -48,14 +48,24 @@ select{width:100%;min-height:48px;background:#071327;color:#fff;border:1px solid
 <section class="card">
 <h2>Conversación</h2>
 <div id="chat" class="chat">
-  <div class="msg bot">Pulse «Iniciar conversación». Cuando termine de hablar, SINCRONIAIA procesará su petición y responderá por voz.</div>
+  <div class="msg bot">Mantenga pulsado «🎙️ Mantener para hablar» mientras habla. Suelte el botón al terminar. SINCRONIAIA responderá por voz.</div>
 </div>
 <div class="actions">
-  <button id="start" class="primary">🎙️ Iniciar conversación</button>
-  <button id="stop" class="secondary" disabled>■ Finalizar</button>
+  <button id="start" class="primary">🎙️ Mantener para hablar</button>
+  <button id="stop" class="secondary" disabled>■ Detener</button>
   <button id="repeat" class="secondary" disabled>🔊 Repetir respuesta</button>
 </div>
 <div id="status" class="status">Preparado.</div>
+</section>
+
+<section class="card">
+<h2>Voz de SINCRONIAIA</h2>
+<label for="voiceSelect"><strong>Voz disponible en este dispositivo</strong></label>
+<select id="voiceSelect"></select>
+<div class="actions">
+  <button id="voiceTest" class="secondary">🔊 Probar esta voz</button>
+</div>
+<p class="small">La lista procede de las voces instaladas en su PC o móvil. SINCRONIAIA prioriza voces en español y aplica un ritmo más pausado y cálido.</p>
 </section>
 
 <section class="card">
@@ -132,21 +142,49 @@ function jsonp(params,timeoutMs=25000){
     document.body.appendChild(script);
   });
 }
-function warmVoice(){
-  if(!('speechSynthesis'in window))return null;
-  const voices=speechSynthesis.getVoices()||[];
-  const es=voices.filter(v=>(v.lang||'').toLowerCase().startsWith('es'));
-  return es.find(v=>/natural|microsoft|google|helena|elvira|monica|mónica|paulina/i.test(v.name))||es[0]||voices[0]||null;
+let availableVoices=[];
+function loadVoices(){
+  if(!('speechSynthesis'in window))return;
+  availableVoices=speechSynthesis.getVoices()||[];
+  const select=$('voiceSelect');
+  if(!select)return;
+  const current=select.value;
+  const spanish=availableVoices
+    .map((v,i)=>({v,i}))
+    .filter(x=>(x.v.lang||'').toLowerCase().startsWith('es'));
+  const list=spanish.length?spanish:availableVoices.map((v,i)=>({v,i}));
+  select.innerHTML='';
+  list.forEach(({v,i})=>{
+    const o=document.createElement('option');
+    o.value=String(i);
+    o.textContent=v.name+' · '+v.lang;
+    select.appendChild(o);
+  });
+  const preferred=list.find(x=>/natural|microsoft|google|helena|elvira|monica|mónica|paulina|sabina/i.test(x.v.name))||list[0];
+  if(current && [...select.options].some(o=>o.value===current)) select.value=current;
+  else if(preferred) select.value=String(preferred.i);
+}
+function selectedVoice(){
+  const i=Number($('voiceSelect')?.value);
+  return Number.isInteger(i)?availableVoices[i]||null:null;
+}
+function prepareSpeechText(text){
+  return String(text||'')
+    .replace(/[•*_#]/g,' ')
+    .replace(/\s+/g,' ')
+    .replace(/([.!?])\s+/g,'$1 ')
+    .trim();
 }
 function speak(text){
   return new Promise(resolve=>{
     if(!('speechSynthesis'in window)){setDebug('FUNCIONA','NO DISPONIBLE');resolve();return}
     speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text);
+    const u=new SpeechSynthesisUtterance(prepareSpeechText(text));
     u.lang='es-ES';
-    u.rate=.92;
-    u.pitch=1.02;
-    const v=warmVoice();if(v)u.voice=v;
+    u.rate=.88;
+    u.pitch=1.00;
+    u.volume=1;
+    const v=selectedVoice();if(v){u.voice=v;u.lang=v.lang||'es-ES'}
     u.onstart=()=>setStatus('🔊 SINCRONIAIA está respondiendo…','ok');
     u.onend=()=>{setDebug('FUNCIONA','FUNCIONA');resolve()};
     u.onerror=()=>{setDebug('FUNCIONA','ERROR');resolve()};
@@ -203,13 +241,10 @@ async function sendToMotor(text){
 
     await speak(lastReply);
 
-    if(active){
-      setStatus('🎙️ Escuchando de nuevo…','ok');
-      clearTimeout(restartTimer);
-      restartTimer=setTimeout(()=>listen(false),550);
-    }else{
-      setStatus('Respuesta completada.','ok');
-    }
+    active=false;
+    $('start').disabled=false;
+    $('stop').disabled=true;
+    setStatus('Respuesta completada. Mantenga pulsado el botón para continuar.','ok');
   }catch(e){
     if(myRequest!==requestSeq) return;
     setStatus('No se pudo contactar con el motor SINCRONIAIA: '+e.message,'bad');
@@ -241,7 +276,10 @@ function listen(first=true){
         setStatus('No se ha reconocido texto.','bad');
         return;
       }
+      active=false;
+      $('stop').disabled=true;
       addMessage(text,'user');
+      setStatus('He entendido: «'+text+'». Enviando a SINCRONIAIA…','ok');
       setDebug('pendiente','pendiente');
       sendToMotor(text);
     };
@@ -254,8 +292,10 @@ function listen(first=true){
         return;
       }
       if(code==='no-speech'){
-        setStatus('No he oído ninguna frase.','bad');
-        if(active)setTimeout(()=>listen(false),500);
+        active=false;
+        $('start').disabled=false;
+        $('stop').disabled=true;
+        setStatus('No he oído ninguna frase. Mantenga pulsado el botón e inténtelo de nuevo.','bad');
         return;
       }
       setStatus('Error de reconocimiento: '+code,'bad');
@@ -267,26 +307,39 @@ function listen(first=true){
 }
 function startConversation(){
   if(!SR){setStatus('Reconocimiento de voz no disponible.','bad');return}
+  if(motorBusy || speechSynthesis.speaking){
+    setStatus('Espere a que SINCRONIAIA termine la respuesta anterior.','bad');
+    return;
+  }
   active=true;
-  $('start').disabled=true;
   $('stop').disabled=false;
   listen(true);
 }
+function releaseToSend(){
+  if(!active)return;
+  setStatus('Terminando escucha…');
+  try{if(recognition)recognition.stop()}catch(_){}
+}
 function stopConversation(){
   active=false;
-  motorBusy=false;
-  requestSeq++;
   clearTimeout(restartTimer);
   try{if(recognition)recognition.abort()}catch(_){}
-  if('speechSynthesis'in window)speechSynthesis.cancel();
   $('start').disabled=false;
   $('stop').disabled=true;
-  setStatus('Conversación finalizada.');
+  setStatus('Escucha detenida.');
 }
 
-$('start').onclick=startConversation;
+const talkBtn=$('start');
+talkBtn.onpointerdown=e=>{e.preventDefault();startConversation()};
+talkBtn.onpointerup=e=>{e.preventDefault();releaseToSend()};
+talkBtn.onpointercancel=releaseToSend;
+talkBtn.onpointerleave=e=>{if(active)releaseToSend()};
+talkBtn.oncontextmenu=e=>e.preventDefault();
 $('stop').onclick=stopConversation;
 $('repeat').onclick=()=>{if(lastReply)speak(lastReply)};
+$('voiceTest').onclick=()=>speak('Buenos días. Soy el asistente de SINCRONIAIA. ¿En qué puedo ayudarle?');
+loadVoices();
+if('speechSynthesis'in window)speechSynthesis.onvoiceschanged=loadVoices;
 $('tipo').onchange=()=>{
   requestSeq++;
   motorBusy=false;
