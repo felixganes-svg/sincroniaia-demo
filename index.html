@@ -809,7 +809,7 @@ body.portal-mode #portalSincronia{
 </div>
 
 <script>
-/* SINCRONIAIA Demo Pública · Fisioterapia Contextual v1.8.8 · 08/08/2026 */
+/* SINCRONIAIA Demo Pública · Fisioterapia Contextual v1.8.9 · 08/08/2026 */
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
 
 let accesoPersonalizado = null;
@@ -1641,22 +1641,29 @@ function detectarHoraFisio(text){
   const contexto=/\b(?:a las|hora|horas|manana|tarde|noche)\b/.test(n)||/\b\d{1,2}[:.h]\d{2}\b/.test(n);
   if(!contexto) return '';
 
-  /* Corrección localizada para horas naturales en Fisioterapia.
-     Convierte palabras de hora a número sin alterar el normalizador general. */
-  const horasPalabra={
-    'una':1,'uno':1,'dos':2,'tres':3,'cuatro':4,'cinco':5,'seis':6,
-    'siete':7,'ocho':8,'nueve':9,'diez':10,'once':11,'doce':12
+  const palabraNumero={
+    una:1,uno:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,
+    siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12
   };
-  let textoHora=String(text||'');
-  const nt=normalizarConsulta(textoHora);
-  for(const [palabra,numero] of Object.entries(horasPalabra)){
-    if(new RegExp('\\b'+palabra+'\\b').test(nt)){
-      textoHora=nt.replace(new RegExp('\\b'+palabra+'\\b'),String(numero));
-      break;
-    }
+
+  /* 1) «a las cinco de la tarde» / «a las nueve de la mañana» */
+  let m=n.match(/\ba\s+las?\s+(una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce)(?:\s+de\s+la\s+(manana|tarde|noche))?\b/);
+  if(m){
+    let hora=palabraNumero[m[1]];
+    const franja=m[2]||'';
+    if(/tarde|noche/.test(franja) && hora<12) hora+=12;
+    return String(hora).padStart(2,'0')+':00';
   }
 
-  const h=normalizarHoraReserva(textoHora);
+  /* 2) «cinco de la tarde» sin «a las» */
+  m=n.match(/\b(una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce)\s+de\s+la\s+(manana|tarde|noche)\b/);
+  if(m){
+    let hora=palabraNumero[m[1]];
+    if(/tarde|noche/.test(m[2]) && hora<12) hora+=12;
+    return String(hora).padStart(2,'0')+':00';
+  }
+
+  const h=normalizarHoraReserva(text);
   return /^\d{2}:\d{2}$/.test(h)?h:'';
 }
 function detectarPrimeraVisitaFisio(text){
