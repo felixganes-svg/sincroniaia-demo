@@ -809,7 +809,7 @@ body.portal-mode #portalSincronia{
 </div>
 
 <script>
-/* SINCRONIAIA Demo Pública · Fisioterapia Contextual v1.8.10 · 08/08/2026 */
+/* SINCRONIAIA Demo Pública · Fisioterapia Contextual v1.8.11 · 08/08/2026 */
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
 
 let accesoPersonalizado = null;
@@ -1321,15 +1321,15 @@ function quickAction(action,label){
     return;
   }
 
-  if(action.startsWith('fisio_motivo_')){
+  if(action.startsWith('fisio_servicio_')){
     if(!flujoLocal || flujoLocal.tipo!=='cita_fisio') return;
     const mapa={
-      fisio_motivo_valoracion:'Valoración inicial',
-      fisio_motivo_fisio:'Fisioterapia',
-      fisio_motivo_rehabilitacion:'Rehabilitación',
-      fisio_motivo_seguimiento:'Seguimiento'
+      fisio_servicio_valoracion:'Valoración inicial',
+      fisio_servicio_fisio:'Fisioterapia',
+      fisio_servicio_rehabilitacion:'Rehabilitación',
+      fisio_servicio_seguimiento:'Seguimiento'
     };
-    flujoLocal.datos.motivo=mapa[action]||'Fisioterapia';
+    flujoLocal.datos.servicio=mapa[action]||'Fisioterapia';
     avanzarCitaFisio();
     return;
   }
@@ -1683,7 +1683,7 @@ function completarDatosFisioDesdeTexto(text){
   const hora=detectarHoraFisio(text);
   const primera=detectarPrimeraVisitaFisio(text);
   const telefono=normalizarTelefonoES(text);
-  if(servicio&&!d.motivo)d.motivo=servicio;
+  if(servicio&&!d.servicio)d.servicio=servicio;
   if(fecha&&!d.fecha)d.fecha=fecha;
   if(hora&&!d.hora)d.hora=hora;
   if(primera&&!d.primera_visita)d.primera_visita=primera;
@@ -1700,17 +1700,24 @@ function avanzarCitaFisio(){
     showQuickOptions([['Sí','fisio_primera_si'],['No','fisio_primera_no']]);
     return true;
   }
-  if(!d.motivo){
-    flujoLocal.paso='motivo';
-    appendMessage('Gracias. ¿Qué servicio o motivo principal desea consultar?','incoming');
+  if(!d.servicio){
+    flujoLocal.paso='servicio';
+    appendMessage('Gracias. ¿Qué servicio desea solicitar?','incoming');
     showQuickOptions([
-      ['Valoración inicial','fisio_motivo_valoracion'],
-      ['Fisioterapia','fisio_motivo_fisio'],
-      ['Rehabilitación','fisio_motivo_rehabilitacion'],
-      ['Seguimiento','fisio_motivo_seguimiento']
+      ['Valoración inicial','fisio_servicio_valoracion'],
+      ['Fisioterapia','fisio_servicio_fisio'],
+      ['Rehabilitación','fisio_servicio_rehabilitacion'],
+      ['Seguimiento','fisio_servicio_seguimiento']
     ]);
     return true;
   }
+
+  if(d.primera_visita==='Sí' && !d.motivo){
+    flujoLocal.paso='motivo';
+    appendMessage('Gracias. Al ser su primera visita, indíqueme brevemente el motivo de la consulta o la zona que desea tratar.','incoming');
+    return true;
+  }
+
   if(!d.fecha){
     flujoLocal.paso='fecha';
     appendMessage('¿Para qué día desea pedir la cita?','incoming');
@@ -1746,7 +1753,8 @@ function avanzarCitaFisio(){
   flujoLocal.paso='confirmar';
   appendMessage(
     '📋 RESUMEN DE LA CITA\n\n🩺 Primera visita: '+d.primera_visita+
-    '\n📝 Servicio / motivo: '+d.motivo+
+    '\n💼 Servicio: '+d.servicio+
+    (d.motivo?'\n📝 Motivo: '+d.motivo:'')+
     '\n📅 Día: '+d.fecha+
     '\n🕒 Hora: '+d.hora+
     '\n👤 Nombre: '+d.nombre+
@@ -1871,10 +1879,29 @@ function manejarFlujoLocal(text){
       showQuickOptions([['Sí','fisio_primera_si'],['No','fisio_primera_no']]);
       return true;
     }
+    if(flujoLocal.paso==='servicio'){
+      if(!d.servicio){
+        const servicio=detectarServicioFisio(text);
+        if(servicio)d.servicio=servicio;
+      }
+      if(!d.servicio){
+        appendMessage('Puede elegir Valoración inicial, Fisioterapia, Rehabilitación o Seguimiento.','incoming');
+        showQuickOptions([
+          ['Valoración inicial','fisio_servicio_valoracion'],
+          ['Fisioterapia','fisio_servicio_fisio'],
+          ['Rehabilitación','fisio_servicio_rehabilitacion'],
+          ['Seguimiento','fisio_servicio_seguimiento']
+        ]);
+        return true;
+      }
+      avanzarCitaFisio();return true;
+    }
+
     if(flujoLocal.paso==='motivo'){
       if(!d.motivo)d.motivo=text.trim();
       avanzarCitaFisio();return true;
     }
+
     if(flujoLocal.paso==='fecha'){
       if(!d.fecha)d.fecha=text.trim();
       avanzarCitaFisio();return true;
