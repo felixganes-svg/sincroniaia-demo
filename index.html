@@ -809,7 +809,7 @@ body.portal-mode #portalSincronia{
 </div>
 
 <script>
-/* SINCRONIAIA Demo Pública · Fisioterapia v1.8.11 ESTABLE · Reformas Contextual v1.9.1 · 08/08/2026 */
+/* SINCRONIAIA Demo Pública · Fisioterapia v1.8.11 ESTABLE · Reformas v1.9.1 VALIDADA · Restaurante Contextual v1.10.0 · 08/08/2026 */
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
 
 let accesoPersonalizado = null;
@@ -1372,17 +1372,15 @@ function quickAction(action,label){
 
   if(action==='res_fecha_hoy'||action==='res_fecha_manana'){
     const fecha=action==='res_fecha_hoy'?'hoy':'mañana';
-    flujoLocal={tipo:'reserva_restaurante',paso:'turno',datos:{fecha:fecha}};
-    appendMessage('Perfecto. Para '+fecha+', ¿la reserva sería para comer o para cenar?','incoming');
-    showQuickOptions([['🍽️ Comer','res_turno_comer'],['🌙 Cenar','res_turno_cenar']]); return;
+    flujoLocal=flujoLocal&&flujoLocal.tipo==='reserva_restaurante'?flujoLocal:{tipo:'reserva_restaurante',paso:'contexto',datos:{}};
+    flujoLocal.datos=flujoLocal.datos||{};flujoLocal.datos.fecha=fecha;
+    avanzarReservaRestaurante(); return;
   }
   if(action==='res_turno_comer'||action==='res_turno_cenar'){
     const turno=action==='res_turno_cenar'?'Cena':'Comida';
     flujoLocal=flujoLocal||{tipo:'reserva_restaurante',datos:{fecha:'el día indicado'}};
-    flujoLocal.datos=flujoLocal.datos||{}; flujoLocal.datos.turno=turno; flujoLocal.paso='hora';
-    const slots=turno==='Cena'?['20:00','20:30','21:00','21:30','22:00']:['13:00','13:30','14:00','14:30','15:00'];
-    appendMessage((turno==='Cena'?'🌙':'🍽️')+' Para '+flujoLocal.datos.fecha+' tenemos estas horas disponibles de demostración. Seleccione la que prefiera o escríbala con sus palabras.','incoming');
-    showQuickOptions(slots.map(h=>[h,'res_hora_'+h.replace(':','')]));
+    flujoLocal.datos=flujoLocal.datos||{}; flujoLocal.datos.turno=turno;
+    avanzarReservaRestaurante();
     return;
   }
   if(action.startsWith('res_hora_')){
@@ -1391,9 +1389,7 @@ function quickAction(action,label){
     const hora=raw.slice(0,2)+':'+raw.slice(2);
     flujoLocal.datos=flujoLocal.datos||{};
     flujoLocal.datos.hora=hora;
-    flujoLocal.paso='personas';
-    appendMessage('Perfecto, '+hora+'. ¿Para cuántas personas sería la mesa?','incoming');
-    showQuickOptions([['1','res_personas_1'],['2','res_personas_2'],['3','res_personas_3'],['4','res_personas_4'],['5','res_personas_5'],['6','res_personas_6'],['7','res_personas_7'],['8','res_personas_8'],['9 o más','res_personas_9mas']]);
+    avanzarReservaRestaurante();
     return;
   }
   if(action.startsWith('res_personas_')){
@@ -1405,17 +1401,14 @@ function quickAction(action,label){
       return;
     }
     flujoLocal.datos.personas=parseInt(val,10);
-    flujoLocal.paso='alimentaria';
-    appendMessage('👥 Perfecto, mesa para '+val+' personas.\n\n⚠️ ¿Hay alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
-    showQuickOptions([['No','res_food_no'],['Sí','res_food_si']]);
+    avanzarReservaRestaurante();
     return;
   }
 
   if(action==='res_food_no'){
     if(!flujoLocal || flujoLocal.tipo!=='reserva_restaurante') return;
     flujoLocal.datos.alergias='No';
-    flujoLocal.paso='nombre';
-    appendMessage('Perfecto. ¿A qué nombre hacemos la reserva?','incoming');
+    avanzarReservaRestaurante();
     return;
   }
 
@@ -1462,14 +1455,13 @@ function quickAction(action,label){
     }
     if(action==='domicilio'){
       flujoLocal=null;
-      appendMessage('🛵 Puede consultar la carta y simular qué pediría para recoger o recibir en casa.','incoming');
-      showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['❓ Otras consultas','otra_consulta']]);
+      appendMessage('En esta demostración puede consultar la carta, los horarios y realizar una reserva de mesa.','incoming');
+      opcionesRestaurante();
       return;
     }
     if(action==='reservar'){
-      flujoLocal={tipo:'reserva_restaurante',paso:'fecha',datos:{}};
-      appendMessage('📅 Perfecto. ¿Para qué día desea reservar?\n\nPuede escribir: hoy, mañana, sábado o una fecha concreta.','incoming');
-      showQuickOptions([['Hoy','res_fecha_hoy'],['Mañana','res_fecha_manana'],['📜 Ver Carta','carta']]);
+      flujoLocal={tipo:'reserva_restaurante',paso:'contexto',datos:{}};
+      avanzarReservaRestaurante();
       return;
     }
     if(action==='horas_reserva'){
@@ -1582,6 +1574,12 @@ function normalizarHoraReserva(text){
   if(m) return String(parseInt(m[1],10)).padStart(2,'0')+':'+m[2];
   const horasPalabra={una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12};
   for(const k in horasPalabra){
+    const reMedia=new RegExp('\\b'+k+'\\s+y\\s+media\\b');
+    if(reMedia.test(n)){
+      let h=horasPalabra[k];
+      if(/tarde|noche/.test(n) && h<12) h+=12;
+      return String(h).padStart(2,'0')+':30';
+    }
     if(new RegExp('\\b'+k+'\\b').test(n)){
       let h=horasPalabra[k];
       if(/tarde|noche/.test(n) && h<12) h+=12;
@@ -1874,6 +1872,103 @@ function avanzarVisitaReformas(){
   return true;
 }
 
+
+function detectarFechaRestaurante(text){
+  const n=normalizarConsulta(text);
+  if(/\bhoy\b/.test(n)) return 'hoy';
+  if(/\bmanana\b/.test(n)) return 'mañana';
+  const dias=['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
+  for(const d of dias){
+    if(new RegExp('\\b'+d+'\\b').test(n)) return d==='miercoles'?'miércoles':d==='sabado'?'sábado':d;
+  }
+  return '';
+}
+function detectarHoraRestaurante(text){
+  const n=normalizarConsulta(text);
+  const contexto=/\ba las?\b|\bhora\b|\bmanana\b|\btarde\b|\bnoche\b/.test(n)||/\b\d{1,2}[:.h]\d{2}\b/.test(n);
+  if(!contexto)return '';
+  return normalizarHoraReserva(text);
+}
+function detectarPersonasRestaurante(text){
+  const n=normalizarConsulta(text);
+  let m=n.match(/\b(?:para|somos|seremos|mesa para)\s+(\d{1,2})\s*(?:personas?|comensales?)?\b/);
+  if(m)return parseInt(m[1],10);
+  m=n.match(/\b(\d{1,2})\s+(?:personas?|comensales?)\b/);
+  if(m)return parseInt(m[1],10);
+  return '';
+}
+function turnoDesdeHoraRestaurante(hora){
+  if(!hora)return '';
+  const h=parseInt(String(hora).slice(0,2),10);
+  if(h>=13&&h<=15)return 'Comida';
+  if(h>=20&&h<=22)return 'Cena';
+  return '';
+}
+function completarReservaRestaurante(text){
+  if(!flujoLocal||flujoLocal.tipo!=='reserva_restaurante')return;
+  const d=flujoLocal.datos||(flujoLocal.datos={});
+  const fecha=detectarFechaRestaurante(text);
+  const hora=detectarHoraRestaurante(text);
+  const personas=detectarPersonasRestaurante(text);
+  if(fecha&&!d.fecha)d.fecha=fecha;
+  if(hora&&!d.hora)d.hora=hora;
+  if(personas&&!d.personas)d.personas=personas;
+  if(d.hora&&!d.turno)d.turno=turnoDesdeHoraRestaurante(d.hora);
+}
+function slotsRestaurante(turno){
+  return turno==='Cena'?['20:00','20:30','21:00','21:30','22:00']:['13:00','13:30','14:00','14:30','15:00'];
+}
+function avanzarReservaRestaurante(){
+  if(!flujoLocal||flujoLocal.tipo!=='reserva_restaurante')return false;
+  const d=flujoLocal.datos||(flujoLocal.datos={});
+  if(!d.fecha){
+    flujoLocal.paso='fecha';
+    appendMessage('📅 Perfecto. ¿Para qué día desea reservar? Puede escribir hoy, mañana, sábado o una fecha concreta.','incoming');
+    showQuickOptions([['Hoy','res_fecha_hoy'],['Mañana','res_fecha_manana']]);return true;
+  }
+  if(!d.turno){
+    if(d.hora){
+      appendMessage('Para las '+d.hora+' no tenemos disponibilidad en esta demostración. Las reservas son en horario de comida o cena.','incoming');
+    }
+    flujoLocal.paso='turno';
+    appendMessage('Para '+d.fecha+', ¿la reserva sería para comer o para cenar?','incoming');
+    showQuickOptions([['🍽️ Comer','res_turno_comer'],['🌙 Cenar','res_turno_cenar']]);return true;
+  }
+  const slots=slotsRestaurante(d.turno);
+  if(!d.hora||!slots.includes(d.hora)){
+    if(d.hora&&!slots.includes(d.hora))appendMessage('Para las '+d.hora+' no tenemos disponibilidad en esta demostración. Estas son las horas libres.','incoming');
+    d.hora='';
+    flujoLocal.paso='hora';
+    showQuickOptions(slots.map(h=>[h,'res_hora_'+h.replace(':','')]));return true;
+  }
+  if(!d.personas){
+    flujoLocal.paso='personas';
+    appendMessage('Perfecto, '+d.hora+'. ¿Para cuántas personas sería la mesa?','incoming');
+    showQuickOptions([['1','res_personas_1'],['2','res_personas_2'],['3','res_personas_3'],['4','res_personas_4'],['5','res_personas_5'],['6','res_personas_6'],['7','res_personas_7'],['8','res_personas_8'],['9 o más','res_personas_9mas']]);return true;
+  }
+  if(!d.alergias){
+    flujoLocal.paso='alimentaria';
+    appendMessage('👥 Perfecto, mesa para '+d.personas+' personas.\n\n⚠️ ¿Hay alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
+    showQuickOptions([['No','res_food_no'],['Sí','res_food_si']]);return true;
+  }
+  if(!d.nombre){
+    flujoLocal.paso='nombre';
+    appendMessage(d.telefono?'Gracias. Ya tengo el teléfono. ¿A qué nombre hacemos la reserva?':'Perfecto. ¿A qué nombre hacemos la reserva?','incoming');return true;
+  }
+  if(!d.telefono){
+    flujoLocal.paso='telefono';
+    appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming');return true;
+  }
+  flujoLocal.paso='confirmar';
+  appendMessage('📋 RESUMEN DE LA RESERVA\n\n📅 Día: '+d.fecha+'\n'+(d.turno==='Cena'?'🌙':'🍽️')+' Turno: '+d.turno+'\n🕒 Hora: '+d.hora+'\n👥 Personas: '+d.personas+'\n⚠️ Información alimentaria: '+d.alergias+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
+  showQuickOptions([['✅ Confirmar reserva','res_confirmar'],['✏️ Modificar','res_modificar'],['❌ Cancelar','res_cancelar']]);return true;
+}
+function iniciarReservaRestauranteDesdeTexto(text){
+  flujoLocal={tipo:'reserva_restaurante',paso:'contexto',datos:{}};
+  completarReservaRestaurante(text);
+  return avanzarReservaRestaurante();
+}
+
 function manejarFlujoLocal(text){
   if(!flujoLocal) return false;
   const n=normalizarConsulta(text);
@@ -2051,64 +2146,44 @@ function manejarFlujoLocal(text){
 
   if(flujoLocal.tipo==='reserva_restaurante'){
     const d=flujoLocal.datos||(flujoLocal.datos={});
-    if(flujoLocal.paso==='fecha'){
-      d.fecha=text.trim(); flujoLocal.paso='turno';
-      appendMessage('Perfecto. Para '+d.fecha+', ¿la reserva sería para comer o para cenar?','incoming');
-      showQuickOptions([['🍽️ Comer','res_turno_comer'],['🌙 Cenar','res_turno_cenar']]); return true;
+    completarReservaRestaurante(text);
+    if(flujoLocal.paso==='fecha'){if(!d.fecha)d.fecha=text.trim();avanzarReservaRestaurante();return true;}
+    if(flujoLocal.paso==='turno'){
+      if(/comer|comida|mediodia/.test(n))d.turno='Comida';
+      else if(/cenar|cena|noche/.test(n))d.turno='Cena';
+      if(!d.turno){appendMessage('¿La reserva sería para comer o para cenar?','incoming');return true;}
+      avanzarReservaRestaurante();return true;
     }
     if(flujoLocal.paso==='hora'){
-      if(/horario|horas|disponib|que teneis|que tienen/.test(n)){
-        const slots=d.turno==='Cena'?['20:00','20:30','21:00','21:30','22:00']:['13:00','13:30','14:00','14:30','15:00'];
-        appendMessage('Estas son las horas disponibles de demostración para '+d.fecha+'. Seleccione la que prefiera.','incoming');
-        showQuickOptions(slots.map(h=>[h,'res_hora_'+h.replace(':','')]));
-        return true;
-      }
-      d.hora=normalizarHoraReserva(text);
-      const slots=d.turno==='Cena'?['20:00','20:30','21:00','21:30','22:00']:['13:00','13:30','14:00','14:30','15:00'];
-      if(!slots.includes(d.hora)){
-        appendMessage('Para las '+d.hora+' no tenemos disponibilidad en esta demostración. Seleccione una de las horas libres.','incoming');
-        showQuickOptions(slots.map(h=>[h,'res_hora_'+h.replace(':','')]));
-        return true;
-      }
-      flujoLocal.paso='personas';
-      appendMessage('Perfecto, '+d.hora+'. ¿Para cuántas personas sería la mesa?','incoming');
-      showQuickOptions([['1','res_personas_1'],['2','res_personas_2'],['3','res_personas_3'],['4','res_personas_4'],['5','res_personas_5'],['6','res_personas_6'],['7','res_personas_7'],['8','res_personas_8'],['9 o más','res_personas_9mas']]);
-      return true;
+      if(!d.hora)d.hora=detectarHoraRestaurante(text);
+      avanzarReservaRestaurante();return true;
     }
     if(flujoLocal.paso==='personas'){
-      d.personas=extraerNumeroPersonas(text);
-      const alimentaria=extraerAlergiasDesdeTexto(text);
-      if(alimentaria){
-        d.alergias='Sí — comunicar al restaurante';
-        flujoLocal.paso='nombre';
-        appendMessage('👥 De acuerdo: '+d.personas+' personas.\n\n⚠️ Información alimentaria anotada.\n\nEsta información quedará asociada a la reserva para que el restaurante pueda tenerla en cuenta.\n\nPara alergias graves, recomendamos confirmarlo también directamente con el establecimiento.\n\n👤 ¿A qué nombre hacemos la reserva?','incoming');
-      }else{
-        flujoLocal.paso='alimentaria';
-        appendMessage('👥 De acuerdo: '+d.personas+' personas.\n\n⚠️ ¿Hay alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
-        showQuickOptions([['No','res_food_no'],['Sí','res_food_si']]);
-      }
-      return true;
+      const p=extraerNumeroPersonas(text);
+      if(!Number.isInteger(p)||p<1){appendMessage('Indíqueme el número de personas, por ejemplo: 2.','incoming');return true;}
+      d.personas=p;avanzarReservaRestaurante();return true;
     }
-    if(flujoLocal.paso==='alergias_detalle'){
-      d.alergias=text.trim(); flujoLocal.paso='nombre';
-      appendMessage('Gracias. ¿A qué nombre hacemos la reserva?','incoming'); return true;
+    if(flujoLocal.paso==='alimentaria'){
+      if(/\bno\b|ninguna|ninguno/.test(n)){d.alergias='No';avanzarReservaRestaurante();return true;}
+      if(/\bsi\b|\bsí\b/.test(n)){d.alergias='Sí — comunicar al restaurante';flujoLocal.paso='alergias_detalle';appendMessage('Indíqueme brevemente la alergia, intolerancia o necesidad alimentaria.','incoming');return true;}
+      d.alergias=text.trim();avanzarReservaRestaurante();return true;
     }
+    if(flujoLocal.paso==='alergias_detalle'){d.alergias=text.trim();avanzarReservaRestaurante();return true;}
     if(flujoLocal.paso==='nombre'){
-      d.nombre=formatearNombreReserva(text);
-      flujoLocal.paso='telefono';
-      appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming'); return true;
+      const tel=normalizarTelefonoES(text);
+      if(tel){d.telefono=tel;avanzarReservaRestaurante();return true;}
+      d.nombre=formatearNombreReserva(text);avanzarReservaRestaurante();return true;
     }
     if(flujoLocal.paso==='telefono'){
-      const telefono=normalizarTelefonoES(text);
-      if(!telefono){ pedirTelefonoValido(); return true; }
-      d.telefono=telefono; flujoLocal.paso='confirmar';
-      appendMessage('📋 RESUMEN DE LA RESERVA\n\n📅 Día: '+d.fecha+'\n'+(d.turno==='Cena'?'🌙':'🍽️')+' Turno: '+d.turno+'\n🕒 Hora: '+d.hora+'\n👥 Personas: '+d.personas+'\n⚠️ Información alimentaria: '+(d.alergias||'No indicada')+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
-      showQuickOptions([['✅ Confirmar reserva','res_confirmar'],['✏️ Modificar','res_modificar'],['❌ Cancelar','res_cancelar']]); return true;
+      const tel=normalizarTelefonoES(text);
+      if(!tel){pedirTelefonoValido();return true;}
+      d.telefono=tel;avanzarReservaRestaurante();return true;
     }
     if(flujoLocal.paso==='confirmar'){
-      if(/si|sí|correct|confirm/.test(n)){ quickAction('res_confirmar',''); return true; }
-      appendMessage('Puede confirmar, modificar o cancelar la reserva.','incoming'); return true;
+      if(/si|sí|correct|confirm/.test(n)){quickAction('res_confirmar','');return true;}
+      appendMessage('Puede confirmar, modificar o cancelar la reserva.','incoming');return true;
     }
+    avanzarReservaRestaurante();return true;
   }
   if(flujoLocal.tipo==='presupuesto_reformas'){
     flujoLocal=null;
@@ -2125,9 +2200,12 @@ function responderLocalEscrito(text){
   if(demoActual==='restaurante'){
     if(/no (quiero|deseo) reserv|solo (quiero )?informacion|solo informacion|sin reservar/.test(n)){
       flujoLocal=null;
-      appendMessage('Por supuesto. Puede consultar la carta, los horarios, el servicio a domicilio o cualquier información del restaurante sin realizar ninguna reserva.','incoming');
+      appendMessage('Por supuesto. Puede consultar la carta, los horarios o cualquier información del restaurante sin realizar ninguna reserva.','incoming');
       opcionesRestaurante();
       return true;
+    }
+    if(/reserv|mesa/.test(n)){
+      iniciarReservaRestauranteDesdeTexto(text);return true;
     }
     if(/horario|hora|abren|cierran|cocina/.test(n)){
       appendMessage('🕒 Horario comercial: 12:00 a 23:30.\n\n🍽️ Comidas: 13:00 a 15:30\n🌙 Cenas: 20:00 a 22:30','incoming');
@@ -2139,8 +2217,6 @@ function responderLocalEscrito(text){
     if(/pescado|lubina|pulpo/.test(n)){ quickAction('pescados',''); return true; }
     if(/arroz|paella/.test(n)){ quickAction('arroces',''); return true; }
     if(/postre|tarta|tiramisu|brownie/.test(n)){ quickAction('postres',''); return true; }
-    if(/domicilio|delivery|pedido|recoger/.test(n)){ quickAction('domicilio',''); return true; }
-    if(/reserv|mesa/.test(n)){ quickAction('reservar',''); return true; }
   }
 
   if(demoActual==='fisio'){
