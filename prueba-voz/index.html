@@ -3,118 +3,253 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>SINCRONIAIA — Prueba aislada de voz</title>
+<title>SINCRONIAIA — Voz conectada al motor real</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#071327;color:#f8fafc;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-main{max-width:760px;margin:0 auto;padding:28px 18px 50px}
+main{max-width:760px;margin:0 auto;padding:24px 16px 48px}
 .brand{color:#10bce8;font-weight:900;letter-spacing:.08em}
-h1{font-size:clamp(28px,5vw,44px);margin:8px 0 8px}
+h1{font-size:clamp(28px,5vw,42px);margin:8px 0}
 p{line-height:1.5}
-.card{background:#0d1b33;border:1px solid #30445f;border-radius:18px;padding:18px;margin-top:18px}
-button{border:0;border-radius:12px;padding:14px 18px;font:inherit;font-weight:800;cursor:pointer;min-height:48px;margin:5px 6px 5px 0}
+.card{background:#0d1b33;border:1px solid #30445f;border-radius:18px;padding:17px;margin-top:16px}
+button,select{font:inherit}
+button{border:0;border-radius:12px;padding:13px 17px;font-weight:800;cursor:pointer;min-height:48px;margin:5px 6px 5px 0}
 .primary{background:#e4b956;color:#111827}
 .secondary{background:#172a46;color:#fff;border:1px solid #395270}
 button:disabled{opacity:.45;cursor:not-allowed}
-.status{padding:12px;border-radius:10px;background:#071327;margin-top:12px;font-weight:700}
-.output{min-height:90px;padding:14px;border-radius:12px;background:#071327;border:1px solid #30445f;font-size:18px;white-space:pre-wrap}
+select{width:100%;min-height:48px;background:#071327;color:#fff;border:1px solid #395270;border-radius:10px;padding:10px}
+.status{padding:11px;border-radius:10px;background:#071327;margin-top:10px;font-weight:700}
+.chat{display:grid;gap:10px;max-height:360px;overflow:auto;padding:4px}
+.msg{max-width:88%;padding:12px 14px;border-radius:14px;line-height:1.45;white-space:pre-wrap}
+.user{justify-self:end;background:#075985}
+.bot{justify-self:start;background:#18283e;border:1px solid #30445f}
 .small{font-size:14px;color:#cbd5e1}
 .ok{color:#65d98b}.bad{color:#ff9b9b}
-@media(max-width:600px){button{width:100%;margin-right:0}}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:600px){button{width:100%;margin-right:0}.actions{display:grid;grid-template-columns:1fr}.msg{max-width:94%}}
 </style>
 </head>
 <body>
 <main>
 <div class="brand">SINCRONIAIA</div>
-<h1>Prueba aislada de voz</h1>
-<p>Esta página solo comprueba el micrófono y la reproducción de voz del navegador. No conecta con clientes, agenda, Producto 001 ni Control de Captación.</p>
+<h1>Conversación por voz · Motor real</h1>
+<p>Prueba aislada. Su voz se convierte en texto, se envía al mismo motor <strong>api=chat</strong> de las demos públicas y la respuesta se reproduce automáticamente por voz.</p>
 
 <section class="card">
-<h2>1. Micrófono → texto</h2>
-<button id="listen" class="primary">🎙️ Iniciar micrófono</button>
-<button id="stop" class="secondary" disabled>■ Detener</button>
+<label for="tipo"><strong>Demo que utilizará el motor</strong></label>
+<select id="tipo">
+  <option value="restaurante">Restaurante</option>
+  <option value="fisio">Fisioterapia</option>
+  <option value="reformas">Reformas</option>
+</select>
+<p class="small">Cambiar de tipo limpia el historial para no mezclar conversaciones.</p>
+</section>
+
+<section class="card">
+<h2>Conversación</h2>
+<div id="chat" class="chat">
+  <div class="msg bot">Pulse «Iniciar conversación». Cuando termine de hablar, SINCRONIAIA procesará su petición y responderá por voz.</div>
+</div>
+<div class="actions">
+  <button id="start" class="primary">🎙️ Iniciar conversación</button>
+  <button id="stop" class="secondary" disabled>■ Finalizar</button>
+  <button id="repeat" class="secondary" disabled>🔊 Repetir respuesta</button>
+</div>
 <div id="status" class="status">Preparado.</div>
-<p class="small">Diga, por ejemplo: «Buenos días, quisiera reservar una mesa para mañana».</p>
-<div id="output" class="output">Aquí aparecerá exactamente lo que reconozca el navegador.</div>
 </section>
 
 <section class="card">
-<h2>2. Texto → voz</h2>
-<button id="speak" class="primary" disabled>🔊 Reproducir texto reconocido</button>
-<button id="sample" class="secondary">🔊 Probar voz sin micrófono</button>
-<p class="small">La voz concreta depende de las voces disponibles en su PC o móvil.</p>
-</section>
-
-<section class="card">
-<h2>Resultado</h2>
-<div id="result" class="small">Todavía sin probar.</div>
+<h2>Comprobación</h2>
+<div id="debug" class="small">
+Micrófono: pendiente · Motor SINCRONIAIA: pendiente · Voz: pendiente
+</div>
 </section>
 </main>
 
 <script>
+const BACKEND_URL="https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
 const $=id=>document.getElementById(id);
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-let recognition=null,lastText='';
 
+let recognition=null;
+let active=false;
+let lastReply='';
+let historial=[];
+let callbackSeq=0;
+let restartTimer=null;
+
+function addMessage(text,who){
+  const d=document.createElement('div');
+  d.className='msg '+who;
+  d.textContent=text;
+  $('chat').appendChild(d);
+  $('chat').scrollTop=$('chat').scrollHeight;
+}
 function setStatus(text,kind=''){
   $('status').textContent=text;
   $('status').className='status '+kind;
 }
-function speak(text){
-  if(!('speechSynthesis' in window)){
-    $('result').innerHTML='<span class="bad">❌ Este navegador no ofrece reproducción de voz.</span>';
-    return;
-  }
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(text);
-  u.lang='es-ES'; u.rate=.92; u.pitch=1.02;
+function setDebug(motor,voz){
+  $('debug').textContent='Micrófono: FUNCIONA · Motor SINCRONIAIA: '+motor+' · Voz: '+voz;
+}
+function jsonp(params){
+  return new Promise((resolve,reject)=>{
+    const cb='__sincroniaia_voice_'+(++callbackSeq);
+    const script=document.createElement('script');
+    let finished=false;
+    const clean=()=>{try{delete window[cb]}catch(_){ } script.remove()};
+    const timeout=setTimeout(()=>{
+      if(finished)return;
+      finished=true;clean();reject(new Error('Tiempo de espera agotado.'));
+    },15000);
+
+    window[cb]=data=>{
+      if(finished)return;
+      finished=true;clearTimeout(timeout);
+      try{resolve(data)}finally{clean()}
+    };
+
+    params.callback=cb;
+    params._=Date.now();
+    script.src=BACKEND_URL+'?'+new URLSearchParams(params).toString();
+    script.onerror=()=>{
+      if(finished)return;
+      finished=true;clearTimeout(timeout);clean();
+      reject(new Error('No se pudo contactar con el backend.'));
+    };
+    document.body.appendChild(script);
+  });
+}
+function warmVoice(){
+  if(!('speechSynthesis'in window))return null;
   const voices=speechSynthesis.getVoices()||[];
   const es=voices.filter(v=>(v.lang||'').toLowerCase().startsWith('es'));
-  u.voice=es.find(v=>/natural|microsoft|google|helena|elvira|monica|mónica/i.test(v.name))||es[0]||voices[0]||null;
-  speechSynthesis.speak(u);
+  return es.find(v=>/natural|microsoft|google|helena|elvira|monica|mónica|paulina/i.test(v.name))||es[0]||voices[0]||null;
 }
-function stopListening(){
-  try{if(recognition)recognition.stop()}catch(e){}
+function speak(text){
+  return new Promise(resolve=>{
+    if(!('speechSynthesis'in window)){setDebug('FUNCIONA','NO DISPONIBLE');resolve();return}
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='es-ES';
+    u.rate=.92;
+    u.pitch=1.02;
+    const v=warmVoice();if(v)u.voice=v;
+    u.onstart=()=>setStatus('🔊 SINCRONIAIA está respondiendo…','ok');
+    u.onend=()=>{setDebug('FUNCIONA','FUNCIONA');resolve()};
+    u.onerror=()=>{setDebug('FUNCIONA','ERROR');resolve()};
+    speechSynthesis.speak(u);
+  });
 }
-$('listen').onclick=()=>{
+async function sendToMotor(text){
+  setStatus('SINCRONIAIA está procesando…');
+  try{
+    const r=await jsonp({
+      api:'chat',
+      tipo:$('tipo').value,
+      mensaje:text,
+      historial:JSON.stringify(historial.slice(-10))
+    });
+
+    if(!r||r.ok===false||!r.reply){
+      const err=(r&&r.error)?r.error:'El motor no devolvió una respuesta.';
+      setStatus(err,'bad');
+      setDebug('ERROR','pendiente');
+      return;
+    }
+
+    lastReply=String(r.reply);
+    historial.push({role:'user',content:text},{role:'assistant',content:lastReply});
+    addMessage(lastReply,'bot');
+    $('repeat').disabled=false;
+    setDebug('FUNCIONA','procesando');
+    await speak(lastReply);
+
+    if(active){
+      setStatus('🎙️ Escuchando de nuevo…','ok');
+      clearTimeout(restartTimer);
+      restartTimer=setTimeout(()=>listen(false),450);
+    }else{
+      setStatus('Respuesta completada.','ok');
+    }
+  }catch(e){
+    setStatus('No se pudo contactar con el motor SINCRONIAIA: '+e.message,'bad');
+    setDebug('ERROR','pendiente');
+  }
+}
+function listen(first=true){
+  if(!active&&!first)return;
   if(!SR){
     setStatus('Este navegador no ofrece reconocimiento de voz.','bad');
-    $('result').innerHTML='<span class="bad">❌ Reconocimiento de voz no disponible.</span>';
-    return;
+    active=false;return;
   }
-  recognition=new SR();
-  recognition.lang='es-ES';
-  recognition.interimResults=false;
-  recognition.continuous=false;
-  recognition.maxAlternatives=1;
-  recognition.onstart=()=>{
-    setStatus('🎙️ Escuchando… hable ahora.','ok');
-    $('listen').disabled=true;$('stop').disabled=false;
-  };
-  recognition.onresult=e=>{
-    lastText=String(e.results?.[0]?.[0]?.transcript||'').trim();
-    $('output').textContent=lastText||'No se ha reconocido texto.';
-    $('speak').disabled=!lastText;
-    if(lastText){
-      setStatus('Texto reconocido correctamente.','ok');
-      $('result').innerHTML='<span class="ok">✅ Micrófono → texto: FUNCIONA.</span>';
-    }
-  };
-  recognition.onerror=e=>{
-    const code=String(e.error||'desconocido');
-    setStatus('Error de reconocimiento: '+code,'bad');
-    $('result').innerHTML='<span class="bad">❌ Micrófono → texto: NO FUNCIONA. Código: '+code+'</span>';
-  };
-  recognition.onend=()=>{
-    $('listen').disabled=false;$('stop').disabled=true;
-  };
-  try{recognition.start()}catch(e){
-    setStatus('No se pudo iniciar: '+e.message,'bad');
+  try{
+    if(recognition)recognition.abort();
+    recognition=new SR();
+    recognition.lang='es-ES';
+    recognition.interimResults=false;
+    recognition.continuous=false;
+    recognition.maxAlternatives=1;
+
+    recognition.onstart=()=>setStatus('🎙️ Escuchando… hable ahora.','ok');
+    recognition.onspeechend=()=>{try{recognition.stop()}catch(_){}};
+    recognition.onresult=e=>{
+      const text=String(e.results?.[0]?.[0]?.transcript||'').trim();
+      if(!text){
+        setStatus('No se ha reconocido texto.','bad');
+        return;
+      }
+      addMessage(text,'user');
+      setDebug('pendiente','pendiente');
+      sendToMotor(text);
+    };
+    recognition.onerror=e=>{
+      const code=String(e.error||'desconocido');
+      if(code==='aborted')return;
+      if(code==='not-allowed'||code==='service-not-allowed'){
+        active=false;$('start').disabled=false;$('stop').disabled=true;
+        setStatus('El navegador no ha autorizado el micrófono.','bad');
+        return;
+      }
+      if(code==='no-speech'){
+        setStatus('No he oído ninguna frase.','bad');
+        if(active)setTimeout(()=>listen(false),500);
+        return;
+      }
+      setStatus('Error de reconocimiento: '+code,'bad');
+    };
+    recognition.start();
+  }catch(e){
+    setStatus('No se pudo iniciar el micrófono: '+e.message,'bad');
   }
+}
+function startConversation(){
+  if(!SR){setStatus('Reconocimiento de voz no disponible.','bad');return}
+  active=true;
+  $('start').disabled=true;
+  $('stop').disabled=false;
+  listen(true);
+}
+function stopConversation(){
+  active=false;
+  clearTimeout(restartTimer);
+  try{if(recognition)recognition.abort()}catch(_){}
+  if('speechSynthesis'in window)speechSynthesis.cancel();
+  $('start').disabled=false;
+  $('stop').disabled=true;
+  setStatus('Conversación finalizada.');
+}
+
+$('start').onclick=startConversation;
+$('stop').onclick=stopConversation;
+$('repeat').onclick=()=>{if(lastReply)speak(lastReply)};
+$('tipo').onchange=()=>{
+  historial=[];
+  lastReply='';
+  $('repeat').disabled=true;
+  $('chat').innerHTML='<div class="msg bot">Historial reiniciado. Pulse «Iniciar conversación» para probar '+$('tipo').selectedOptions[0].text+'.</div>';
+  setStatus('Preparado.');
 };
-$('stop').onclick=stopListening;
-$('speak').onclick=()=>speak(lastText);
-$('sample').onclick=()=>speak('Buenos días. Soy el asistente de SINCRONIAIA. Esta es una prueba de voz.');
 </script>
 </body>
 </html>
