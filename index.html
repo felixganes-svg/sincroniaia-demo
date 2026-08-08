@@ -809,7 +809,7 @@ body.portal-mode #portalSincronia{
 </div>
 
 <script>
-/* SINCRONIAIA Demo Pública · Fisioterapia v1.8.11 ESTABLE · Reformas Contextual v1.9.0 · 08/08/2026 */
+/* SINCRONIAIA Demo Pública · Fisioterapia v1.8.11 ESTABLE · Reformas Contextual v1.9.1 · 08/08/2026 */
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
 
 let accesoPersonalizado = null;
@@ -1501,9 +1501,8 @@ function quickAction(action,label){
       return;
     }
     if(action==='banos'){
-      flujoLocal=null;
-      appendMessage('🚿 Podemos mostrar cómo el asistente recogería información sobre una reforma de baño o cocina y prepararía una solicitud de visita o presupuesto.','incoming');
-      showQuickOptions([['📅 Solicitar Visita','visita'],['📋 Presupuesto','presupuesto'],['🏠 Servicios','servicios']]);
+      appendMessage('🚿 Podemos recoger una solicitud para una reforma de baño sin calcular precios automáticos.','incoming');
+      showQuickOptions([['📅 Solicitar visita','ref_visita'],['📋 Pedir presupuesto','ref_presupuesto'],['🏠 Ver servicios','ref_servicios']]);
       return;
     }
     if(action==='visita'){
@@ -1512,9 +1511,7 @@ function quickAction(action,label){
       return;
     }
     if(action==='presupuesto'){
-      flujoLocal={tipo:'presupuesto_reformas',paso:'datos'};
-      appendMessage('📋 Perfecto. Para preparar una solicitud de presupuesto, cuénteme brevemente qué quiere reformar. No mostraremos precios inventados.','incoming');
-      showQuickOptions([['📅 Solicitar Visita','visita'],['🏠 Ver Servicios','servicios']]);
+      quickAction('ref_presupuesto','');
       return;
     }
   }
@@ -1819,6 +1816,13 @@ function detectarHoraReforma(text){
   if(/^\s*\d{1,2}\s*$/.test(String(text||''))){
     const h=parseInt(String(text).trim(),10);
     if(h>=0&&h<=23)return String(h).padStart(2,'0')+':00';
+  }
+  m=n.match(/\ba\s+las?\s+(\d{1,2})(?:\s+y\s+media)?(?:\s+de\s+la\s+(manana|tarde|noche))?\b/);
+  if(m){
+    let h=parseInt(m[1],10);
+    const min=/y\s+media/.test(m[0])?'30':'00';
+    if(/tarde|noche/.test(m[2]||'')&&h<12)h+=12;
+    if(h>=0&&h<=23)return String(h).padStart(2,'0')+':'+min;
   }
   const nums={una:1,uno:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12};
   m=n.match(/\ba\s+las?\s+(una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce)(\s+y\s+media)?(?:\s+de\s+la\s+(manana|tarde|noche))?\b/);
@@ -2163,10 +2167,20 @@ function responderLocalEscrito(text){
   }
 
   if(demoActual==='reformas'){
-    if(/servicio|reforma|reformas|pintura|integral/.test(n)){ quickAction('servicios',''); return true; }
-    if(/bano|baño|cocina/.test(n)){ quickAction('banos',''); return true; }
-    if(/visita/.test(n)){ quickAction('visita',''); return true; }
-    if(/presupuesto/.test(n)){ quickAction('presupuesto',''); return true; }
+    if(/\bvisita\b|\btecnico\b|\btécnico\b/.test(n)){
+      flujoLocal={tipo:'visita_reformas',paso:'contexto',datos:{}};
+      completarVisitaReformas(text);
+      avanzarVisitaReformas();
+      return true;
+    }
+    if(/presupuesto/.test(n)){ quickAction('ref_presupuesto',''); return true; }
+    const tipoReforma=detectarTipoReforma(text);
+    if(tipoReforma){
+      appendMessage('🔧 Entendido: '+tipoReforma+'. Si desea que un profesional revise el trabajo, puedo recoger ahora una solicitud de visita.','incoming');
+      showQuickOptions([['📅 Solicitar visita','ref_visita'],['📋 Pedir presupuesto','ref_presupuesto'],['🏠 Ver servicios','ref_servicios']]);
+      return true;
+    }
+    if(/servicio|reforma|reformas|pintura|integral/.test(n)){ quickAction('ref_servicios',''); return true; }
   }
 
   if(/^(adios|adiós|no gracias|gracias|nada mas|nada más)$/.test(n)){
