@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SINCRONIAIA — Prueba aislada de voz</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#071327;color:#f8fafc;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+main{max-width:760px;margin:0 auto;padding:28px 18px 50px}
+.brand{color:#10bce8;font-weight:900;letter-spacing:.08em}
+h1{font-size:clamp(28px,5vw,44px);margin:8px 0 8px}
+p{line-height:1.5}
+.card{background:#0d1b33;border:1px solid #30445f;border-radius:18px;padding:18px;margin-top:18px}
+button{border:0;border-radius:12px;padding:14px 18px;font:inherit;font-weight:800;cursor:pointer;min-height:48px;margin:5px 6px 5px 0}
+.primary{background:#e4b956;color:#111827}
+.secondary{background:#172a46;color:#fff;border:1px solid #395270}
+button:disabled{opacity:.45;cursor:not-allowed}
+.status{padding:12px;border-radius:10px;background:#071327;margin-top:12px;font-weight:700}
+.output{min-height:90px;padding:14px;border-radius:12px;background:#071327;border:1px solid #30445f;font-size:18px;white-space:pre-wrap}
+.small{font-size:14px;color:#cbd5e1}
+.ok{color:#65d98b}.bad{color:#ff9b9b}
+@media(max-width:600px){button{width:100%;margin-right:0}}
+</style>
+</head>
+<body>
+<main>
+<div class="brand">SINCRONIAIA</div>
+<h1>Prueba aislada de voz</h1>
+<p>Esta página solo comprueba el micrófono y la reproducción de voz del navegador. No conecta con clientes, agenda, Producto 001 ni Control de Captación.</p>
+
+<section class="card">
+<h2>1. Micrófono → texto</h2>
+<button id="listen" class="primary">🎙️ Iniciar micrófono</button>
+<button id="stop" class="secondary" disabled>■ Detener</button>
+<div id="status" class="status">Preparado.</div>
+<p class="small">Diga, por ejemplo: «Buenos días, quisiera reservar una mesa para mañana».</p>
+<div id="output" class="output">Aquí aparecerá exactamente lo que reconozca el navegador.</div>
+</section>
+
+<section class="card">
+<h2>2. Texto → voz</h2>
+<button id="speak" class="primary" disabled>🔊 Reproducir texto reconocido</button>
+<button id="sample" class="secondary">🔊 Probar voz sin micrófono</button>
+<p class="small">La voz concreta depende de las voces disponibles en su PC o móvil.</p>
+</section>
+
+<section class="card">
+<h2>Resultado</h2>
+<div id="result" class="small">Todavía sin probar.</div>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let recognition=null,lastText='';
+
+function setStatus(text,kind=''){
+  $('status').textContent=text;
+  $('status').className='status '+kind;
+}
+function speak(text){
+  if(!('speechSynthesis' in window)){
+    $('result').innerHTML='<span class="bad">❌ Este navegador no ofrece reproducción de voz.</span>';
+    return;
+  }
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='es-ES'; u.rate=.92; u.pitch=1.02;
+  const voices=speechSynthesis.getVoices()||[];
+  const es=voices.filter(v=>(v.lang||'').toLowerCase().startsWith('es'));
+  u.voice=es.find(v=>/natural|microsoft|google|helena|elvira|monica|mónica/i.test(v.name))||es[0]||voices[0]||null;
+  speechSynthesis.speak(u);
+}
+function stopListening(){
+  try{if(recognition)recognition.stop()}catch(e){}
+}
+$('listen').onclick=()=>{
+  if(!SR){
+    setStatus('Este navegador no ofrece reconocimiento de voz.','bad');
+    $('result').innerHTML='<span class="bad">❌ Reconocimiento de voz no disponible.</span>';
+    return;
+  }
+  recognition=new SR();
+  recognition.lang='es-ES';
+  recognition.interimResults=false;
+  recognition.continuous=false;
+  recognition.maxAlternatives=1;
+  recognition.onstart=()=>{
+    setStatus('🎙️ Escuchando… hable ahora.','ok');
+    $('listen').disabled=true;$('stop').disabled=false;
+  };
+  recognition.onresult=e=>{
+    lastText=String(e.results?.[0]?.[0]?.transcript||'').trim();
+    $('output').textContent=lastText||'No se ha reconocido texto.';
+    $('speak').disabled=!lastText;
+    if(lastText){
+      setStatus('Texto reconocido correctamente.','ok');
+      $('result').innerHTML='<span class="ok">✅ Micrófono → texto: FUNCIONA.</span>';
+    }
+  };
+  recognition.onerror=e=>{
+    const code=String(e.error||'desconocido');
+    setStatus('Error de reconocimiento: '+code,'bad');
+    $('result').innerHTML='<span class="bad">❌ Micrófono → texto: NO FUNCIONA. Código: '+code+'</span>';
+  };
+  recognition.onend=()=>{
+    $('listen').disabled=false;$('stop').disabled=true;
+  };
+  try{recognition.start()}catch(e){
+    setStatus('No se pudo iniciar: '+e.message,'bad');
+  }
+};
+$('stop').onclick=stopListening;
+$('speak').onclick=()=>speak(lastText);
+$('sample').onclick=()=>speak('Buenos días. Soy el asistente de SINCRONIAIA. Esta es una prueba de voz.');
+</script>
+</body>
+</html>
