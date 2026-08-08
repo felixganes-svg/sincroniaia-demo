@@ -77,6 +77,8 @@ let lastReply='';
 let historial=[];
 let callbackSeq=0;
 let restartTimer=null;
+let motorBusy=false;
+let requestSeq=0;
 
 function addMessage(text,who){
   const d=document.createElement('div');
@@ -92,29 +94,39 @@ function setStatus(text,kind=''){
 function setDebug(motor,voz){
   $('debug').textContent='Micrófono: FUNCIONA · Motor SINCRONIAIA: '+motor+' · Voz: '+voz;
 }
-function jsonp(params){
+function jsonp(params,timeoutMs=25000){
   return new Promise((resolve,reject)=>{
-    const cb='__sincroniaia_voice_'+(++callbackSeq);
+    const cb='__sincroniaia_voice_'+(++callbackSeq)+'_'+Date.now();
     const script=document.createElement('script');
     let finished=false;
-    const clean=()=>{try{delete window[cb]}catch(_){ } script.remove()};
+
+    const clean=()=>{
+      try{delete window[cb]}catch(_){}
+      try{script.remove()}catch(_){}
+    };
+
     const timeout=setTimeout(()=>{
       if(finished)return;
-      finished=true;clean();reject(new Error('Tiempo de espera agotado.'));
-    },15000);
+      finished=true;
+      clean();
+      reject(new Error('Tiempo de espera agotado.'));
+    },timeoutMs);
 
     window[cb]=data=>{
       if(finished)return;
-      finished=true;clearTimeout(timeout);
+      finished=true;
+      clearTimeout(timeout);
       try{resolve(data)}finally{clean()}
     };
 
-    params.callback=cb;
-    params._=Date.now();
-    script.src=BACKEND_URL+'?'+new URLSearchParams(params).toString();
+    const q={...params,callback:cb,_:Date.now()};
+    script.src=BACKEND_URL+'?'+new URLSearchParams(q).toString();
+    script.async=true;
     script.onerror=()=>{
       if(finished)return;
-      finished=true;clearTimeout(timeout);clean();
+      finished=true;
+      clearTimeout(timeout);
+      clean();
       reject(new Error('No se pudo contactar con el backend.'));
     };
     document.body.appendChild(script);
@@ -142,14 +154,36 @@ function speak(text){
   });
 }
 async function sendToMotor(text){
+  if(motorBusy){
+    setStatus('SINCRONIAIA todavía está procesando la petición anterior.','bad');
+    return;
+  }
+
+  motorBusy=true;
+  const myRequest=++requestSeq;
+  clearTimeout(restartTimer);
+  try{if(recognition)recognition.abort()}catch(_){}
   setStatus('SINCRONIAIA está procesando…');
+
+  const params={
+    api:'chat',
+    tipo:$('tipo').value,
+    mensaje:text,
+    historial:JSON.stringify(historial.slice(-10))
+  };
+
   try{
-    const r=await jsonp({
-      api:'chat',
-      tipo:$('tipo').value,
-      mensaje:text,
-      historial:JSON.stringify(historial.slice(-10))
-    });
+    let r;
+    try{
+      r=await jsonp(params,25000);
+    }catch(firstError){
+      if(myRequest!==requestSeq) return;
+      if(!/Tiempo de espera agotado|No se pudo contactar/.test(String(firstError.message||''))) throw firstError;
+      setStatus('El motor está tardando más de lo normal. Reintentando…');
+      r=await jsonp(params,30000);
+    }
+
+    if(myRequest!==requestSeq) return;
 
     if(!r||r.ok===false||!r.reply){
       const err=(r&&r.error)?r.error:'El motor no devolvió una respuesta.';
@@ -159,26 +193,34 @@ async function sendToMotor(text){
     }
 
     lastReply=String(r.reply);
-    historial.push({role:'user',content:text},{role:'assistant',content:lastReply});
+    historial.push(
+      {role:'user',content:text},
+      {role:'assistant',content:lastReply}
+    );
     addMessage(lastReply,'bot');
     $('repeat').disabled=false;
     setDebug('FUNCIONA','procesando');
+
     await speak(lastReply);
 
     if(active){
       setStatus('🎙️ Escuchando de nuevo…','ok');
       clearTimeout(restartTimer);
-      restartTimer=setTimeout(()=>listen(false),450);
+      restartTimer=setTimeout(()=>listen(false),550);
     }else{
       setStatus('Respuesta completada.','ok');
     }
   }catch(e){
+    if(myRequest!==requestSeq) return;
     setStatus('No se pudo contactar con el motor SINCRONIAIA: '+e.message,'bad');
     setDebug('ERROR','pendiente');
+  }finally{
+    if(myRequest===requestSeq) motorBusy=false;
   }
 }
 function listen(first=true){
   if(!active&&!first)return;
+  if(motorBusy)return;
   if(!SR){
     setStatus('Este navegador no ofrece reconocimiento de voz.','bad');
     active=false;return;
@@ -232,6 +274,8 @@ function startConversation(){
 }
 function stopConversation(){
   active=false;
+  motorBusy=false;
+  requestSeq++;
   clearTimeout(restartTimer);
   try{if(recognition)recognition.abort()}catch(_){}
   if('speechSynthesis'in window)speechSynthesis.cancel();
@@ -244,6 +288,8 @@ $('start').onclick=startConversation;
 $('stop').onclick=stopConversation;
 $('repeat').onclick=()=>{if(lastReply)speak(lastReply)};
 $('tipo').onchange=()=>{
+  requestSeq++;
+  motorBusy=false;
   historial=[];
   lastReply='';
   $('repeat').disabled=true;
