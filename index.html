@@ -809,7 +809,7 @@ body.portal-mode #portalSincronia{
 </div>
 
 <script>
-/* SINCRONIAIA Demo Pública · Fisioterapia v1.8.11 ESTABLE · Reformas v1.9.1 VALIDADA · Restaurante Contextual v1.10.0 · 08/08/2026 */
+/* SINCRONIAIA Demo Pública · Fisioterapia v1.8.11 ESTABLE · Reformas v1.9.1 VALIDADA · Restaurante Contextual v1.10.1 · 08/08/2026 */
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
 
 let accesoPersonalizado = null;
@@ -1414,9 +1414,9 @@ function quickAction(action,label){
 
   if(action==='res_food_si'){
     if(!flujoLocal || flujoLocal.tipo!=='reserva_restaurante') return;
-    flujoLocal.datos.alergias='Sí — comunicar al restaurante';
-    flujoLocal.paso='nombre';
-    appendMessage('⚠️ Información alimentaria anotada.\n\nEsta información quedará asociada a la reserva para que el restaurante pueda tenerla en cuenta.\n\nPara alergias graves, recomendamos confirmarlo también directamente con el establecimiento.\n\n👤 ¿A qué nombre hacemos la reserva?','incoming');
+    flujoLocal.datos.alergias='';
+    flujoLocal.paso='alergias_detalle';
+    appendMessage('⚠️ Por favor, indíqueme brevemente qué alergia, intolerancia o necesidad alimentaria debemos comunicar al restaurante.\n\nPara alergias graves, recomendamos confirmarlo también directamente con el establecimiento.','incoming');
     return;
   }
 
@@ -2168,7 +2168,16 @@ function manejarFlujoLocal(text){
       if(/\bsi\b|\bsí\b/.test(n)){d.alergias='Sí — comunicar al restaurante';flujoLocal.paso='alergias_detalle';appendMessage('Indíqueme brevemente la alergia, intolerancia o necesidad alimentaria.','incoming');return true;}
       d.alergias=text.trim();avanzarReservaRestaurante();return true;
     }
-    if(flujoLocal.paso==='alergias_detalle'){d.alergias=text.trim();avanzarReservaRestaurante();return true;}
+    if(flujoLocal.paso==='alergias_detalle'){
+      const detalle=text.trim();
+      if(!detalle){
+        appendMessage('Por favor, indíqueme brevemente la alergia, intolerancia o necesidad alimentaria que debemos anotar.','incoming');
+        return true;
+      }
+      d.alergias=detalle;
+      avanzarReservaRestaurante();
+      return true;
+    }
     if(flujoLocal.paso==='nombre'){
       const tel=normalizarTelefonoES(text);
       if(tel){d.telefono=tel;avanzarReservaRestaurante();return true;}
