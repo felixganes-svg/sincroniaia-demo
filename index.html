@@ -809,7 +809,7 @@ body.portal-mode #portalSincronia{
 </div>
 
 <script>
-/* SINCRONIAIA Demo Pública · Fisioterapia Contextual v1.8.11 · 08/08/2026 */
+/* SINCRONIAIA Demo Pública · Fisioterapia v1.8.11 ESTABLE · Reformas Contextual v1.9.0 · 08/08/2026 */
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
 
 let accesoPersonalizado = null;
@@ -1206,9 +1206,8 @@ function quickAction(action,label){
   }
 
   if(action==='ref_visita'){
-    flujoLocal={tipo:'visita_reformas',paso:'tipo',datos:{}};
-    appendMessage('📅 Perfecto. ¿Qué tipo de reforma desea realizar?','incoming');
-    showQuickOptions([['🚿 Baño','ref_tipo_bano'],['🍳 Cocina','ref_tipo_cocina'],['🎨 Pintura','ref_tipo_pintura'],['🏠 Reforma integral','ref_tipo_integral'],['✏️ Otra','ref_tipo_otra']]);
+    flujoLocal={tipo:'visita_reformas',paso:'contexto',datos:{}};
+    avanzarVisitaReformas();
     return;
   }
 
@@ -1221,25 +1220,22 @@ function quickAction(action,label){
       return;
     }
     flujoLocal.datos.tipo_reforma=mapa[action]||'Otra';
-    flujoLocal.paso='poblacion';
-    appendMessage('📍 ¿En qué población se encuentra el inmueble?','incoming');
+    avanzarVisitaReformas();
     return;
   }
 
   if(action==='ref_fecha_hoy'||action==='ref_fecha_manana'){
     if(!flujoLocal || flujoLocal.tipo!=='visita_reformas') return;
     flujoLocal.datos.fecha=action==='ref_fecha_hoy'?'hoy':'mañana';
-    flujoLocal.paso='franja';
-    appendMessage('¿Qué franja horaria le va mejor?','incoming');
-    showQuickOptions([['☀️ Mañana','ref_franja_manana'],['🌤️ Tarde','ref_franja_tarde']]);
+    avanzarVisitaReformas();
     return;
   }
 
-  if(action==='ref_franja_manana'||action==='ref_franja_tarde'){
+  if(action.startsWith('ref_hora_')){
     if(!flujoLocal || flujoLocal.tipo!=='visita_reformas') return;
-    flujoLocal.datos.franja=action==='ref_franja_manana'?'Mañana':'Tarde';
-    flujoLocal.paso='nombre';
-    appendMessage('Perfecto. ¿A qué nombre registramos la solicitud de visita?','incoming');
+    const raw=action.replace('ref_hora_','');
+    flujoLocal.datos.hora=raw.slice(0,2)+':'+raw.slice(2);
+    avanzarVisitaReformas();
     return;
   }
 
@@ -1267,7 +1263,7 @@ function quickAction(action,label){
   if(action==='ref_confirmar_visita'){
     if(!flujoLocal || flujoLocal.tipo!=='visita_reformas') return;
     const d=flujoLocal.datos||{};
-    appendMessage('✅ Solicitud de visita registrada.\n\nHemos anotado su solicitud para '+d.tipo_reforma+' en '+d.poblacion+', '+d.fecha+' por la '+String(d.franja||'').toLowerCase()+'.\n\nUn miembro del equipo revisará la solicitud y se pondrá en contacto con usted para confirmar la visita.\n\n¿Desea que le ayudemos con algo más?','incoming');
+    appendMessage('✅ Solicitud de visita registrada.\n\nHemos anotado su solicitud para '+d.tipo_reforma+' en '+d.poblacion+', '+d.fecha+' a las '+d.hora+'.\n\nUn miembro del equipo revisará la solicitud y se pondrá en contacto con usted para confirmar la visita.\n\n¿Desea que le ayudemos con algo más?','incoming');
     flujoLocal={tipo:'post_reformas',paso:'algo_mas',datos:d};
     showQuickOptions([['🏠 Ver servicios','ref_servicios'],['❓ Otra consulta','otra_consulta'],['No, gracias','ref_cerrar']]);
     return;
@@ -1511,9 +1507,8 @@ function quickAction(action,label){
       return;
     }
     if(action==='visita'){
-      flujoLocal={tipo:'visita_reformas',paso:'datos'};
-      appendMessage('📅 Perfecto. Para simular la solicitud de visita, indíqueme qué desea reformar y en qué población se encuentra el inmueble.','incoming');
-      showQuickOptions([['📋 Pedir Presupuesto','presupuesto'],['🏠 Ver Servicios','servicios']]);
+      flujoLocal={tipo:'visita_reformas',paso:'contexto',datos:{}};
+      avanzarVisitaReformas();
       return;
     }
     if(action==='presupuesto'){
@@ -1790,6 +1785,91 @@ function formalizarRespuestaFisio(text){
   return s;
 }
 
+
+function detectarTipoReforma(text){
+  const n=normalizarConsulta(text);
+  if(/\bbanos?\b/.test(n)) return 'Baño';
+  if(/\bcocinas?\b/.test(n)) return 'Cocina';
+  if(/\bintegral\b|reformar todo|todo el piso|toda la casa/.test(n)) return 'Reforma integral';
+  if(/\bpintura\b|pintar\b/.test(n)) return 'Pintura';
+  return '';
+}
+function detectarPoblacionReforma(text){
+  const n=normalizarConsulta(text);
+  const conocidas=['badalona','mataro','barcelona','vilassar de mar','premia de mar','el masnou','montgat'];
+  for(const p of conocidas){
+    if(n.includes(p)) return p.split(' ').map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(' ');
+  }
+  return '';
+}
+function detectarFechaReforma(text){
+  const n=normalizarConsulta(text);
+  if(/\bhoy\b/.test(n)) return 'hoy';
+  if(/\bmanana\b/.test(n)) return 'mañana';
+  const dias=['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
+  for(const d of dias){
+    if(new RegExp('\\b'+d+'\\b').test(n)) return d==='miercoles'?'miércoles':d==='sabado'?'sábado':d;
+  }
+  return '';
+}
+function detectarHoraReforma(text){
+  const n=normalizarConsulta(text);
+  let m=n.match(/\b([01]?\d|2[0-3])[:.h](\d{2})\b/);
+  if(m) return String(parseInt(m[1],10)).padStart(2,'0')+':'+m[2];
+  if(/^\s*\d{1,2}\s*$/.test(String(text||''))){
+    const h=parseInt(String(text).trim(),10);
+    if(h>=0&&h<=23)return String(h).padStart(2,'0')+':00';
+  }
+  const nums={una:1,uno:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12};
+  m=n.match(/\ba\s+las?\s+(una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce)(\s+y\s+media)?(?:\s+de\s+la\s+(manana|tarde|noche))?\b/);
+  if(m){
+    let h=nums[m[1]], min=m[2]?'30':'00';
+    if(/tarde|noche/.test(m[3]||'')&&h<12)h+=12;
+    return String(h).padStart(2,'0')+':'+min;
+  }
+  return '';
+}
+function completarVisitaReformas(text){
+  if(!flujoLocal||flujoLocal.tipo!=='visita_reformas')return;
+  const d=flujoLocal.datos||(flujoLocal.datos={});
+  const tipo=detectarTipoReforma(text), pob=detectarPoblacionReforma(text),
+        fecha=detectarFechaReforma(text), hora=detectarHoraReforma(text),
+        tel=normalizarTelefonoES(text);
+  if(tipo&&!d.tipo_reforma)d.tipo_reforma=tipo;
+  if(pob&&!d.poblacion)d.poblacion=pob;
+  if(fecha&&!d.fecha)d.fecha=fecha;
+  if(hora&&!d.hora)d.hora=hora;
+  if(tel&&!d.telefono)d.telefono=tel;
+}
+function avanzarVisitaReformas(){
+  if(!flujoLocal||flujoLocal.tipo!=='visita_reformas')return false;
+  const d=flujoLocal.datos||(flujoLocal.datos={});
+  if(!d.tipo_reforma){
+    flujoLocal.paso='tipo';
+    appendMessage('📅 Perfecto. ¿Qué tipo de reforma desea realizar?','incoming');
+    showQuickOptions([['🚿 Baño','ref_tipo_bano'],['🍳 Cocina','ref_tipo_cocina'],['🎨 Pintura','ref_tipo_pintura'],['🏠 Reforma integral','ref_tipo_integral']]);
+    return true;
+  }
+  if(!d.poblacion){flujoLocal.paso='poblacion';appendMessage('📍 ¿En qué población se encuentra el inmueble?','incoming');return true;}
+  if(!d.fecha){
+    flujoLocal.paso='fecha';appendMessage('¿Para qué día le gustaría solicitar la visita?','incoming');
+    showQuickOptions([['Hoy','ref_fecha_hoy'],['Mañana','ref_fecha_manana']]);return true;
+  }
+  if(!d.hora){
+    flujoLocal.paso='hora';appendMessage('¿Qué hora le va mejor? Puede escribir, por ejemplo, «16» o «a las cuatro de la tarde».','incoming');
+    showQuickOptions([['09:00','ref_hora_0900'],['10:00','ref_hora_1000'],['11:00','ref_hora_1100'],['16:00','ref_hora_1600'],['17:00','ref_hora_1700'],['18:00','ref_hora_1800']]);return true;
+  }
+  if(!d.nombre){
+    flujoLocal.paso='nombre';
+    appendMessage(d.telefono?'Gracias. Ya tengo el teléfono. ¿A qué nombre registramos la solicitud?':'¿A qué nombre registramos la solicitud?','incoming');return true;
+  }
+  if(!d.telefono){flujoLocal.paso='telefono';appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming');return true;}
+  flujoLocal.paso='confirmar';
+  appendMessage('📋 RESUMEN DE LA SOLICITUD DE VISITA\n\n🏠 Reforma: '+d.tipo_reforma+'\n📍 Población: '+d.poblacion+'\n📅 Día: '+d.fecha+'\n🕒 Hora preferida: '+d.hora+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\nNo se ha calculado ningún presupuesto. La visita permitirá revisar el trabajo antes de valorarlo.\n\n¿Son correctos todos los datos?','incoming');
+  showQuickOptions([['✅ Confirmar solicitud','ref_confirmar_visita'],['❌ Cancelar','ref_cancelar']]);
+  return true;
+}
+
 function manejarFlujoLocal(text){
   if(!flujoLocal) return false;
   const n=normalizarConsulta(text);
@@ -1804,31 +1884,40 @@ function manejarFlujoLocal(text){
 
   if(flujoLocal && flujoLocal.tipo==='visita_reformas'){
     const d=flujoLocal.datos||(flujoLocal.datos={});
-    if(flujoLocal.paso==='tipo_manual'){
-      d.tipo_reforma=text.trim(); flujoLocal.paso='poblacion';
-      appendMessage('📍 ¿En qué población se encuentra el inmueble?','incoming'); return true;
+    completarVisitaReformas(text);
+    if(flujoLocal.paso==='tipo_manual'){d.tipo_reforma=text.trim();avanzarVisitaReformas();return true;}
+    if(flujoLocal.paso==='tipo'){
+      if(!d.tipo_reforma)d.tipo_reforma=detectarTipoReforma(text)||text.trim();
+      avanzarVisitaReformas();return true;
     }
     if(flujoLocal.paso==='poblacion'){
-      d.poblacion=text.trim(); flujoLocal.paso='fecha';
-      appendMessage('¿Para qué día le gustaría solicitar la visita?','incoming');
-      showQuickOptions([['Hoy','ref_fecha_hoy'],['Mañana','ref_fecha_manana']]); return true;
+      if(!d.poblacion)d.poblacion=detectarPoblacionReforma(text)||text.trim();
+      avanzarVisitaReformas();return true;
     }
     if(flujoLocal.paso==='fecha'){
-      d.fecha=text.trim(); flujoLocal.paso='franja';
-      appendMessage('¿Qué franja horaria le va mejor?','incoming');
-      showQuickOptions([['☀️ Mañana','ref_franja_manana'],['🌤️ Tarde','ref_franja_tarde']]); return true;
+      if(!d.fecha)d.fecha=detectarFechaReforma(text)||text.trim();
+      avanzarVisitaReformas();return true;
+    }
+    if(flujoLocal.paso==='hora'){
+      if(!d.hora)d.hora=detectarHoraReforma(text);
+      if(!d.hora){appendMessage('No he podido identificar la hora. Puede escribir «16», «a las cuatro de la tarde» o seleccionar una opción.','incoming');return true;}
+      avanzarVisitaReformas();return true;
     }
     if(flujoLocal.paso==='nombre'){
-      d.nombre=formatearNombreReserva(text); flujoLocal.paso='telefono';
-      appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming'); return true;
+      const tel=normalizarTelefonoES(text);
+      if(tel){d.telefono=tel;avanzarVisitaReformas();return true;}
+      d.nombre=formatearNombreReserva(text);avanzarVisitaReformas();return true;
     }
     if(flujoLocal.paso==='telefono'){
-      const telefono=normalizarTelefonoES(text);
-      if(!telefono){ pedirTelefonoValido(); return true; }
-      d.telefono=telefono; flujoLocal.paso='confirmar';
-      appendMessage('📋 RESUMEN DE LA SOLICITUD DE VISITA\n\n🏠 Reforma: '+d.tipo_reforma+'\n📍 Población: '+d.poblacion+'\n📅 Día solicitado: '+d.fecha+'\n🕒 Franja: '+d.franja+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
-      showQuickOptions([['✅ Confirmar solicitud','ref_confirmar_visita'],['❌ Cancelar','ref_cancelar']]); return true;
+      const tel=normalizarTelefonoES(text);
+      if(!tel){pedirTelefonoValido();return true;}
+      d.telefono=tel;avanzarVisitaReformas();return true;
     }
+    if(flujoLocal.paso==='confirmar'){
+      if(/si|sí|correct|confirm/.test(n)){quickAction('ref_confirmar_visita','');return true;}
+      appendMessage('Puede confirmar o cancelar la solicitud.','incoming');return true;
+    }
+    avanzarVisitaReformas();return true;
   }
 
   if(flujoLocal && flujoLocal.tipo==='presupuesto_reformas'){
@@ -2016,12 +2105,6 @@ function manejarFlujoLocal(text){
       if(/si|sí|correct|confirm/.test(n)){ quickAction('res_confirmar',''); return true; }
       appendMessage('Puede confirmar, modificar o cancelar la reserva.','incoming'); return true;
     }
-  }
-  if(flujoLocal.tipo==='visita_reformas'){
-    flujoLocal=null;
-    appendMessage('✅ Solicitud de visita de demostración recogida.\n\nDetalle: '+text+'\n\nEn una implantación real, estos datos pasarían al negocio para coordinar la visita.','incoming');
-    opcionesReformas();
-    return true;
   }
   if(flujoLocal.tipo==='presupuesto_reformas'){
     flujoLocal=null;
