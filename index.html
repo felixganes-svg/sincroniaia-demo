@@ -809,7 +809,7 @@ body.portal-mode #portalSincronia{
 </div>
 
 <script>
-/* SINCRONIAIA Demo Pública · Fisioterapia v1.8.11 ESTABLE · Reformas v1.9.1 VALIDADA · Restaurante Contextual v1.10.1 · 08/08/2026 */
+/* SINCRONIAIA Demo Pública · Fisioterapia v1.8.11 ESTABLE · Reformas v1.9.1 VALIDADA · Restaurante v1.10.2 CANDIDATA ESTABLE · 08/08/2026 */
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
 
 let accesoPersonalizado = null;
@@ -1423,7 +1423,7 @@ function quickAction(action,label){
   if(action==='res_confirmar'){
     if(!flujoLocal) return;
     const d=flujoLocal.datos||{};
-    appendMessage('✅ Reserva confirmada.\n\nHemos reservado una mesa para '+d.personas+' personas, '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.'+(d.alergias&&d.alergias!=='No'?'\n\n⚠️ Información alimentaria: Sí — comunicar al restaurante.':'')+'\n\n📲 Le enviaremos un recordatorio por este mismo medio el día anterior a la reserva y otro aviso 3 horas antes.\n\n¿Desea que le ayudemos con algo más?','incoming');
+    appendMessage('✅ Reserva confirmada.\n\nHemos reservado una mesa para '+d.personas+' personas, '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.'+(d.alergias&&d.alergias!=='No'?'\n\n⚠️ Información alimentaria: '+d.alergias+'.':'')+'\n\n📲 Le enviaremos un recordatorio por este mismo medio el día anterior a la reserva y otro aviso 3 horas antes.\n\n¿Desea que le ayudemos con algo más?','incoming');
     flujoLocal={tipo:'post_reserva',paso:'algo_mas',datos:d};
     showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['❓ Otra consulta','otra_consulta'],['No, gracias','cerrar_chat']]);
     return;
