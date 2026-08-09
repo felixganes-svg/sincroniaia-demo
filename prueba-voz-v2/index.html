@@ -1,0 +1,2383 @@
+<!DOCTYPE html>
+<html lang="es" class="portal-mode">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SINCRONIAIA — Demo Pública</title>
+<style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: #0b141a;
+            color: #e9edef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        /* Contenedor principal estilo móvil */
+        .mobile-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            background-color: #efeae2;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (min-width: 481px) {
+            .mobile-container {
+                height: 92vh;
+                border-radius: 20px;
+                overflow: hidden;
+            }
+        }
+
+        /* Cabecera WhatsApp */
+        .wa-header {
+            background-color: #00a884;
+            color: #ffffff;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 10;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        .wa-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #25d366;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .wa-contact-info h1 {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .wa-contact-info p {
+            font-size: 12px;
+            opacity: 0.85;
+        }
+
+        /* Cuerpo del chat */
+        .wa-chat-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-image: radial-gradient(#d1d7db 0.75px, transparent 0.75px);
+            background-size: 24px 24px;
+            background-color: #efeae2;
+        }
+
+        /* Burbujas de mensajes */
+        .message {
+            max-width: 85%;
+            padding: 9px 12px;
+            border-radius: 7.5px;
+            font-size: 15px;
+            line-height: 1.45;
+            position: relative;
+            word-wrap: break-word;
+            box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+            color: #111b21;
+            white-space: pre-line;
+        }
+
+        .message.incoming {
+            background-color: #ffffff;
+            align-self: flex-start;
+            border-top-left-radius: 0;
+        }
+
+        .message.outgoing {
+            background-color: #d9fdd3;
+            align-self: flex-end;
+            border-top-right-radius: 0;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #667781;
+            float: right;
+            margin-left: 8px;
+            margin-top: 4px;
+        }
+
+        /* Botones de opciones rápidas (Chips tipo WhatsApp Business) */
+        .quick-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+            align-self: flex-start;
+            max-width: 90%;
+        }
+
+        .quick-chip {
+            background-color: #ffffff;
+            color: #00a884;
+            border: 1px solid #00a884;
+            padding: 8px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: background 0.15s;
+        }
+
+        .quick-chip:active {
+            background-color: #e2fbf0;
+        }
+
+        /* Barra inferior */
+        .wa-footer {
+            background-color: #f0f2f5;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .wa-input {
+            flex: 1;
+            background-color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 15px;
+            color: #111b21;
+            outline: none;
+        }
+
+        .wa-input::placeholder {
+            color: #8696a0;
+        }
+
+        .wa-send-btn {
+            background-color: #00a884;
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+    
+
+.demo-selector {
+  position:fixed; inset:0; z-index:100;
+  background:#efeae2; display:flex; flex-direction:column;
+}
+.demo-selector.hidden{display:none}
+.selector-header{background:#00a884;color:white;padding:18px 16px}
+.selector-header h1{font-size:22px;font-weight:600}
+.selector-header p{margin-top:4px;font-size:13px;opacity:.9}
+.selector-body{flex:1;padding:18px 16px;overflow:auto}
+.selector-card{background:#fff;color:#111b21;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.12);cursor:pointer}
+.selector-card h2{font-size:18px;margin-bottom:6px}
+.selector-card p{font-size:14px;line-height:1.4;color:#667781}
+.selector-card:active{background:#e2fbf0}
+.back-btn{margin-left:auto;background:transparent;color:white;border:1px solid rgba(255,255,255,.65);border-radius:16px;padding:6px 10px;font-size:12px;cursor:pointer}
+.wa-header{justify-content:flex-start}
+
+/* ===== SINCRONIAIA v1.7 · PUERTA DE ACCESO APROBADA ===== */
+.access-gateway{
+  position:fixed; inset:0; z-index:300;
+  background:#f7faf9;
+  color:#0c2d29;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.access-page{
+  min-height:100%;
+  background:
+    radial-gradient(circle at 90% 12%,rgba(92,219,190,.17),transparent 24rem),
+    radial-gradient(circle at 8% 35%,rgba(124,231,207,.14),transparent 28rem),
+    #fbfdfc;
+}
+.access-top{
+  height:78px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;
+  background:#fff;
+  border-bottom:1px solid #e4ece9;
+}
+.access-logo{
+  display:flex;align-items:center;gap:10px;
+  font-weight:900;font-size:21px;letter-spacing:.01em;color:#0c2d29;
+}
+.access-logo .inf{font-size:34px;line-height:1;color:#00a884;font-weight:900}
+.access-badge{
+  border:1px solid #75cfbc;color:#087861;background:#f7fffc;
+  border-radius:999px;padding:8px 14px;font-size:12px;font-weight:900;
+}
+.access-main{width:min(100%,1040px);margin:0 auto;padding:52px 28px 0}
+.access-hero{text-align:center;margin-bottom:34px}
+.access-hero h1{
+  margin:0 auto 13px;max-width:650px;
+  font-size:clamp(31px,4.7vw,52px);line-height:1.08;letter-spacing:-.035em;
+  color:#082f2b;font-weight:900;
+}
+.access-hero p{
+  margin:0 auto;max-width:620px;color:#405d59;
+  font-size:17px;line-height:1.55;
+}
+.access-entry-grid{
+  display:grid;grid-template-columns:1fr 62px 1fr;align-items:stretch;
+  gap:16px;margin:0 auto 38px;max-width:930px;
+}
+.access-card{
+  background:rgba(255,255,255,.93);
+  border:1px solid #cfe4df;border-radius:16px;padding:27px 26px;
+  box-shadow:0 9px 30px rgba(7,67,56,.08);
+}
+.access-card.code{background:linear-gradient(145deg,#f4fffb,#ffffff)}
+.access-card.free{background:linear-gradient(145deg,#f5f9ff,#ffffff);border-color:#d7e2f3}
+.access-card h2{margin:0 0 10px;font-size:20px;text-align:center;color:#0b765f}
+.access-card.free h2{color:#1e53b5}
+.access-card p{margin:0 auto 18px;max-width:340px;text-align:center;color:#4c625f;font-size:14px;line-height:1.55}
+.access-code-input{
+  display:block;width:100%;height:48px;border:1px solid #d2dfdc;border-radius:8px;
+  padding:0 14px;font-size:16px;outline:none;text-transform:uppercase;letter-spacing:.08em;
+  margin-bottom:10px;color:#0b2b27;background:#fff;
+}
+.access-code-input:focus{border-color:#00a884;box-shadow:0 0 0 3px rgba(0,168,132,.12)}
+.access-btn{
+  display:block;width:100%;height:48px;border:0;border-radius:8px;
+  font-size:13px;font-weight:900;cursor:pointer;letter-spacing:.01em;
+}
+.access-btn.green{background:linear-gradient(180deg,#05876d,#006c58);color:#fff}
+.access-btn.blue{background:linear-gradient(180deg,#1164d8,#0c4fb9);color:#fff}
+.access-card-foot{text-align:center;margin-top:13px;color:#5d716e;font-size:12px}
+.access-card-foot strong{color:#08765f}
+.access-status{min-height:20px;margin-top:10px;text-align:center;font-size:13px;color:#667781;line-height:1.4}
+.access-status.error{color:#b42318}
+.access-or{
+  display:flex;align-items:center;justify-content:center;
+  color:#123c37;font-weight:900;font-size:17px;
+}
+.access-or span{
+  width:48px;height:48px;border-radius:50%;display:grid;place-items:center;
+  background:#fff;box-shadow:0 4px 15px rgba(10,69,58,.12);border:1px solid #e0e9e6;
+}
+.access-demos{padding:4px 0 40px}
+.access-section-title{text-align:center;font-size:21px;font-weight:900;margin:0 0 20px;color:#0b342f}
+.access-demo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.access-demo-card{
+  background:#fff;border:1px solid #e4e8e6;border-radius:14px;
+  padding:22px 20px;text-align:center;box-shadow:0 7px 20px rgba(18,64,56,.06)
+}
+.access-demo-card.rest{background:linear-gradient(180deg,#fff9ee,#fffdf8)}
+.access-demo-card.fisio{background:linear-gradient(180deg,#f3f9ff,#fbfdff)}
+.access-demo-card.ref{background:linear-gradient(180deg,#f5fbf5,#fbfefb)}
+.access-demo-icon{
+  width:58px;height:58px;border-radius:50%;display:grid;place-items:center;
+  margin:0 auto 13px;color:#fff;font-size:26px;font-weight:800;
+}
+.rest .access-demo-icon{background:#ee9207}
+.fisio .access-demo-icon{background:#228ccc}
+.ref .access-demo-icon{background:#2f994c}
+.access-demo-card h3{font-size:16px;margin:0 0 8px}
+.rest h3{color:#d87b00}.fisio h3{color:#1170b8}.ref h3{color:#238540}
+.access-demo-card p{min-height:44px;margin:0 0 15px;color:#4e605d;font-size:13px;line-height:1.45}
+.access-demo-btn{
+  width:100%;border:0;border-radius:7px;padding:11px 10px;
+  color:#fff;font-size:12px;font-weight:900;cursor:pointer
+}
+.rest .access-demo-btn{background:#eb8b00}
+.fisio .access-demo-btn{background:#1260cc}
+.ref .access-demo-btn{background:#159048}
+.access-capabilities{
+  background:#fff;border-top:1px solid #e5ece9;border-bottom:1px solid #e5ece9;
+  margin-top:4px;padding:24px 16px;
+}
+.access-cap-title{text-align:center;font-size:17px;font-weight:900;margin-bottom:18px;color:#0a312c}
+.access-cap-grid{
+  width:min(100%,900px);margin:0 auto;
+  display:grid;grid-template-columns:repeat(5,1fr);gap:18px;
+}
+.access-cap{text-align:center;color:#183e39;font-size:12px;line-height:1.4}
+.access-cap .ico{font-size:27px;margin-bottom:7px;color:#00876d}
+.access-footer{background:#073d37;color:#fff;text-align:center;padding:19px 16px 23px}
+.access-footer strong{display:block;font-size:16px;margin-bottom:5px}
+.access-footer span{font-size:12px;opacity:.88}
+.access-hidden{display:none!important}
+.personalized-note{
+  width:calc(100% - 16px);margin:8px 8px 4px;padding:11px 13px;border-radius:12px;
+  background:#e7f7f1;border:1px solid #a8dccd;color:#16483c;font-size:13px;line-height:1.45
+}
+@media(max-width:760px){
+  .access-top{height:64px;padding:0 15px}
+  .access-logo{font-size:16px}.access-logo .inf{font-size:28px}
+  .access-badge{font-size:10px;padding:6px 9px}
+  .access-main{padding:31px 13px 0}
+  .access-hero{margin-bottom:24px}
+  .access-hero h1{font-size:31px;max-width:390px}
+  .access-hero p{font-size:14px;max-width:360px}
+  .access-entry-grid{grid-template-columns:1fr;gap:10px;margin-bottom:27px}
+  .access-or{height:42px}
+  .access-or span{width:40px;height:40px;font-size:14px}
+  .access-card{padding:20px 17px}
+  .access-card h2{font-size:17px}
+  .access-card p{font-size:13px}
+  .access-demo-grid{grid-template-columns:1fr;gap:12px}
+  .access-demo-card{display:grid;grid-template-columns:58px 1fr;column-gap:14px;text-align:left;align-items:center;padding:16px}
+  .access-demo-icon{grid-row:1/4;margin:0}
+  .access-demo-card p{min-height:0;margin-bottom:10px}
+  .access-demo-btn{grid-column:2}
+  .access-cap-grid{grid-template-columns:repeat(2,1fr);gap:20px}
+}
+@media(max-width:420px){
+  .access-badge{display:none}
+  .access-hero h1{font-size:27px}
+  .access-main{padding-left:10px;padding-right:10px}
+}
+
+
+#portalSincronia{min-height:100vh;background:radial-gradient(circle at 85% 12%,rgba(15,157,122,.10),transparent 28%),linear-gradient(180deg,#fff 0%,#f7fbfa 100%);color:#073b34;font-family:inherit}
+.portal-top{min-height:84px;padding:18px clamp(20px,5vw,64px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #dceae6;background:#fff}.portal-brand{display:flex;align-items:center;gap:12px;font-size:25px;font-weight:900}.portal-brand .infinity{font-size:34px;color:#07956f}.portal-brand small{display:block;font-size:12px;color:#07956f;margin-top:2px}.portal-security{border:1px solid #cde6df;border-radius:14px;padding:10px 14px;font-size:13px;color:#31564f}
+.portal-wrap{max-width:1180px;margin:auto;padding:52px 24px 44px}.portal-hero{text-align:center;margin-bottom:34px}.portal-hero h1{font-size:clamp(34px,5vw,56px);line-height:1.04;margin:0 0 14px;color:#063b34}.portal-hero p{font-size:clamp(17px,2vw,21px);color:#526863;margin:0}.portal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.portal-card{background:#fff;border:1px solid #d9e8e4;border-radius:22px;padding:28px 25px 24px;box-shadow:0 12px 36px rgba(13,66,56,.07);display:flex;flex-direction:column;min-height:390px}.portal-card.study{border-color:#b8dfd1}.portal-card.demo{border-color:#c9dcf8}.portal-card.private{border-color:#ddd0f4}.portal-icon{width:82px;height:82px;border-radius:50%;display:grid;place-items:center;font-size:38px;margin:0 auto 20px;background:#edf8f4}.demo .portal-icon{background:#edf4ff}.private .portal-icon{background:#f4effc}
+.portal-card h2{text-align:center;font-size:23px;line-height:1.15;margin:0 0 15px;color:#074b3e}.demo h2{color:#1458bd}.private h2{color:#5d35a8}.portal-card p{text-align:center;color:#4b5e5a;line-height:1.55;margin:0 0 18px}.portal-points{margin:0 0 22px;padding:0;list-style:none;display:grid;gap:10px;font-size:14px;color:#304b45}.portal-points li:before{content:"✓";font-weight:900;color:#07956f;margin-right:9px}.portal-card .portal-btn{margin-top:auto}
+.portal-btn{width:100%;min-height:52px;border:0;border-radius:12px;font-weight:900;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;color:#fff;background:#078c6a}.demo .portal-btn{background:#1765d5}.private .portal-btn{background:#6941b5}.portal-note{text-align:center;font-size:12px;margin-top:13px;color:#6b7e79}.portal-bottom{margin-top:34px;padding:22px;border:1px solid #dceae6;border-radius:18px;background:#fff;display:flex;justify-content:space-between;gap:20px}.portal-bottom strong{font-size:18px}.portal-bottom span{color:#60736e;font-size:14px}
+.portal-back{position:fixed;z-index:9999;left:14px;bottom:14px;border:0;border-radius:999px;padding:11px 15px;background:#063b34;color:#fff;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.18);cursor:pointer}
+@media(max-width:820px){.portal-top{min-height:70px;padding:14px 18px}.portal-brand{font-size:20px}.portal-brand .infinity{font-size:28px}.portal-security{display:none}.portal-wrap{padding:34px 16px 28px}.portal-hero{margin-bottom:25px}.portal-grid{grid-template-columns:1fr;gap:16px}.portal-card{min-height:0;padding:22px 20px}.portal-icon{width:68px;height:68px;font-size:32px;margin-bottom:15px}.portal-card h2{font-size:20px}.portal-bottom{display:block;text-align:center}.portal-bottom span{display:block;margin-top:7px}}
+
+
+/* ===== SINCRONIAIA PORTAL v1.8.1 · MOBILE FIX ===== */
+@media(max-width:820px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  #portalSincronia{width:100%;max-width:100%;overflow-x:hidden}
+  .portal-top{width:100%;padding:12px 14px;min-height:64px}
+  .portal-brand{min-width:0;font-size:18px;gap:9px}
+  .portal-brand .infinity{font-size:27px}
+  .portal-brand small{font-size:10px;line-height:1.2}
+  .portal-wrap{width:100%;max-width:100%;padding:24px 12px 26px;margin:0}
+  .portal-hero{margin:0 0 20px}
+  .portal-hero h1{font-size:28px;line-height:1.08;margin-bottom:10px;padding:0 4px}
+  .portal-hero p{font-size:14px;line-height:1.45;padding:0 6px}
+  .portal-grid{display:block;width:100%;max-width:100%}
+  .portal-card{
+    width:100%;max-width:100%;min-width:0;min-height:0;
+    margin:0 0 14px;padding:18px 16px;border-radius:18px;
+    overflow:hidden
+  }
+  .portal-icon{width:60px;height:60px;font-size:29px;margin-bottom:12px}
+  .portal-card h2{font-size:19px;line-height:1.15;margin-bottom:10px;overflow-wrap:anywhere}
+  .portal-card p{font-size:13.5px;line-height:1.45;margin-bottom:14px}
+  .portal-points{font-size:13px;gap:8px;margin-bottom:17px}
+  .portal-points li{line-height:1.35}
+  .portal-btn{
+    width:100%;max-width:100%;min-height:48px;padding:11px 10px;
+    font-size:13px;line-height:1.25;text-align:center;white-space:normal
+  }
+  .portal-note{font-size:11px;line-height:1.35;margin-top:10px}
+  .portal-bottom{width:100%;padding:17px 13px;margin-top:18px;border-radius:16px}
+  .portal-bottom strong{font-size:16px;line-height:1.3}
+  .portal-bottom span{font-size:12px;line-height:1.35}
+  .portal-back{left:10px;right:auto;bottom:10px;max-width:calc(100vw - 20px);font-size:12px;padding:10px 13px}
+}
+@media(max-width:380px){
+  .portal-wrap{padding-left:9px;padding-right:9px}
+  .portal-hero h1{font-size:25px}
+  .portal-card{padding:16px 14px}
+  .portal-card h2{font-size:18px}
+}
+
+/* ===== SINCRONIAIA v1.8.6.2 · MOBILE CHAT · INICIO NO TAPA ESCRITURA ===== */
+@media(max-width:820px){
+  body.demo-chat-active .portal-back{
+    display:none !important;
+  }
+}
+
+
+/* ===== SINCRONIAIA PORTAL v1.8.2 · SCROLL FIX REAL ===== */
+html.portal-mode{
+  height:auto !important;
+  min-height:100% !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+}
+body.portal-mode{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:100vh !important;
+  max-height:none !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  align-items:initial !important;
+  justify-content:initial !important;
+  background:#f7fbfa !important;
+}
+body.portal-mode #portalSincronia{
+  position:relative !important;
+  min-height:100vh !important;
+  height:auto !important;
+  overflow:visible !important;
+}
+
+
+/* ===== SINCRONIAIA PORTAL v1.8.3 · PC REFINADO ===== */
+@media(min-width:821px){
+  body.portal-mode{padding-top:0 !important}
+  #portalSincronia{padding-top:0 !important}
+
+  .portal-top{
+    position:sticky !important;
+    top:0 !important;
+    z-index:500 !important;
+    min-height:88px !important;
+    padding:16px 48px !important;
+    background:rgba(255,255,255,.97) !important;
+    backdrop-filter:blur(10px);
+    box-shadow:0 1px 0 rgba(6,59,52,.08);
+  }
+
+  .portal-brand{
+    font-size:24px !important;
+    line-height:1.05 !important;
+  }
+  .portal-brand small{
+    font-size:12px !important;
+    margin-top:5px !important;
+  }
+
+  .portal-wrap{
+    max-width:1240px !important;
+    padding:48px 34px 54px !important;
+  }
+
+  .portal-hero{
+    margin:0 auto 38px !important;
+    padding:10px 0 0 !important;
+    max-width:900px;
+  }
+
+  .portal-hero h1{
+    font-size:48px !important;
+    line-height:1.08 !important;
+    margin:0 0 14px !important;
+    letter-spacing:-.025em;
+  }
+
+  .portal-hero p{
+    font-size:19px !important;
+    line-height:1.45 !important;
+  }
+
+  .portal-grid{
+    gap:24px !important;
+    align-items:stretch !important;
+  }
+
+  .portal-card{
+    min-height:420px !important;
+    padding:30px 28px 26px !important;
+  }
+
+  .portal-card h2{
+    font-size:22px !important;
+    line-height:1.18 !important;
+    margin-bottom:14px !important;
+  }
+
+  .portal-card p{
+    font-size:15px !important;
+    line-height:1.55 !important;
+  }
+
+  .portal-points{
+    font-size:14px !important;
+    line-height:1.45 !important;
+    gap:11px !important;
+  }
+
+  .portal-btn{
+    min-height:54px !important;
+    font-size:14px !important;
+  }
+
+  .portal-bottom{
+    margin-top:34px !important;
+    padding:24px 28px !important;
+  }
+}
+
+
+
+
+/* ===== SINCRONIAIA PORTAL v1.8.4 · IDENTIDAD + ACCESO PRIVADO SEGURO ===== */
+@media(min-width:821px){
+  .portal-brand{font-size:30px !important;gap:14px !important}
+  .portal-brand .infinity{font-size:44px !important;line-height:1 !important}
+  .portal-brand small{
+    font-size:15px !important;
+    line-height:1.25 !important;
+    margin-top:6px !important;
+    font-weight:800 !important;
+  }
+  .portal-bottom{
+    align-items:center !important;
+    min-height:92px !important;
+  }
+  .portal-bottom strong{
+    font-size:24px !important;
+    line-height:1.2 !important;
+    letter-spacing:-.01em !important;
+  }
+  .portal-bottom span{
+    font-size:17px !important;
+    font-weight:800 !important;
+  }
+}
+@media(max-width:820px){
+  .portal-brand{font-size:21px !important}
+  .portal-brand .infinity{font-size:31px !important}
+  .portal-brand small{font-size:11px !important;font-weight:800 !important}
+  .portal-bottom strong{font-size:18px !important;line-height:1.25 !important}
+  .portal-bottom span{font-size:13px !important;font-weight:800 !important}
+}
+
+
+/* ===== SINCRONIAIA PORTAL v1.8.5 · CHAT MOBILE FIX ===== */
+@media(max-width:820px){
+  /* La app demo ocupa exactamente la pantalla visible */
+  #sincroniaDemoApp{
+    width:100% !important;
+    height:100dvh !important;
+    min-height:0 !important;
+    max-height:100dvh !important;
+    overflow:hidden !important;
+  }
+
+  #sincroniaDemoApp .mobile-container{
+    width:100% !important;
+    height:100dvh !important;
+    min-height:0 !important;
+    max-height:100dvh !important;
+    display:flex !important;
+    flex-direction:column !important;
+    overflow:hidden !important;
+  }
+
+  #sincroniaDemoApp .wa-header{
+    flex:0 0 auto !important;
+    position:relative !important;
+    z-index:20 !important;
+  }
+
+  #sincroniaDemoApp .wa-chat-body{
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    height:auto !important;
+    max-height:none !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    -webkit-overflow-scrolling:touch !important;
+    overscroll-behavior:contain !important;
+    padding-bottom:14px !important;
+  }
+
+  #sincroniaDemoApp .wa-footer{
+    flex:0 0 auto !important;
+    position:relative !important;
+    z-index:30 !important;
+    width:100% !important;
+    min-height:64px !important;
+  }
+
+  #sincroniaDemoApp .wa-input{
+    min-width:0 !important;
+    width:auto !important;
+  }
+
+  #sincroniaDemoApp .quick-options{
+    flex:0 0 auto !important;
+    max-width:100% !important;
+  }
+
+  /* El historial crece dentro del cuerpo, nunca la pantalla completa */
+  #sincroniaDemoApp .message,
+  #sincroniaDemoApp .quick-options{
+    flex-shrink:0 !important;
+  }
+}
+
+
+/* ===== SINCRONIAIA v1.8.6 · CÓDIGO = CLIENTE, DEMO = EJEMPLO ===== */
+.personalized-access{
+  margin-top:14px!important;
+  padding:16px!important;
+  border:1px solid #b8dfd1!important;
+  border-radius:16px!important;
+  background:#f8fcfa!important;
+  color:#183a33!important;
+}
+.personalized-access-head strong{color:#087b60;font-size:16px}
+.personalized-business{font-size:22px;font-weight:900;color:#063b34;margin-top:8px}
+.personalized-owner{font-size:13px;color:#60736e;margin-top:2px}
+.personalized-access-head p{font-size:13px;line-height:1.45;margin:9px 0 0}
+.personalized-demo-options{display:grid;gap:9px;margin-top:14px}
+.personalized-demo-option{
+  width:100%;
+  display:grid;
+  grid-template-columns:44px 1fr;
+  gap:10px;
+  align-items:center;
+  text-align:left;
+  border:1px solid #cee1dc;
+  border-radius:12px;
+  padding:11px;
+  background:#fff;
+  color:#173b34;
+  cursor:pointer;
+}
+.personalized-demo-option:hover{border-color:#00a884;background:#f4fbf8}
+.personalized-demo-icon{font-size:27px;text-align:center}
+.personalized-demo-option strong{display:block;font-size:14px;color:#063b34}
+.personalized-demo-option small{display:block;font-size:11px;font-weight:800;color:#1765d5;margin-top:2px}
+.personalized-demo-option em{display:block;font-size:11px;font-style:normal;color:#657974;line-height:1.35;margin-top:3px}
+
+@media(max-width:820px){
+  .personalized-access{padding:13px!important}
+  .personalized-business{font-size:20px}
+  .personalized-demo-option{min-height:72px;padding:10px}
+  .personalized-demo-option strong{font-size:14px}
+}
+
+
+/* ===== ESCAPARATE SINCRONIAIA v1.13.0 · SOLO PORTADA PÚBLICA ===== */
+body.portal-mode{margin:0;background:#f7fbfc}
+#portalSincronia.showcase-v2{min-height:100vh;color:#10243d;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(circle at 72% 18%,rgba(206,244,238,.58),transparent 27%),radial-gradient(circle at 20% 35%,rgba(226,248,244,.65),transparent 25%),linear-gradient(180deg,#fff 0%,#f7fbfc 75%,#eef7f8 100%);overflow:hidden}
+.showcase-top{position:relative;z-index:4;display:flex;justify-content:space-between;align-items:flex-start;padding:24px 42px 10px}
+.showcase-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#0b2344}
+.showcase-symbol{width:94px;height:62px;display:flex;align-items:center;justify-content:center;font-size:82px;line-height:.72;font-family:Arial,sans-serif;font-weight:900;background:linear-gradient(135deg,#09a9de 12%,#0b4fab 57%,#08a886 92%);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-12px;transform:scaleX(1.1)}
+.showcase-brand-copy{display:flex;flex-direction:column} .showcase-brand-copy strong{font-size:35px;line-height:1;font-weight:850;letter-spacing:.015em} .showcase-brand-copy small{font-size:18px;margin-top:5px;color:#0e2038} .showcase-brand-copy small b{color:#00876f}
+.showcase-private-wrap{display:flex;flex-direction:column;align-items:center;gap:7px} .showcase-private{min-height:48px;padding:0 22px;border:1px solid #77bab5;border-radius:13px;display:flex;align-items:center;justify-content:center;gap:8px;color:#087b72;text-decoration:none;background:rgba(255,255,255,.92);font-size:15px;font-weight:800;box-shadow:0 3px 12px rgba(16,49,75,.04)} .showcase-private:hover{background:#f3fffd} .showcase-private-wrap small{color:#314a66;font-size:12px}
+.showcase-main{position:relative;z-index:2;max-width:1420px;margin:0 auto;padding:18px 60px 26px} .showcase-lifestyle{position:absolute;z-index:-1;right:-28px;top:-5px;width:400px;height:520px;background-image:linear-gradient(90deg,rgba(255,255,255,1) 0%,rgba(255,255,255,.25) 29%,rgba(255,255,255,0) 55%),url("data:image/jpeg;base64,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");background-size:cover;background-position:center;border-radius:0 0 0 40%;opacity:.92;mask-image:linear-gradient(to bottom,#000 0%,#000 74%,transparent 100%)}
+.showcase-hero{text-align:center;max-width:900px;margin:12px auto 28px;position:relative} .showcase-hero h1{font-size:52px;line-height:1.08;margin:0;font-weight:820;letter-spacing:-.03em;color:#0b2141} .showcase-hero h1 span{background:linear-gradient(90deg,#114ea3,#058878);-webkit-background-clip:text;background-clip:text;color:transparent} .showcase-intro{font-size:22px;color:#4d6380;margin:12px 0 22px} .showcase-method{font-size:18px;line-height:1.45;margin:0;color:#132744} .showcase-method strong{color:#087d70} .showcase-human{font-family:"Segoe Script","Brush Script MT",cursive;font-size:27px;color:#058777;margin:16px 0 0;transform:rotate(-1deg)}
+.showcase-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:990px;margin:0 auto 28px} .showcase-card{min-height:340px;background:rgba(255,255,255,.96);border:1px solid #d8e7ea;border-radius:20px;padding:24px 28px 18px;box-shadow:0 12px 28px rgba(20,55,80,.07);display:grid;grid-template-columns:86px 1fr;column-gap:20px;align-items:start} .showcase-card.study{border-color:#c8e5df} .showcase-card.demo{border-color:#ceddf4} .showcase-icon{width:82px;height:82px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#eaf7f4;font-size:39px} .showcase-card.demo .showcase-icon{background:#edf4ff} .showcase-card-body h2{font-size:22px;line-height:1.18;margin:8px 0 12px;color:#087e70} .showcase-card.demo h2{color:#0d58c8} .showcase-card-body p{font-size:15px;line-height:1.48;color:#1c3551;margin:0 0 16px} .showcase-card-body ul{list-style:none;padding:0;margin:0;display:grid;gap:10px;font-size:14px;color:#1e3550} .showcase-card-body li::before{content:"✓";font-weight:900;color:#078c76;margin-right:10px} .showcase-card.demo li::before{color:#1166dd}
+.showcase-cta{grid-column:1/-1;margin-top:22px;min-height:52px;border:0;border-radius:11px;display:flex;align-items:center;justify-content:center;width:100%;box-sizing:border-box;color:#fff!important;text-decoration:none;font-weight:850;font-size:15px;cursor:pointer} .showcase-cta.green{background:linear-gradient(90deg,#07957f,#048a72)} .showcase-cta.blue{background:linear-gradient(90deg,#1165df,#0e54c7)} .showcase-card>small{grid-column:1/-1;text-align:center;color:#506780;font-size:12px;margin-top:10px}
+.showcase-benefits{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:2fr repeat(4,1fr);border:1px solid #d8e6e9;border-radius:18px;background:rgba(255,255,255,.88);overflow:hidden} .benefit-brand,.benefit{min-height:112px;display:flex;align-items:center;justify-content:center;padding:12px 16px} .benefit-brand{gap:16px;justify-content:flex-start} .benefit-brand>span{font-size:60px;color:#097a92;font-weight:900} .benefit-brand strong{font-size:19px;line-height:1.28;color:#102641} .benefit-brand b{color:#078877} .benefit{border-left:1px solid #dfe8eb;flex-direction:column;text-align:center;gap:6px} .benefit>span{font-size:31px;color:#087d70} .benefit:nth-child(3)>span{color:#0b62d7} .benefit:nth-child(4)>span{color:#6a35bd} .benefit p{font-size:13px;line-height:1.3;margin:0;font-weight:700;color:#172c47}
+.showcase-footer{min-height:62px;padding:0 20px;background:linear-gradient(90deg,#073e55,#051f45);color:#fff;display:flex;align-items:center;justify-content:center;gap:17px;font-size:14px;letter-spacing:.035em} .showcase-footer i{color:#21c9ad;font-style:normal}
+@media(max-width:820px){.showcase-top{padding:16px 15px 8px;align-items:center}.showcase-symbol{width:48px;height:42px;font-size:48px;letter-spacing:-7px}.showcase-brand{gap:7px}.showcase-brand-copy strong{font-size:22px}.showcase-brand-copy small{font-size:11px}.showcase-private{min-height:40px;padding:0 12px;font-size:12px}.showcase-private-wrap small{display:none}.showcase-main{padding:12px 13px 22px}.showcase-lifestyle{display:none}.showcase-hero{margin:16px auto 20px}.showcase-hero h1{font-size:34px}.showcase-intro{font-size:16px;margin:9px 0 18px}.showcase-method{font-size:15px;line-height:1.5}.showcase-human{font-size:22px;margin-top:12px}.desktop-only{display:none}.showcase-grid{grid-template-columns:1fr;gap:14px;margin-bottom:18px}.showcase-card{grid-template-columns:62px 1fr;padding:20px 18px 16px;column-gap:13px;min-height:0}.showcase-icon{width:60px;height:60px;font-size:30px}.showcase-card-body h2{font-size:18px;margin-top:4px}.showcase-card-body p{font-size:14px}.showcase-card-body ul{font-size:13px}.showcase-cta{min-height:50px;font-size:14px}.showcase-benefits{grid-template-columns:1fr 1fr}.benefit-brand{grid-column:1/-1;min-height:86px}.benefit{min-height:90px;border-top:1px solid #dfe8eb}.benefit:nth-child(even){border-left:0}.showcase-footer{flex-wrap:wrap;gap:6px 10px;text-align:center;font-size:11px;padding:13px}}
+
+
+/* ===== PRUEBA AISLADA VOZ NATURAL v2 ===== */
+.voice-mini-panel{
+  display:none;
+  background:#eaf6f2;
+  border-top:1px solid #cfe2dc;
+  padding:7px 10px;
+  gap:8px;
+  align-items:center;
+}
+body.demo-chat-active .voice-mini-panel{display:flex}
+.voice-mini-state{
+  flex:1;
+  min-width:0;
+  font-size:12px;
+  font-weight:700;
+  color:#27554b;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#voiceNaturalSelect{
+  max-width:48%;
+  min-width:115px;
+  height:32px;
+  border:1px solid #bdd7d0;
+  border-radius:8px;
+  background:#fff;
+  color:#29423c;
+  font-size:11px;
+  padding:0 5px;
+}
+.voice-talk-btn{
+  width:46px;height:46px;flex:0 0 46px;
+  border:0;border-radius:50%;
+  background:#00a884;color:#fff;
+  font-size:21px;cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
+}
+.voice-talk-btn.listening{
+  background:#d94d4d;
+  animation:voicePulse 1s infinite alternate;
+}
+.voice-talk-btn.speaking{background:#2563b8}
+.voice-talk-btn:disabled{opacity:.5}
+@keyframes voicePulse{from{transform:scale(1)}to{transform:scale(1.08)}}
+@media(max-width:520px){
+  #voiceNaturalSelect{max-width:52%;font-size:10px}
+  .voice-mini-state{font-size:11px}
+}
+
+</style>
+</head>
+<body class="portal-mode">
+<div id="portalSincronia" class="showcase-v2">
+<header class="showcase-top">
+  <a class="showcase-brand" href="https://felixganes-svg.github.io/sincroniaia-demo/" aria-label="SINCRONIAIA Inicio">
+    <span class="showcase-symbol" aria-hidden="true">∞</span>
+    <span class="showcase-brand-copy"><strong>SINCRONIAIA</strong><small>La IA trabaja. <b>Tú vuelves a vivir.</b></small></span>
+  </a>
+  <div class="showcase-private-wrap">
+    <a class="showcase-private" id="abrirCentroPrivadoSeguro"
+       href="https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec">
+       🛡️ <span>Acceso SINCRONIAIA</span>
+    </a>
+    <small>Acceso seguro · Sistemas separados</small>
+  </div>
+</header>
+
+<main class="showcase-main">
+  <div class="showcase-lifestyle" aria-hidden="true"></div>
+
+  <section class="showcase-hero">
+    <h1>Bienvenido a <span>SINCRONIAIA</span></h1>
+    <p class="showcase-intro">Conozca su negocio, pruebe la IA o acceda a sus herramientas de gestión.</p>
+    <p class="showcase-method">
+      Creamos contenido estratégico que despierta interés y<br class="desktop-only">
+      conversaciones inteligentes que atienden, informan y convierten.<br>
+      <strong>Incluso cuando usted no puede responder.</strong>
+    </p>
+    <p class="showcase-human">Porque estás disfrutando de tu tiempo.</p>
+  </section>
+
+  <section class="showcase-grid">
+    <article class="showcase-card study">
+      <div class="showcase-icon">🔎</div>
+      <div class="showcase-card-body">
+        <h2>INVESTIGACIÓN DE CAMPO</h2>
+        <p>Comprenda cómo funciona realmente su negocio y detecte oportunidades para recuperar tiempo y mejorar la organización.</p>
+        <ul>
+          <li>Estudio empresarial guiado</li>
+          <li>Sin compromiso ni presión comercial</li>
+          <li>Primera valoración personalizada</li>
+        </ul>
+      </div>
+      <a class="showcase-cta green"
+         href="https://felixganes-svg.github.io/sincroniaia-demo/investigacion/">
+         COMENZAR ESTUDIO →
+      </a>
+      <small>Acceso al Estudio Empresarial SINCRONIAIA</small>
+    </article>
+
+    <article class="showcase-card demo">
+      <div class="showcase-icon">💬</div>
+      <div class="showcase-card-body">
+        <h2>PRUEBE CÓMO LA IA PUEDE<br>ATENDER SU NEGOCIO</h2>
+        <p>Conversaciones reales, reservas, citas y solicitudes. Así puede trabajar su asistente 24/7.</p>
+        <ul>
+          <li>Demo personalizada con código</li>
+          <li>Restaurante · Fisioterapia · Reformas</li>
+          <li>Puede probar sin registrarse</li>
+        </ul>
+      </div>
+      <button class="showcase-cta blue" id="portalAbrirDemos" type="button">
+        PROBAR DEMOSTRACIÓN →
+      </button>
+      <small>Con código o mediante demos públicas</small>
+    </article>
+  </section>
+
+  <section class="showcase-benefits">
+    <div class="benefit-brand"><span>∞</span><strong>No vendemos IA.<br><b>Devolvemos tiempo para vivir.</b></strong></div>
+    <div class="benefit"><span>◷</span><p>Recupera horas<br>cada día</p></div>
+    <div class="benefit"><span>💬</span><p>Conversaciones<br>que convierten</p></div>
+    <div class="benefit"><span>▥</span><p>Más oportunidades,<br>más resultados</p></div>
+    <div class="benefit"><span>♡</span><p>Más tiempo para lo<br>que realmente importa</p></div>
+  </section>
+</main>
+
+<footer class="showcase-footer">
+  <strong>SINCRONIAIA LABS</strong><i>•</i><span>INTELIGENCIA QUE CONECTA</span><i>•</i><span>CONVERSACIONES QUE GENERAN RESULTADOS</span>
+</footer>
+</div>
+<div id="sincroniaDemoApp" style="display:none">
+
+
+<div id="accessGateway" class="access-gateway">
+  <div class="access-page">
+    <div class="access-top">
+      <div class="access-logo"><span class="inf">∞</span><span>SINCRONIAIA</span></div>
+      <div class="access-badge">DEMO PÚBLICA</div>
+    </div>
+
+    <div class="access-main">
+      <section class="access-hero">
+        <h1>Pruebe cómo la IA puede atender su negocio</h1>
+        <p>Conversaciones reales, reservas, citas y solicitudes.<br>Así trabaja su asistente 24/7.</p>
+      </section>
+
+      <section class="access-entry-grid">
+        <div class="access-card code">
+          <h2>🔑 TENGO UN CÓDIGO</h2>
+          <p>Si SINCRONIAIA ha preparado una demostración para su negocio, introduzca aquí su código.</p>
+          <input id="publicCode" class="access-code-input" maxlength="12" placeholder="Ejemplo: 3JHTH8" autocomplete="off">
+          <button class="access-btn green" type="button" onclick="entrarConCodigo()">ENTRAR A MI DEMO</button>
+          <div id="codeStatus" class="access-status"></div>
+          <div class="access-card-foot">🔒 <strong>Acceso personalizado</strong> para su negocio</div>
+        </div>
+
+        <div class="access-or"><span>o</span></div>
+
+        <div class="access-card free">
+          <h2>👁️ PROBAR SIN CÓDIGO</h2>
+          <p>Puede probar libremente uno de nuestros asistentes de ejemplo.</p>
+          <button class="access-btn blue" type="button" onclick="scrollDemos()">VER DEMOS DISPONIBLES</button>
+          <div class="access-card-foot">👥 Demos generales sin registro</div>
+        </div>
+      </section>
+
+      <section class="access-demos" id="publicDemos">
+        <h2 class="access-section-title">🏪 DEMOS DISPONIBLES</h2>
+        <div class="access-demo-grid">
+          <article class="access-demo-card rest">
+            <div class="access-demo-icon">🍴</div>
+            <h3>RESTAURANTE</h3>
+            <p>Información, carta, horarios, reservas y consultas.</p>
+            <button class="access-demo-btn" type="button" onclick="entrarDemoLibre('restaurante')">PROBAR RESTAURANTE</button>
+          </article>
+          <article class="access-demo-card fisio">
+            <div class="access-demo-icon">🩺</div>
+            <h3>FISIOTERAPIA</h3>
+            <p>Servicios, horarios, citas y consultas.</p>
+            <button class="access-demo-btn" type="button" onclick="entrarDemoLibre('fisio')">PROBAR FISIOTERAPIA</button>
+          </article>
+          <article class="access-demo-card ref">
+            <div class="access-demo-icon">🔧</div>
+            <h3>REFORMAS</h3>
+            <p>Servicios, visitas, presupuestos y consultas.</p>
+            <button class="access-demo-btn" type="button" onclick="entrarDemoLibre('reformas')">PROBAR REFORMAS</button>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <section class="access-capabilities">
+      <div class="access-cap-title">¿QUÉ PUEDE HACER SU ASISTENTE?</div>
+      <div class="access-cap-grid">
+        <div class="access-cap"><div class="ico">💬</div>Atención automática<br>e inteligente</div>
+        <div class="access-cap"><div class="ico">📅</div>Gestión de citas<br>y reservas</div>
+        <div class="access-cap"><div class="ico">🕒</div>Respuestas 24/7,<br>incluso fuera de horario</div>
+        <div class="access-cap"><div class="ico">📋</div>Recogida de solicitudes<br>y datos</div>
+        <div class="access-cap"><div class="ico">📊</div>Información útil<br>y adaptada a su negocio</div>
+      </div>
+    </section>
+
+    <footer class="access-footer">
+      <strong>∞ SINCRONIAIA</strong>
+      <span>La IA trabaja. Tú vuelves a vivir.</span>
+    </footer>
+  </div>
+</div>
+
+
+<div id="demoSelector" class="demo-selector">
+  <div class="selector-header">
+    <h1>∞ SINCRONIAIA</h1>
+    <p>Elija una demostración</p>
+  </div>
+  <div class="selector-body">
+    <div class="selector-card" onclick="startDemo('restaurante')">
+      <h2>🍽️ Restaurante Demo</h2>
+      <p>Carta, información, horarios y reservas.</p>
+    </div>
+    <div class="selector-card" onclick="startDemo('fisio')">
+      <h2>🏥 Fisioterapia Demo</h2>
+      <p>Servicios, horarios, consultas y citas.</p>
+    </div>
+    <div class="selector-card" onclick="startDemo('reformas')">
+      <h2>🔧 Reformas Demo</h2>
+      <p>Servicios, visitas y solicitudes de presupuesto.</p>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-container">
+  <div class="wa-header">
+    <div class="wa-avatar" id="demoAvatar">∞</div>
+    <div class="wa-contact-info">
+      <h1 id="demoTitle">SINCRONIAIA</h1>
+      <p id="demoStatus">en línea</p>
+    </div>
+    <button class="back-btn" onclick="volverSelector()">Cambiar demo</button>
+  </div>
+
+  <div class="wa-chat-body" id="chatBody"></div>
+
+  <div class="voice-mini-panel" id="voiceMiniPanel">
+    <div class="voice-mini-state" id="voiceMiniState">🎙️ Voz preparada</div>
+    <select id="voiceNaturalSelect" aria-label="Voz de SINCRONIAIA"></select>
+  </div>
+
+  <div class="wa-footer">
+    <button class="voice-talk-btn" id="voiceTalkBtn" type="button" aria-label="Hablar con SINCRONIAIA">🎙️</button>
+    <input type="text" class="wa-input" id="userInput" placeholder="Escribe o pulse el micrófono..." autocomplete="off">
+    <button class="wa-send-btn" id="sendBtn" onclick="sendTextFromInput()">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+        <path d="M1.101 21.757L23.8 12.028 1.101 2.3l.011 7.912 13.623 1.816-13.623 1.817-.011 7.912z"></path>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwHeevn8-8LXCh4K7Kqx_UGwvpg7K3cr_PKSJ3LnnAirLL6RY63M_xiEPcQcHQ0y32uRQ/exec";
+
+let accesoPersonalizado = null;
+
+function escHtml(value){
+  return String(value??'').replace(/[&<>"']/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function scrollDemos(){
+  document.getElementById('publicDemos')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function cerrarPuertaAcceso(){ document.getElementById('accessGateway')?.classList.add('access-hidden'); }
+
+function abrirPuertaAcceso(){
+  flujoLocal=null;
+  document.body.classList.remove('demo-chat-active');
+  document.getElementById('accessGateway')?.classList.remove('access-hidden');
+  if(accesoPersonalizado){
+    mostrarSelectorTipoParaCodigo();
+  }else{
+    const status=document.getElementById('codeStatus');
+    if(status){ status.className='access-status'; status.innerHTML=''; }
+  }
+}
+
+function entrarDemoLibre(tipo){
+  accesoPersonalizado=null;
+  cerrarPuertaAcceso();
+  startDemo(tipo);
+}
+
+async function entrarConCodigo(){
+  const input=document.getElementById('publicCode');
+  const status=document.getElementById('codeStatus');
+  const codigo=String(input.value||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(!codigo){
+    status.className='access-status error';
+    status.textContent='Introduzca el código recibido.';
+    return;
+  }
+
+  status.className='access-status';
+  status.textContent='Comprobando código…';
+
+  try{
+    const r=await jsonp({api:'codigo',codigo:codigo});
+    if(!r || r.ok===false){
+      accesoPersonalizado=null;
+      status.className='access-status error';
+      status.textContent=(r&&r.error)?r.error:'Código no válido o caducado.';
+      return;
+    }
+
+    accesoPersonalizado=r;
+    mostrarSelectorTipoParaCodigo();
+  }catch(e){
+    accesoPersonalizado=null;
+    status.className='access-status error';
+    status.textContent='No se ha podido comprobar el código. Inténtelo de nuevo.';
+  }
+}
+
+function detectarDemoPersonalizada(data){
+  const texto=[
+    data&&data.sector,
+    data&&data.actividad,
+    data&&data.tipo,
+    data&&data.tipo_demo,
+    data&&data.categoria
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  if(/restaur|bar|cafeter|hosteler/.test(texto)) return 'restaurante';
+  if(/fisio|fisioter|rehabilit|clinica|clínica/.test(texto)) return 'fisio';
+  if(/reforma|obra|constru|albañ|alban/.test(texto)) return 'reformas';
+  return '';
+}
+
+function datosDemoPersonalizada(tipo){
+  if(tipo==='restaurante') return ['🍽️','Probar mi asistente','Restaurante Demo','Información, horarios, carta y reservas.','restaurante'];
+  if(tipo==='fisio') return ['🏥','Probar mi asistente','Fisioterapia Demo','Servicios, consultas, horarios y citas.','fisio'];
+  if(tipo==='reformas') return ['🏠','Probar mi asistente','Reformas Demo','Consultas, visitas y solicitudes de presupuesto.','reformas'];
+  return null;
+}
+
+function mostrarSelectorTipoParaCodigo(){
+  const status=document.getElementById('codeStatus');
+  if(!status || !accesoPersonalizado) return;
+
+  const negocio=String(accesoPersonalizado.negocio||'Su negocio').trim();
+  const responsable=String(accesoPersonalizado.responsable||'').trim();
+  const tipoDetectado=detectarDemoPersonalizada(accesoPersonalizado);
+
+  status.className='access-status personalized-access';
+  status.innerHTML='';
+
+  const head=document.createElement('div');
+  head.className='personalized-access-head';
+
+  if(tipoDetectado){
+    head.innerHTML='<strong>✅ Código correcto</strong>'+
+      '<div class="personalized-business">'+escHtml(negocio)+'</div>'+
+      (responsable?'<div class="personalized-owner">'+escHtml(responsable)+'</div>':'')+
+      '<p>Hemos preparado una demostración para que pueda probar la experiencia <strong>como si fuera uno de sus clientes</strong>.</p>';
+  }else{
+    head.innerHTML='<strong>✅ Código correcto</strong>'+
+      '<div class="personalized-business">'+escHtml(negocio)+'</div>'+
+      (responsable?'<div class="personalized-owner">'+escHtml(responsable)+'</div>':'')+
+      '<p>Elija el ejemplo que mejor se aproxime a su actividad.</p>';
+  }
+
+  status.appendChild(head);
+
+  const box=document.createElement('div');
+  box.className='personalized-demo-options';
+
+  const opciones=tipoDetectado
+    ? [datosDemoPersonalizada(tipoDetectado)]
+    : [
+        ['🍽️','Reservas y atención','Restaurante Demo','Información, horarios, carta y reservas.','restaurante'],
+        ['🏥','Citas y agenda','Fisioterapia Demo','Servicios, consultas, horarios y citas.','fisio'],
+        ['🏠','Solicitudes y oportunidades','Reformas Demo','Consultas, visitas y solicitudes de presupuesto.','reformas']
+      ];
+
+  opciones.filter(Boolean).forEach(([icon,title,demo,desc,tipo])=>{
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='personalized-demo-option';
+    b.innerHTML='<span class="personalized-demo-icon">'+icon+'</span>'+
+      '<span><strong>'+title+'</strong><small>'+demo+'</small><em>'+desc+'</em></span>';
+    b.onclick=()=>abrirDemoPersonalizada(tipo,accesoPersonalizado);
+    box.appendChild(b);
+  });
+
+  status.appendChild(box);
+}
+
+function nombreDemoEjemplo(tipo){
+  return tipo==='restaurante'?'Restaurante':
+    tipo==='fisio'?'Fisioterapia':
+    tipo==='reformas'?'Reformas':'Demostración';
+}
+
+function abrirDemoPersonalizada(tipo,data){
+  cerrarPuertaAcceso();
+  startDemo(tipo);
+
+  const negocio=String((data&&data.negocio)||'Su negocio').trim();
+  const responsable=String((data&&data.responsable)||'').trim();
+  const ejemplo=nombreDemoEjemplo(tipo);
+
+  document.getElementById('demoTitle').textContent=negocio;
+  document.getElementById('demoStatus').textContent='Ejemplo: '+ejemplo+' · en línea';
+
+  const firstMessage=chatBody.querySelector('.message.incoming');
+  if(firstMessage){
+    const firstText=firstMessage.querySelector('span:first-child');
+    if(firstText){
+      firstText.textContent='Hola 👋 Pruébelo como si fuera un cliente. ¿En qué le podemos ayudar?';
+    }
+  }
+}
+
+let autoCodigoProcesado=false;
+
+function activarDemoDesdeCodigoURL(){
+  const portal=document.getElementById('portalSincronia');
+  const app=document.getElementById('sincroniaDemoApp');
+
+  document.documentElement.classList.remove('portal-mode');
+  document.body.classList.remove('portal-mode');
+
+  if(portal) portal.style.display='none';
+  if(app) app.style.display='';
+
+  window.scrollTo(0,0);
+}
+
+function autoEntradaDesdeURL(){
+  if(autoCodigoProcesado) return;
+
+  const params=new URLSearchParams(window.location.search);
+  const code=String(params.get('code')||'')
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g,'');
+
+  if(!code) return;
+
+  autoCodigoProcesado=true;
+  activarDemoDesdeCodigoURL();
+
+  const input=document.getElementById('publicCode');
+  if(input) input.value=code;
+
+  setTimeout(()=>{
+    entrarConCodigo();
+  },150);
+}
+
+const chatBody = document.getElementById('chatBody');
+const userInput = document.getElementById('userInput');
+
+let demoActual = '';
+let historial = [];
+let callbackSeq = 0;
+let flujoLocal = null;
+let categoriasCartaVistas = new Set();
+
+const DEMOS = {
+  restaurante: {
+    titulo:'Restaurante Demo', avatar:'🍽️',
+    bienvenida:'¡Hola! Bienvenido a Restaurante Demo. ¿En qué le podemos ayudar hoy?',
+    botones:[['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['❓ Otras consultas','otra_consulta']]
+  },
+  fisio: {
+    titulo:'Fisioterapia Demo', avatar:'🏥',
+    bienvenida:'¡Hola! Bienvenido a Fisioterapia Demo. ¿En qué le podemos ayudar hoy?',
+    botones:[['🩺 Ver servicios','fisio_servicios'],['🕒 Horarios','fisio_horarios'],['📅 Pedir cita','fisio_cita'],['❓ Otras consultas','otra_consulta']]
+  },
+  reformas: {
+    titulo:'Reformas Demo', avatar:'🔧',
+    bienvenida:'¡Hola! Bienvenido a Reformas Demo. ¿En qué le podemos ayudar hoy?',
+    botones:[['🏠 Ver servicios','ref_servicios'],['📅 Solicitar visita','ref_visita'],['📋 Pedir presupuesto','ref_presupuesto'],['❓ Otras consultas','otra_consulta']]
+  }
+};
+
+function horaActual(){
+  const d=new Date();
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+
+function appendMessage(text,sender){
+  const msg=document.createElement('div');
+  msg.classList.add('message',sender);
+
+  const body=document.createElement('span');
+  body.textContent=String(text||'').replace(/\\n/g,'\n');
+
+  const time=document.createElement('span');
+  time.className='message-time';
+  time.textContent=horaActual()+(sender==='outgoing'?' ✓✓':'');
+
+  msg.append(body,time);
+  chatBody.appendChild(msg);
+  chatBody.scrollTop=chatBody.scrollHeight;
+
+  historial.push({
+    rol:sender==='outgoing'?'user':'assistant',
+    texto:String(text||'')
+  });
+}
+
+function removeQuickOptions(){
+  chatBody.querySelectorAll('.quick-options').forEach(el=>el.remove());
+}
+
+function showQuickOptions(items){
+  removeQuickOptions();
+  const box=document.createElement('div');
+  box.className='quick-options';
+  items.forEach(([label,action])=>{
+    const btn=document.createElement('button');
+    btn.className='quick-chip';
+    btn.textContent=label;
+    btn.onclick=()=>quickAction(action,label);
+    box.appendChild(btn);
+  });
+  chatBody.appendChild(box);
+  chatBody.scrollTop=chatBody.scrollHeight;
+}
+
+function startDemo(tipo){
+  demoActual=tipo;
+  document.body.classList.add('demo-chat-active');
+  historial=[];
+  flujoLocal=null;
+  categoriasCartaVistas=new Set();
+  chatBody.innerHTML='';
+  const d=DEMOS[tipo];
+
+  document.getElementById('demoTitle').textContent=d.titulo;
+  document.getElementById('demoAvatar').textContent=d.avatar;
+  document.getElementById('demoSelector').classList.add('hidden');
+
+  appendMessage(d.bienvenida,'incoming');
+  showQuickOptions(d.botones);
+}
+
+function volverSelector(){
+  removeQuickOptions();
+  abrirPuertaAcceso();
+  if(accesoPersonalizado){
+    document.getElementById('codeStatus')?.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
+
+
+function opcionesCartaPendientes(){
+  const categorias=[
+    ['🥗 Entrantes','entrantes'],
+    ['🍚 Arroces','arroces'],
+    ['🐟 Pescados','pescados'],
+    ['🥩 Carnes','carnes'],
+    ['🍰 Postres','postres']
+  ].filter(item=>!categoriasCartaVistas.has(item[1]));
+
+  return categorias.concat([
+    ['📅 Reservar Mesa','reservar'],
+    ['🕒 Horarios','horarios'],
+    ['❓ Otras consultas','otra_consulta']
+  ]);
+}
+
+function opcionesRestaurante(){
+  showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['❓ Otras consultas','otra_consulta']]);
+}
+
+function opcionesFisio(){
+  showQuickOptions([
+    ['🩺 Ver servicios','fisio_servicios'],
+    ['🕒 Horarios','fisio_horarios'],
+    ['📅 Pedir cita','fisio_cita'],
+    ['❓ Otras consultas','otra_consulta']
+  ]);
+}
+
+function opcionesReformas(){
+  showQuickOptions([
+    ['🏠 Ver servicios','ref_servicios'],
+    ['📅 Solicitar visita','ref_visita'],
+    ['📋 Pedir presupuesto','ref_presupuesto'],
+    ['❓ Otras consultas','otra_consulta']
+  ]);
+}
+
+
+
+function finalizarDemoConEstudio(mensajeFinal){
+  if(mensajeFinal) appendMessage(mensajeFinal,'incoming');
+  flujoLocal={tipo:'cerrado',paso:'fin',datos:(flujoLocal&&flujoLocal.datos)||{}};
+  removeQuickOptions();
+  setTimeout(mostrarEstudioNegocio,450);
+}
+
+function mostrarEstudioNegocio(){
+  removeQuickOptions();
+  const wrap=document.createElement('div');
+  wrap.style.cssText='width:calc(100% - 16px);box-sizing:border-box;margin:14px 8px 18px;padding:18px;background:#ffffff;border:1px solid #d7e3df;border-radius:16px;box-shadow:0 5px 18px rgba(0,0,0,.13);color:#172126;';
+  wrap.innerHTML='<div style="font-size:19px;font-weight:800;line-height:1.3;margin-bottom:10px;color:#102b25">✨ ¿Quiere conocer las oportunidades de su propio negocio?</div>'+
+    '<div style="font-size:15px;line-height:1.55;margin-bottom:14px;color:#33433f">Puede realizar gratuitamente el Estudio Empresarial SINCRONIAIA, sin compromiso y sin presión comercial. Le ayudará a detectar:</div>'+
+    '<div style="font-size:15px;line-height:1.75;margin-bottom:16px;color:#172126">⏱️ Tiempo que podría recuperar<br>🤖 Tareas que podría automatizar<br>📊 Qué solución tendría más sentido para su negocio</div>';
+
+  const b1=document.createElement('button');
+  b1.type='button';
+  b1.textContent='📋 REALIZAR ESTUDIO DE MI NEGOCIO';
+  b1.style.cssText='display:block;width:100%;box-sizing:border-box;border:0;border-radius:12px;padding:15px 12px;margin:0 0 10px;background:#00a884;color:#fff;font-size:16px;font-weight:800;cursor:pointer;';
+  b1.onclick=()=>{
+    const demo=(typeof demoActual!=='undefined'&&demoActual)?demoActual:'demo';
+    window.location.href='https://felixganes-svg.github.io/sincroniaia-demo/investigacion/?utm_source=github_demo&demo='+encodeURIComponent(demo);
+  };
+
+  const b2=document.createElement('button');
+  b2.type='button';
+  b2.textContent='👋 Finalizar';
+  b2.style.cssText='display:block;width:100%;box-sizing:border-box;border:1px solid #9aa8a4;border-radius:12px;padding:13px 12px;background:#f7f9f8;color:#263531;font-size:15px;font-weight:700;cursor:pointer;';
+  b2.onclick=()=>wrap.remove();
+
+  wrap.appendChild(b1); wrap.appendChild(b2);
+  chatBody.appendChild(wrap);
+  chatBody.scrollTop=chatBody.scrollHeight;
+}
+function formatearNombreReserva(nombre){
+  return String(nombre||'').trim().replace(/\s+/g,' ').split(' ').map(p=>{
+    if(!p) return p;
+    return p.charAt(0).toLocaleUpperCase('es-ES')+p.slice(1).toLocaleLowerCase('es-ES');
+  }).join(' ');
+}
+
+function horasFisioDemo(){
+  return ['09:00','09:30','10:00','10:30','11:00','11:30','16:00','16:30','17:00','17:30','18:00','18:30'];
+}
+
+function quickAction(action,label){
+  if(label) appendMessage(label,'outgoing');
+  removeQuickOptions();
+
+  if(action==='ref_servicios'){
+    appendMessage('🏠 Servicios de demostración\n\n• Reformas de baños\n• Reformas de cocinas\n• Pintura\n• Pequeñas reformas\n• Reformas integrales\n\nPodemos recoger una solicitud de visita o de presupuesto para que el equipo la revise.','incoming');
+    showQuickOptions([['📅 Solicitar visita','ref_visita'],['📋 Pedir presupuesto','ref_presupuesto'],['❓ Otra consulta','otra_consulta']]);
+    return;
+  }
+
+  if(action==='ref_visita'){
+    flujoLocal={tipo:'visita_reformas',paso:'tipo',datos:{}};
+    appendMessage('📅 Perfecto. ¿Qué tipo de reforma desea realizar?','incoming');
+    showQuickOptions([['🚿 Baño','ref_tipo_bano'],['🍳 Cocina','ref_tipo_cocina'],['🎨 Pintura','ref_tipo_pintura'],['🏠 Reforma integral','ref_tipo_integral'],['✏️ Otra','ref_tipo_otra']]);
+    return;
+  }
+
+  if(action.startsWith('ref_tipo_')){
+    if(!flujoLocal) return;
+    const mapa={ref_tipo_bano:'Baño',ref_tipo_cocina:'Cocina',ref_tipo_pintura:'Pintura',ref_tipo_integral:'Reforma integral'};
+    if(action==='ref_tipo_otra'){
+      flujoLocal.paso='tipo_manual';
+      appendMessage('Indíqueme brevemente qué tipo de reforma desea realizar.','incoming');
+      return;
+    }
+    flujoLocal.datos.tipo_reforma=mapa[action]||'Otra';
+    flujoLocal.paso='poblacion';
+    appendMessage('📍 ¿En qué población se encuentra el inmueble?','incoming');
+    return;
+  }
+
+  if(action==='ref_fecha_hoy'||action==='ref_fecha_manana'){
+    if(!flujoLocal || flujoLocal.tipo!=='visita_reformas') return;
+    flujoLocal.datos.fecha=action==='ref_fecha_hoy'?'hoy':'mañana';
+    flujoLocal.paso='franja';
+    appendMessage('¿Qué franja horaria le va mejor?','incoming');
+    showQuickOptions([['☀️ Mañana','ref_franja_manana'],['🌤️ Tarde','ref_franja_tarde']]);
+    return;
+  }
+
+  if(action==='ref_franja_manana'||action==='ref_franja_tarde'){
+    if(!flujoLocal || flujoLocal.tipo!=='visita_reformas') return;
+    flujoLocal.datos.franja=action==='ref_franja_manana'?'Mañana':'Tarde';
+    flujoLocal.paso='nombre';
+    appendMessage('Perfecto. ¿A qué nombre registramos la solicitud de visita?','incoming');
+    return;
+  }
+
+  if(action==='ref_presupuesto'){
+    flujoLocal={tipo:'presupuesto_reformas',paso:'tipo',datos:{}};
+    appendMessage('📋 Perfecto. ¿Qué desea reformar?','incoming');
+    showQuickOptions([['🚿 Baño','ref_pre_bano'],['🍳 Cocina','ref_pre_cocina'],['🎨 Pintura','ref_pre_pintura'],['🏠 Reforma integral','ref_pre_integral'],['✏️ Otra','ref_pre_otra']]);
+    return;
+  }
+
+  if(action.startsWith('ref_pre_')){
+    if(!flujoLocal || flujoLocal.tipo!=='presupuesto_reformas') return;
+    const mapa={ref_pre_bano:'Baño',ref_pre_cocina:'Cocina',ref_pre_pintura:'Pintura',ref_pre_integral:'Reforma integral'};
+    if(action==='ref_pre_otra'){
+      flujoLocal.paso='tipo_manual';
+      appendMessage('Indíqueme brevemente qué desea reformar.','incoming');
+      return;
+    }
+    flujoLocal.datos.tipo_reforma=mapa[action]||'Otra';
+    flujoLocal.paso='descripcion';
+    appendMessage('Cuénteme brevemente qué trabajo desea realizar. No es necesario entrar en detalles técnicos.','incoming');
+    return;
+  }
+
+  if(action==='ref_confirmar_visita'){
+    if(!flujoLocal || flujoLocal.tipo!=='visita_reformas') return;
+    const d=flujoLocal.datos||{};
+    appendMessage('✅ Solicitud de visita registrada.\n\nHemos anotado su solicitud para '+d.tipo_reforma+' en '+d.poblacion+', '+d.fecha+' por la '+String(d.franja||'').toLowerCase()+'.\n\nUn miembro del equipo revisará la solicitud y se pondrá en contacto con usted para confirmar la visita.\n\n¿Desea que le ayudemos con algo más?','incoming');
+    flujoLocal={tipo:'post_reformas',paso:'algo_mas',datos:d};
+    showQuickOptions([['🏠 Ver servicios','ref_servicios'],['❓ Otra consulta','otra_consulta'],['No, gracias','ref_cerrar']]);
+    return;
+  }
+
+  if(action==='ref_confirmar_presupuesto'){
+    if(!flujoLocal || flujoLocal.tipo!=='presupuesto_reformas') return;
+    const d=flujoLocal.datos||{};
+    appendMessage('✅ Solicitud de presupuesto registrada.\n\nHemos recogido sus datos y la información inicial sobre la reforma.\n\n👤 Un miembro de nuestro equipo revisará la solicitud antes de preparar cualquier valoración o presupuesto.\n\nNo se facilitará ningún precio hasta que la solicitud haya sido revisada por un profesional.\n\nNos pondremos en contacto con usted por este mismo medio cuando haya sido revisada.\n\n¿Desea que le ayudemos con algo más?','incoming');
+    flujoLocal={tipo:'post_reformas',paso:'algo_mas',datos:d};
+    showQuickOptions([['🏠 Ver servicios','ref_servicios'],['❓ Otra consulta','otra_consulta'],['No, gracias','ref_cerrar']]);
+    return;
+  }
+
+  if(action==='ref_cancelar'){
+    flujoLocal=null;
+    appendMessage('De acuerdo. La solicitud ha sido cancelada.','incoming');
+    opcionesReformas();
+    return;
+  }
+
+  if(action==='ref_cerrar'){
+    const d=(flujoLocal&&flujoLocal.datos)||{};
+    finalizarDemoConEstudio('Muchas gracias'+(d.nombre?', '+d.nombre:'')+'.\n\nHemos recogido su solicitud correctamente. El equipo la revisará antes de ponerse en contacto con usted.\n\nQue tenga un excelente día. 👋');
+    return;
+  }
+
+
+  if(action==='fisio_servicios'){
+    appendMessage('🩺 Servicios de demostración:\n\n• Fisioterapia general\n• Terapia manual\n• Rehabilitación\n• Tratamiento de dolor muscular y articular\n• Recuperación funcional\n\nSi lo desea, puede pedir una cita directamente.','incoming');
+    showQuickOptions([['📅 Pedir cita','fisio_cita'],['🕒 Horarios','fisio_horarios'],['❓ Otra consulta','otra_consulta']]);
+    return;
+  }
+
+  if(action==='fisio_horarios'){
+    appendMessage('🕒 Horario de demostración:\n\nMañanas: 09:00 a 12:00\nTardes: 16:00 a 19:00\n\nSi lo desea, puedo mostrarle horas disponibles para pedir cita.','incoming');
+    showQuickOptions([['📅 Pedir cita','fisio_cita'],['🩺 Ver servicios','fisio_servicios']]);
+    return;
+  }
+
+  if(action==='fisio_cita'){
+    flujoLocal={tipo:'cita_fisio',paso:'primera',datos:{}};
+    appendMessage('📅 Perfecto. ¿Es su primera visita con nosotros?','incoming');
+    showQuickOptions([['Sí','fisio_primera_si'],['No','fisio_primera_no']]);
+    return;
+  }
+
+  if(action==='fisio_primera_si'||action==='fisio_primera_no'){
+    if(!flujoLocal || flujoLocal.tipo!=='cita_fisio') return;
+    flujoLocal.datos.primera_visita=action==='fisio_primera_si'?'Sí':'No';
+    flujoLocal.paso='motivo';
+    appendMessage('Gracias. Indíqueme brevemente el motivo principal de la consulta.','incoming');
+    return;
+  }
+
+  if(action==='fisio_fecha_hoy'||action==='fisio_fecha_manana'){
+    const fecha=action==='fisio_fecha_hoy'?'hoy':'mañana';
+    if(!flujoLocal || flujoLocal.tipo!=='cita_fisio') flujoLocal={tipo:'cita_fisio',datos:{}};
+    flujoLocal.datos.fecha=fecha;
+    flujoLocal.paso='hora';
+    const slots=horasFisioDemo();
+    appendMessage('Para '+fecha+' tenemos estas horas disponibles de demostración. Seleccione la que prefiera o escríbala.','incoming');
+    showQuickOptions(slots.map(h=>[h,'fisio_hora_'+h.replace(':','')]));
+    return;
+  }
+
+  if(action.startsWith('fisio_hora_')){
+    if(!flujoLocal || flujoLocal.tipo!=='cita_fisio') return;
+    const raw=action.replace('fisio_hora_','');
+    const hora=raw.slice(0,2)+':'+raw.slice(2);
+    flujoLocal.datos.hora=hora;
+    flujoLocal.paso='nombre';
+    appendMessage('Perfecto, '+hora+'. ¿A qué nombre hacemos la cita?','incoming');
+    return;
+  }
+
+  if(action==='fisio_confirmar'){
+    if(!flujoLocal || flujoLocal.tipo!=='cita_fisio') return;
+    const d=flujoLocal.datos||{};
+    appendMessage('✅ Cita confirmada.\n\nHemos reservado su cita para '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.\n\n📲 Le enviaremos un recordatorio por este mismo medio el día anterior y otro aviso 3 horas antes.\n\n¿Desea que le ayudemos con algo más?','incoming');
+    flujoLocal={tipo:'post_fisio',paso:'algo_mas',datos:d};
+    showQuickOptions([['🩺 Ver servicios','fisio_servicios'],['🕒 Horarios','fisio_horarios'],['❓ Otra consulta','otra_consulta'],['No, gracias','fisio_cerrar']]);
+    return;
+  }
+
+  if(action==='fisio_cancelar'){
+    flujoLocal=null;
+    appendMessage('❌ La cita ha sido cancelada. No se ha registrado ninguna solicitud.','incoming');
+    opcionesFisio();
+    return;
+  }
+
+  if(action==='fisio_cerrar'){
+    const d=(flujoLocal&&flujoLocal.datos)||{};
+    finalizarDemoConEstudio('Muchas gracias por su cita'+(d.nombre?', '+d.nombre:'')+'.\n\nLe esperamos '+(d.fecha||'el día indicado')+' a las '+(d.hora||'la hora reservada')+'.\n\n📲 Recibirá los recordatorios por este mismo medio.\n\nQue tenga un excelente día. 👋');
+    return;
+  }
+
+
+  if(action==='res_fecha_hoy'||action==='res_fecha_manana'){
+    const fecha=action==='res_fecha_hoy'?'hoy':'mañana';
+    flujoLocal={tipo:'reserva_restaurante',paso:'turno',datos:{fecha:fecha}};
+    appendMessage('Perfecto. Para '+fecha+', ¿la reserva sería para comer o para cenar?','incoming');
+    showQuickOptions([['🍽️ Comer','res_turno_comer'],['🌙 Cenar','res_turno_cenar']]); return;
+  }
+  if(action==='res_turno_comer'||action==='res_turno_cenar'){
+    const turno=action==='res_turno_cenar'?'Cena':'Comida';
+    flujoLocal=flujoLocal||{tipo:'reserva_restaurante',datos:{fecha:'el día indicado'}};
+    flujoLocal.datos=flujoLocal.datos||{}; flujoLocal.datos.turno=turno; flujoLocal.paso='hora';
+    const slots=turno==='Cena'?['20:00','20:30','21:00','21:30','22:00']:['13:00','13:30','14:00','14:30','15:00'];
+    appendMessage((turno==='Cena'?'🌙':'🍽️')+' Para '+flujoLocal.datos.fecha+' tenemos estas horas disponibles de demostración. Seleccione la que prefiera o escríbala con sus palabras.','incoming');
+    showQuickOptions(slots.map(h=>[h,'res_hora_'+h.replace(':','')]));
+    return;
+  }
+  if(action.startsWith('res_hora_')){
+    if(!flujoLocal || flujoLocal.tipo!=='reserva_restaurante') return;
+    const raw=action.replace('res_hora_','');
+    const hora=raw.slice(0,2)+':'+raw.slice(2);
+    flujoLocal.datos=flujoLocal.datos||{};
+    flujoLocal.datos.hora=hora;
+    flujoLocal.paso='personas';
+    appendMessage('Perfecto, '+hora+'. ¿Para cuántas personas sería la mesa?','incoming');
+    showQuickOptions([['1','res_personas_1'],['2','res_personas_2'],['3','res_personas_3'],['4','res_personas_4'],['5','res_personas_5'],['6','res_personas_6'],['7','res_personas_7'],['8','res_personas_8'],['9 o más','res_personas_9mas']]);
+    return;
+  }
+  if(action.startsWith('res_personas_')){
+    if(!flujoLocal || flujoLocal.tipo!=='reserva_restaurante') return;
+    const val=action.replace('res_personas_','');
+    if(val==='9mas'){
+      flujoLocal.paso='personas';
+      appendMessage('¿Cuántas personas serán en total?','incoming');
+      return;
+    }
+    flujoLocal.datos.personas=parseInt(val,10);
+    flujoLocal.paso='alimentaria';
+    appendMessage('👥 Perfecto, mesa para '+val+' personas.\n\n⚠️ ¿Hay alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
+    showQuickOptions([['No','res_food_no'],['Sí','res_food_si']]);
+    return;
+  }
+
+  if(action==='res_food_no'){
+    if(!flujoLocal || flujoLocal.tipo!=='reserva_restaurante') return;
+    flujoLocal.datos.alergias='No';
+    flujoLocal.paso='nombre';
+    appendMessage('Perfecto. ¿A qué nombre hacemos la reserva?','incoming');
+    return;
+  }
+
+  if(action==='res_food_si'){
+    if(!flujoLocal || flujoLocal.tipo!=='reserva_restaurante') return;
+    flujoLocal.datos.alergias='Sí — comunicar al restaurante';
+    flujoLocal.paso='nombre';
+    appendMessage('⚠️ Información alimentaria anotada.\n\nEsta información quedará asociada a la reserva para que el restaurante pueda tenerla en cuenta.\n\nPara alergias graves, recomendamos confirmarlo también directamente con el establecimiento.\n\n👤 ¿A qué nombre hacemos la reserva?','incoming');
+    return;
+  }
+
+  if(action==='res_confirmar'){
+    if(!flujoLocal) return;
+    const d=flujoLocal.datos||{};
+    appendMessage('✅ Reserva confirmada.\n\nHemos reservado una mesa para '+d.personas+' personas, '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.'+(d.alergias&&d.alergias!=='No'?'\n\n⚠️ Información alimentaria: Sí — comunicar al restaurante.':'')+'\n\n📲 Le enviaremos un recordatorio por este mismo medio el día anterior a la reserva y otro aviso 3 horas antes.\n\n¿Desea que le ayudemos con algo más?','incoming');
+    flujoLocal={tipo:'post_reserva',paso:'algo_mas',datos:d};
+    showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['❓ Otra consulta','otra_consulta'],['No, gracias','cerrar_chat']]);
+    return;
+  }
+  if(action==='cerrar_chat'){
+    const d=(flujoLocal&&flujoLocal.datos)||{};
+    finalizarDemoConEstudio('Muchas gracias por su reserva'+(d.nombre?', '+d.nombre:'')+'.\n\nLe esperamos '+(d.fecha||'el día indicado')+' a las '+(d.hora||'la hora reservada')+'.\n\n📲 Recibirá los recordatorios de su reserva por este mismo medio.\n\nEsperamos que disfruten de su visita. ¡Que tenga un excelente día! 👋');
+    return;
+  }
+  if(action==='otra_consulta'){
+    flujoLocal=null;
+    appendMessage('Por supuesto. Indíqueme su consulta y trataré de ayudarle.','incoming'); return;
+  }
+  if(action==='res_cancelar'){ flujoLocal=null; appendMessage('❌ Reserva cancelada. No se ha registrado ninguna solicitud.','incoming'); opcionesRestaurante(); return; }
+  if(action==='res_modificar'){ flujoLocal={tipo:'reserva_restaurante',paso:'fecha',datos:{}}; appendMessage('✏️ De acuerdo. ¿Para qué día desea reservar?','incoming'); return; }
+
+  if(demoActual==='restaurante'){
+    if(action==='carta'){
+      flujoLocal=null;
+      appendMessage('📜 Carta de demostración\n\n🥗 Entrantes y ensaladas\n🍚 Arroces\n🐟 Pescados\n🥩 Carnes a la parrilla\n🍰 Postres','incoming');
+      showQuickOptions(opcionesCartaPendientes());
+      return;
+    }
+    if(action==='horarios'){
+      flujoLocal=null;
+      appendMessage('🕒 Horario comercial: 12:00 a 23:30.\n\n🍽️ Comidas: 13:00 a 15:30\n🌙 Cenas: 20:00 a 22:30','incoming');
+      showQuickOptions([['📅 Reservar Mesa','reservar'],['📜 Ver Carta','carta']]);
+      return;
+    }
+    if(action==='domicilio'){
+      flujoLocal=null;
+      appendMessage('🛵 Puede consultar la carta y simular qué pediría para recoger o recibir en casa.','incoming');
+      showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['📅 Reservar Mesa','reservar'],['❓ Otras consultas','otra_consulta']]);
+      return;
+    }
+    if(action==='reservar'){
+      flujoLocal={tipo:'reserva_restaurante',paso:'fecha',datos:{}};
+      appendMessage('📅 Perfecto. ¿Para qué día desea reservar?\n\nPuede escribir: hoy, mañana, sábado o una fecha concreta.','incoming');
+      showQuickOptions([['Hoy','res_fecha_hoy'],['Mañana','res_fecha_manana'],['📜 Ver Carta','carta']]);
+      return;
+    }
+    if(action==='horas_reserva'){
+      appendMessage('Horas disponibles de demostración:\n\n🍽️ 13:00 · 13:30 · 14:00 · 14:30\n🌙 20:00 · 20:30 · 21:00 · 21:30','incoming');
+      showQuickOptions([['📅 Reservar Mesa','reservar'],['📜 Ver Carta','carta']]);
+      return;
+    }
+    const carta={
+      entrantes:'🥗 Entrantes y ensaladas\n\n• Ensalada de la Huerta con Burrata\n• Croquetas Caseras de Jamón Ibérico\n• Bravas de la Casa',
+      arroces:'🍚 Arroces\n\n• Arroz Seco del Señoret\n• Arroz Caldoso de Bogavante\n• Arroz de Montaña',
+      pescados:'🐟 Pescados\n\n• Lomo de Lubina a la Bilbaína\n• Pulpo a la Brasa\n• Pesca del Día a la Plancha',
+      carnes:'🥩 Carnes a la parrilla\n\n• Entrecot de vaca vieja\n• Chuletón de Simmental\n• Presa ibérica de bellota',
+      postres:'🍰 Postres\n\n• Tarta de queso cremosa\n• Tiramisú tradicional\n• Brownie de chocolate negro'
+    };
+    if(carta[action]){
+      categoriasCartaVistas.add(action);
+      appendMessage(carta[action],'incoming');
+      showQuickOptions(opcionesCartaPendientes());
+      return;
+    }
+  }
+
+  if(demoActual==='fisio'){
+    if(action==='servicios'){
+      flujoLocal=null;
+      appendMessage('🩺 Servicios de demostración\n\n• Valoración inicial\n• Fisioterapia\n• Rehabilitación\n• Seguimiento','incoming');
+      opcionesFisio();
+      return;
+    }
+    if(action==='horarios'){
+      flujoLocal=null;
+      appendMessage('🕒 Horarios demo\n\n09:00, 09:30, 10:00, 10:30\n17:00, 17:30, 18:00, 18:30','incoming');
+      showQuickOptions([['📅 Pedir Cita','cita'],['🩺 Servicios','servicios']]);
+      return;
+    }
+    if(action==='consulta'){
+      flujoLocal=null;
+      appendMessage('Cuénteme qué desea consultar. La IA responderá sin diagnosticar ni inventar información.','incoming');
+      showQuickOptions([['🩺 Servicios','servicios'],['🕒 Horarios','horarios'],['📅 Pedir Cita','cita']]);
+      return;
+    }
+    if(action==='cita'){
+      flujoLocal={tipo:'cita_fisio',paso:'datos'};
+      appendMessage('📅 Perfecto. Para simular la cita, indíqueme el día y la hora que prefiere.\n\nHoras demo: 09:00, 09:30, 10:00, 10:30, 17:00, 17:30, 18:00, 18:30.','incoming');
+      showQuickOptions([['🕒 Ver horarios','horarios'],['🩺 Servicios','servicios']]);
+      return;
+    }
+  }
+
+  if(demoActual==='reformas'){
+    if(action==='servicios'){
+      flujoLocal=null;
+      appendMessage('🏠 Servicios de demostración\n\n• Reformas de baños\n• Reformas de cocinas\n• Pintura\n• Pequeñas reformas\n• Reformas integrales','incoming');
+      opcionesReformas();
+      return;
+    }
+    if(action==='banos'){
+      flujoLocal=null;
+      appendMessage('🚿 Podemos mostrar cómo el asistente recogería información sobre una reforma de baño o cocina y prepararía una solicitud de visita o presupuesto.','incoming');
+      showQuickOptions([['📅 Solicitar Visita','visita'],['📋 Presupuesto','presupuesto'],['🏠 Servicios','servicios']]);
+      return;
+    }
+    if(action==='visita'){
+      flujoLocal={tipo:'visita_reformas',paso:'datos'};
+      appendMessage('📅 Perfecto. Para simular la solicitud de visita, indíqueme qué desea reformar y en qué población se encuentra el inmueble.','incoming');
+      showQuickOptions([['📋 Pedir Presupuesto','presupuesto'],['🏠 Ver Servicios','servicios']]);
+      return;
+    }
+    if(action==='presupuesto'){
+      flujoLocal={tipo:'presupuesto_reformas',paso:'datos'};
+      appendMessage('📋 Perfecto. Para preparar una solicitud de presupuesto, cuénteme brevemente qué quiere reformar. No mostraremos precios inventados.','incoming');
+      showQuickOptions([['📅 Solicitar Visita','visita'],['🏠 Ver Servicios','servicios']]);
+      return;
+    }
+  }
+
+  enviarMotor(label||action);
+}
+function jsonp(params){
+  return new Promise((resolve,reject)=>{
+    const cb='__sincroniaia_cb_'+(++callbackSeq);
+    const script=document.createElement('script');
+
+    window[cb]=data=>{
+      try{resolve(data);}
+      finally{delete window[cb];script.remove();}
+    };
+
+    params.callback=cb;
+    params._=Date.now();
+
+    script.src=BACKEND_URL+'?'+new URLSearchParams(params).toString();
+
+    script.onerror=()=>{
+      delete window[cb];
+      script.remove();
+      reject(new Error('No se pudo contactar con el backend.'));
+    };
+
+    document.body.appendChild(script);
+  });
+}
+
+
+function normalizarConsulta(text){
+  return String(text||'')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .trim();
+}
+
+
+function extraerNumeroPersonas(text){
+  const n=normalizarConsulta(text);
+  const mapa={una:1,uno:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10};
+  let m=n.match(/\b(\d{1,2})\s*(?:personas?|comensales?)?\b/);
+  if(m) return parseInt(m[1],10);
+  for(const k in mapa){
+    if(new RegExp('\\b'+k+'\\b').test(n)) return mapa[k];
+  }
+  return text.trim();
+}
+
+function extraerAlergiasDesdeTexto(text){
+  const n=normalizarConsulta(text);
+  const halladas=[];
+  if(/lactosa/.test(n)) halladas.push('intolerancia a la lactosa');
+  if(/gluten|celiac/.test(n)) halladas.push('gluten/celiaquía');
+  if(/frutos secos|nueces|almendra|avellana/.test(n)) halladas.push('frutos secos');
+  if(/marisco/.test(n)) halladas.push('marisco');
+  if(/huevo/.test(n)) halladas.push('huevo');
+  if(/diabet/.test(n)) halladas.push('diabetes (información alimentaria)');
+  return halladas.join(', ');
+}
+
+function normalizarHoraReserva(text){
+  const n=normalizarConsulta(text);
+  let m=n.match(/\b([01]?\d|2[0-3])[:.h](\d{2})\b/);
+  if(m) return String(parseInt(m[1],10)).padStart(2,'0')+':'+m[2];
+  const horasPalabra={una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12};
+  for(const k in horasPalabra){
+    if(new RegExp('\\b'+k+'\\b').test(n)){
+      let h=horasPalabra[k];
+      if(/tarde|noche/.test(n) && h<12) h+=12;
+      return String(h).padStart(2,'0')+':00';
+    }
+  }
+  m=n.match(/\b(\d{1,2})\b/);
+  if(m){
+    let h=parseInt(m[1],10);
+    if(/tarde|noche/.test(n) && h<12) h+=12;
+    if(h>=0 && h<=23) return String(h).padStart(2,'0')+':00';
+  }
+  return text.trim();
+}
+
+
+function normalizarTelefonoES(text){
+  let digits=String(text||'').trim().replace(/\D/g,'');
+  if(digits.length===11 && digits.startsWith('34')) digits=digits.slice(2);
+  return /^\d{9}$/.test(digits) ? digits : '';
+}
+function pedirTelefonoValido(){
+  appendMessage('📞 El teléfono debe tener 9 dígitos. Por ejemplo: 662527111.\n\nPor favor, revíselo e introdúzcalo de nuevo.','incoming');
+}
+
+function manejarFlujoLocal(text){
+  if(!flujoLocal) return false;
+  const n=normalizarConsulta(text);
+
+  if(flujoLocal && flujoLocal.tipo==='post_reformas'){
+    if(/no|nada|gracias|cerrar|finalizar/.test(n)){
+      const d=flujoLocal.datos||{};
+      finalizarDemoConEstudio('Muchas gracias'+(d.nombre?', '+d.nombre:'')+'.\n\nHemos recogido su solicitud correctamente. El equipo la revisará antes de ponerse en contacto con usted.\n\nQue tenga un excelente día. 👋');
+      return true;
+    }
+  }
+
+  if(flujoLocal && flujoLocal.tipo==='visita_reformas'){
+    const d=flujoLocal.datos||(flujoLocal.datos={});
+    if(flujoLocal.paso==='tipo_manual'){
+      d.tipo_reforma=text.trim(); flujoLocal.paso='poblacion';
+      appendMessage('📍 ¿En qué población se encuentra el inmueble?','incoming'); return true;
+    }
+    if(flujoLocal.paso==='poblacion'){
+      d.poblacion=text.trim(); flujoLocal.paso='fecha';
+      appendMessage('¿Para qué día le gustaría solicitar la visita?','incoming');
+      showQuickOptions([['Hoy','ref_fecha_hoy'],['Mañana','ref_fecha_manana']]); return true;
+    }
+    if(flujoLocal.paso==='fecha'){
+      d.fecha=text.trim(); flujoLocal.paso='franja';
+      appendMessage('¿Qué franja horaria le va mejor?','incoming');
+      showQuickOptions([['☀️ Mañana','ref_franja_manana'],['🌤️ Tarde','ref_franja_tarde']]); return true;
+    }
+    if(flujoLocal.paso==='nombre'){
+      d.nombre=formatearNombreReserva(text); flujoLocal.paso='telefono';
+      appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming'); return true;
+    }
+    if(flujoLocal.paso==='telefono'){
+      const telefono=normalizarTelefonoES(text);
+      if(!telefono){ pedirTelefonoValido(); return true; }
+      d.telefono=telefono; flujoLocal.paso='confirmar';
+      appendMessage('📋 RESUMEN DE LA SOLICITUD DE VISITA\n\n🏠 Reforma: '+d.tipo_reforma+'\n📍 Población: '+d.poblacion+'\n📅 Día solicitado: '+d.fecha+'\n🕒 Franja: '+d.franja+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
+      showQuickOptions([['✅ Confirmar solicitud','ref_confirmar_visita'],['❌ Cancelar','ref_cancelar']]); return true;
+    }
+  }
+
+  if(flujoLocal && flujoLocal.tipo==='presupuesto_reformas'){
+    const d=flujoLocal.datos||(flujoLocal.datos={});
+    if(flujoLocal.paso==='tipo_manual'){
+      d.tipo_reforma=text.trim(); flujoLocal.paso='descripcion';
+      appendMessage('Cuénteme brevemente qué trabajo desea realizar.','incoming'); return true;
+    }
+    if(flujoLocal.paso==='descripcion'){
+      d.descripcion=text.trim(); flujoLocal.paso='poblacion';
+      appendMessage('📍 ¿En qué población se encuentra el inmueble?','incoming'); return true;
+    }
+    if(flujoLocal.paso==='poblacion'){
+      d.poblacion=text.trim(); flujoLocal.paso='nombre';
+      appendMessage('¿A qué nombre registramos la solicitud?','incoming'); return true;
+    }
+    if(flujoLocal.paso==='nombre'){
+      d.nombre=formatearNombreReserva(text); flujoLocal.paso='telefono';
+      appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming'); return true;
+    }
+    if(flujoLocal.paso==='telefono'){
+      const telefono=normalizarTelefonoES(text);
+      if(!telefono){ pedirTelefonoValido(); return true; }
+      d.telefono=telefono; flujoLocal.paso='confirmar';
+      appendMessage('📋 RESUMEN DE LA SOLICITUD DE PRESUPUESTO\n\n🏠 Reforma: '+d.tipo_reforma+'\n📝 Trabajo: '+d.descripcion+'\n📍 Población: '+d.poblacion+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\nEl asistente no facilitará ningún precio. La solicitud será revisada por un profesional antes de preparar cualquier valoración o presupuesto.\n\n¿Son correctos todos los datos?','incoming');
+      showQuickOptions([['✅ Enviar solicitud','ref_confirmar_presupuesto'],['❌ Cancelar','ref_cancelar']]); return true;
+    }
+  }
+
+
+  if(flujoLocal && flujoLocal.tipo==='post_fisio'){
+    if(/no|nada|gracias|cerrar|finalizar/.test(n)){
+      const d=flujoLocal.datos||{};
+      finalizarDemoConEstudio('Muchas gracias por su cita'+(d.nombre?', '+d.nombre:'')+'.\n\nLe esperamos '+(d.fecha||'el día indicado')+' a las '+(d.hora||'la hora reservada')+'.\n\n📲 Recibirá los recordatorios por este mismo medio.\n\nQue tenga un excelente día. 👋');
+      return true;
+    }
+  }
+
+  if(flujoLocal && flujoLocal.tipo==='cita_fisio'){
+    const d=flujoLocal.datos||(flujoLocal.datos={});
+
+    if(flujoLocal.paso==='motivo'){
+      d.motivo=text.trim();
+      flujoLocal.paso='fecha';
+      appendMessage('Gracias. ¿Para qué día desea pedir la cita?','incoming');
+      showQuickOptions([['Hoy','fisio_fecha_hoy'],['Mañana','fisio_fecha_manana']]);
+      return true;
+    }
+
+    if(flujoLocal.paso==='fecha'){
+      d.fecha=text.trim();
+      flujoLocal.paso='hora';
+      const slots=horasFisioDemo();
+      appendMessage('Para '+d.fecha+' tenemos estas horas disponibles de demostración. Seleccione la que prefiera o escríbala.','incoming');
+      showQuickOptions(slots.map(h=>[h,'fisio_hora_'+h.replace(':','')]));
+      return true;
+    }
+
+    if(flujoLocal.paso==='hora'){
+      d.hora=normalizarHoraReserva(text);
+      const slots=horasFisioDemo();
+      if(!slots.includes(d.hora)){
+        appendMessage('Para las '+d.hora+' no tenemos disponibilidad en esta demostración. Seleccione una de las horas libres.','incoming');
+        showQuickOptions(slots.map(h=>[h,'fisio_hora_'+h.replace(':','')]));
+        return true;
+      }
+      flujoLocal.paso='nombre';
+      appendMessage('Perfecto, '+d.hora+'. ¿A qué nombre hacemos la cita?','incoming');
+      return true;
+    }
+
+    if(flujoLocal.paso==='nombre'){
+      d.nombre=formatearNombreReserva(text);
+      flujoLocal.paso='telefono';
+      appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming');
+      return true;
+    }
+
+    if(flujoLocal.paso==='telefono'){
+      const telefono=normalizarTelefonoES(text);
+      if(!telefono){ pedirTelefonoValido(); return true; }
+      d.telefono=telefono;
+      flujoLocal.paso='confirmar';
+      appendMessage('📋 RESUMEN DE LA CITA\n\n🩺 Primera visita: '+d.primera_visita+'\n📝 Motivo: '+d.motivo+'\n📅 Día: '+d.fecha+'\n🕒 Hora: '+d.hora+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
+      showQuickOptions([['✅ Confirmar cita','fisio_confirmar'],['❌ Cancelar','fisio_cancelar']]);
+      return true;
+    }
+
+    if(flujoLocal.paso==='confirmar'){
+      if(/si|sí|correct|confirm/.test(n)){
+        quickAction('fisio_confirmar','');
+        return true;
+      }
+      appendMessage('Puede confirmar o cancelar la cita.','incoming');
+      return true;
+    }
+  }
+
+  if(/^(cancelar|salir|volver)$/.test(n)){
+    flujoLocal=null;
+    appendMessage('De acuerdo. ¿En qué más le puedo ayudar?','incoming');
+    if(demoActual==='restaurante') opcionesRestaurante();
+    if(demoActual==='fisio') opcionesFisio();
+    if(demoActual==='reformas') opcionesReformas();
+    return true;
+  }
+
+  if(flujoLocal && flujoLocal.tipo==='post_reserva'){
+    if(/no|nada|gracias|cerrar|finalizar/.test(n)){
+      const d=flujoLocal.datos||{};
+      finalizarDemoConEstudio('Muchas gracias por su reserva'+(d.nombre?', '+d.nombre:'')+'.\n\nLe esperamos '+(d.fecha||'el día indicado')+' a las '+(d.hora||'la hora reservada')+'.\n\n📲 Recibirá los recordatorios de su reserva por este mismo medio.\n\nEsperamos que disfruten de su visita. ¡Que tenga un excelente día! 👋');
+      return true;
+    }
+  }
+  if(flujoLocal && flujoLocal.tipo==='cerrado'){
+    return true;
+  }
+
+  if(flujoLocal.tipo==='reserva_restaurante'){
+    const d=flujoLocal.datos||(flujoLocal.datos={});
+    if(flujoLocal.paso==='fecha'){
+      d.fecha=text.trim(); flujoLocal.paso='turno';
+      appendMessage('Perfecto. Para '+d.fecha+', ¿la reserva sería para comer o para cenar?','incoming');
+      showQuickOptions([['🍽️ Comer','res_turno_comer'],['🌙 Cenar','res_turno_cenar']]); return true;
+    }
+    if(flujoLocal.paso==='hora'){
+      if(/horario|horas|disponib|que teneis|que tienen/.test(n)){
+        const slots=d.turno==='Cena'?['20:00','20:30','21:00','21:30','22:00']:['13:00','13:30','14:00','14:30','15:00'];
+        appendMessage('Estas son las horas disponibles de demostración para '+d.fecha+'. Seleccione la que prefiera.','incoming');
+        showQuickOptions(slots.map(h=>[h,'res_hora_'+h.replace(':','')]));
+        return true;
+      }
+      d.hora=normalizarHoraReserva(text);
+      const slots=d.turno==='Cena'?['20:00','20:30','21:00','21:30','22:00']:['13:00','13:30','14:00','14:30','15:00'];
+      if(!slots.includes(d.hora)){
+        appendMessage('Para las '+d.hora+' no tenemos disponibilidad en esta demostración. Seleccione una de las horas libres.','incoming');
+        showQuickOptions(slots.map(h=>[h,'res_hora_'+h.replace(':','')]));
+        return true;
+      }
+      flujoLocal.paso='personas';
+      appendMessage('Perfecto, '+d.hora+'. ¿Para cuántas personas sería la mesa?','incoming');
+      showQuickOptions([['1','res_personas_1'],['2','res_personas_2'],['3','res_personas_3'],['4','res_personas_4'],['5','res_personas_5'],['6','res_personas_6'],['7','res_personas_7'],['8','res_personas_8'],['9 o más','res_personas_9mas']]);
+      return true;
+    }
+    if(flujoLocal.paso==='personas'){
+      d.personas=extraerNumeroPersonas(text);
+      const alimentaria=extraerAlergiasDesdeTexto(text);
+      if(alimentaria){
+        d.alergias='Sí — comunicar al restaurante';
+        flujoLocal.paso='nombre';
+        appendMessage('👥 De acuerdo: '+d.personas+' personas.\n\n⚠️ Información alimentaria anotada.\n\nEsta información quedará asociada a la reserva para que el restaurante pueda tenerla en cuenta.\n\nPara alergias graves, recomendamos confirmarlo también directamente con el establecimiento.\n\n👤 ¿A qué nombre hacemos la reserva?','incoming');
+      }else{
+        flujoLocal.paso='alimentaria';
+        appendMessage('👥 De acuerdo: '+d.personas+' personas.\n\n⚠️ ¿Hay alguna alergia, intolerancia o necesidad alimentaria que debamos indicar al restaurante?','incoming');
+        showQuickOptions([['No','res_food_no'],['Sí','res_food_si']]);
+      }
+      return true;
+    }
+    if(flujoLocal.paso==='alergias_detalle'){
+      d.alergias=text.trim(); flujoLocal.paso='nombre';
+      appendMessage('Gracias. ¿A qué nombre hacemos la reserva?','incoming'); return true;
+    }
+    if(flujoLocal.paso==='nombre'){
+      d.nombre=formatearNombreReserva(text);
+      flujoLocal.paso='telefono';
+      appendMessage('Gracias. ¿Puede indicarme un teléfono de contacto?','incoming'); return true;
+    }
+    if(flujoLocal.paso==='telefono'){
+      const telefono=normalizarTelefonoES(text);
+      if(!telefono){ pedirTelefonoValido(); return true; }
+      d.telefono=telefono; flujoLocal.paso='confirmar';
+      appendMessage('📋 RESUMEN DE LA RESERVA\n\n📅 Día: '+d.fecha+'\n'+(d.turno==='Cena'?'🌙':'🍽️')+' Turno: '+d.turno+'\n🕒 Hora: '+d.hora+'\n👥 Personas: '+d.personas+'\n⚠️ Información alimentaria: '+(d.alergias||'No indicada')+'\n👤 Nombre: '+d.nombre+'\n📞 Teléfono: '+d.telefono+'\n\n¿Son correctos todos los datos?','incoming');
+      showQuickOptions([['✅ Confirmar reserva','res_confirmar'],['✏️ Modificar','res_modificar'],['❌ Cancelar','res_cancelar']]); return true;
+    }
+    if(flujoLocal.paso==='confirmar'){
+      if(/si|sí|correct|confirm/.test(n)){ quickAction('res_confirmar',''); return true; }
+      appendMessage('Puede confirmar, modificar o cancelar la reserva.','incoming'); return true;
+    }
+  }
+  if(flujoLocal.tipo==='cita_fisio'){
+    flujoLocal=null;
+    appendMessage('✅ Solicitud de cita de demostración recogida.\n\nPreferencia indicada: '+text+'\n\nEn una implantación real, el sistema comprobaría agenda y confirmaría la cita.','incoming');
+    opcionesFisio();
+    return true;
+  }
+  if(flujoLocal.tipo==='visita_reformas'){
+    flujoLocal=null;
+    appendMessage('✅ Solicitud de visita de demostración recogida.\n\nDetalle: '+text+'\n\nEn una implantación real, estos datos pasarían al negocio para coordinar la visita.','incoming');
+    opcionesReformas();
+    return true;
+  }
+  if(flujoLocal.tipo==='presupuesto_reformas'){
+    flujoLocal=null;
+    appendMessage('✅ Solicitud de presupuesto de demostración recogida.\n\nDetalle: '+text+'\n\nEl siguiente paso real sería completar los datos necesarios y valorar el trabajo sin inventar precios.','incoming');
+    opcionesReformas();
+    return true;
+  }
+  return false;
+}
+
+function responderLocalEscrito(text){
+  const n = normalizarConsulta(text);
+
+  if(demoActual==='restaurante'){
+    if(/no (quiero|deseo) reserv|solo (quiero )?informacion|solo informacion|sin reservar/.test(n)){
+      flujoLocal=null;
+      appendMessage('Por supuesto. Puede consultar la carta, los horarios, el servicio a domicilio o cualquier información del restaurante sin realizar ninguna reserva.','incoming');
+      opcionesRestaurante();
+      return true;
+    }
+    if(/horario|hora|abren|cierran|cocina/.test(n)){
+      appendMessage('🕒 Horario comercial: 12:00 a 23:30.\n\n🍽️ Comidas: 13:00 a 15:30\n🌙 Cenas: 20:00 a 22:30','incoming');
+      showQuickOptions([['📅 Reservar Mesa','reservar'],['📜 Ver Carta','carta']]);
+      return true;
+    }
+    if(/carta|menu|comida|que teneis|que tienen/.test(n)){ quickAction('carta',''); return true; }
+    if(/carne|entrecot|chuleton|presa/.test(n)){ quickAction('carnes',''); return true; }
+    if(/pescado|lubina|pulpo/.test(n)){ quickAction('pescados',''); return true; }
+    if(/arroz|paella/.test(n)){ quickAction('arroces',''); return true; }
+    if(/postre|tarta|tiramisu|brownie/.test(n)){ quickAction('postres',''); return true; }
+    if(/domicilio|delivery|pedido|recoger/.test(n)){ quickAction('domicilio',''); return true; }
+    if(/reserv|mesa/.test(n)){ quickAction('reservar',''); return true; }
+  }
+
+  if(demoActual==='fisio'){
+    if(/servicio|fisioterapia|rehabilitacion|valoracion|seguimiento/.test(n)){ quickAction('servicios',''); return true; }
+    if(/horario|hora|abren|cierran/.test(n)){ quickAction('horarios',''); return true; }
+    if(/cita|reserv/.test(n)){ quickAction('cita',''); return true; }
+  }
+
+  if(demoActual==='reformas'){
+    if(/servicio|reforma|reformas|pintura|integral/.test(n)){ quickAction('servicios',''); return true; }
+    if(/bano|baño|cocina/.test(n)){ quickAction('banos',''); return true; }
+    if(/visita/.test(n)){ quickAction('visita',''); return true; }
+    if(/presupuesto/.test(n)){ quickAction('presupuesto',''); return true; }
+  }
+
+  if(/^(adios|adiós|no gracias|gracias|nada mas|nada más)$/.test(n)){
+    finalizarDemoConEstudio('Muchas gracias por probar SINCRONIAIA. 👋');
+    return true;
+  }
+
+  return false;
+}
+
+async function enviarMotor(text){
+  if(!demoActual)return;
+
+  const pensando=document.createElement('div');
+  pensando.className='message incoming';
+  pensando.id='pensando';
+  pensando.textContent='…';
+  chatBody.appendChild(pensando);
+  chatBody.scrollTop=chatBody.scrollHeight;
+
+  try{
+    const r=await jsonp({
+      api:'chat',
+      tipo:demoActual,
+      mensaje:text,
+      historial:JSON.stringify(historial.slice(-10))
+    });
+
+    document.getElementById('pensando')?.remove();
+
+    if(r&&r.ok&&r.reply){
+      appendMessage(r.reply,'incoming');
+    }else{
+      appendMessage('Puedo ayudarle con información, horarios y la acción principal de esta demo. ¿Qué desea consultar?','incoming');
+    }
+  }catch(e){
+    document.getElementById('pensando')?.remove();
+    appendMessage('Ahora mismo no puedo usar la conversación libre, pero sí puedo ayudarle con las opciones de esta demo.','incoming');
+  }
+}
+
+async function sendTextFromInput(){
+  const text=userInput.value.trim();
+  if(!text||!demoActual)return;
+
+  removeQuickOptions();
+  appendMessage(text,'outgoing');
+  userInput.value='';
+
+  if(manejarFlujoLocal(text)) return;
+  if(responderLocalEscrito(text)) return;
+
+  await enviarMotor(text);
+}
+
+userInput.addEventListener('keypress',e=>{
+  if(e.key==='Enter')sendTextFromInput();
+});
+
+
+/* ===== SINCRONIAIA · CAPA DE VOZ NATURAL AISLADA v2 ===== */
+const VOICE_SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let voiceRecognition=null;
+let voiceListening=false;
+let voiceTranscript='';
+let voiceSilenceTimer=null;
+let voiceMaxTimer=null;
+let voiceAwaitingReply=false;
+let voiceSpeakTimer=null;
+let voiceLastIncoming='';
+let voiceAvailable=[];
+let voiceSpeaking=false;
+
+function voiceState(text){
+  const el=document.getElementById('voiceMiniState');
+  if(el) el.textContent=text;
+}
+function voiceBtnState(state){
+  const b=document.getElementById('voiceTalkBtn');
+  if(!b)return;
+  b.classList.remove('listening','speaking');
+  if(state)b.classList.add(state);
+}
+function voiceStopListening(abort=false){
+  clearTimeout(voiceSilenceTimer);
+  clearTimeout(voiceMaxTimer);
+  if(!voiceRecognition)return;
+  try{abort?voiceRecognition.abort():voiceRecognition.stop()}catch(_){}
+}
+function voiceLoadVoices(){
+  if(!('speechSynthesis' in window))return;
+  voiceAvailable=speechSynthesis.getVoices()||[];
+  const select=document.getElementById('voiceNaturalSelect');
+  if(!select)return;
+  const current=select.value;
+  const ranked=voiceAvailable
+    .map((v,i)=>({v,i,score:
+      ((v.lang||'').toLowerCase().startsWith('es')?100:0)+
+      (/natural|neural|online/i.test(v.name)?60:0)+
+      (/elvira|helena|monica|mónica|paulina|sabina|google|microsoft/i.test(v.name)?30:0)
+    }))
+    .sort((a,b)=>b.score-a.score);
+  const list=ranked.filter(x=>x.score>=100);
+  const use=list.length?list:ranked;
+  select.innerHTML='';
+  use.forEach(({v,i})=>{
+    const o=document.createElement('option');
+    o.value=String(i);
+    o.textContent=v.name+' · '+v.lang;
+    select.appendChild(o);
+  });
+  if(current && [...select.options].some(o=>o.value===current))select.value=current;
+  else if(use[0])select.value=String(use[0].i);
+}
+function voiceSelected(){
+  const s=document.getElementById('voiceNaturalSelect');
+  const i=Number(s?.value);
+  return Number.isInteger(i)?voiceAvailable[i]||null:null;
+}
+function naturalHourSpeech(h,m){
+  const hour=Number(h), min=Number(m);
+  if(!Number.isFinite(hour)||!Number.isFinite(min))return null;
+  let period='', spokenHour=hour;
+  if(hour===0){spokenHour=12;period='de la noche';}
+  else if(hour<12){period='de la mañana';}
+  else if(hour===12){spokenHour=12;period='del mediodía';}
+  else if(hour<19){spokenHour=hour-12;period='de la tarde';}
+  else {spokenHour=hour-12;period='de la noche';}
+  const names={1:'una',2:'dos',3:'tres',4:'cuatro',5:'cinco',6:'seis',7:'siete',8:'ocho',9:'nueve',10:'diez',11:'once',12:'doce'};
+  const hn=names[spokenHour]||String(spokenHour);
+  if(min===0)return hn+' '+period;
+  if(min===30)return hn+' y media '+period;
+  return hn+' y '+String(min).padStart(2,'0')+' '+period;
+}
+function voicePrepareText(text){
+  let s=String(text||'');
+  // No leer iconos, bullets, markdown ni marcas visuales.
+  s=s.replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu,' ');
+  s=s.replace(/[•*_#✓✦◎]+/g,' ');
+  // Horas visibles -> forma hablada natural.
+  s=s.replace(/\b([01]\d|2[0-3]):([0-5]\d)\b/g,(all,h,m)=>naturalHourSpeech(h,m)||all);
+  // Quitar encabezados de resumen que suenan "de pantalla".
+  s=s.replace(/\bRESUMEN DE (LA )?(CITA|RESERVA|SOLICITUD DE VISITA|SOLICITUD DE PRESUPUESTO)\b/gi,'');
+  s=s.replace(/\s+/g,' ').trim();
+  // La voz debe ser más corta que la pantalla.
+  if(s.length>360){
+    const sentences=s.match(/[^.!?]+[.!?]?/g)||[s];
+    s=sentences.slice(0,3).join(' ').trim();
+  }
+  return s;
+}
+function voiceSpeak(text){
+  return new Promise(resolve=>{
+    const clean=voicePrepareText(text);
+    if(!clean || !('speechSynthesis' in window)){resolve();return;}
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(clean);
+    const v=voiceSelected();
+    u.voice=v||null;
+    u.lang=v?.lang||'es-ES';
+    u.rate=0.92;
+    u.pitch=1.00;
+    u.volume=1;
+    u.onstart=()=>{
+      voiceSpeaking=true;
+      voiceBtnState('speaking');
+      voiceState('🔊 SINCRONIAIA está respondiendo');
+    };
+    u.onend=()=>{
+      voiceSpeaking=false;
+      voiceBtnState('');
+      voiceState('🎙️ Pulse para hablar');
+      resolve();
+    };
+    u.onerror=()=>{
+      voiceSpeaking=false;
+      voiceBtnState('');
+      voiceState('Voz no disponible; puede continuar por texto');
+      resolve();
+    };
+    speechSynthesis.speak(u);
+  });
+}
+function voiceScheduleReply(text){
+  if(!voiceAwaitingReply)return;
+  voiceLastIncoming=String(text||'');
+  clearTimeout(voiceSpeakTimer);
+  // Espera breve para no leer mensajes intermedios si el motor escribe varios.
+  voiceSpeakTimer=setTimeout(async()=>{
+    if(!voiceAwaitingReply)return;
+    voiceAwaitingReply=false;
+    await voiceSpeak(voiceLastIncoming);
+  },320);
+}
+function voiceBegin(){
+  if(!VOICE_SR){
+    voiceState('Este navegador no permite reconocimiento de voz');
+    return;
+  }
+  // Barge-in: si SINCRONIAIA está hablando, el usuario puede tocar y cortar la locución.
+  if('speechSynthesis' in window && speechSynthesis.speaking){
+    speechSynthesis.cancel();
+    voiceSpeaking=false;
+  }
+  if(voiceListening){
+    voiceStopListening(false);
+    return;
+  }
+  voiceTranscript='';
+  voiceRecognition=new VOICE_SR();
+  voiceRecognition.lang='es-ES';
+  voiceRecognition.continuous=true;
+  voiceRecognition.interimResults=true;
+  voiceRecognition.maxAlternatives=1;
+
+  voiceRecognition.onstart=()=>{
+    voiceListening=true;
+    voiceBtnState('listening');
+    voiceState('🎙️ Escuchando… hable con naturalidad');
+    clearTimeout(voiceMaxTimer);
+    voiceMaxTimer=setTimeout(()=>voiceStopListening(false),15000);
+  };
+  voiceRecognition.onresult=e=>{
+    let full='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      full += String(e.results[i][0]?.transcript||'')+' ';
+    }
+    full=full.trim();
+    if(full)voiceTranscript=(voiceTranscript+' '+full).trim();
+    voiceState(full?'He oído: «'+full+'»':'🎙️ Escuchando…');
+    // Final de turno: 1,35 s sin nuevos resultados.
+    clearTimeout(voiceSilenceTimer);
+    voiceSilenceTimer=setTimeout(()=>voiceStopListening(false),1350);
+  };
+  voiceRecognition.onerror=e=>{
+    const code=String(e.error||'');
+    if(code==='aborted')return;
+    voiceListening=false;
+    voiceBtnState('');
+    if(code==='not-allowed'||code==='service-not-allowed'){
+      voiceState('Micrófono no autorizado. Revise el permiso del navegador.');
+    }else if(code==='no-speech'){
+      voiceState('No he oído una frase. Pulse y vuelva a intentarlo.');
+    }else{
+      voiceState('Error de voz: '+code);
+    }
+  };
+  voiceRecognition.onend=()=>{
+    clearTimeout(voiceMaxTimer);
+    clearTimeout(voiceSilenceTimer);
+    voiceListening=false;
+    voiceBtnState('');
+    const text=voiceTranscript.replace(/\s+/g,' ').trim();
+    voiceTranscript='';
+    if(!text){
+      voiceState('🎙️ Pulse para hablar');
+      return;
+    }
+    // MISMO cerebro: entra por el mismo input y sendTextFromInput().
+    userInput.value=text;
+    voiceAwaitingReply=true;
+    voiceState('Entendido: «'+text+'»');
+    sendTextFromInput();
+  };
+  try{voiceRecognition.start()}catch(e){
+    voiceListening=false;
+    voiceBtnState('');
+    voiceState('No se pudo iniciar el micrófono');
+  }
+}
+
+/* Interceptamos solo la salida visual ya existente para leerla si el origen fue voz.
+   NO alteramos manejarFlujoLocal, responderLocalEscrito ni enviarMotor. */
+const __appendMessageEstable = appendMessage;
+appendMessage = function(text,sender){
+  __appendMessageEstable(text,sender);
+  if(sender==='incoming')voiceScheduleReply(text);
+};
+
+document.getElementById('voiceTalkBtn')?.addEventListener('click',voiceBegin);
+voiceLoadVoices();
+if('speechSynthesis' in window)speechSynthesis.onvoiceschanged=voiceLoadVoices;
+voiceState(VOICE_SR?'🎙️ Pulse para hablar':'Voz no compatible con este navegador');
+
+autoEntradaDesdeURL();
+
+window.addEventListener('load',()=>{
+  const portal=document.getElementById('portalSincronia');
+  const app=document.getElementById('sincroniaDemoApp');
+  if(portal&&app){
+    document.documentElement.classList.remove('portal-mode');
+    document.body.classList.remove('portal-mode');
+    portal.style.display='none';
+    app.style.display='';
+  }
+});
+
+</script>
+</div>
+<script>
+(function(){
+ const portal=document.getElementById('portalSincronia'),app=document.getElementById('sincroniaDemoApp'),open=document.getElementById('portalAbrirDemos');
+ if(!portal||!app||!open)return;
+ const back=document.createElement('button');back.type='button';back.className='portal-back';back.textContent='← Inicio SINCRONIAIA';back.style.display='none';document.body.appendChild(back);
+ const codeEnURL=String(new URLSearchParams(window.location.search).get('code')||'').trim();
+ if(codeEnURL && app.style.display!=='none') back.style.display='block';
+ open.addEventListener('click',()=>{
+   document.documentElement.classList.remove('portal-mode');
+   document.body.classList.remove('portal-mode');
+   portal.style.display='none';
+   app.style.display='';
+   back.style.display='block';
+   window.scrollTo(0,0);
+ });
+ back.addEventListener('click',()=>{
+   document.body.classList.remove('demo-chat-active');
+   app.style.display='none';
+   portal.style.display='';
+   back.style.display='none';
+   document.documentElement.classList.add('portal-mode');
+   document.body.classList.add('portal-mode');
+   window.scrollTo(0,0);
+ });
+})();
+</script>
+
+</body>
+</html>
