@@ -1293,10 +1293,40 @@ function horasFisioDemo(){
 }
 
 
-function pareceSintomaEnNombreResponsable(text){
-  const n=normalizarConsulta(text);
-  const palabras=['dolor','cojera','cojo','coja','vacuna','vacunacion','revision','fiebre','vomito','vomitos','diarrea','herida','tos','picor','malestar'];
-  return palabras.some(x=>n===x || n.startsWith(x+' '));
+
+function capitalizarNombreSimple(text){
+  return String(text||'').trim().replace(/\s+/g,' ').replace(/\b\p{L}/gu,c=>c.toUpperCase());
+}
+function pareceNombreResponsableDebil(text){
+  const raw=String(text||'').trim();
+  const n=normalizarConsulta(raw);
+  const sintomas=['dolor','cojera','cojo','coja','vacuna','vacunacion','revision','fiebre','vomito','vomitos','diarrea','herida','tos','picor','malestar','urgencia'];
+  if(raw.length<3) return true;
+  if(/^\d+$/.test(raw)) return true;
+  if(sintomas.some(x=>n===x || n.startsWith(x+' '))) return true;
+  return false;
+}
+function respuestaDatoNoConfigurado(tema){
+  return 'No tengo información configurada'+(tema?' sobre '+tema:'')+
+    ', por lo que prefiero no darle un dato que no esté confirmado. '+
+    'Si lo desea, puedo ayudarle con Veterinaria, Peluquería e higiene, Alimentación, Horarios o dejar registrada una consulta.';
+}
+function textoRespuestaLibreSegura(text){
+  let s=String(text||'').trim();
+  // Si el backend devolviera accidentalmente JSON visible, extraer solo reply.
+  if((s.startsWith('{')&&s.endsWith('}')) || (s.startsWith('[')&&s.endsWith(']'))){
+    try{
+      const obj=JSON.parse(s);
+      if(obj && typeof obj.reply==='string') s=obj.reply.trim();
+    }catch(_){}
+  }
+  // Mantener tratamiento formal en respuestas comunes.
+  s=s.replace(/\b¿te gustaría\b/gi,'¿Desea')
+     .replace(/\bpuedo ayudarte\b/gi,'puedo ayudarle')
+     .replace(/\bpuedo orientarte\b/gi,'puedo orientarle')
+     .replace(/\btu mascota\b/gi,'su mascota')
+     .replace(/\btus mascotas\b/gi,'sus mascotas');
+  return s;
 }
 function opcionesBienestar(){
   showQuickOptions([
@@ -1304,6 +1334,19 @@ function opcionesBienestar(){
     ['✂️ Peluquería e higiene','ba_peluqueria'],
     ['🥣 Alimentación','ba_alimentacion'],
     ['🕒 Horarios / Otra consulta','ba_info']
+  ]);
+}
+
+function mostrarServiciosPeluqueriaMulti(){
+  const arr=(flujoLocal&&flujoLocal.datos&&flujoLocal.datos.servicios)||[];
+  const mark=s=>arr.includes(s)?'✓ ':'';
+  showQuickOptions([
+    [mark('Baño')+'🛁 Baño','ba_serv_toggle_bano'],
+    [mark('Corte')+'✂️ Corte','ba_serv_toggle_corte'],
+    [mark('Deslanado')+'🦁 Deslanado','ba_serv_toggle_deslanado'],
+    [mark('Higiene')+'🧼 Higiene','ba_serv_toggle_higiene'],
+    ['➕ Otro','ba_serv_otro'],
+    ['CONTINUAR →','ba_serv_continuar']
   ]);
 }
 function horasBienestarDemo(){
@@ -1327,7 +1370,9 @@ function resumenBienestarCita(d){
 }
 function resumenBienestarConsulta(d){
   return '📋 RESUMEN DE LA CONSULTA\n\n'+
-    '🥣 Necesidad: '+(d.necesidad||'')+'\n'+
+    '🥣 Área: Alimentación\n'+
+    '🏷️ Tipo: '+(d.tipo||'')+'\n'+
+    '📝 Necesidad: '+(d.necesidad||'')+'\n'+
     '👤 Responsable: '+(d.nombre||'')+'\n'+
     '📞 Teléfono: '+(d.telefono||'')+
     '\n\n¿Son correctos todos los datos?';
@@ -1349,18 +1394,45 @@ function quickAction(action,label){
     showQuickOptions([['Sí','ba_primera_si'],['No','ba_primera_no']]); return;
   }
   if(action==='ba_peluqueria'){
-    flujoLocal={tipo:'ba_cita',paso:'servicio',datos:{area:'Peluquería e higiene'}};
-    appendMessage('¿Qué servicio necesita para su mascota?','incoming');
-    showQuickOptions([['🛁 Baño','ba_serv_bano'],['✂️ Corte','ba_serv_corte'],['🦁 Deslanado','ba_serv_deslanado'],['🧼 Higiene','ba_serv_higiene'],['➕ Otro','ba_serv_otro']]); return;
+    flujoLocal={tipo:'ba_cita',paso:'servicios_multi',datos:{area:'Peluquería e higiene',servicios:[]}};
+    appendMessage('¿Qué servicio necesita para su mascota? Puede seleccionar uno o varios y después pulsar Continuar.','incoming');
+    mostrarServiciosPeluqueriaMulti();
+    return;
   }
-  if(action.startsWith('ba_serv_')){
+  if(action.startsWith('ba_serv_toggle_')){
     if(!flujoLocal||flujoLocal.tipo!=='ba_cita')return;
-    const map={ba_serv_bano:'Baño',ba_serv_corte:'Corte',ba_serv_deslanado:'Deslanado',ba_serv_higiene:'Higiene'};
-    if(action==='ba_serv_otro'){flujoLocal.paso='servicio_otro';appendMessage('Indíquenos qué servicio necesita.','incoming');return;}
-    flujoLocal.datos.servicio=map[action];
+    const map={
+      ba_serv_toggle_bano:'Baño',
+      ba_serv_toggle_corte:'Corte',
+      ba_serv_toggle_deslanado:'Deslanado',
+      ba_serv_toggle_higiene:'Higiene'
+    };
+    const serv=map[action];
+    const arr=flujoLocal.datos.servicios||(flujoLocal.datos.servicios=[]);
+    const idx=arr.indexOf(serv);
+    if(idx>=0) arr.splice(idx,1); else arr.push(serv);
+    mostrarServiciosPeluqueriaMulti();
+    return;
+  }
+  if(action==='ba_serv_otro'){
+    if(!flujoLocal||flujoLocal.tipo!=='ba_cita')return;
+    flujoLocal.paso='servicio_otro';
+    appendMessage('Indíquenos qué otro servicio necesita.','incoming');
+    return;
+  }
+  if(action==='ba_serv_continuar'){
+    if(!flujoLocal||flujoLocal.tipo!=='ba_cita')return;
+    const arr=flujoLocal.datos.servicios||[];
+    if(!arr.length){
+      appendMessage('Seleccione al menos un servicio antes de continuar.','incoming');
+      mostrarServiciosPeluqueriaMulti();
+      return;
+    }
+    flujoLocal.datos.servicio=arr.join(' · ');
     flujoLocal.paso='primera';
     appendMessage('¿Es la primera visita de su mascota con nosotros?','incoming');
-    showQuickOptions([['Sí','ba_primera_si'],['No','ba_primera_no']]); return;
+    showQuickOptions([['Sí','ba_primera_si'],['No','ba_primera_no']]);
+    return;
   }
   if(action==='ba_primera_si'||action==='ba_primera_no'){
     if(!flujoLocal||flujoLocal.tipo!=='ba_cita')return;
@@ -1392,8 +1464,20 @@ function quickAction(action,label){
     return;
   }
   if(action==='ba_alimentacion'){
-    flujoLocal={tipo:'ba_alimentacion',paso:'necesidad',datos:{}};
-    appendMessage('Cuéntenos brevemente qué necesita para su mascota y dejaremos registrada su consulta para que el establecimiento pueda orientarle.','incoming'); return;
+    flujoLocal={tipo:'ba_alimentacion',paso:'tipo',datos:{area:'Alimentación'}};
+    appendMessage('¿Qué tipo de consulta sobre alimentación necesita realizar?','incoming');
+    showQuickOptions([
+      ['🥩 Compra de pienso / comida','ba_food_tipo_compra'],
+      ['🥣 Dieta específica / Encargo especial','ba_food_tipo_especial']
+    ]);
+    return;
+  }
+  if(action==='ba_food_tipo_compra'||action==='ba_food_tipo_especial'){
+    if(!flujoLocal||flujoLocal.tipo!=='ba_alimentacion')return;
+    flujoLocal.datos.tipo=action==='ba_food_tipo_compra'?'Compra de pienso / comida':'Dieta específica / Encargo especial';
+    flujoLocal.paso='necesidad';
+    appendMessage('Cuéntenos brevemente qué necesita para su mascota y dejaremos registrada su consulta para que el establecimiento pueda orientarle.','incoming');
+    return;
   }
   if(action==='ba_info'){
     flujoLocal=null;
@@ -1450,13 +1534,17 @@ function quickAction(action,label){
   if(action==='ba_inicio'){flujoLocal=null;appendMessage('Por supuesto. ¿En qué área podemos ayudarle?','incoming');opcionesBienestar();return;}
   if(action==='ba_cerrar'){
     const d=(flujoLocal&&flujoLocal.datos)||{};
-    finalizarDemoConEstudio('Muchas gracias'+(d.nombre?', '+d.nombre:'')+'.\n\nHemos registrado correctamente su cita'+(d.mascota?' para '+d.mascota:'')+'.\n\nQue tenga un excelente día. 👋');return;
+    const cierre=d.tipo_cierre==='consulta'
+      ? 'Hemos registrado correctamente su consulta.'
+      : 'Hemos registrado correctamente su cita'+(d.mascota?' para '+d.mascota:'')+'.';
+    finalizarDemoConEstudio('Muchas gracias'+(d.nombre?', '+d.nombre:'')+'.\n\n'+cierre+'\n\nQue tenga un excelente día. 👋');return;
   }
   if(action==='ba_food_enviar'){
     if(!flujoLocal||flujoLocal.tipo!=='ba_alimentacion')return;
     const d=flujoLocal.datos||{};
     if(!d.necesidad||!d.nombre||!normalizarTelefonoES(d.telefono)){appendMessage('⚠️ No puedo enviar la consulta porque falta algún dato obligatorio.','incoming');return;}
-    appendMessage('✅ Consulta registrada. El establecimiento podrá revisarla y orientarle personalmente. ¿Desea que le ayudemos con algo más?','incoming');
+    appendMessage('✅ Consulta registrada. El establecimiento podrá revisarla y ponerse en contacto con usted para orientarle personalmente. ¿Desea que le ayudemos con algo más?','incoming');
+    d.tipo_cierre='consulta';
     flujoLocal={tipo:'post_bienestar',paso:'algo_mas',datos:d};
     showQuickOptions([['🐾 Otra consulta','ba_inicio'],['No, gracias','ba_cerrar']]);return;
   }
@@ -1904,7 +1992,10 @@ function manejarFlujoLocal(text){
   if(flujoLocal && flujoLocal.tipo==='post_bienestar'){
     if(/no|nada|gracias|cerrar|finalizar/.test(normalizarConsulta(text))){
       const d=flujoLocal.datos||{};
-      finalizarDemoConEstudio('Muchas gracias'+(d.nombre?', '+d.nombre:'')+'.\n\nQue tenga un excelente día. 👋');return true;
+      const cierre=d.tipo_cierre==='consulta'
+        ? 'Hemos registrado correctamente su consulta.'
+        : 'Hemos registrado correctamente su cita'+(d.mascota?' para '+d.mascota:'')+'.';
+      finalizarDemoConEstudio('Muchas gracias'+(d.nombre?', '+d.nombre:'')+'.\n\n'+cierre+'\n\nQue tenga un excelente día. 👋');return true;
     }
   }
   if(flujoLocal && flujoLocal.tipo==='ba_vet_info'){
@@ -1917,8 +2008,25 @@ function manejarFlujoLocal(text){
   }
   if(flujoLocal && flujoLocal.tipo==='ba_alimentacion'){
     const d=flujoLocal.datos||(flujoLocal.datos={});
+    if(flujoLocal.paso==='tipo'){
+      const n=normalizarConsulta(text);
+      if(/compra|pienso|comida/.test(n)){d.tipo='Compra de pienso / comida';flujoLocal.paso='necesidad';appendMessage('Cuéntenos brevemente qué necesita para su mascota y dejaremos registrada su consulta para que el establecimiento pueda orientarle.','incoming');return true;}
+      if(/dieta|especial|encargo/.test(n)){d.tipo='Dieta específica / Encargo especial';flujoLocal.paso='necesidad';appendMessage('Cuéntenos brevemente qué necesita para su mascota y dejaremos registrada su consulta para que el establecimiento pueda orientarle.','incoming');return true;}
+      appendMessage('Seleccione el tipo de consulta sobre alimentación.','incoming');
+      showQuickOptions([['🥩 Compra de pienso / comida','ba_food_tipo_compra'],['🥣 Dieta específica / Encargo especial','ba_food_tipo_especial']]);
+      return true;
+    }
     if(flujoLocal.paso==='necesidad'){d.necesidad=text.trim();flujoLocal.paso='nombre';appendMessage('¿A qué nombre registramos la consulta?','incoming');return true;}
-    if(flujoLocal.paso==='nombre'){d.nombre=formatearNombreReserva(text);flujoLocal.paso='telefono';appendMessage('¿Puede indicarme un teléfono de contacto?','incoming');return true;}
+    if(flujoLocal.paso==='nombre'){
+      if(pareceNombreResponsableDebil(text)){
+        appendMessage('👤 Necesito el nombre de la persona responsable. Por ejemplo: Antonio, María López…','incoming');
+        return true;
+      }
+      d.nombre=capitalizarNombreSimple(text);
+      flujoLocal.paso='telefono';
+      appendMessage('¿Puede indicarme un teléfono de contacto?','incoming');
+      return true;
+    }
     if(flujoLocal.paso==='telefono'){
       const t=normalizarTelefonoES(text);if(!t){pedirTelefonoValido();return true;}d.telefono=t;flujoLocal.paso='confirmar';
       appendMessage(resumenBienestarConsulta(d),'incoming');showQuickOptions([['✅ Enviar consulta','ba_food_enviar'],['❌ Cancelar','ba_food_cancelar']]);return true;
@@ -1926,7 +2034,16 @@ function manejarFlujoLocal(text){
   }
   if(flujoLocal && flujoLocal.tipo==='ba_cita'){
     const d=flujoLocal.datos||(flujoLocal.datos={});
-    if(flujoLocal.paso==='servicio_otro'){d.servicio=text.trim();flujoLocal.paso='primera';appendMessage('¿Es la primera visita de su mascota con nosotros?','incoming');showQuickOptions([['Sí','ba_primera_si'],['No','ba_primera_no']]);return true;}
+    if(flujoLocal.paso==='servicio_otro'){
+      const otro=text.trim();
+      const arr=d.servicios||(d.servicios=[]);
+      if(otro && !arr.includes(otro)) arr.push(otro);
+      d.servicio=arr.join(' · ');
+      flujoLocal.paso='servicios_multi';
+      appendMessage('Servicio añadido. Puede seleccionar otro servicio o pulsar Continuar.','incoming');
+      mostrarServiciosPeluqueriaMulti();
+      return true;
+    }
     if(flujoLocal.paso==='tipo_otro'){
       d.tipo_mascota=text.trim();
       flujoLocal.paso='mascota';
@@ -1934,7 +2051,7 @@ function manejarFlujoLocal(text){
       return true;
     }
     if(flujoLocal.paso==='mascota'){
-      d.mascota=text.trim();
+      d.mascota=capitalizarNombreSimple(text);
       if(d.area==='Veterinaria'){
         flujoLocal.paso='motivo';
         appendMessage('¿Cuál es el motivo principal de la consulta? Lo anotaremos literalmente, sin realizar diagnósticos.','incoming');
@@ -1951,11 +2068,11 @@ function manejarFlujoLocal(text){
     if(flujoLocal.paso==='hora'){const h=normalizarHoraReserva(text);const s=horasBienestarDemo();if(!s.includes(h)){appendMessage('Para esa hora no tenemos disponibilidad en esta demostración. Seleccione una de las horas libres.','incoming');showQuickOptions(s.map(x=>[x,'ba_hora_'+x.replace(':','')]));return true;}d.hora=h;flujoLocal.paso='nombre';appendMessage('👤 Para registrar la cita, indíqueme el nombre de la persona responsable de la mascota.','incoming');return true;}
     if(flujoLocal.paso==='nombre'){
       const tel=normalizarTelefonoES(text);if(tel){d.telefono=tel;appendMessage('Gracias. Ya tengo el teléfono. ¿A qué nombre registramos la cita?','incoming');return true;}
-      if(pareceSintomaEnNombreResponsable(text)){
+      if(pareceNombreResponsableDebil(text)){
         appendMessage('👤 Necesito el nombre de la persona responsable de la mascota. Por ejemplo: Antonio, María López…','incoming');
         return true;
       }
-      d.nombre=formatearNombreReserva(text);
+      d.nombre=capitalizarNombreSimple(text);
       if(d.telefono){flujoLocal.paso='avisos';appendMessage('¿Desea recibir la confirmación y los recordatorios por este mismo medio?','incoming');showQuickOptions([['Sí','ba_avisos_si'],['No','ba_avisos_no']]);}
       else{flujoLocal.paso='telefono';appendMessage('¿Puede indicarme un teléfono de contacto?','incoming');}
       return true;
@@ -2206,10 +2323,43 @@ function manejarFlujoLocal(text){
 function responderLocalEscrito(text){
   if(demoActual==='bienestar'){
     const n=normalizarConsulta(text);
-    if(/veterin|revision|vacuna/.test(n)){quickAction('ba_veterinaria','');return true;}
+
+    // Emergencia/síntomas: respuesta segura, sin medicación ni diagnóstico.
+    if(/no puede levantarse|no se puede levantar|convulsion|sangra mucho|dificultad para respirar|respira mal|dolor fuerte|que le doy|qué le doy|medicamento|medicacion/.test(n)){
+      appendMessage('No puedo indicarle medicación ni realizar un diagnóstico. Por los síntomas que describe, contacte con un veterinario para que pueda valorar al animal. No tengo información configurada sobre un servicio de urgencias de este establecimiento.','incoming');
+      showQuickOptions([['🩺 Veterinaria','ba_veterinaria'],['❓ Dejar consulta','ba_otra']]);
+      return true;
+    }
+
+    // Horario ordinario: solo datos configurados.
+    if(/horario|abren|cierran|sabado|sábado|domingo|por la tarde|por las tardes/.test(n) && !/urgencia|precio|cuanto|cuánto|ubicad|direccion|dirección/.test(n)){
+      quickAction('ba_info','');
+      return true;
+    }
+
+    // Datos empresariales no configurados: no inferir.
+    const temas=[];
+    if(/urgencia|24 horas|24h/.test(n)) temas.push('el servicio de urgencias');
+    if(/precio|cuanto cuesta|cuánto cuesta|tarifa/.test(n)) temas.push('precios o tarifas');
+    if(/ubicad|direccion|dirección|donde estais|dónde estáis|donde estan|dónde están/.test(n)) temas.push('la ubicación exacta');
+    if(/ropa|furgoneta|alquiler|producto/.test(n)) temas.push('ese producto o servicio');
+    if(temas.length){
+      const horarioDomingo=/domingo/.test(n)
+        ? 'El horario ordinario configurado indica que el domingo está cerrado. '
+        : '';
+      appendMessage(horarioDomingo+respuestaDatoNoConfigurado(temas.join(' y ')),'incoming');
+      opcionesBienestar();
+      return true;
+    }
+
+    if(/veterin|revision|vacuna|cita/.test(n)){quickAction('ba_veterinaria','');return true;}
     if(/peluquer|bano|baño|corte|deslan|higiene/.test(n)){quickAction('ba_peluqueria','');return true;}
     if(/aliment|pienso|comida/.test(n)){quickAction('ba_alimentacion','');return true;}
-    if(/horario|hora|abren|cierran/.test(n)){quickAction('ba_info','');return true;}
+
+    // Cualquier otra consulta en Bienestar Animal no pasa directamente a respuestas libres.
+    appendMessage(respuestaDatoNoConfigurado('esa consulta'),'incoming');
+    opcionesBienestar();
+    return true;
   }
 
   const n = normalizarConsulta(text);
@@ -2277,7 +2427,7 @@ async function enviarMotor(text){
     document.getElementById('pensando')?.remove();
 
     if(r&&r.ok&&r.reply){
-      appendMessage(r.reply,'incoming');
+      appendMessage(textoRespuestaLibreSegura(r.reply),'incoming');
     }else{
       appendMessage('Puedo ayudarle con información, horarios y la acción principal de esta demo. ¿Qué desea consultar?','incoming');
     }
