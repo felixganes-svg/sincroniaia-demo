@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SINCRONIAIA — Bienestar Animal Demo</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#07151b;--panel:#f4f0e8;--green:#00a884;--green2:#07876e;--ink:#15332e;
+  --line:#d9e5df;--white:#fff;--out:#d9fdd3;--muted:#687a74;--purple:#6f4bc1;
+}
+html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:#172b27}
+body{display:flex;align-items:flex-start;justify-content:center;padding:24px 12px}
+.phone{width:min(480px,100%);height:min(790px,calc(100vh - 48px));min-height:640px;background:var(--panel);border-radius:22px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(0,0,0,.35)}
+.header{background:var(--green);color:white;display:flex;align-items:center;gap:12px;padding:14px 16px;min-height:72px}
+.avatar{width:46px;height:46px;border-radius:50%;background:#fff2;display:flex;align-items:center;justify-content:center;font-size:25px}
+.headcopy{flex:1}.headcopy strong{display:block;font-size:16px}.headcopy small{opacity:.9}
+.change{border:1px solid #fff;background:transparent;color:#fff;border-radius:20px;padding:8px 12px;font-weight:700;cursor:pointer}
+.chat{flex:1;overflow:auto;padding:16px 14px 24px;background:
+radial-gradient(circle at 25% 20%,rgba(0,0,0,.035) 0 1px,transparent 1.4px) 0 0/24px 24px,
+#efeae2}
+.msg{max-width:82%;padding:11px 13px;border-radius:11px;margin:0 0 10px;line-height:1.45;font-size:14px;white-space:pre-wrap;box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.in{background:#fff;border-top-left-radius:4px}.out{background:var(--out);margin-left:auto;border-top-right-radius:4px}
+.time{display:block;text-align:right;font-size:10px;color:#6d7b77;margin-top:5px}
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 14px}
+.quick button{border:1.5px solid var(--green);background:#fff;color:#08735f;border-radius:20px;padding:9px 12px;font-weight:750;cursor:pointer}
+.quick button:hover{background:#effcf8}
+.quick .danger{border-color:#c65353;color:#a23838}
+.quick .secondary{border-color:#6d78a9;color:#4d5682}
+.intro-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 14px}
+.service-card{background:white;border:1px solid #d9e4df;border-radius:16px;padding:16px 12px;cursor:pointer;text-align:left;min-height:108px}
+.service-card strong{display:block;color:#0a6657;margin-top:8px}.service-card span{font-size:26px}
+.footer{background:#f2fbf8;border-top:1px solid #cfe2dc;padding:10px;display:flex;gap:8px}
+.footer input{flex:1;border:0;background:white;border-radius:12px;padding:13px 14px;font-size:14px;outline:none}
+.send{width:46px;height:46px;border:0;border-radius:50%;background:var(--green);color:#fff;font-size:20px;cursor:pointer}
+.study{margin:16px 0 4px;padding:18px;border-radius:16px;background:#fff;border:1px solid #d2dfdb}
+.study h3{margin:0 0 8px;color:#0a6657}.study p{font-size:14px;line-height:1.45}
+.study a{display:block;text-align:center;text-decoration:none;background:var(--green);color:white;font-weight:850;border-radius:12px;padding:13px}
+.badge{display:inline-block;background:#ede7fb;color:#553799;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;margin-bottom:8px}
+.summary{background:#fff;border:1px solid #cddbd6;border-radius:14px;padding:14px;margin:0 0 10px;font-size:13px;line-height:1.55}
+.summary strong{color:#0a6657}
+@media(max-width:520px){
+ body{padding:0}.phone{height:100vh;min-height:100vh;border-radius:0;width:100%}.msg{max-width:88%}
+}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="header">
+    <div class="avatar">🐾</div>
+    <div class="headcopy"><strong>Bienestar Animal Demo</strong><small>en línea</small></div>
+    <button class="change" id="resetBtn">Cambiar área</button>
+  </div>
+  <div class="chat" id="chat"></div>
+  <div class="footer">
+    <input id="input" type="text" placeholder="Escriba un mensaje..." autocomplete="off">
+    <button class="send" id="sendBtn">➤</button>
+  </div>
+</div>
+
+<script>
+const chat=document.getElementById('chat'), input=document.getElementById('input');
+let state={area:null,flow:null,step:null,data:{}};
+
+function stamp(){
+  const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+function msg(text,type='in'){
+  const d=document.createElement('div'); d.className='msg '+type;
+  d.textContent=text;
+  const t=document.createElement('span'); t.className='time'; t.textContent=stamp(); d.appendChild(t);
+  chat.appendChild(d); chat.scrollTop=chat.scrollHeight;
+}
+function clearQuick(){ document.querySelectorAll('.quick,.intro-grid,.summary').forEach(e=>e.remove()); }
+function quick(items){
+  clearQuick();
+  const wrap=document.createElement('div'); wrap.className='quick';
+  items.forEach(([label,action,cls])=>{
+    const b=document.createElement('button'); b.textContent=label; if(cls)b.classList.add(cls);
+    b.onclick=()=>{msg(label,'out'); clearQuick(); action();};
+    wrap.appendChild(b);
+  });
+  chat.appendChild(wrap); chat.scrollTop=chat.scrollHeight;
+}
+function cards(items){
+  clearQuick();
+  const wrap=document.createElement('div'); wrap.className='intro-grid';
+  items.forEach(([icon,title,action])=>{
+    const b=document.createElement('button'); b.className='service-card';
+    b.innerHTML='<span>'+icon+'</span><strong>'+title+'</strong>';
+    b.onclick=()=>{msg(title,'out'); clearQuick(); action();};
+    wrap.appendChild(b);
+  });
+  chat.appendChild(wrap); chat.scrollTop=chat.scrollHeight;
+}
+function normalPhone(t){
+  let d=String(t||'').replace(/\D/g,''); if(d.length===11&&d.startsWith('34'))d=d.slice(2);
+  return /^\d{9}$/.test(d)?d:'';
+}
+function ownerName(t){ return String(t||'').trim().replace(/\s+/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); }
+function vetHome(){
+  state={area:'vet',flow:null,step:null,data:{servicio:'Veterinaria'}};
+  msg('¿Desea pedir una cita, consultar un servicio o hacer otra consulta?');
+  quick([
+    ['📅 Pedir cita',()=>startVetAppointment()],
+    ['ℹ️ Consultar servicio',()=>{state.flow='vet_info';state.step='consulta';msg('Cuéntenos qué servicio desea consultar. Le daremos información general sin realizar diagnósticos.');}],
+    ['❓ Otra consulta',()=>{state.flow='other';state.step='consulta';msg('Indíquenos brevemente su consulta.');}]
+  ]);
+}
+function startVetAppointment(){
+  state.flow='appointment'; state.data.servicio='Veterinaria'; state.step='first';
+  msg('¿Es la primera visita de su mascota con nosotros?');
+  quick([['Sí',()=>{state.data.primera='Sí';askPet();}],['No',()=>{state.data.primera='No';askPet();}]]);
+}
+function askPet(){ state.step='pet'; msg('¿Para qué mascota desea pedir la cita?'); }
+function askVetReason(){ state.step='reason'; msg('¿Cuál es el motivo principal de la consulta? Lo anotaremos literalmente, sin realizar diagnósticos.'); }
+
+function groomHome(){
+  state={area:'groom',flow:'appointment',step:'groom_service',data:{servicio:'Peluquería e higiene'}};
+  msg('¿Qué servicio necesita para su mascota?');
+  quick([
+    ['🛁 Baño',()=>groomService('Baño')],['✂️ Corte',()=>groomService('Corte')],
+    ['🦁 Deslanado',()=>groomService('Deslanado')],['🧼 Higiene',()=>groomService('Higiene')],
+    ['➕ Otro',()=>{state.step='groom_service_other';msg('Indíquenos qué servicio necesita.');}]
+  ]);
+}
+function groomService(s){state.data.detalleServicio=s; state.step='first'; msg('¿Es la primera visita de su mascota con nosotros?'); quick([['Sí',()=>{state.data.primera='Sí';askGroomPet();}],['No',()=>{state.data.primera='No';askGroomPet();}]]);}
+function askGroomPet(){state.step='pet_groom';msg('¿Para qué mascota desea pedir la cita?');}
+function askGroomInfo(){state.step='pet_info';msg('¿Qué mascota es y, aproximadamente, qué tamaño tiene?');}
+
+function foodHome(){
+  state={area:'food',flow:'food',step:'need',data:{servicio:'Alimentación'}};
+  msg('Cuéntenos brevemente qué necesita para su mascota y dejaremos registrada su consulta para que el establecimiento pueda orientarle.');
+}
+function infoHome(){
+  state={area:'info',flow:null,step:null,data:{}};
+  msg('Horario de demostración:\n\nLunes a viernes: 09:00–13:00 y 16:00–19:00\nSábado: 09:00–13:00\nDomingo: cerrado.');
+  quick([
+    ['🩺 Veterinaria',()=>vetHome()],['✂️ Peluquería',()=>groomHome()],
+    ['🥣 Alimentación',()=>foodHome()],['❓ Otra consulta',()=>{state.flow='other';state.step='consulta';msg('Indíquenos brevemente su consulta.');}]
+  ]);
+}
+function askDate(){
+  state.step='date'; msg('¿Para qué día desea solicitar la cita?');
+  quick([['📅 Hoy',()=>setDate('hoy')],['📅 Mañana',()=>setDate('mañana')],['📆 Otra fecha',()=>{state.step='date_text';msg('Escriba la fecha que desea solicitar.');}]]);
+}
+function setDate(d){state.data.fecha=d; askTime();}
+function askTime(){
+  state.step='time'; msg('Estas son las horas disponibles de demostración. Seleccione la que prefiera.');
+  const slots=['09:30','10:30','11:30','16:00','17:00','18:00'];
+  quick(slots.map(h=>[h,()=>{state.data.hora=h;askOwner();}]));
+}
+function askOwner(){state.step='owner';msg('¿A qué nombre registramos la cita?');}
+function askPhone(){state.step='phone';msg('¿Puede indicarme un teléfono de contacto?');}
+function askReminders(){
+  state.step='reminders'; msg('¿Desea recibir la confirmación y los recordatorios por este mismo medio?');
+  quick([['Sí',()=>{state.data.recordatorios='Sí';showAppointmentSummary();}],['No',()=>{state.data.recordatorios='No';showAppointmentSummary();}]]);
+}
+function appointmentSummaryHtml(){
+  const d=state.data;
+  const extra=state.area==='vet'
+    ? '<strong>Motivo:</strong> '+escapeHtml(d.motivo||'')+'<br>'
+    : '<strong>Servicio:</strong> '+escapeHtml(d.detalleServicio||'')+'<br><strong>Mascota / tamaño:</strong> '+escapeHtml(d.infoMascota||'')+'<br>';
+  return '<strong>📋 RESUMEN DE LA CITA</strong><br><br>'+
+    '<strong>Área:</strong> '+escapeHtml(d.servicio||'')+'<br>'+
+    extra+
+    '<strong>Mascota:</strong> '+escapeHtml(d.mascota||'')+'<br>'+
+    '<strong>Primera visita:</strong> '+escapeHtml(d.primera||'')+'<br>'+
+    '<strong>Día:</strong> '+escapeHtml(d.fecha||'')+'<br>'+
+    '<strong>Hora:</strong> '+escapeHtml(d.hora||'')+'<br>'+
+    '<strong>Responsable:</strong> '+escapeHtml(d.responsable||'')+'<br>'+
+    '<strong>Teléfono:</strong> '+escapeHtml(d.telefono||'')+'<br>'+
+    '<strong>Recordatorios:</strong> '+escapeHtml(d.recordatorios||'');
+}
+function showAppointmentSummary(){
+  state.step='confirm';
+  clearQuick();
+  const s=document.createElement('div'); s.className='summary'; s.innerHTML=appointmentSummaryHtml(); chat.appendChild(s);
+  msg('¿Son correctos todos los datos?');
+  quick([
+    ['✅ Confirmar',()=>confirmAppointment()],
+    ['✏️ Modificar',()=>modifyAppointment(),'secondary'],
+    ['❌ Cancelar',()=>cancelFlow(),'danger']
+  ]);
+}
+function modifyAppointment(){
+  state.step='modify';
+  msg('¿Qué desea modificar?');
+  const items=[
+    ['📅 Día',()=>askDate()],['🕒 Hora',()=>askTime()],
+    ['👤 Responsable',()=>askOwner()],['📞 Teléfono',()=>askPhone()],
+    ['📲 Recordatorios',()=>askReminders()]
+  ];
+  if(state.area==='vet')items.unshift(['📝 Motivo',()=>askVetReason()]);
+  else items.unshift(['🐾 Mascota / tamaño',()=>askGroomInfo()]);
+  quick(items);
+}
+function confirmAppointment(){
+  const d=state.data;
+  if(!d.fecha||!d.hora||!d.mascota||!d.responsable||!normalPhone(d.telefono)||!d.recordatorios){
+    msg('No puedo confirmar la cita porque falta algún dato obligatorio.'); return;
+  }
+  state.step='post';
+  msg('✅ Cita confirmada. Hemos registrado la cita de '+d.mascota+' para '+d.fecha+' a las '+d.hora+'. ¿Desea que le ayudemos con algo más?');
+  quick([['Sí, otra consulta',()=>showHome()],['No, gracias',()=>finish()]]);
+}
+function foodSummary(){
+  state.step='food_confirm'; clearQuick();
+  const d=state.data;
+  const s=document.createElement('div');s.className='summary';
+  s.innerHTML='<strong>📋 RESUMEN DE LA CONSULTA</strong><br><br>'+
+    '<strong>Necesidad:</strong> '+escapeHtml(d.necesidad||'')+'<br>'+
+    '<strong>Responsable:</strong> '+escapeHtml(d.responsable||'')+'<br>'+
+    '<strong>Teléfono:</strong> '+escapeHtml(d.telefono||'');
+  chat.appendChild(s); msg('¿Son correctos todos los datos?');
+  quick([['✅ Enviar consulta',()=>{msg('✅ Consulta registrada. El establecimiento podrá revisarla y orientarle personalmente. ¿Desea que le ayudemos con algo más?');quick([['Sí',()=>showHome()],['No, gracias',()=>finish()]]);}],['✏️ Modificar',()=>{state.step='need';msg('Indíquenos de nuevo qué necesita para su mascota.');},'secondary'],['❌ Cancelar',()=>cancelFlow(),'danger']]);
+}
+function cancelFlow(){msg('La solicitud ha sido cancelada. No se ha confirmado ninguna cita ni consulta.');showHome();}
+function finish(){
+  clearQuick();
+  msg('Muchas gracias por utilizar Bienestar Animal Demo. Que tenga un excelente día. 👋');
+  const box=document.createElement('div');box.className='study';
+  box.innerHTML='<span class="badge">SINCRONIAIA</span><h3>✨ ¿Quiere conocer las oportunidades de su propio negocio?</h3><p>Puede realizar gratuitamente el Estudio Empresarial SINCRONIAIA para detectar tiempo recuperable, tareas automatizables y oportunidades de mejora.</p><a href="https://felixganes-svg.github.io/sincroniaia-demo/investigacion/">REALIZAR ESTUDIO DE MI NEGOCIO</a>';
+  chat.appendChild(box);chat.scrollTop=chat.scrollHeight;state={area:null,flow:'closed',step:'closed',data:{}};
+}
+function showHome(){showHome._busy=true; state={area:null,flow:null,step:null,data:{}}; chat.innerHTML=''; msg('¡Hola! Bienvenido a Bienestar Animal Demo. ¿En qué podemos ayudarle hoy?');cards([['🩺','Veterinaria',()=>vetHome()],['✂️','Peluquería e higiene',()=>groomHome()],['🥣','Alimentación',()=>foodHome()],['🕒','Horarios / Otra consulta',()=>infoHome()]]);showHome._busy=false;}
+function escapeHtml(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+
+function handleText(text){
+  text=String(text||'').trim(); if(!text)return;
+  msg(text,'out'); input.value='';
+  if(state.flow==='closed'){return;}
+  if(state.flow==='vet_info'&&state.step==='consulta'){state.data.consulta=text;msg('Gracias. Esta demo puede ofrecer información general sobre servicios, pero no realiza diagnósticos. Si desea, puede pedir una cita.');quick([['📅 Pedir cita',()=>startVetAppointment()],['↩️ Volver',()=>showHome()]]);return;}
+  if(state.flow==='other'&&state.step==='consulta'){state.data.consulta=text;msg('Gracias. Hemos recogido su consulta. Puede continuar por una de estas áreas.');quick([['🩺 Veterinaria',()=>vetHome()],['✂️ Peluquería',()=>groomHome()],['🥣 Alimentación',()=>foodHome()],['🕒 Horarios',()=>infoHome()]]);return;}
+
+  if(state.flow==='appointment'){
+    if(state.step==='pet'){state.data.mascota=text;askVetReason();return;}
+    if(state.step==='reason'){state.data.motivo=text;askDate();return;}
+    if(state.step==='groom_service_other'){state.data.detalleServicio=text;state.step='first';msg('¿Es la primera visita de su mascota con nosotros?');quick([['Sí',()=>{state.data.primera='Sí';askGroomPet();}],['No',()=>{state.data.primera='No';askGroomPet();}]]);return;}
+    if(state.step==='pet_groom'){state.data.mascota=text;askGroomInfo();return;}
+    if(state.step==='pet_info'){state.data.infoMascota=text;askDate();return;}
+    if(state.step==='date_text'){state.data.fecha=text;askTime();return;}
+    if(state.step==='owner'){state.data.responsable=ownerName(text);askPhone();return;}
+    if(state.step==='phone'){
+      const p=normalPhone(text); if(!p){msg('📞 El teléfono debe contener 9 dígitos. Por ejemplo: 662527111.');return;}
+      state.data.telefono=p;askReminders();return;
+    }
+  }
+  if(state.flow==='food'){
+    if(state.step==='need'){state.data.necesidad=text;state.step='food_owner';msg('¿A qué nombre registramos la consulta?');return;}
+    if(state.step==='food_owner'){state.data.responsable=ownerName(text);state.step='food_phone';msg('¿Puede indicarme un teléfono de contacto?');return;}
+    if(state.step==='food_phone'){const p=normalPhone(text);if(!p){msg('📞 El teléfono debe contener 9 dígitos. Por ejemplo: 662527111.');return;}state.data.telefono=p;foodSummary();return;}
+  }
+  msg('Puede utilizar los botones disponibles para continuar con esta demostración.');
+}
+document.getElementById('sendBtn').onclick=()=>handleText(input.value);
+input.addEventListener('keydown',e=>{if(e.key==='Enter')handleText(input.value);});
+document.getElementById('resetBtn').onclick=()=>showHome();
+showHome();
+</script>
+</body>
+</html>
