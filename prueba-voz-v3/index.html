@@ -1545,7 +1545,7 @@ function quickAction(action,label){
       appendMessage('⚠️ La reserva todavía no puede confirmarse porque falta algún dato obligatorio.','incoming');
       return;
     }
-    appendMessage('✅ Reserva confirmada.\n\nHemos reservado una mesa para '+d.personas+' personas, '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.'+(d.alergias&&d.alergias!=='No'?'\n\n⚠️ Información alimentaria: '+d.alergias+'.':'')+(d.avisos?'\n\n📲 Ha aceptado recibir la confirmación y los recordatorios por este mismo medio.':'\n\n📲 No se enviarán recordatorios, según su elección.')+'\n\n¿Desea que le ayudemos con algo más?','incoming');
+    appendMessage('✅ Reserva confirmada.\n\nHemos reservado una mesa para '+d.personas+' personas, '+d.fecha+' a las '+d.hora+', a nombre de '+d.nombre+'.'+(d.alergias&&d.alergias!=='No'?'\n\n⚠️ Información alimentaria asociada a la reserva: '+d.alergias+'.':'')+(d.avisos?'\n\n📲 Ha aceptado recibir la confirmación y los recordatorios por este mismo medio.':'\n\n📲 No se enviarán recordatorios, según su elección.')+'\n\n¿Desea que le ayudemos con algo más?','incoming');
     flujoLocal={tipo:'post_reserva',paso:'algo_mas',datos:d};
     showQuickOptions([['📜 Ver Carta','carta'],['🕒 Horarios','horarios'],['❓ Otra consulta','otra_consulta'],['No, gracias','cerrar_chat']]);
     return;
@@ -1728,9 +1728,6 @@ function fechaExplicitaReserva(text){
 }
 
 function horaExplicitaReserva(text){
-  const n=normalizarConsulta(text);
-  const tieneContexto=/\b(?:a\s+las?|hora|mediodia|medianoche)\b/.test(n) || /\b\d{1,2}[:.]\d{2}\b/.test(n);
-  if(!tieneContexto) return '';
   const h=normalizarHoraReserva(text);
   return /^\d{2}:\d{2}$/.test(h)?h:'';
 }
@@ -1758,25 +1755,56 @@ function extraerAlergiasDesdeTexto(text){
 
 function normalizarHoraReserva(text){
   const n=normalizarConsulta(text);
-  let m=n.match(/\b([01]?\d|2[0-3])[:.h](\d{2})\b/);
-  if(m) return String(parseInt(m[1],10)).padStart(2,'0')+':'+m[2];
-  const horasPalabra={una:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12};
-  for(const k in horasPalabra){
-    if(new RegExp('\\b'+k+'\\b').test(n)){
-      let h=horasPalabra[k];
-      if(/tarde|noche/.test(n) && h<12) h+=12;
-      return String(h).padStart(2,'0')+':00';
-    }
-  }
-  m=n.match(/\b(\d{1,2})\b/);
-  if(m){
-    let h=parseInt(m[1],10);
-    if(/tarde|noche/.test(n) && h<12) h+=12;
-    if(h>=0 && h<=23) return String(h).padStart(2,'0')+':00';
-  }
-  return text.trim();
-}
+  const palabras={una:1,uno:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12};
 
+  function ajustar(h, periodo){
+    h=parseInt(h,10);
+    if(!Number.isInteger(h) || h<0 || h>23) return '';
+    if(/tarde|noche/.test(periodo||'') && h>=1 && h<12) h+=12;
+    if(/manana/.test(periodo||'') && h===12) h=0;
+    return h;
+  }
+  function fmt(h,min){
+    h=ajustar(h,'');
+    min=parseInt(min||0,10);
+    if(h==='' || min<0 || min>59) return '';
+    return String(h).padStart(2,'0')+':'+String(min).padStart(2,'0');
+  }
+
+  // 20:30 / 20.30 / 20h30, con periodo opcional.
+  let m=n.match(/\b([01]?\d|2[0-3])[:.h](\d{2})\s*(?:de\s+la\s+)?(manana|tarde|noche)?\b/);
+  if(m){
+    const h=ajustar(m[1],m[3]||'');
+    return h===''?'':String(h).padStart(2,'0')+':'+m[2];
+  }
+
+  // "a las 8:30 de la noche"
+  m=n.match(/\ba\s+las?\s+(\d{1,2})(?:[:.](\d{2}))?\s*(?:de\s+la\s+)?(manana|tarde|noche)?\b/);
+  if(m){
+    const h=ajustar(m[1],m[3]||'');
+    if(h==='') return '';
+    return String(h).padStart(2,'0')+':'+String(parseInt(m[2]||0,10)).padStart(2,'0');
+  }
+
+  // "a las ocho y media de la noche" / "a las ocho de la noche"
+  m=n.match(/\ba\s+las?\s+(una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce)(?:\s+y\s+(media|cuarto))?\s*(?:de\s+la\s+)?(manana|tarde|noche)?\b/);
+  if(m){
+    const h=ajustar(palabras[m[1]],m[3]||'');
+    const min=m[2]==='media'?30:(m[2]==='cuarto'?15:0);
+    if(h==='') return '';
+    return String(h).padStart(2,'0')+':'+String(min).padStart(2,'0');
+  }
+
+  // Cuando el campo contiene únicamente una hora: "18", "ocho", etc.
+  if(/^\d{1,2}$/.test(n)){
+    const h=parseInt(n,10);
+    return h>=0&&h<=23?String(h).padStart(2,'0')+':00':'';
+  }
+  if(Object.prototype.hasOwnProperty.call(palabras,n)){
+    return String(palabras[n]).padStart(2,'0')+':00';
+  }
+  return '';
+}
 
 function normalizarTelefonoES(text){
   let digits=String(text||'').trim().replace(/\D/g,'');
@@ -2053,10 +2081,14 @@ function responderLocalEscrito(text){
     if(/arroz|paella/.test(n)){ quickAction('arroces',''); return true; }
     if(/postre|tarta|tiramisu|brownie/.test(n)){ quickAction('postres',''); return true; }
     if(/domicilio|delivery|pedido|recoger/.test(n)){ quickAction('domicilio',''); return true; }
-    if(/reserv|mesa/.test(n)){
+    const posibleHoraReserva=horaExplicitaReserva(text);
+    const posiblesPersonasReserva=extraerPersonasExplicitas(text);
+    const pareceTransaccionReserva=/reserv|mesa/.test(n) || (posibleHoraReserva && posiblesPersonasReserva!==null);
+
+    if(pareceTransaccionReserva){
       const fecha=fechaExplicitaReserva(text);
-      const hora=horaExplicitaReserva(text);
-      const personas=extraerPersonasExplicitas(text);
+      const hora=posibleHoraReserva;
+      const personas=posiblesPersonasReserva;
       const turno=turnoDesdeHora(hora);
 
       // Si la frase trae datos explícitos, los conservamos. Nunca usamos un número
@@ -2153,6 +2185,20 @@ async function sendTextFromInput(){
 
   if(manejarFlujoLocal(text)) return;
   if(responderLocalEscrito(text)) return;
+
+  // CORTAFUEGOS TRANSACCIONAL RESTAURANTE:
+  // si la transcripción parece una reserva pero no alcanza para iniciar el flujo,
+  // no se autoriza al motor libre a completar, confirmar ni inventar datos.
+  if(demoActual==='restaurante'){
+    const n=normalizarConsulta(text);
+    const h=horaExplicitaReserva(text);
+    const pers=extraerPersonasExplicitas(text);
+    if(/reserv|mesa|personas?|comensales?/.test(n) || h || pers!==null){
+      appendMessage('No quiero dar por hecho ningún dato de la reserva. ¿Desea reservar una mesa?','incoming');
+      showQuickOptions([['Sí, reservar mesa','reservar'],['No, solo consultar','carta']]);
+      return;
+    }
+  }
 
   await enviarMotor(text);
 }
