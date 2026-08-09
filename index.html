@@ -290,7 +290,7 @@
 }
 .access-demos{padding:4px 0 40px}
 .access-section-title{text-align:center;font-size:21px;font-weight:900;margin:0 0 20px;color:#0b342f}
-.access-demo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.access-demo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
 .access-demo-card{
   background:#fff;border:1px solid #e4e8e6;border-radius:14px;
   padding:22px 20px;text-align:center;box-shadow:0 7px 20px rgba(18,64,56,.06)
@@ -298,6 +298,7 @@
 .access-demo-card.rest{background:linear-gradient(180deg,#fff9ee,#fffdf8)}
 .access-demo-card.fisio{background:linear-gradient(180deg,#f3f9ff,#fbfdff)}
 .access-demo-card.ref{background:linear-gradient(180deg,#f5fbf5,#fbfefb)}
+.access-demo-card.animal{background:linear-gradient(180deg,#fbf7ff,#fffaff)}
 .access-demo-icon{
   width:58px;height:58px;border-radius:50%;display:grid;place-items:center;
   margin:0 auto 13px;color:#fff;font-size:26px;font-weight:800;
@@ -305,8 +306,9 @@
 .rest .access-demo-icon{background:#ee9207}
 .fisio .access-demo-icon{background:#228ccc}
 .ref .access-demo-icon{background:#2f994c}
+.animal .access-demo-icon{background:#7438b5}
 .access-demo-card h3{font-size:16px;margin:0 0 8px}
-.rest h3{color:#d87b00}.fisio h3{color:#1170b8}.ref h3{color:#238540}
+.rest h3{color:#d87b00}.fisio h3{color:#1170b8}.ref h3{color:#238540}.animal h3{color:#6730a0}
 .access-demo-card p{min-height:44px;margin:0 0 15px;color:#4e605d;font-size:13px;line-height:1.45}
 .access-demo-btn{
   width:100%;border:0;border-radius:7px;padding:11px 10px;
@@ -315,6 +317,7 @@
 .rest .access-demo-btn{background:#eb8b00}
 .fisio .access-demo-btn{background:#1260cc}
 .ref .access-demo-btn{background:#159048}
+.animal .access-demo-btn{background:#7131ad}
 .access-capabilities{
   background:#fff;border-top:1px solid #e5ece9;border-bottom:1px solid #e5ece9;
   margin-top:4px;padding:24px 16px;
@@ -741,6 +744,12 @@ body.portal-mode #portalSincronia{
             <h3>REFORMAS</h3>
             <p>Servicios, visitas, presupuestos y consultas.</p>
             <button class="access-demo-btn" type="button" onclick="entrarDemoLibre('reformas')">PROBAR REFORMAS</button>
+          </article>
+          <article class="access-demo-card animal">
+            <div class="access-demo-icon">🐾</div>
+            <h3>BIENESTAR ANIMAL</h3>
+            <p>Veterinaria, peluquería, alimentación y consultas.</p>
+            <button class="access-demo-btn" type="button" onclick="window.location.href='./prueba-bienestar-animal-v2/'">PROBAR BIENESTAR ANIMAL</button>
           </article>
         </div>
       </section>
