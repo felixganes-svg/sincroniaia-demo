@@ -1199,11 +1199,7 @@ function startDemo(tipo){
 }
 
 function volverSelector(){
-  removeQuickOptions();
-  abrirPuertaAcceso();
-  if(accesoPersonalizado){
-    document.getElementById('codeStatus')?.scrollIntoView({behavior:'smooth',block:'center'});
-  }
+  window.location.href='../';
 }
 
 
@@ -2462,11 +2458,12 @@ window.addEventListener('load',()=>{
   const gateway=document.getElementById('accessGateway');
   const selector=document.getElementById('demoSelector');
   document.documentElement.classList.remove('portal-mode');
-  document.body.classList.remove('portal-mode','demo-chat-active');
-  if(portal)portal.style.display='none';
-  if(app)app.style.display='';
-  if(gateway)gateway.classList.add('access-hidden');
-  if(selector)selector.classList.remove('hidden');
+  document.body.classList.remove('portal-mode');
+  if(portal) portal.style.display='none';
+  if(app) app.style.display='';
+  if(gateway) gateway.classList.add('access-hidden');
+  if(selector) selector.classList.add('hidden');
+  startDemo('bienestar');
 });
 </script>
 </div>
