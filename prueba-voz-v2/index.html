@@ -908,7 +908,7 @@ body.demo-chat-active .voice-mini-panel{display:flex}
 <div id="demoSelector" class="demo-selector">
   <div class="selector-header">
     <h1>∞ SINCRONIAIA</h1>
-    <p>Elija una demostración</p>
+    <p>Prueba aislada de voz natural v2.0.2 · Elija una demostración</p>
   </div>
   <div class="selector-body">
     <div class="selector-card" onclick="startDemo('restaurante')">
@@ -2276,16 +2276,25 @@ function voiceBegin(){
     voiceMaxTimer=setTimeout(()=>voiceStopListening(false),15000);
   };
   voiceRecognition.onresult=e=>{
-    let full='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      full += String(e.results[i][0]?.transcript||'')+' ';
+    let finalText='';
+    let interimText='';
+
+    for(let i=0;i<e.results.length;i++){
+      const t=String(e.results[i][0]?.transcript||'').trim();
+      if(!t) continue;
+      if(e.results[i].isFinal) finalText += (finalText?' ':'') + t;
+      else interimText += (interimText?' ':'') + t;
     }
-    full=full.trim();
-    if(full)voiceTranscript=(voiceTranscript+' '+full).trim();
-    voiceState(full?'He oído: «'+full+'»':'🎙️ Escuchando…');
-    // Final de turno: 1,35 s sin nuevos resultados.
+
+    // La frase final sustituye el estado anterior: nunca concatenamos parciales repetidos.
+    if(finalText) voiceTranscript=finalText.trim();
+
+    const preview=(interimText || finalText || voiceTranscript).trim();
+    voiceState(preview ? 'He oído: «'+preview+'»' : '🎙️ Escuchando…');
+
+    // Final de turno: 1,45 s sin nuevos resultados.
     clearTimeout(voiceSilenceTimer);
-    voiceSilenceTimer=setTimeout(()=>voiceStopListening(false),1350);
+    voiceSilenceTimer=setTimeout(()=>voiceStopListening(false),1450);
   };
   voiceRecognition.onerror=e=>{
     const code=String(e.error||'');
@@ -2308,10 +2317,11 @@ function voiceBegin(){
     const text=voiceTranscript.replace(/\s+/g,' ').trim();
     voiceTranscript='';
     if(!text){
-      voiceState('🎙️ Pulse para hablar');
+      voiceState('🎙️ No he recibido una frase final. Pulse y vuelva a intentarlo.');
       return;
     }
-    // MISMO cerebro: entra por el mismo input y sendTextFromInput().
+
+    // MISMO cerebro: se envía UNA SOLA frase consolidada.
     userInput.value=text;
     voiceAwaitingReply=true;
     voiceState('Entendido: «'+text+'»');
@@ -2342,12 +2352,19 @@ autoEntradaDesdeURL();
 window.addEventListener('load',()=>{
   const portal=document.getElementById('portalSincronia');
   const app=document.getElementById('sincroniaDemoApp');
-  if(portal&&app){
-    document.documentElement.classList.remove('portal-mode');
-    document.body.classList.remove('portal-mode');
-    portal.style.display='none';
-    app.style.display='';
-  }
+  const gateway=document.getElementById('accessGateway');
+  const selector=document.getElementById('demoSelector');
+
+  document.documentElement.classList.remove('portal-mode');
+  document.body.classList.remove('portal-mode','demo-chat-active');
+
+  if(portal) portal.style.display='none';
+  if(app) app.style.display='';
+  if(gateway) gateway.classList.add('access-hidden');
+  if(selector) selector.classList.remove('hidden');
+
+  window.scrollTo(0,0);
+  voiceState('🎙️ Elija una demo para probar la voz');
 });
 
 </script>
