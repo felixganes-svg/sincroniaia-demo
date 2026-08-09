@@ -1293,6 +1293,11 @@ function horasFisioDemo(){
 }
 
 
+function pareceSintomaEnNombreResponsable(text){
+  const n=normalizarConsulta(text);
+  const palabras=['dolor','cojera','cojo','coja','vacuna','vacunacion','revision','fiebre','vomito','vomitos','diarrea','herida','tos','picor','malestar'];
+  return palabras.some(x=>n===x || n.startsWith(x+' '));
+}
 function opcionesBienestar(){
   showQuickOptions([
     ['🩺 Veterinaria','ba_veterinaria'],
@@ -1307,10 +1312,11 @@ function horasBienestarDemo(){
 function resumenBienestarCita(d){
   const extra=d.area==='Veterinaria'
     ? '📝 Motivo: '+(d.motivo||'')+'\n'
-    : '✂️ Servicio: '+(d.servicio||'')+'\n🐾 Mascota / tamaño: '+(d.info_mascota||'')+'\n';
+    : '✂️ Servicio: '+(d.servicio||'')+'\n';
   return '📋 RESUMEN DE LA CITA\n\n'+
     '🏥 Área: '+(d.area||'')+'\n'+extra+
     '🐾 Mascota: '+(d.mascota||'')+'\n'+
+    '🐾 Tipo: '+(d.tipo_mascota||'')+'\n'+
     '🩺 Primera visita: '+(d.primera||'')+'\n'+
     '📅 Día: '+(d.fecha||'')+'\n'+
     '🕒 Hora: '+(d.hora||'')+'\n'+
@@ -1359,8 +1365,31 @@ function quickAction(action,label){
   if(action==='ba_primera_si'||action==='ba_primera_no'){
     if(!flujoLocal||flujoLocal.tipo!=='ba_cita')return;
     flujoLocal.datos.primera=action==='ba_primera_si'?'Sí':'No';
+    flujoLocal.paso='tipo_mascota';
+    appendMessage('🐾 ¿Para qué tipo de mascota es la cita?','incoming');
+    showQuickOptions([
+      ['🐶 Perro pequeño / mediano','ba_tipo_perro_pm'],
+      ['🐕 Perro grande','ba_tipo_perro_g'],
+      ['🐱 Gato','ba_tipo_gato'],
+      ['🐰 Otro animal','ba_tipo_otro']
+    ]); return;
+  }
+  if(action.startsWith('ba_tipo_')){
+    if(!flujoLocal||flujoLocal.tipo!=='ba_cita')return;
+    const tipos={
+      ba_tipo_perro_pm:'Perro pequeño / mediano',
+      ba_tipo_perro_g:'Perro grande',
+      ba_tipo_gato:'Gato'
+    };
+    if(action==='ba_tipo_otro'){
+      flujoLocal.paso='tipo_otro';
+      appendMessage('¿Qué tipo de animal es?','incoming');
+      return;
+    }
+    flujoLocal.datos.tipo_mascota=tipos[action];
     flujoLocal.paso='mascota';
-    appendMessage('¿Para qué mascota desea pedir la cita?','incoming'); return;
+    appendMessage('Perfecto. ¿Cómo se llama su mascota?','incoming');
+    return;
   }
   if(action==='ba_alimentacion'){
     flujoLocal={tipo:'ba_alimentacion',paso:'necesidad',datos:{}};
@@ -1388,7 +1417,7 @@ function quickAction(action,label){
     const raw=action.replace('ba_hora_','');
     flujoLocal.datos.hora=raw.slice(0,2)+':'+raw.slice(2);
     flujoLocal.paso='nombre';
-    appendMessage('¿A qué nombre registramos la cita?','incoming'); return;
+    appendMessage('👤 Para registrar la cita, indíqueme el nombre de la persona responsable de la mascota.','incoming'); return;
   }
   if(action==='ba_avisos_si'||action==='ba_avisos_no'){
     if(!flujoLocal||flujoLocal.tipo!=='ba_cita')return;
@@ -1400,7 +1429,7 @@ function quickAction(action,label){
   if(action==='ba_confirmar'){
     if(!flujoLocal||flujoLocal.tipo!=='ba_cita')return;
     const d=flujoLocal.datos||{};
-    if(!d.mascota||!d.fecha||!d.hora||!d.nombre||!normalizarTelefonoES(d.telefono)||typeof d.avisos!=='boolean'){
+    if(!d.tipo_mascota||!d.mascota||!d.fecha||!d.hora||!d.nombre||!normalizarTelefonoES(d.telefono)||typeof d.avisos!=='boolean'){
       appendMessage('⚠️ No puedo confirmar la cita porque falta algún dato obligatorio.','incoming');return;
     }
     appendMessage('✅ Cita confirmada. Hemos registrado la cita de '+d.mascota+' para '+d.fecha+' a las '+d.hora+'. ¿Desea que le ayudemos con algo más?','incoming');
@@ -1414,7 +1443,7 @@ function quickAction(action,label){
   }
   if(action==='ba_mod_fecha'){flujoLocal.paso='fecha';appendMessage('¿Para qué día desea solicitar la cita?','incoming');showQuickOptions([['Hoy','ba_fecha_hoy'],['Mañana','ba_fecha_manana']]);return;}
   if(action==='ba_mod_hora'){flujoLocal.paso='hora';const s=horasBienestarDemo();appendMessage('Seleccione una nueva hora.','incoming');showQuickOptions(s.map(h=>[h,'ba_hora_'+h.replace(':','')]));return;}
-  if(action==='ba_mod_nombre'){flujoLocal.paso='nombre';appendMessage('¿A qué nombre registramos la cita?','incoming');return;}
+  if(action==='ba_mod_nombre'){flujoLocal.paso='nombre';appendMessage('👤 Para registrar la cita, indíqueme el nombre de la persona responsable de la mascota.','incoming');return;}
   if(action==='ba_mod_telefono'){flujoLocal.paso='telefono';appendMessage('¿Puede indicarme un teléfono de contacto?','incoming');return;}
   if(action==='ba_mod_avisos'){flujoLocal.paso='avisos';appendMessage('¿Desea recibir la confirmación y los recordatorios por este mismo medio?','incoming');showQuickOptions([['Sí','ba_avisos_si'],['No','ba_avisos_no']]);return;}
   if(action==='ba_cancelar'){flujoLocal=null;appendMessage('❌ La solicitud ha sido cancelada. No se ha confirmado ninguna cita.','incoming');opcionesBienestar();return;}
@@ -1898,18 +1927,34 @@ function manejarFlujoLocal(text){
   if(flujoLocal && flujoLocal.tipo==='ba_cita'){
     const d=flujoLocal.datos||(flujoLocal.datos={});
     if(flujoLocal.paso==='servicio_otro'){d.servicio=text.trim();flujoLocal.paso='primera';appendMessage('¿Es la primera visita de su mascota con nosotros?','incoming');showQuickOptions([['Sí','ba_primera_si'],['No','ba_primera_no']]);return true;}
+    if(flujoLocal.paso==='tipo_otro'){
+      d.tipo_mascota=text.trim();
+      flujoLocal.paso='mascota';
+      appendMessage('Perfecto. ¿Cómo se llama su mascota?','incoming');
+      return true;
+    }
     if(flujoLocal.paso==='mascota'){
       d.mascota=text.trim();
-      if(d.area==='Veterinaria'){flujoLocal.paso='motivo';appendMessage('¿Cuál es el motivo principal de la consulta? Lo anotaremos literalmente, sin realizar diagnósticos.','incoming');}
-      else{flujoLocal.paso='info_mascota';appendMessage('¿Qué mascota es y, aproximadamente, qué tamaño tiene?','incoming');}
+      if(d.area==='Veterinaria'){
+        flujoLocal.paso='motivo';
+        appendMessage('¿Cuál es el motivo principal de la consulta? Lo anotaremos literalmente, sin realizar diagnósticos.','incoming');
+      }else{
+        flujoLocal.paso='fecha';
+        appendMessage('¿Para qué día desea solicitar la cita?','incoming');
+        showQuickOptions([['Hoy','ba_fecha_hoy'],['Mañana','ba_fecha_manana']]);
+      }
       return true;
     }
     if(flujoLocal.paso==='motivo'){d.motivo=text.trim();flujoLocal.paso='fecha';appendMessage('¿Para qué día desea solicitar la cita?','incoming');showQuickOptions([['Hoy','ba_fecha_hoy'],['Mañana','ba_fecha_manana']]);return true;}
     if(flujoLocal.paso==='info_mascota'){d.info_mascota=text.trim();flujoLocal.paso='fecha';appendMessage('¿Para qué día desea solicitar la cita?','incoming');showQuickOptions([['Hoy','ba_fecha_hoy'],['Mañana','ba_fecha_manana']]);return true;}
     if(flujoLocal.paso==='fecha'){d.fecha=text.trim();flujoLocal.paso='hora';const s=horasBienestarDemo();appendMessage('Estas son las horas disponibles de demostración. Seleccione la que prefiera.','incoming');showQuickOptions(s.map(h=>[h,'ba_hora_'+h.replace(':','')]));return true;}
-    if(flujoLocal.paso==='hora'){const h=normalizarHoraReserva(text);const s=horasBienestarDemo();if(!s.includes(h)){appendMessage('Para esa hora no tenemos disponibilidad en esta demostración. Seleccione una de las horas libres.','incoming');showQuickOptions(s.map(x=>[x,'ba_hora_'+x.replace(':','')]));return true;}d.hora=h;flujoLocal.paso='nombre';appendMessage('¿A qué nombre registramos la cita?','incoming');return true;}
+    if(flujoLocal.paso==='hora'){const h=normalizarHoraReserva(text);const s=horasBienestarDemo();if(!s.includes(h)){appendMessage('Para esa hora no tenemos disponibilidad en esta demostración. Seleccione una de las horas libres.','incoming');showQuickOptions(s.map(x=>[x,'ba_hora_'+x.replace(':','')]));return true;}d.hora=h;flujoLocal.paso='nombre';appendMessage('👤 Para registrar la cita, indíqueme el nombre de la persona responsable de la mascota.','incoming');return true;}
     if(flujoLocal.paso==='nombre'){
       const tel=normalizarTelefonoES(text);if(tel){d.telefono=tel;appendMessage('Gracias. Ya tengo el teléfono. ¿A qué nombre registramos la cita?','incoming');return true;}
+      if(pareceSintomaEnNombreResponsable(text)){
+        appendMessage('👤 Necesito el nombre de la persona responsable de la mascota. Por ejemplo: Antonio, María López…','incoming');
+        return true;
+      }
       d.nombre=formatearNombreReserva(text);
       if(d.telefono){flujoLocal.paso='avisos';appendMessage('¿Desea recibir la confirmación y los recordatorios por este mismo medio?','incoming');showQuickOptions([['Sí','ba_avisos_si'],['No','ba_avisos_no']]);}
       else{flujoLocal.paso='telefono';appendMessage('¿Puede indicarme un teléfono de contacto?','incoming');}
