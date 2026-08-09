@@ -908,7 +908,7 @@ body.demo-chat-active .voice-mini-panel{display:flex}
 <div id="demoSelector" class="demo-selector">
   <div class="selector-header">
     <h1>∞ SINCRONIAIA</h1>
-    <p>Prueba aislada de voz natural v2.0.2 · Elija una demostración</p>
+    <p>Prueba aislada de voz natural v2.0.3 · Elija una demostración</p>
   </div>
   <div class="selector-body">
     <div class="selector-card" onclick="startDemo('restaurante')">
@@ -2187,18 +2187,31 @@ function naturalHourSpeech(h,m){
   if(min===30)return hn+' y media '+period;
   return hn+' y '+String(min).padStart(2,'0')+' '+period;
 }
+function voicePhoneDigits(raw){
+  const names={'0':'cero','1':'uno','2':'dos','3':'tres','4':'cuatro','5':'cinco','6':'seis','7':'siete','8':'ocho','9':'nueve'};
+  return String(raw).replace(/\D/g,'').split('').map(d=>names[d]||d).join(', ');
+}
 function voicePrepareText(text){
   let s=String(text||'');
   // No leer iconos, bullets, markdown ni marcas visuales.
   s=s.replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu,' ');
   s=s.replace(/[•*_#✓✦◎]+/g,' ');
+  // Teléfonos españoles de 9 dígitos: leer cifra a cifra, nunca como un número entero.
+  s=s.replace(/\b(?:\d[\s.-]?){9}\b/g,m=>voicePhoneDigits(m));
   // Horas visibles -> forma hablada natural.
   s=s.replace(/\b([01]\d|2[0-3]):([0-5]\d)\b/g,(all,h,m)=>naturalHourSpeech(h,m)||all);
   // Quitar encabezados de resumen que suenan "de pantalla".
   s=s.replace(/\bRESUMEN DE (LA )?(CITA|RESERVA|SOLICITUD DE VISITA|SOLICITUD DE PRESUPUESTO)\b/gi,'');
   s=s.replace(/\s+/g,' ').trim();
   // La voz debe ser más corta que la pantalla.
-  if(s.length>360){
+  // Si el mensaje ya contiene una confirmación y la pregunta final, conservamos ambas.
+  const asksMore=/¿\s*Desea (?:que le ayudemos con )?algo más\s*\?/i.test(s);
+  const isConfirmation=/(reserva confirmada|cita confirmada|solicitud .* registrada)/i.test(s);
+
+  if(isConfirmation && asksMore){
+    const first=(s.match(/[^.!?]+[.!?]?/)||[s])[0].trim();
+    s=first+' ¿Desea que le ayudemos con algo más?';
+  } else if(s.length>360){
     const sentences=s.match(/[^.!?]+[.!?]?/g)||[s];
     s=sentences.slice(0,3).join(' ').trim();
   }
