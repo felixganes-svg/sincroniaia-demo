@@ -57,15 +57,34 @@ function askType(){state.step='tipo';return bot('¿De qué tipo de instalación 
 function askLocation(){state.step='askMunicipio';return bot('Gracias. Ya tenemos el contexto principal.<br><br>¿En qué <strong>municipio</strong> se encuentra la instalación?')}
 function askLocationUrgent(emergency){state.data.urgente=!!emergency;state.step='askMunicipioUrgent';return bot((emergency?'La prioridad ahora es <strong>localizar la incidencia y disponer de un contacto</strong>.<br><br>':'Para preparar la incidencia necesito primero localizar la instalación.<br><br>')+'¿En qué <strong>población o municipio</strong> se encuentra el edificio?')}
 function askAddressEmergency(){return askLocationUrgent(true)}
+function normalizePhone(raw){
+  const map={cero:'0',uno:'1',un:'1',una:'1',dos:'2',tres:'3',cuatro:'4',cinco:'5',seis:'6',siete:'7',ocho:'8',nueve:'9',seiscientos:'600'};
+  const clean=String(raw??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9+]+/g,' ').trim();
+  if(!clean)return '';
+  const tokens=clean.split(/\s+/);let out='';let repeat=1;
+  for(const tok of tokens){
+    if(tok==='doble'){repeat=2;continue}
+    if(tok==='triple'){repeat=3;continue}
+    let part='';
+    if(/^\d+$/.test(tok))part=tok;
+    else if(map[tok]!=null)part=map[tok];
+    else continue;
+    if(repeat>1 && part.length===1)part=part.repeat(repeat);
+    repeat=1;out+=part;
+  }
+  if(out.startsWith('34')&&out.length===11)return '+'+out;
+  return out;
+}
+function validPhone(raw){const n=normalizePhone(raw).replace(/\D/g,'');return n.length>=9&&n.length<=15}
 function handleFreeText(txt){const s=txt.trim();
 if(state.step==='askMunicipio'){state.data.municipio=s;state.step='askAddress';return bot('¿Me indica ahora la <strong>dirección</strong> de la instalación?')}
 if(state.step==='askAddress'){state.data.direccion=s;state.step='askName';return bot('Perfecto. ¿A nombre de quién dejamos la solicitud?')}
 if(state.step==='askMunicipioUrgent'){state.data.municipio=s;state.step='askAddressUrgent';return bot('Gracias. Indíqueme ahora la <strong>dirección exacta del edificio</strong>.')}
 if(state.step==='askAddressUrgent'){state.data.direccion=s;state.step='askPhoneUrgent';return bot('Ahora necesito un <strong>teléfono de contacto</strong> por si el responsable o técnico necesita comunicarse con usted.')}
-if(state.step==='askPhoneUrgent'){if(s.replace(/\D/g,'').length<9)return bot('No parece un teléfono completo. Indíqueme al menos 9 dígitos, por favor.');state.data.telefono=s;state.step='askNameUrgent';return bot('Gracias. ¿Cuál es el <strong>nombre de la persona de contacto</strong>?')}
+if(state.step==='askPhoneUrgent'){const tel=normalizePhone(s);if(!validPhone(s))return bot('No parece un teléfono completo. Puede escribirlo o decirlo cifra a cifra, por ejemplo: <strong>seis cero cero uno dos tres cuatro cinco seis</strong>.');state.data.telefono=tel;state.step='askNameUrgent';return bot('Gracias. He registrado el teléfono <strong>'+E(tel)+'</strong>.<br><br>¿Cuál es el <strong>nombre de la persona de contacto</strong>?')}
 if(state.step==='askNameUrgent'){if(s.length<2)return bot('Necesito un nombre válido, por favor.');state.data.nombre=s;return showSummary()}
 if(state.step==='askName'){if(s.length<2)return bot('Necesito un nombre válido, por favor.');state.data.nombre=s;state.step='askPhone';return bot('Gracias. Indíqueme ahora un <strong>teléfono de contacto</strong>.')}
-if(state.step==='askPhone'){if(s.replace(/\D/g,'').length<9)return bot('No parece un teléfono completo. Indíqueme al menos 9 dígitos, por favor.');state.data.telefono=s;return showSummary()}
+if(state.step==='askPhone'){const tel=normalizePhone(s);if(!validPhone(s))return bot('No parece un teléfono completo. Puede escribirlo o decirlo cifra a cifra, por ejemplo: <strong>seis cero cero uno dos tres cuatro cinco seis</strong>.');state.data.telefono=tel;return showSummary()}
 if(state.step==='free'){state.data.consulta=s;addNotice('protocol','DATO NO CONFIGURADO → NO INVENTAR','La consulta se registra para que la empresa pueda revisarla. SINCRONIAIA no inventa precios, coberturas, tiempos de llegada ni procedimientos no incluidos en el protocolo.');return askRole()}
 const low=s.toLowerCase();if(/atrapad|encerrad|dentro del ascensor/.test(low)){state.branch='averia';state.step='hayAtrapados';return trapped('si')}if(/precio|cu[aá]nto cuesta|tardar|tiempo de llegada/.test(low)){addNotice('protocol','INFORMACIÓN NO CONFIGURADA','El protocolo DEMO no contiene ese dato. SINCRONIAIA no lo inventa.');return bot('Puedo registrar su consulta para que la empresa la confirme.')}bot('Puedo ayudarle mejor si elige una de las opciones principales.');state.step='menu';buttons(mainOptions())}
 function showSummary(){const d=state.data;if(state.branch==='averia'){addNotice('success','✓ INCIDENCIA PREPARADA',`<b>Tipo de incidencia:</b> ${E(L(d.averia)||'No identificado / pendiente de técnico')}<br><b>Personas atrapadas:</b> ${d.atrapados==='si'?'SÍ':d.atrapados==='no'?'NO':'por confirmar'}<br><b>Población:</b> ${E(d.municipio||'—')}<br><b>Dirección:</b> ${E(d.direccion||'—')}<br><b>Contacto:</b> ${E(d.nombre||'—')} · ${E(d.telefono||'—')}${d.emergencia?'<br><b>Prioridad:</b> EMERGENCIA · protocolo de empresa':''}`)}else if(state.branch==='accesibilidad'){addNotice('success','✓ SOLICITUD PREPARADA',`<b>Necesidad:</b> ${E(L(d.necesidad))}<br><b>Tipo de instalación:</b> ${E(L(d.tipo))}<br><b>Sistema actual:</b> ${E(L(d.sistema))}<br><b>Objetivo:</b> ${E(L(d.motivo))}<br><b>Recorrido:</b> ${E(L(d.recorrido))}<br><b>Plantas / niveles:</b> ${E(d.plantas||'—')}<br><b>Escaleras como único acceso:</b> ${d.unicoAcceso==='si'?'Sí':d.unicoAcceso==='no'?'No':'No confirmado'}<br><b>Municipio:</b> ${E(d.municipio)}<br><b>Dirección:</b> ${E(d.direccion)}<br><b>Contacto:</b> ${E(d.nombre)} · ${E(d.telefono)}<br><br><b>La solución técnica deberá valorarla un profesional.</b>`)}else if(state.branch==='cambio'){addNotice('success','✓ OPORTUNIDAD COMERCIAL PREPARADA',`<b>Solicitud:</b> Cambio de mantenedor<br><b>Nº de ascensores:</b> ${E(d.numAsc)}<br><b>Motivo:</b> ${E(L(d.motivo))}<br><b>Ámbito:</b> ${E(L(d.ambito))}<br><b>Municipio:</b> ${E(d.municipio)}<br><b>Dirección:</b> ${E(d.direccion)}<br><b>Contacto:</b> ${E(d.nombre)} · ${E(d.telefono)}`)}else if(state.branch==='instalacion'){addNotice('success','✓ SOLICITUD TÉCNICA PREPARADA',`<b>Objetivo:</b> ${E(L(d.objetivo))}<br><b>Situación:</b> ${E(L(d.problema))}<br><b>Aspecto principal:</b> ${E(L(d.detalle))}<br><b>Tipo de instalación:</b> ${E(d.tipo||'—')}<br><b>Municipio:</b> ${E(d.municipio)}<br><b>Dirección:</b> ${E(d.direccion)}<br><b>Contacto:</b> ${E(d.nombre)} · ${E(d.telefono)}<br><br><b>La solución exacta deberá valorarla un técnico.</b>`)}else{addNotice('success','✓ SOLICITUD PREPARADA',`<b>Solicitud:</b> ${E(d.solicitud||d.necesidad||d.consulta||'Mantenimiento')}<br><b>Nº de ascensores:</b> ${E(d.numAsc||'—')}<br><b>Municipio:</b> ${E(d.municipio||'—')}<br><b>Dirección:</b> ${E(d.direccion||'—')}<br><b>Contacto:</b> ${E(d.nombre||'—')} · ${E(d.telefono||'—')}`)}state.step='confirm';bot('<strong>No empieza desde cero. Empieza con información.</strong><br><br>¿Desea confirmar esta demostración o modificar algún dato?',[{label:'✅ Confirmar',value:'ok'},{label:'✏️ Modificar / reiniciar',value:'edit'}])}
