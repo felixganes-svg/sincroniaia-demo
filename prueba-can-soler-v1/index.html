@@ -73,7 +73,7 @@ var(--paper);scroll-behavior:smooth}
       <input id="input" class="input" autocomplete="off" placeholder="Escriba un mensaje…" onkeydown="if(event.key==='Enter')sendFree()">
       <button class="send" onclick="sendFree()" aria-label="Enviar">➤</button>
     </footer>
-    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.8</div>
+    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.9</div>
   </div>
 </div>
 
@@ -90,6 +90,100 @@ const POINTS={
 
 const FLAVOURS=['Pistacho','Xixollana','Turrón de Jijona D.O.','Crema catalana','Horchata','Stracciatella','Tiramisú','Fresa','Limón','Sorbete de mango','Sorbete de mandarina','Chocolate 60% chocolate belga','Vainilla','Avellana','Dulce de leche','Leche merengada','Yogur natural'];
 const SPECIALS=['Xixollana','Agua de Badalona','Palmera','Lletuga','Canario','Cubano','Blanco y negro','Café con leche de verano'];
+const CATALOG={
+  granizados:[
+    'Horchata','Leche merengada','Granizado de limón','Granizado de naranja',
+    'Granizado de fresa','Granizado de mango y maracuyá','Trifásico de granizados','Granizado de café'
+  ],
+  combinados:[
+    'Agua de Badalona','Palmera','Lletuga','Canario','Cubano','Blanco y negro','Café con leche de verano'
+  ],
+  sorbetes:['De limón','De fresa con yogur','De Cava','Mar de cava'],
+  smoothies:['Mora y plátano','Piña','Kiwi y naranja','Papaya y plátano','Mango y melocotón','Piña colada','Yogur'],
+  batidos:['Normal','Con nata montada'],
+  refrescos:['Agua 50cl','Agua 1,5l','Cacaolat','Coca Cola','Coca Cola Zero','Zumos eco Cal Valls','Nestea','Vichy'],
+  barras:[
+    'Vainilla','Nata','Vainilla-chocolate','Nata-chocolate','Limón','3 sabores','Nata-fresa','Fruta',
+    'Chocolate belga','Vainilla cookies','Stracciatella','Turrón de Jijona D.O','Biscuit','Nata al turrón',
+    'Crujiente chocolate','Crocanti','Helado al gusto'
+  ],
+  polos:[
+    'Fresa','Limón','Maracuyá','Melón cantaloupe','Fresa y frambuesa',
+    'Chocolate','Coco','Horchata','Bombón nata','Bombón almendrado','Turrón',
+    'Mojito','Piña colada','Café con leche de verano'
+  ],
+  crepesDulces:[
+    'Sencilla','Especiada','Sorprendente','Blanca','Deseada','Nostálgica','Dulce','Esperada',
+    'Morena','Mermelada','Tropical','Canaria','Irresistible'
+  ],
+  crepesSalados:[
+    'Atún','Havarti y orégano','Pizzera','Mixta','Azul','Mallorquina','Atrevida','Parmesana','4 Quesos'
+  ],
+  tes:[
+    'Té verde Gundpower','Té negro Pu Erh','Roibos Cederberg','Frutas del bosque','Menta Poleo','Manzanilla','Tila'
+  ],
+  cafes:[
+    'Café solo','Cortado con leche fresca semi','Cortado con leche de avena o sin lactosa','Cortado bombón',
+    'Café con leche fresca semi','Café con leche de avena','Café con nata fresca montada',
+    'Café Soler/Badalona','Café moka','Café acompañado'
+  ],
+  chocolates:['Chocolate a la taza','Suizo','Chocolate a la taza y helado'],
+  toppingsIncluidos:[
+    'Mini nubes','Mini lacasitos','Mini galletas Oreo','Speculoos','Virutas de chocolate negro',
+    'Mini Chips Ahoy','Cola-Cao','Mini Príncipe'
+  ],
+  toppingsExtra:['Chocolate negro caliente','Nocilla','Sirope de arce','Mermeladas','Nata montada']
+};
+
+const DESCRIPCIONES={
+  'Agua de Badalona':'Granizado de limón con menta peppermint y un toque de Anís del Mono dulce.',
+  'Palmera':'Horchata y granizado de limón.',
+  'Lletuga':'Granizado de limón con menta peppermint.',
+  'Canario':'Granizado de limón con 1 bola de helado de vainilla.',
+  'Cubano':'Horchata con 1 bola de helado de chocolate.',
+  'Blanco y negro':'Granizado de café con 1 bola de helado de leche merengada.',
+  'Café con leche de verano':'Leche merengada u horchata con café granizado.',
+  'De limón':'Granizado de limón con helado de limón.',
+  'De fresa con yogur':'Granizado de fresa con helado de yogur.',
+  'De Cava':'Cava brut con helado de limón.',
+  'Mar de cava':'Mar de cava, cava brut y helado de limón.',
+  'Fresa':'Fresón de Huelva.',
+  'Limón':'Limón Verna de Murcia.',
+  'Maracuyá':'Puré de maracuyá natural.',
+  'Melón cantaloupe':'Melón cantaloupe natural.',
+  'Chocolate':'Chocolate con leche.',
+  'Coco':'Coco natural.',
+  'Horchata':'Chufa D.O. Alboraya.',
+  'Bombón nata':'Nata fresca y cobertura de chocolate.',
+  'Bombón almendrado':'Vainilla y cobertura de chocolate con almendra.',
+  'Turrón':'Nuestro turrón artesano de Jijona.',
+  'Mojito':'Lima y menta natural.',
+  'Piña colada':'Piña natural y coco.',
+  'Café Soler/Badalona':'Café, leche condensada, nata y chocolate o caramelo.',
+  'Café moka':'Chocolate a la taza, café y crema de leche fresca.',
+  'Café acompañado':'Café con helado al gusto.',
+  'Pizzera':'Orégano, havarti y tomate confitado.',
+  'Mixta':'Havarti y jamón dulce.',
+  'Azul':'Jamón dulce y queso azul.',
+  'Mallorquina':'Sobrasada y brie.',
+  'Atrevida':'Sobrasada y miel.',
+  'Parmesana':'Jamón dulce, parmesano, nueces y salsa César.',
+  '4 Quesos':'Parmesano, havarti, queso azul y semicurado.',
+  'Sencilla':'Con azúcar.',
+  'Especiada':'Con canela y azúcar.',
+  'Sorprendente':'Con azúcar y limón natural.',
+  'Blanca':'Chocolate blanco.',
+  'Deseada':'Chocolate belga.',
+  'Nostálgica':'Nocilla.',
+  'Dulce':'Con dulce de leche.',
+  'Esperada':'Con leche condensada.',
+  'Morena':'Caramelo.',
+  'Mermelada':'De fresa o naranja.',
+  'Tropical':'Con piña, canela y azúcar.',
+  'Canaria':'Con plátano y chocolate negro belga.',
+  'Irresistible':'Con nata montada, nueces y miel.'
+};
+
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function norm(s){return String(s??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim()}
@@ -136,6 +230,11 @@ function route(v){
   if(state.step==='pedidoPunto') return pedidoPunto(v);
   if(state.step==='pedidoModo') return pedidoModo(v);
   if(state.step==='pedidoCategoria') return pedidoCategoria(v);
+  if(state.step==='pedidoGranizadoProducto') return pedidoGranizadoProducto(v);
+  if(state.step==='pedidoCrepeTipo') return pedidoCrepeTipo(v);
+  if(state.step==='pedidoBatidoTipo') return pedidoBatidoTipo(v);
+  if(state.step==='pedidoCafeTipo') return pedidoCafeTipo(v);
+  if(state.step==='pedidoEspecialFormato') return pedidoEspecialFormato(v);
   if(state.step==='horchataAzucar') return horchataAzucar(v);
   if(state.step==='horchataFormato') return horchataFormato(v);
   if(state.step==='pedidoHeladoFormato') return pedidoHeladoFormato(v);
@@ -250,6 +349,21 @@ function pedidoModo(v){
     {label:'🏠 Inicio',value:'inicio',cls:'dark'}
   ]);
 }
+
+function opcionesCatalogo(arr, cls=''){
+  return arr.map(x=>({label:x,value:x,cls}));
+}
+function elegirProductoConcreto(titulo, arr, nextStep='pedidoCantidad'){
+  state.step=nextStep;
+  bot('<strong>'+titulo+'</strong>',opcionesCatalogo(arr).concat([
+    {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},
+    {label:'🏠 Inicio',value:'inicio',cls:'dark'}
+  ]));
+}
+function describirProducto(nombre){
+  const d=DESCRIPCIONES[nombre];
+  return d ? '<br><small>'+esc(d)+'</small>' : '';
+}
 function pedidoCategoria(v){
   if(v.startsWith('mood_')){
     let text='';
@@ -258,88 +372,228 @@ function pedidoCategoria(v){
     if(v==='mood_cold')text='Para algo refrescante podemos empezar por horchata, granizados, sorbetes o combinados como <strong>Palmera</strong>.';
     if(v==='mood_cansoler'){
       msg('<strong>Estas son algunas especialidades de Can Soler:</strong><br><br>'+
-        '🍦 <strong>Xixollana</strong> — sabor de helado publicado por Can Soler como ganador de España en 2019. La composición concreta no está configurada en esta demo.<br><br>'+
-        '🍋 <strong>Agua de Badalona</strong> — granizado de limón con menta peppermint y un toque de Anís del Mono dulce.<br><br>'+
-        '🥤 <strong>Palmera</strong> — horchata y granizado de limón.<br><br>'+
-        '🌿 <strong>Lletuga</strong> — granizado de limón con menta peppermint.<br><br>'+
-        '🍋🍦 <strong>Canario</strong> — granizado de limón con 1 bola de helado de vainilla.<br><br>'+
-        '🥤🍫 <strong>Cubano</strong> — horchata con 1 bola de helado de chocolate.<br><br>'+
-        '☕🍦 <strong>Blanco y negro</strong> — granizado de café con 1 bola de helado de leche merengada.<br><br>'+
-        '☕🥤 <strong>Café con leche de verano</strong> — leche merengada u horchata con café granizado.');
+        '🍦 <strong>Xixollana</strong> — sabor de helado publicado como ganador de España en 2019. La composición concreta no está configurada.<br><br>'+
+        '🍋 <strong>Agua de Badalona</strong> — '+DESCRIPCIONES['Agua de Badalona']+'<br><br>'+
+        '🥤 <strong>Palmera</strong> — '+DESCRIPCIONES['Palmera']+'<br><br>'+
+        '🌿 <strong>Lletuga</strong> — '+DESCRIPCIONES['Lletuga']+'<br><br>'+
+        '🍋🍦 <strong>Canario</strong> — '+DESCRIPCIONES['Canario']+'<br><br>'+
+        '🥤🍫 <strong>Cubano</strong> — '+DESCRIPCIONES['Cubano']+'<br><br>'+
+        '☕🍦 <strong>Blanco y negro</strong> — '+DESCRIPCIONES['Blanco y negro']+'<br><br>'+
+        '☕🥤 <strong>Café con leche de verano</strong> — '+DESCRIPCIONES['Café con leche de verano']);
       state.step='pedidoCantidad';
-      return bot('<strong>Ahora que sabe qué es cada uno, ¿cuál le apetece?</strong>',[
-        {label:'Xixollana',value:'Xixollana',cls:'gold'},
-        {label:'Agua de Badalona',value:'Agua de Badalona',cls:'gold'},
-        {label:'Palmera',value:'Palmera',cls:'gold'},
-        {label:'Lletuga',value:'Lletuga',cls:'gold'},
-        {label:'Canario',value:'Canario',cls:'gold'},
-        {label:'Cubano',value:'Cubano',cls:'gold'},
-        {label:'Blanco y negro',value:'Blanco y negro',cls:'gold'},
-        {label:'Café con leche de verano',value:'Café con leche de verano',cls:'gold'},
-        {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},
-        {label:'🏠 Inicio',value:'inicio',cls:'dark'}
-      ]);
+      return bot('<strong>Ahora que sabe qué es cada uno, ¿cuál le apetece?</strong>',
+        opcionesCatalogo(CATALOG.combinados,'gold').concat([
+          {label:'Xixollana',value:'Xixollana',cls:'gold'},
+          {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},
+          {label:'🏠 Inicio',value:'inicio',cls:'dark'}
+        ])
+      );
     }
     msg(text);
     state.step='pedidoCategoria';
     return buttons([
       {label:'🍦 Helados',value:'helados'},
       {label:'🥤 Horchata / granizados',value:'granizados'},
-      {label:'⭐ Especialidades Can Soler',value:'especiales',cls:'gold'}
+      {label:'🍧 Sorbetes',value:'sorbetes'},
+      {label:'🥛 Batidos / smoothies',value:'batidos'},
+      {label:'⭐ Especialidades Can Soler',value:'especiales',cls:'gold'},
+      {label:'↩️ Volver al menú de pedidos',value:'menu_pedido',cls:'dark'},
+      {label:'🏠 Inicio',value:'inicio',cls:'dark'}
     ]);
   }
+
   state.data.category=v;
+
   if(v==='helados'){
     state.step='pedidoHeladoFormato';
     return bot('¿Cómo quiere el helado?',[
       {label:'Cucurucho',value:'cucurucho'},
       {label:'Tarrina',value:'tarrina'},
-      {label:'Para llevar',value:'llevar'}
+      {label:'Para llevar',value:'llevar'},
+      {label:'Cono crep con helado',value:'cono_crep'},
+      {label:'Tarrina con bolas + toppings',value:'tarrina_toppings'},
+      {label:'Barras',value:'barras'},
+      {label:'Helados con palo',value:'polos'},
+      {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
     ]);
   }
+
   if(v==='granizados'){
-    state.data.category='granizados';
-    state.step='pedidoCantidad';
-    return bot('¿Qué desea dentro de esta categoría?',[
-      {label:'Horchata',value:'HORCHATA'},
-      {label:'Leche merengada',value:'Leche merengada'},
-      {label:'Granizado de limón',value:'Granizado de limón'},
-      {label:'Granizado de fresa',value:'Granizado de fresa'},
-      {label:'Granizado mango y maracuyá',value:'Granizado mango y maracuyá'}
-    ]);
+    state.step='pedidoGranizadoProducto';
+    return bot('<strong>¿Qué desea?</strong>',opcionesCatalogo(CATALOG.granizados).concat([
+      {label:'⭐ Ver combinados',value:'ver_combinados',cls:'gold'},
+      {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+    ]));
   }
+
+  if(v==='sorbetes'){
+    state.step='pedidoCantidad';
+    return bot('<strong>¿Qué sorbete desea?</strong>',
+      CATALOG.sorbetes.map(x=>({label:x+' — '+DESCRIPCIONES[x],value:x})).concat([
+        {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+      ])
+    );
+  }
+
   if(v==='especiales'){
     state.step='pedidoCantidad';
-    return bot('¿Qué especialidad quiere añadir?',SPECIALS.map(x=>({label:x,value:x})));
+    return bot('<strong>¿Qué especialidad desea?</strong>',
+      CATALOG.combinados.map(x=>({label:x+' — '+DESCRIPCIONES[x],value:x,cls:'gold'})).concat([
+        {label:'Xixollana',value:'Xixollana',cls:'gold'},
+        {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+      ])
+    );
   }
+
   if(v==='crepes'){
-    state.step='pedidoCantidad';
-    return bot('¿Qué tipo quiere consultar para este pedido?',[
-      {label:'Crepe dulce',value:'Crepe dulce'},
-      {label:'Crepe salado',value:'Crepe salado'},
-      {label:'Gofre',value:'Gofre'}
+    state.step='pedidoCrepeTipo';
+    return bot('<strong>¿Qué desea?</strong>',[
+      {label:'Crepe dulce / gofre',value:'dulce'},
+      {label:'Crepe salado',value:'salado'},
+      {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
     ]);
   }
+
   if(v==='batidos'){
-    state.step='pedidoCantidad';
-    return bot('¿Qué desea?',[
-      {label:'Batido',value:'Batido'},
-      {label:'Smoothie',value:'Smoothie'}
+    state.step='pedidoBatidoTipo';
+    return bot('<strong>¿Qué desea?</strong>',[
+      {label:'Batido',value:'batido'},
+      {label:'Smoothie',value:'smoothie'},
+      {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
     ]);
   }
+
   if(v==='cafes'){
-    state.step='pedidoCantidad';
-    return bot('¿Qué desea?',[
-      {label:'Café',value:'Café'},
-      {label:'Té / infusión',value:'Té / infusión'},
-      {label:'Refresco / agua',value:'Refresco / agua'}
+    state.step='pedidoCafeTipo';
+    return bot('<strong>¿Qué desea?</strong>',[
+      {label:'Cafés',value:'cafes'},
+      {label:'Chocolates',value:'chocolates'},
+      {label:'Tés e infusiones',value:'tes'},
+      {label:'Refrescos y otros',value:'refrescos'},
+      {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
     ]);
   }
 }
+
 function pedidoHeladoFormato(v){
   state.data.format=v;
+
+  if(v==='barras'){
+    state.step='pedidoCantidad';
+    return bot('<strong>¿Qué barra desea?</strong>',opcionesCatalogo(CATALOG.barras).concat([
+      {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+    ]));
+  }
+  if(v==='polos'){
+    state.step='pedidoCantidad';
+    return bot('<strong>¿Qué helado con palo desea?</strong>',
+      CATALOG.polos.map(x=>({label:x+(DESCRIPCIONES[x]?' — '+DESCRIPCIONES[x]:''),value:x})).concat([
+        {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+      ])
+    );
+  }
+  if(v==='cono_crep'){
+    state.step='pedidoEspecialFormato';
+    return bot('<strong>¿Cuántas bolas desea en el cono crep?</strong>',[
+      {label:'1 bola',value:'1 bola'},
+      {label:'2 bolas',value:'2 bolas'},
+      {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+    ]);
+  }
+  if(v==='tarrina_toppings'){
+    state.step='pedidoEspecialFormato';
+    return bot('<strong>¿Cuántas bolas desea?</strong>',[
+      {label:'1 bola',value:'1 bola'},
+      {label:'2 bolas',value:'2 bolas'},
+      {label:'3 bolas',value:'3 bolas'},
+      {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+    ]);
+  }
+
   state.step='pedidoHeladoSabor';
-  bot('¿Qué sabor quiere?',FLAVOURS.slice(0,10).map(x=>({label:x,value:x})));
+  bot('¿Qué sabor quiere?',FLAVOURS.map(x=>({label:x,value:x})).concat([
+    {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+  ]));
+}
+
+
+function pedidoEspecialFormato(v){
+  state.data.size=v;
+  state.step='pedidoHeladoSabor';
+  bot('<strong>¿Qué sabor desea?</strong>',FLAVOURS.map(x=>({label:x,value:x})).concat([
+    {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+  ]));
+}
+function pedidoGranizadoProducto(v){
+  if(v==='ver_combinados'){
+    state.step='pedidoCantidad';
+    return bot('<strong>¿Qué combinado desea?</strong>',
+      CATALOG.combinados.map(x=>({label:x+' — '+DESCRIPCIONES[x],value:x,cls:'gold'})).concat([
+        {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+      ])
+    );
+  }
+  if(v==='Horchata'){
+    state.data.product='Horchata';
+    state.step='horchataAzucar';
+    return bot('<strong>¿Cómo desea la horchata?</strong>',[
+      {label:'Con azúcar',value:'con_azucar'},
+      {label:'Sin azúcar',value:'sin_azucar'},
+      {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+    ]);
+  }
+  state.data.product=v;
+  state.step='pedidoCantidad';
+  return bot('<strong>¿Qué cantidad desea?</strong>',[
+    {label:'1',value:'1'},{label:'2',value:'2'},{label:'3',value:'3'},{label:'Otra cantidad',value:'otra'},
+    {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+  ]);
+}
+function pedidoCrepeTipo(v){
+  if(v==='dulce'){
+    state.step='pedidoCantidad';
+    return bot('<strong>¿Qué crepe dulce o gofre desea?</strong>',
+      CATALOG.crepesDulces.map(x=>({label:x+' — '+DESCRIPCIONES[x],value:x})).concat([
+        {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+      ])
+    );
+  }
+  if(v==='salado'){
+    state.step='pedidoCantidad';
+    return bot('<strong>¿Qué crepe salado desea?</strong>',
+      CATALOG.crepesSalados.map(x=>({label:x+(DESCRIPCIONES[x]?' — '+DESCRIPCIONES[x]:''),value:x})).concat([
+        {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+      ])
+    );
+  }
+}
+function pedidoBatidoTipo(v){
+  if(v==='batido'){
+    state.step='pedidoCantidad';
+    return bot('<strong>¿Cómo desea el batido?</strong>',opcionesCatalogo(CATALOG.batidos).concat([
+      {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+    ]));
+  }
+  if(v==='smoothie'){
+    state.step='pedidoCantidad';
+    return bot('<strong>¿Qué smoothie desea?</strong>',opcionesCatalogo(CATALOG.smoothies).concat([
+      {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+    ]));
+  }
+}
+function pedidoCafeTipo(v){
+  let arr=[];
+  let titulo='';
+  if(v==='cafes'){arr=CATALOG.cafes;titulo='¿Qué café desea?';}
+  if(v==='chocolates'){arr=CATALOG.chocolates;titulo='¿Qué chocolate desea?';}
+  if(v==='tes'){arr=CATALOG.tes;titulo='¿Qué té o infusión desea?';}
+  if(v==='refrescos'){arr=CATALOG.refrescos;titulo='¿Qué refresco o bebida desea?';}
+  state.step='pedidoCantidad';
+  return bot('<strong>'+titulo+'</strong>',
+    arr.map(x=>({label:x+(DESCRIPCIONES[x]?' — '+DESCRIPCIONES[x]:''),value:x})).concat([
+      {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+    ])
+  );
 }
 function pedidoHeladoSabor(v){
   state.data.product=v;
