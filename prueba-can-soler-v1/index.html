@@ -73,7 +73,7 @@ var(--paper);scroll-behavior:smooth}
       <input id="input" class="input" autocomplete="off" placeholder="Escriba un mensaje…" onkeydown="if(event.key==='Enter')sendFree()">
       <button class="send" onclick="sendFree()" aria-label="Enviar">➤</button>
     </footer>
-    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.4</div>
+    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.5</div>
   </div>
 </div>
 
@@ -123,6 +123,8 @@ function restart(){
   ]);
 }
 function route(v){
+  if(v==='inicio'){ return home(); }
+  if(v==='otra'){ return otraStart(); }
   if(state.step==='menu'){
     if(v==='pedido') return pedidoStart();
     if(v==='puntos') return puntosStart();
@@ -139,6 +141,8 @@ function route(v){
   if(state.step==='pedidoHeladoMedida') return pedidoHeladoMedida(v);
   if(state.step==='pedidoCantidad') return pedidoCantidad(v);
   if(state.step==='pedidoMas') return pedidoMas(v);
+  if(state.step==='pedidoConfirmar') return pedidoConfirmar(v);
+  if(state.step==='pedidoModificar') return pedidoModificar(v);
   if(state.step==='pedidoNombre') return null;
   if(state.step==='puntos') return puntoDetalle(v);
   if(state.step==='puntoAccion') return puntoAccion(v);
@@ -147,7 +151,7 @@ function route(v){
 }
 
 function pedidoStart(){
-  state={step:'pedidoPunto',branch:'pedido',data:{}};
+  state={step:'pedidoPunto',branch:'pedido',data:{cart:[]}};
   bot('<strong>¿Dónde desea recoger el pedido?</strong>',[
     {label:'Can Soler Mar',value:'mar'},
     {label:'Francesc Layret',value:'layret'},
@@ -156,6 +160,9 @@ function pedidoStart(){
 }
 function pedidoPunto(v){
   state.data.point=v;
+  if((state.data.cart||[]).length && state.data.nombre){
+    return mostrarResumenPedido();
+  }
   state.step='pedidoModo';
   bot('Perfecto: <strong>'+POINTS[v].name+'</strong>.<br><br>¿Ya sabe qué quiere pedir?',[
     {label:'Sí, elegir productos',value:'elegir'},
@@ -315,6 +322,42 @@ function horchataFormato(v){
     {label:'Otra cantidad',value:'otra'}
   ]);
 }
+function limpiarProductoActual(){
+  delete state.data.product;
+  delete state.data.variant;
+  delete state.data.size;
+  delete state.data.quantity;
+  delete state.data.format;
+}
+function guardarProductoActual(){
+  state.data.cart = state.data.cart || [];
+  state.data.cart.push({
+    product: state.data.product || 'Producto seleccionado',
+    variant: state.data.variant || '',
+    size: state.data.size || '',
+    quantity: state.data.quantity || '1'
+  });
+  limpiarProductoActual();
+}
+function lineasPedidoHtml(){
+  const cart=state.data.cart||[];
+  return cart.map((it,i)=>{
+    return '<strong>'+(i+1)+'. '+esc(it.product)+'</strong>'+
+      (it.variant?'<br>↔️ Variante: '+esc(it.variant):'')+
+      (it.size?'<br>📏 Formato/medida: '+esc(it.size):'')+
+      '<br>🔢 Unidades/envases: '+esc(it.quantity);
+  }).join('<br><br>');
+}
+function resumenPedidoHtml(titulo){
+  const p=POINTS[state.data.point]||{name:'Punto pendiente'};
+  return '<strong>'+titulo+'</strong><br><br>'+
+    '📍 Recogida: '+esc(p.name)+'<br>'+
+    (state.data.nombre?'👤 Nombre: '+esc(state.data.nombre)+'<br>':'')+
+    (state.data.telefono?'📞 Teléfono: '+esc(state.data.telefono)+'<br>':'')+
+    (state.data.fechaRecogida?'📅 Día solicitado: '+esc(state.data.fechaRecogida)+'<br>':'')+
+    (state.data.horaRecogida?'🕒 Hora solicitada: '+esc(state.data.horaRecogida)+'<br>':'')+
+    '<br>'+lineasPedidoHtml();
+}
 function pedidoCantidad(v){
   if(v==='HORCHATA'){
     state.data.product='Horchata';
@@ -325,19 +368,26 @@ function pedidoCantidad(v){
     ]);
   }
   if(!state.data.product) state.data.product=v;
-  if(!state.data.quantity && ['1','2','3','otra'].includes(v)) state.data.quantity=v;
+
   if(!['1','2','3','otra'].includes(v)) {
     state.data.product=v;
     state.step='pedidoCantidad';
-    return bot('¿Qué cantidad desea?',[
+    return bot('<strong>¿Qué cantidad desea?</strong>',[
       {label:'1',value:'1'},{label:'2',value:'2'},{label:'3',value:'3'},{label:'Otra cantidad',value:'otra'}
     ]);
   }
+
+  if(v==='otra'){
+    state.step='pedidoCantidadManual';
+    return bot('Indíqueme la cantidad que desea.');
+  }
+
   state.data.quantity=v;
+  guardarProductoActual();
   state.step='pedidoMas';
   bot('<strong>¿Desea algún producto más?</strong>',[
     {label:'Sí, añadir otro producto',value:'si'},
-    {label:'No, ver resumen',value:'no'}
+    {label:'No, continuar',value:'no'}
   ]);
 }
 function pedidoMas(v){
@@ -352,15 +402,77 @@ function pedidoMas(v){
       {label:'⭐ Especialidades Can Soler',value:'especiales',cls:'gold'}
     ]);
   }
-  const p=POINTS[state.data.point];
-  msg('<strong>Resumen de pedido de demostración</strong><br><br>📍 Recogida: '+p.name+
-      '<br>🛍️ Producto: '+esc(state.data.product||'Producto seleccionado')+
-      (state.data.variant?'<br>↔️ Variante: '+esc(state.data.variant):'')+
-      (state.data.size?'<br>📏 Formato: '+esc(state.data.size):'')+
-      '<br>🔢 Unidades/envases: '+esc(state.data.quantity||'Pendiente'));
-  safe('La demo todavía no confirma disponibilidad, precio, hora de recogida ni aceptación del pedido. Esos datos deben definirse con Can Soler.');
-  state.step='menu';
-  buttons([{label:'🏠 Volver al inicio',value:'inicio'}]);
+  state.step='pedidoNombre';
+  bot('<strong>¿A qué nombre registramos el pedido?</strong>');
+  input.focus();
+}
+function mostrarResumenPedido(){
+  msg(resumenPedidoHtml('📋 RESUMEN DEL PEDIDO'));
+  notice('info','IMPORTANTE','El día y la hora indicados son una preferencia de recogida. En esta demo el establecimiento todavía no ha confirmado disponibilidad ni aceptación del pedido.');
+  state.step='pedidoConfirmar';
+  buttons([
+    {label:'✅ Confirmar solicitud',value:'confirmar'},
+    {label:'✏️ Modificar',value:'modificar'},
+    {label:'❌ Cancelar',value:'cancelar',cls:'dark'}
+  ]);
+}
+function pedidoConfirmar(v){
+  if(v==='confirmar'){
+    const p=POINTS[state.data.point]||{name:'el establecimiento'};
+    msg('✅ <strong>Solicitud de pedido registrada en la demostración.</strong><br><br>Quedaría pendiente de confirmación por <strong>'+esc(p.name)+'</strong>.');
+    notice('info','📨 SIMULACIÓN · INFORMACIÓN QUE RECIBIRÍA EL LOCAL',resumenPedidoHtml('PEDIDO RECIBIDO').replace('<strong>PEDIDO RECIBIDO</strong><br><br>',''));
+    notice('safe','ESTADO REAL DE ESTA PRUEBA','No se ha enviado ningún pedido real. Cuando Can Soler defina el canal de recepción y confirmación, el sistema podrá registrar/enviar la solicitud según ese protocolo.');
+    state={step:'menu',branch:null,data:{}};
+    return buttons([
+      {label:'🏠 Volver al inicio',value:'inicio'},
+      {label:'💬 Otra consulta',value:'otra',cls:'dark'}
+    ]);
+  }
+  if(v==='modificar'){
+    state.step='pedidoModificar';
+    return bot('¿Qué desea modificar?',[
+      {label:'🛍️ Productos',value:'productos'},
+      {label:'👤 Nombre / teléfono',value:'cliente'},
+      {label:'📅 Día / hora',value:'recogida'},
+      {label:'📍 Punto de recogida',value:'punto'}
+    ]);
+  }
+  if(v==='cancelar'){
+    msg('❌ Solicitud cancelada. No se ha enviado ni registrado ningún pedido real.');
+    state={step:'menu',branch:null,data:{}};
+    return buttons([{label:'🏠 Volver al inicio',value:'inicio'}]);
+  }
+}
+function pedidoModificar(v){
+  if(v==='productos'){
+    state.data.cart=[];
+    limpiarProductoActual();
+    state.step='pedidoCategoria';
+    return bot('De acuerdo. Volvemos a seleccionar los productos del pedido.',[
+      {label:'🍦 Helados',value:'helados'},
+      {label:'🥤 Horchata / granizados',value:'granizados'},
+      {label:'🥞 Crepes / gofres',value:'crepes'},
+      {label:'🥛 Batidos / smoothies',value:'batidos'},
+      {label:'☕ Cafés / bebidas',value:'cafes'},
+      {label:'⭐ Especialidades Can Soler',value:'especiales',cls:'gold'}
+    ]);
+  }
+  if(v==='cliente'){
+    state.step='pedidoNombre';
+    return bot('¿A qué nombre registramos el pedido?');
+  }
+  if(v==='recogida'){
+    state.step='pedidoFecha';
+    return bot('¿Para qué día desea solicitar la recogida?');
+  }
+  if(v==='punto'){
+    state.step='pedidoPunto';
+    return bot('¿Dónde desea recoger el pedido?',[
+      {label:'Can Soler Mar',value:'mar'},
+      {label:'Francesc Layret',value:'layret'},
+      {label:'Mercado de Montgat',value:'montgat'}
+    ]);
+  }
 }
 
 function puntosStart(){
@@ -386,7 +498,7 @@ function puntoDetalle(v){
 function puntoAccion(v){
   if(v==='pedido'){
     const keep=state.data.point;
-    state={step:'pedidoModo',branch:'pedido',data:{point:keep}};
+    state={step:'pedidoModo',branch:'pedido',data:{point:keep,cart:[]}};
     return bot('Perfecto. El pedido quedará asociado a <strong>'+POINTS[keep].name+'</strong>.<br><br>¿Ya sabe qué quiere?',[
       {label:'Sí, elegir productos',value:'elegir'},
       {label:'✨ No, ayúdeme a elegir',value:'ayuda'}
@@ -435,11 +547,61 @@ function otraStart(){
   input.focus();
 }
 
+function telefonoValido(text){
+  const d=String(text||'').replace(/\D/g,'');
+  return d.length>=9 && d.length<=15;
+}
+function handleOrderText(text){
+  if(state.step==='pedidoCantidadManual'){
+    const n=parseInt(String(text).replace(/\D/g,''),10);
+    if(!n || n<1){
+      bot('Indíqueme una cantidad válida, por ejemplo 1, 2 o 4.');
+      return true;
+    }
+    state.data.quantity=String(n);
+    guardarProductoActual();
+    state.step='pedidoMas';
+    bot('<strong>¿Desea algún producto más?</strong>',[
+      {label:'Sí, añadir otro producto',value:'si'},
+      {label:'No, continuar',value:'no'}
+    ]);
+    return true;
+  }
+  if(state.step==='pedidoNombre'){
+    state.data.nombre=String(text).trim();
+    state.step='pedidoTelefono';
+    bot('Gracias. <strong>¿Puede indicarme un teléfono de contacto?</strong>');
+    return true;
+  }
+  if(state.step==='pedidoTelefono'){
+    if(!telefonoValido(text)){
+      bot('Necesito un teléfono válido para que el establecimiento pueda contactar con usted. Escríbalo de nuevo, por favor.');
+      return true;
+    }
+    state.data.telefono=String(text).trim();
+    state.step='pedidoFecha';
+    bot('<strong>¿Para qué día desea solicitar la recogida?</strong><br><br>Puede escribir, por ejemplo: hoy, mañana, viernes o una fecha.');
+    return true;
+  }
+  if(state.step==='pedidoFecha'){
+    state.data.fechaRecogida=String(text).trim();
+    state.step='pedidoHora';
+    bot('<strong>¿A qué hora aproximadamente desea recogerlo?</strong><br><br>Es una preferencia; el local deberá confirmarla.');
+    return true;
+  }
+  if(state.step==='pedidoHora'){
+    state.data.horaRecogida=String(text).trim();
+    mostrarResumenPedido();
+    return true;
+  }
+  return false;
+}
 function sendFree(){
   const text=input.value.trim();
   if(!text)return;
   input.value='';
   user(text);
+  if(handleOrderText(text)) return;
   answerFree(text);
 }
 function answerFree(text){
