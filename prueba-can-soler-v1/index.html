@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#00a884">
-<title>SINCRONIAIA — Can Soler · Demo aislada v1.2</title>
+<title>SINCRONIAIA — Can Soler · Demo aislada v1.3</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 :root{
@@ -133,6 +133,7 @@ function route(v){
   if(state.step==='pedidoCategoria') return pedidoCategoria(v);
   if(state.step==='pedidoHeladoFormato') return pedidoHeladoFormato(v);
   if(state.step==='pedidoHeladoSabor') return pedidoHeladoSabor(v);
+  if(state.step==='pedidoHeladoMedida') return pedidoHeladoMedida(v);
   if(state.step==='pedidoCantidad') return pedidoCantidad(v);
   if(state.step==='pedidoMas') return pedidoMas(v);
   if(state.step==='pedidoNombre') return null;
@@ -184,7 +185,11 @@ function pedidoCategoria(v){
     if(v==='mood_choc')text='Si le apetece chocolate, podemos mirar helados de chocolate publicados, un <strong>Cubano</strong> o alguna opción de crepe.';
     if(v==='mood_fruit')text='Si busca algo frutal, podemos mirar sorbetes, helados de fruta, granizados o smoothies.';
     if(v==='mood_cold')text='Para algo refrescante podemos empezar por horchata, granizados, sorbetes o combinados como <strong>Palmera</strong>.';
-    if(v==='mood_cansoler')text='Para algo muy Can Soler podemos empezar por <strong>Xixollana, Agua de Badalona, Palmera, Canario, Cubano</strong> o <strong>Blanco y negro</strong>.';
+    if(v==='mood_cansoler'){
+      msg('Para algo muy Can Soler podemos empezar por <strong>Xixollana, Agua de Badalona, Palmera, Canario, Cubano</strong> o <strong>Blanco y negro</strong>.');
+      state.step='pedidoCantidad';
+      return bot('<strong>¿Cuál le apetece?</strong>',SPECIALS.map(x=>({label:x,value:x,cls:'gold'})));
+    }
     msg(text);
     state.step='pedidoCategoria';
     return buttons([
@@ -248,8 +253,37 @@ function pedidoHeladoFormato(v){
 }
 function pedidoHeladoSabor(v){
   state.data.product=v;
+  state.step='pedidoHeladoMedida';
+
+  let medidas=[];
+  if(state.data.format==='cucurucho'){
+    medidas=[
+      {label:'Baby',value:'Baby'},
+      {label:'Pequeño',value:'Pequeño'},
+      {label:'Mediano',value:'Mediano'},
+      {label:'Grande',value:'Grande'},
+      {label:'Doble',value:'Doble'}
+    ];
+  } else if(state.data.format==='tarrina'){
+    medidas=[
+      {label:'Pequeña',value:'Pequeña'},
+      {label:'Mediana',value:'Mediana'},
+      {label:'Grande',value:'Grande'}
+    ];
+  } else {
+    medidas=[
+      {label:'½ litro',value:'½ litro'},
+      {label:'½ litro porex',value:'½ litro porex'},
+      {label:'1,3 litros tupper',value:'1,3 litros tupper'}
+    ];
+  }
+
+  bot('<strong>¿Qué medida desea?</strong>',medidas);
+}
+function pedidoHeladoMedida(v){
+  state.data.size=v;
   state.step='pedidoCantidad';
-  bot('¿Qué cantidad desea?',[
+  bot('<strong>¿Qué cantidad desea?</strong>',[
     {label:'1',value:'1'},
     {label:'2',value:'2'},
     {label:'3',value:'3'},
@@ -268,7 +302,7 @@ function pedidoCantidad(v){
   }
   state.data.quantity=v;
   state.step='pedidoMas';
-  bot('¿Desea añadir algo más al pedido?',[
+  bot('<strong>¿Desea algún producto más?</strong>',[
     {label:'Sí, añadir otro producto',value:'si'},
     {label:'No, ver resumen',value:'no'}
   ]);
@@ -288,6 +322,7 @@ function pedidoMas(v){
   const p=POINTS[state.data.point];
   msg('<strong>Resumen de pedido de demostración</strong><br><br>📍 Recogida: '+p.name+
       '<br>🛍️ Producto: '+esc(state.data.product||'Producto seleccionado')+
+      (state.data.size?'<br>📏 Medida: '+esc(state.data.size):'')+
       '<br>🔢 Cantidad: '+esc(state.data.quantity||'Pendiente'));
   safe('La demo todavía no confirma disponibilidad, precio, hora de recogida ni aceptación del pedido. Esos datos deben definirse con Can Soler.');
   state.step='menu';
