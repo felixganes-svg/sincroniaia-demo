@@ -73,7 +73,7 @@ var(--paper);scroll-behavior:smooth}
       <input id="input" class="input" autocomplete="off" placeholder="Escriba un mensaje…" onkeydown="if(event.key==='Enter')sendFree()">
       <button class="send" onclick="sendFree()" aria-label="Enviar">➤</button>
     </footer>
-    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.9</div>
+    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.11</div>
   </div>
 </div>
 
@@ -238,11 +238,13 @@ function route(v){
   if(state.step==='horchataAzucar') return horchataAzucar(v);
   if(state.step==='horchataFormato') return horchataFormato(v);
   if(state.step==='pedidoHeladoFormato') return pedidoHeladoFormato(v);
+  if(state.step==='pedidoHeladoSaboresCantidad') return pedidoHeladoSaboresCantidad(v);
   if(state.step==='pedidoHeladoSabor') return pedidoHeladoSabor(v);
   if(state.step==='pedidoHeladoMedida') return pedidoHeladoMedida(v);
   if(state.step==='pedidoCantidad') return pedidoCantidad(v);
   if(state.step==='pedidoMas') return pedidoMas(v);
   if(state.step==='pedidoConfirmar') return pedidoConfirmar(v);
+  if(state.step==='pedidoFinalizado') return pedidoFinalizado(v);
   if(state.step==='pedidoModificar') return pedidoModificar(v);
   if(state.step==='pedidoFechaOpciones') return pedidoFechaOpciones(v);
   if(state.step==='salidaPedido') return salidaPedido(v);
@@ -510,9 +512,29 @@ function pedidoHeladoFormato(v){
     ]);
   }
 
+  // Patrón Maestro: cucurucho/tarrina/para llevar pueden combinar varios sabores.
+  // Máximo 3 en la DEMO por UX; no se presenta como límite oficial de Can Soler.
+  state.data.product='Helado';
+  state.data.flavours=[];
+  state.step='pedidoHeladoSaboresCantidad';
+  return bot('<strong>¿Cuántos sabores desea?</strong><br><br>En esta demostración puede elegir hasta 3 sabores.',[
+    {label:'1 sabor',value:'1'},
+    {label:'2 sabores',value:'2'},
+    {label:'3 sabores',value:'3'},
+    {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},
+    {label:'🏠 Inicio',value:'inicio',cls:'dark'}
+  ]);
+}
+
+function pedidoHeladoSaboresCantidad(v){
+  const n=parseInt(v,10);
+  if(![1,2,3].includes(n)) return;
+  state.data.targetFlavours=n;
+  state.data.flavours=[];
   state.step='pedidoHeladoSabor';
-  bot('¿Qué sabor quiere?',FLAVOURS.map(x=>({label:x,value:x})).concat([
-    {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'}
+  bot('<strong>Elija el primer sabor</strong>',FLAVOURS.map(x=>({label:x,value:x})).concat([
+    {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},
+    {label:'🏠 Inicio',value:'inicio',cls:'dark'}
   ]));
 }
 
@@ -596,7 +618,36 @@ function pedidoCafeTipo(v){
   );
 }
 function pedidoHeladoSabor(v){
-  state.data.product=v;
+  state.data.flavours = state.data.flavours || [];
+
+  if(state.data.flavours.includes(v)){
+    return bot('<strong>'+esc(v)+'</strong> ya está seleccionado.<br><br>Elija un sabor diferente.',FLAVOURS
+      .filter(x=>!state.data.flavours.includes(x))
+      .map(x=>({label:x,value:x}))
+      .concat([
+        {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},
+        {label:'🏠 Inicio',value:'inicio',cls:'dark'}
+      ])
+    );
+  }
+
+  state.data.flavours.push(v);
+  const objetivo=state.data.targetFlavours||1;
+
+  if(state.data.flavours.length < objetivo){
+    const siguiente=state.data.flavours.length+1;
+    return bot('<strong>Sabores elegidos:</strong> '+state.data.flavours.map(esc).join(' · ')+
+      '<br><br><strong>Elija el sabor '+siguiente+' de '+objetivo+'</strong>',
+      FLAVOURS.filter(x=>!state.data.flavours.includes(x))
+        .map(x=>({label:x,value:x}))
+        .concat([
+          {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},
+          {label:'🏠 Inicio',value:'inicio',cls:'dark'}
+        ])
+    );
+  }
+
+  state.data.variant = state.data.flavours.join(' + ');
   state.step='pedidoHeladoMedida';
 
   let medidas=[];
@@ -622,8 +673,13 @@ function pedidoHeladoSabor(v){
     ];
   }
 
-  bot('<strong>¿Qué medida desea?</strong>',medidas);
+  bot('<strong>Sabores seleccionados:</strong> '+state.data.flavours.map(esc).join(' · ')+
+      '<br><br><strong>¿Qué medida desea?</strong>',medidas.concat([
+        {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},
+        {label:'🏠 Inicio',value:'inicio',cls:'dark'}
+      ]));
 }
+
 function pedidoHeladoMedida(v){
   state.data.size=v;
   state.step='pedidoCantidad';
@@ -662,12 +718,15 @@ function limpiarProductoActual(){
   delete state.data.size;
   delete state.data.quantity;
   delete state.data.format;
+  delete state.data.flavours;
+  delete state.data.targetFlavours;
 }
 function guardarProductoActual(){
   state.data.cart = state.data.cart || [];
   state.data.cart.push({
     product: state.data.product || 'Producto seleccionado',
     variant: state.data.variant || '',
+    flavours: Array.isArray(state.data.flavours) ? [...state.data.flavours] : [],
     size: state.data.size || '',
     quantity: state.data.quantity || '1'
   });
@@ -677,7 +736,8 @@ function lineasPedidoHtml(){
   const cart=state.data.cart||[];
   return cart.map((it,i)=>{
     return '<strong>'+(i+1)+'. '+esc(it.product)+'</strong>'+
-      (it.variant?'<br>↔️ Variante: '+esc(it.variant):'')+
+      (it.flavours && it.flavours.length?'<br>🍨 Sabores: '+it.flavours.map(esc).join(' · '):'')+
+      ((!it.flavours || !it.flavours.length) && it.variant?'<br>↔️ Variante: '+esc(it.variant):'')+
       (it.size?'<br>📏 Formato/medida: '+esc(it.size):'')+
       '<br>🔢 Unidades/envases: '+esc(it.quantity);
   }).join('<br><br>');
@@ -758,10 +818,9 @@ function pedidoConfirmar(v){
     msg('✅ <strong>Solicitud de pedido registrada en la demostración.</strong><br><br>Quedaría pendiente de confirmación por <strong>'+esc(p.name)+'</strong>.');
     notice('info','📨 SIMULACIÓN · INFORMACIÓN QUE RECIBIRÍA EL LOCAL',resumenPedidoHtml('PEDIDO RECIBIDO').replace('<strong>PEDIDO RECIBIDO</strong><br><br>',''));
     notice('safe','ESTADO REAL DE ESTA PRUEBA','No se ha enviado ningún pedido real. Cuando Can Soler defina el canal de recepción y confirmación, el sistema podrá registrar/enviar la solicitud según ese protocolo.');
-    state={step:'menu',branch:null,data:{}};
+    state.step='pedidoFinalizado';
     return buttons([
-      {label:'🏠 Volver al inicio',value:'inicio'},
-      {label:'💬 Otra consulta',value:'otra',cls:'dark'}
+      {label:'✅ Finalizar',value:'finalizar'}
     ]);
   }
   if(v==='modificar'){
@@ -777,6 +836,21 @@ function pedidoConfirmar(v){
     msg('❌ Solicitud cancelada. No se ha enviado ni registrado ningún pedido real.');
     state={step:'menu',branch:null,data:{}};
     return buttons([{label:'🏠 Volver al inicio',value:'inicio'}]);
+  }
+}
+function pedidoFinalizado(v){
+  if(v==='finalizar'){
+    const punto = POINTS[state.data.point] ? POINTS[state.data.point].name : 'Can Soler';
+    msg('Muchas gracias por confiar en <strong>Can Soler</strong>.<br><br>'+
+        'Su solicitud de demostración ha quedado cerrada correctamente. '+
+        'Esperamos haberle ayudado y que disfrute mucho de su pedido.<br><br>'+
+        '😊 <strong>Que tenga un feliz día.</strong>');
+    notice('info','FIN DE LA CONVERSACIÓN','La operación anterior queda cerrada. Puede volver al inicio o realizar una nueva consulta.');
+    state={step:'menu',branch:null,data:{}};
+    return buttons([
+      {label:'🏠 Volver al inicio',value:'inicio'},
+      {label:'💬 Nueva consulta',value:'otra',cls:'dark'}
+    ]);
   }
 }
 function pedidoModificar(v){
