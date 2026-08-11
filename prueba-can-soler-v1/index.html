@@ -34,8 +34,8 @@ var(--paper);scroll-behavior:smooth}
 .user{align-self:flex-end;background:var(--user);border-top-right-radius:2px}
 .time{position:absolute;right:7px;bottom:3px;color:#7b8b91;font-size:9px}
 .msg strong{font-weight:750}
-.options{align-self:flex-start;display:flex;flex-wrap:wrap;gap:7px;max-width:96%}
-.chip{border:1px solid var(--green);background:#fff;color:#087967;border-radius:17px;padding:9px 11px;font-size:12.7px;font-weight:700;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.options{align-self:stretch;display:flex;flex-wrap:wrap;gap:7px;max-width:100%;margin:2px 0 4px}
+.chip{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--green);background:#fff;color:#087967;border-radius:17px;padding:9px 11px;font-size:12.7px;font-weight:700;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.05);min-height:38px;text-align:center;white-space:normal}
 .chip.gold{border-color:#a37842;color:#825b29}.chip.dark{border-color:#65757c;color:#425057}.chip:active{transform:scale(.97)}
 .notice{align-self:stretch;border-radius:11px;padding:10px 11px;font-size:12.5px;line-height:1.4}
 .notice.info{background:var(--info);border:1px solid var(--infoLine);color:#214c78}
@@ -50,6 +50,7 @@ var(--paper);scroll-behavior:smooth}
 .input{flex:1;min-width:0;border:0;border-radius:20px;background:white;padding:11px 13px;font-size:14px;outline:none}
 .send{width:42px;height:42px;border:0;border-radius:50%;background:var(--green);color:white;font-weight:900;font-size:17px;cursor:pointer}
 .smallnote{text-align:center;font-size:9px;color:#6f7e84;padding:0 9px 6px}
+@media(max-width:420px){.options .chip{flex:1 1 calc(50% - 7px)}}
 @media(max-width:360px){.badge{display:none}.msg{font-size:14px}.chip{font-size:12.2px;padding:8px 10px}}
 </style>
 </head>
@@ -72,7 +73,7 @@ var(--paper);scroll-behavior:smooth}
       <input id="input" class="input" autocomplete="off" placeholder="Escriba un mensaje…" onkeydown="if(event.key==='Enter')sendFree()">
       <button class="send" onclick="sendFree()" aria-label="Enviar">➤</button>
     </footer>
-    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real</div>
+    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.4</div>
   </div>
 </div>
 
@@ -131,6 +132,8 @@ function route(v){
   if(state.step==='pedidoPunto') return pedidoPunto(v);
   if(state.step==='pedidoModo') return pedidoModo(v);
   if(state.step==='pedidoCategoria') return pedidoCategoria(v);
+  if(state.step==='horchataAzucar') return horchataAzucar(v);
+  if(state.step==='horchataFormato') return horchataFormato(v);
   if(state.step==='pedidoHeladoFormato') return pedidoHeladoFormato(v);
   if(state.step==='pedidoHeladoSabor') return pedidoHeladoSabor(v);
   if(state.step==='pedidoHeladoMedida') return pedidoHeladoMedida(v);
@@ -208,10 +211,10 @@ function pedidoCategoria(v){
     ]);
   }
   if(v==='granizados'){
-    state.data.product='Horchata / granizado';
+    state.data.category='granizados';
     state.step='pedidoCantidad';
     return bot('¿Qué desea dentro de esta categoría?',[
-      {label:'Horchata',value:'Horchata'},
+      {label:'Horchata',value:'HORCHATA'},
       {label:'Leche merengada',value:'Leche merengada'},
       {label:'Granizado de limón',value:'Granizado de limón'},
       {label:'Granizado de fresa',value:'Granizado de fresa'},
@@ -290,7 +293,37 @@ function pedidoHeladoMedida(v){
     {label:'Otra cantidad',value:'otra'}
   ]);
 }
+function horchataAzucar(v){
+  state.data.variant = (v==='sin_azucar') ? 'Sin azúcar' : 'Con azúcar';
+  state.step='horchataFormato';
+  bot('<strong>¿Qué formato desea?</strong>',[
+    {label:'Pequeño',value:'Pequeño'},
+    {label:'Mediano',value:'Mediano'},
+    {label:'Grande',value:'Grande'},
+    {label:'1 litro',value:'1 litro'},
+    {label:'1,5 litros',value:'1,5 litros'},
+    {label:'2 litros',value:'2 litros'}
+  ]);
+}
+function horchataFormato(v){
+  state.data.size=v;
+  state.step='pedidoCantidad';
+  bot('<strong>¿Cuántos envases desea?</strong>',[
+    {label:'1',value:'1'},
+    {label:'2',value:'2'},
+    {label:'3',value:'3'},
+    {label:'Otra cantidad',value:'otra'}
+  ]);
+}
 function pedidoCantidad(v){
+  if(v==='HORCHATA'){
+    state.data.product='Horchata';
+    state.step='horchataAzucar';
+    return bot('<strong>¿Cómo desea la horchata?</strong>',[
+      {label:'Con azúcar',value:'con_azucar'},
+      {label:'Sin azúcar',value:'sin_azucar'}
+    ]);
+  }
   if(!state.data.product) state.data.product=v;
   if(!state.data.quantity && ['1','2','3','otra'].includes(v)) state.data.quantity=v;
   if(!['1','2','3','otra'].includes(v)) {
@@ -322,8 +355,9 @@ function pedidoMas(v){
   const p=POINTS[state.data.point];
   msg('<strong>Resumen de pedido de demostración</strong><br><br>📍 Recogida: '+p.name+
       '<br>🛍️ Producto: '+esc(state.data.product||'Producto seleccionado')+
-      (state.data.size?'<br>📏 Medida: '+esc(state.data.size):'')+
-      '<br>🔢 Cantidad: '+esc(state.data.quantity||'Pendiente'));
+      (state.data.variant?'<br>↔️ Variante: '+esc(state.data.variant):'')+
+      (state.data.size?'<br>📏 Formato: '+esc(state.data.size):'')+
+      '<br>🔢 Unidades/envases: '+esc(state.data.quantity||'Pendiente'));
   safe('La demo todavía no confirma disponibilidad, precio, hora de recogida ni aceptación del pedido. Esos datos deben definirse con Can Soler.');
   state.step='menu';
   buttons([{label:'🏠 Volver al inicio',value:'inicio'}]);
