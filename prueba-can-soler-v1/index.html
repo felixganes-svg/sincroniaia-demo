@@ -73,7 +73,7 @@ var(--paper);scroll-behavior:smooth}
       <input id="input" class="input" autocomplete="off" placeholder="Escriba un mensaje…" onkeydown="if(event.key==='Enter')sendFree()">
       <button class="send" onclick="sendFree()" aria-label="Enviar">➤</button>
     </footer>
-    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.11</div>
+    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.12</div>
   </div>
 </div>
 
@@ -240,6 +240,7 @@ function route(v){
   if(state.step==='pedidoHeladoFormato') return pedidoHeladoFormato(v);
   if(state.step==='pedidoHeladoSaboresCantidad') return pedidoHeladoSaboresCantidad(v);
   if(state.step==='pedidoHeladoSabor') return pedidoHeladoSabor(v);
+  if(state.step==='pedidoHeladoConfirmarSabores') return pedidoHeladoConfirmarSabores(v);
   if(state.step==='pedidoHeladoMedida') return pedidoHeladoMedida(v);
   if(state.step==='pedidoCantidad') return pedidoCantidad(v);
   if(state.step==='pedidoMas') return pedidoMas(v);
@@ -617,79 +618,57 @@ function pedidoCafeTipo(v){
     ])
   );
 }
+function medidasHeladoActual(){
+  if(state.data.format==='cucurucho') return [{label:'Baby',value:'Baby'},{label:'Pequeño',value:'Pequeño'},{label:'Mediano',value:'Mediano'},{label:'Grande',value:'Grande'},{label:'Doble',value:'Doble'}];
+  if(state.data.format==='tarrina') return [{label:'Pequeña',value:'Pequeña'},{label:'Mediana',value:'Mediana'},{label:'Grande',value:'Grande'}];
+  return [{label:'½ litro',value:'½ litro'},{label:'½ litro porex',value:'½ litro porex'},{label:'1,3 litros tupper',value:'1,3 litros tupper'}];
+}
+function preguntarMedidaHelado(){
+  state.step='pedidoHeladoMedida';
+  return bot('<strong>¿Qué medida desea?</strong>',medidasHeladoActual().concat([
+    {label:'↩️ Volver a sabores',value:'volver_sabores',cls:'dark'},
+    {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},
+    {label:'🏠 Inicio',value:'inicio',cls:'dark'}
+  ]));
+}
 function pedidoHeladoSabor(v){
   state.data.flavours = state.data.flavours || [];
-
   if(state.data.flavours.includes(v)){
-    return bot('<strong>'+esc(v)+'</strong> ya está seleccionado.<br><br>Elija un sabor diferente.',FLAVOURS
-      .filter(x=>!state.data.flavours.includes(x))
-      .map(x=>({label:x,value:x}))
-      .concat([
-        {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},
-        {label:'🏠 Inicio',value:'inicio',cls:'dark'}
-      ])
-    );
+    return bot('<strong>'+esc(v)+'</strong> ya está seleccionado.<br><br>Elija un sabor diferente.',FLAVOURS.filter(x=>!state.data.flavours.includes(x)).map(x=>({label:x,value:x})).concat([{label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},{label:'🏠 Inicio',value:'inicio',cls:'dark'}]));
   }
-
   state.data.flavours.push(v);
   const objetivo=state.data.targetFlavours||1;
-
   if(state.data.flavours.length < objetivo){
     const siguiente=state.data.flavours.length+1;
-    return bot('<strong>Sabores elegidos:</strong> '+state.data.flavours.map(esc).join(' · ')+
-      '<br><br><strong>Elija el sabor '+siguiente+' de '+objetivo+'</strong>',
-      FLAVOURS.filter(x=>!state.data.flavours.includes(x))
-        .map(x=>({label:x,value:x}))
-        .concat([
-          {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},
-          {label:'🏠 Inicio',value:'inicio',cls:'dark'}
-        ])
-    );
+    return bot('<strong>Sabores elegidos:</strong> '+state.data.flavours.map(esc).join(' · ')+'<br><br><strong>Elija el sabor '+siguiente+' de '+objetivo+'</strong>',FLAVOURS.filter(x=>!state.data.flavours.includes(x)).map(x=>({label:x,value:x})).concat([{label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},{label:'🏠 Inicio',value:'inicio',cls:'dark'}]));
   }
-
-  state.data.variant = state.data.flavours.join(' + ');
-  state.step='pedidoHeladoMedida';
-
-  let medidas=[];
-  if(state.data.format==='cucurucho'){
-    medidas=[
-      {label:'Baby',value:'Baby'},
-      {label:'Pequeño',value:'Pequeño'},
-      {label:'Mediano',value:'Mediano'},
-      {label:'Grande',value:'Grande'},
-      {label:'Doble',value:'Doble'}
-    ];
-  } else if(state.data.format==='tarrina'){
-    medidas=[
-      {label:'Pequeña',value:'Pequeña'},
-      {label:'Mediana',value:'Mediana'},
-      {label:'Grande',value:'Grande'}
-    ];
-  } else {
-    medidas=[
-      {label:'½ litro',value:'½ litro'},
-      {label:'½ litro porex',value:'½ litro porex'},
-      {label:'1,3 litros tupper',value:'1,3 litros tupper'}
-    ];
+  state.data.variant=state.data.flavours.join(' + ');
+  state.step='pedidoHeladoConfirmarSabores';
+  return bot('<strong>Sabores seleccionados:</strong> '+state.data.flavours.map(esc).join(' · ')+'<br><br><strong>¿Es correcto?</strong>',[
+    {label:'✅ Sí, continuar',value:'si'},
+    {label:'↩️ No, volver a sabores',value:'no',cls:'dark'},
+    {label:'🏠 Inicio',value:'inicio',cls:'dark'}
+  ]);
+}
+function pedidoHeladoConfirmarSabores(v){
+  if(v==='si') return preguntarMedidaHelado();
+  if(v==='no'){
+    const objetivo=state.data.targetFlavours||1;
+    state.data.flavours=[]; state.data.variant=''; state.step='pedidoHeladoSabor';
+    return bot('<strong>De acuerdo. Volvamos a elegir los sabores.</strong><br><br>Mantengo que desea <strong>'+objetivo+' '+(objetivo===1?'sabor':'sabores')+'</strong>.<br><br><strong>Elija el primer sabor.</strong>',FLAVOURS.map(x=>({label:x,value:x})).concat([{label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},{label:'🏠 Inicio',value:'inicio',cls:'dark'}]));
   }
-
-  bot('<strong>Sabores seleccionados:</strong> '+state.data.flavours.map(esc).join(' · ')+
-      '<br><br><strong>¿Qué medida desea?</strong>',medidas.concat([
-        {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},
-        {label:'🏠 Inicio',value:'inicio',cls:'dark'}
-      ]));
 }
 
 function pedidoHeladoMedida(v){
-  state.data.size=v;
-  state.step='pedidoCantidad';
-  bot('<strong>¿Qué cantidad desea?</strong>',[
-    {label:'1',value:'1'},
-    {label:'2',value:'2'},
-    {label:'3',value:'3'},
-    {label:'Otra cantidad',value:'otra'}
-  ]);
+  if(v==='volver_sabores'){
+    const objetivo=state.data.targetFlavours||1;
+    state.data.flavours=[]; state.data.variant=''; state.step='pedidoHeladoSabor';
+    return bot('<strong>Volvamos a elegir los sabores.</strong><br><br>Mantengo que desea <strong>'+objetivo+' '+(objetivo===1?'sabor':'sabores')+'</strong>.<br><br><strong>Elija el primer sabor.</strong>',FLAVOURS.map(x=>({label:x,value:x})).concat([{label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},{label:'🏠 Inicio',value:'inicio',cls:'dark'}]));
+  }
+  state.data.size=v; state.step='pedidoCantidad';
+  bot('<strong>¿Qué cantidad desea?</strong>',[{label:'1',value:'1'},{label:'2',value:'2'},{label:'3',value:'3'},{label:'Otra cantidad',value:'otra'}]);
 }
+
 function horchataAzucar(v){
   state.data.variant = (v==='sin_azucar') ? 'Sin azúcar' : 'Con azúcar';
   state.step='horchataFormato';
