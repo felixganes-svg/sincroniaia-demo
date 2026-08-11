@@ -73,7 +73,7 @@ var(--paper);scroll-behavior:smooth}
       <input id="input" class="input" autocomplete="off" placeholder="Escriba un mensaje…" onkeydown="if(event.key==='Enter')sendFree()">
       <button class="send" onclick="sendFree()" aria-label="Enviar">➤</button>
     </footer>
-    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.12</div>
+    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.13</div>
   </div>
 </div>
 
@@ -248,6 +248,8 @@ function route(v){
   if(state.step==='pedidoFinalizado') return pedidoFinalizado(v);
   if(state.step==='pedidoModificar') return pedidoModificar(v);
   if(state.step==='pedidoFechaOpciones') return pedidoFechaOpciones(v);
+  if(state.step==='pedidoFranjaHorario') return pedidoFranjaHorario(v);
+  if(state.step==='pedidoIntervaloHorario') return pedidoIntervaloHorario(v);
   if(state.step==='salidaPedido') return salidaPedido(v);
   if(state.step==='pedidoNombre') return null;
   if(state.step==='puntos') return puntoDetalle(v);
@@ -728,7 +730,7 @@ function resumenPedidoHtml(titulo){
     (state.data.nombre?'👤 Nombre: '+esc(state.data.nombre)+'<br>':'')+
     (state.data.telefono?'📞 Teléfono: '+esc(state.data.telefono)+'<br>':'')+
     (state.data.fechaRecogida?'📅 Día solicitado: '+esc(state.data.fechaRecogida)+'<br>':'')+
-    (state.data.horaRecogida?'🕒 Hora solicitada: '+esc(state.data.horaRecogida)+'<br>':'')+
+    (state.data.horaRecogida?'🕒 Franja solicitada: '+esc(state.data.horaRecogida)+'<br>':'')+
     '<br>'+lineasPedidoHtml();
 }
 function pedidoCantidad(v){
@@ -783,7 +785,7 @@ function pedidoMas(v){
 }
 function mostrarResumenPedido(){
   msg(resumenPedidoHtml('📋 RESUMEN DEL PEDIDO'));
-  notice('info','IMPORTANTE','El día y la hora indicados son una preferencia de recogida. En esta demo el establecimiento todavía no ha confirmado disponibilidad ni aceptación del pedido.');
+  notice('info','IMPORTANTE','El horario de recogida configurado es de 11:00 a 23:00. El día y la franja elegidos quedan pendientes de confirmación de disponibilidad y aceptación por el establecimiento.');
   state.step='pedidoConfirmar';
   buttons([
     {label:'✅ Confirmar solicitud',value:'confirmar'},
@@ -851,6 +853,9 @@ function pedidoModificar(v){
     return bot('¿A qué nombre registramos el pedido?');
   }
   if(v==='recogida'){
+    delete state.data.fechaRecogida;
+    delete state.data.franjaGeneral;
+    delete state.data.horaRecogida;
     state.step='pedidoFechaOpciones';
     return bot('<strong>¿Para qué día desea solicitar la recogida?</strong>',[
       {label:'Hoy',value:'hoy'},
@@ -869,19 +874,91 @@ function pedidoModificar(v){
   }
 }
 
+
+const HORARIO_RECOGIDA={
+  inicio:'11:00',
+  fin:'23:00',
+  franjas:{
+    mediodia:{
+      label:'☀️ Mediodía · 11:00–15:00',
+      intervalos:['11:00–12:00','12:00–13:00','13:00–14:00','14:00–15:00']
+    },
+    tarde:{
+      label:'🌤️ Tarde · 15:00–19:00',
+      intervalos:['15:00–16:00','16:00–17:00','17:00–18:00','18:00–19:00']
+    },
+    noche:{
+      label:'🌙 Noche · 19:00–23:00',
+      intervalos:['19:00–20:00','20:00–21:00','21:00–22:00','22:00–23:00']
+    }
+  }
+};
+
+function preguntarFranjaHorario(){
+  state.step='pedidoFranjaHorario';
+  return bot(
+    '<strong>¿A qué hora desea recogerlo?</strong><br><br>'+
+    'Nuestro horario de recogida es de <strong>11:00 a 23:00</strong>.<br><br>'+
+    '<strong>¿En qué franja horaria lo desea?</strong>',
+    [
+      {label:HORARIO_RECOGIDA.franjas.mediodia.label,value:'mediodia'},
+      {label:HORARIO_RECOGIDA.franjas.tarde.label,value:'tarde'},
+      {label:HORARIO_RECOGIDA.franjas.noche.label,value:'noche'},
+      {label:'↩️ Volver al día',value:'volver_dia',cls:'dark'},
+      {label:'🏠 Inicio',value:'inicio',cls:'dark'}
+    ]
+  );
+}
+
+function pedidoFranjaHorario(v){
+  if(v==='volver_dia'){
+    state.step='pedidoFechaOpciones';
+    return bot('<strong>¿Para qué día desea solicitar la recogida?</strong>',[
+      {label:'Hoy',value:'hoy'},
+      {label:'Mañana',value:'manana'},
+      {label:'Otra fecha',value:'otra_fecha'},
+      {label:'↩️ Volver al resumen',value:'volver_resumen',cls:'dark'}
+    ]);
+  }
+
+  const franja=HORARIO_RECOGIDA.franjas[v];
+  if(!franja) return;
+
+  state.data.franjaGeneral=v;
+  state.step='pedidoIntervaloHorario';
+  return bot(
+    '<strong>'+franja.label+'</strong><br><br>'+
+    '<strong>¿En qué intervalo desea recogerlo?</strong>',
+    franja.intervalos.map(x=>({label:x,value:x})).concat([
+      {label:'↩️ Cambiar franja',value:'volver_franja',cls:'dark'},
+      {label:'🏠 Inicio',value:'inicio',cls:'dark'}
+    ])
+  );
+}
+
+function pedidoIntervaloHorario(v){
+  if(v==='volver_franja'){
+    return preguntarFranjaHorario();
+  }
+
+  const franja=HORARIO_RECOGIDA.franjas[state.data.franjaGeneral];
+  if(!franja || !franja.intervalos.includes(v)) return;
+
+  state.data.horaRecogida=v;
+  mostrarResumenPedido();
+}
+
 function pedidoFechaOpciones(v){
   if(v==='volver_resumen'){
     return mostrarResumenPedido();
   }
   if(v==='hoy'){
     state.data.fechaRecogida='Hoy';
-    state.step='pedidoHora';
-    return bot('<strong>¿A qué hora aproximadamente desea recogerlo?</strong><br><br>Es una preferencia; el local deberá confirmarla.');
+    return preguntarFranjaHorario();
   }
   if(v==='manana'){
     state.data.fechaRecogida='Mañana';
-    state.step='pedidoHora';
-    return bot('<strong>¿A qué hora aproximadamente desea recogerlo?</strong><br><br>Es una preferencia; el local deberá confirmarla.');
+    return preguntarFranjaHorario();
   }
   if(v==='otra_fecha'){
     state.step='pedidoFecha';
@@ -902,7 +979,7 @@ function puntoDetalle(v){
   state.data.point=v;
   const p=POINTS[v];
   msg('<strong>'+p.name+'</strong><br>📍 '+p.address+'<br>📞 '+p.phone+(p.email?'<br>✉️ '+p.email:''));
-  safe('El horario actual no se da por válido automáticamente si la fuente publicada no está confirmada como vigente.');
+  safe('Horario de recogida confirmado para esta demostración: de 11:00 a 23:00.');
   state.step='puntoAccion';
   buttons([
     {label:'🛍️ Hacer pedido aquí',value:'pedido'},
@@ -1005,13 +1082,7 @@ function handleOrderText(text){
   }
   if(state.step==='pedidoFecha'){
     state.data.fechaRecogida=String(text).trim();
-    state.step='pedidoHora';
-    bot('<strong>¿A qué hora aproximadamente desea recogerlo?</strong><br><br>Es una preferencia; el local deberá confirmarla.');
-    return true;
-  }
-  if(state.step==='pedidoHora'){
-    state.data.horaRecogida=String(text).trim();
-    mostrarResumenPedido();
+    preguntarFranjaHorario();
     return true;
   }
   return false;
