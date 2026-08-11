@@ -73,7 +73,7 @@ var(--paper);scroll-behavior:smooth}
       <input id="input" class="input" autocomplete="off" placeholder="Escriba un mensaje…" onkeydown="if(event.key==='Enter')sendFree()">
       <button class="send" onclick="sendFree()" aria-label="Enviar">➤</button>
     </footer>
-    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.13</div>
+    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.14</div>
   </div>
 </div>
 
@@ -780,7 +780,8 @@ function pedidoMas(v){
     ]);
   }
   state.step='pedidoNombre';
-  bot('<strong>¿A qué nombre registramos el pedido?</strong>');
+  notice('info','DATOS DE CONTACTO','Sus datos se utilizarán para gestionar su pedido y contactar con usted en relación con la recogida.');
+    bot('<strong>¿A qué nombre registramos el pedido?</strong>');
   input.focus();
 }
 function mostrarResumenPedido(){
