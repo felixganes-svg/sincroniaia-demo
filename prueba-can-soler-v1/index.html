@@ -73,7 +73,7 @@ var(--paper);scroll-behavior:smooth}
       <input id="input" class="input" autocomplete="off" placeholder="Escriba un mensaje…" onkeydown="if(event.key==='Enter')sendFree()">
       <button class="send" onclick="sendFree()" aria-label="Enviar">➤</button>
     </footer>
-    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.5</div>
+    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.8</div>
   </div>
 </div>
 
@@ -89,7 +89,7 @@ const POINTS={
 };
 
 const FLAVOURS=['Pistacho','Xixollana','Turrón de Jijona D.O.','Crema catalana','Horchata','Stracciatella','Tiramisú','Fresa','Limón','Sorbete de mango','Sorbete de mandarina','Chocolate 60% chocolate belga','Vainilla','Avellana','Dulce de leche','Leche merengada','Yogur natural'];
-const SPECIALS=['Xixollana','Agua de Badalona','Palmera','Canario','Cubano','Blanco y negro'];
+const SPECIALS=['Xixollana','Agua de Badalona','Palmera','Lletuga','Canario','Cubano','Blanco y negro','Café con leche de verano'];
 
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function norm(s){return String(s??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim()}
@@ -123,7 +123,9 @@ function restart(){
   ]);
 }
 function route(v){
-  if(v==='inicio'){ return home(); }
+  if(v==='inicio'){ return confirmarSalidaInicio(); }
+  if(v==='menu_pedido'){ return volverMenuPedido(); }
+  if(v==='categorias'){ return volverCategoriasPedido(); }
   if(v==='otra'){ return otraStart(); }
   if(state.step==='menu'){
     if(v==='pedido') return pedidoStart();
@@ -143,6 +145,8 @@ function route(v){
   if(state.step==='pedidoMas') return pedidoMas(v);
   if(state.step==='pedidoConfirmar') return pedidoConfirmar(v);
   if(state.step==='pedidoModificar') return pedidoModificar(v);
+  if(state.step==='pedidoFechaOpciones') return pedidoFechaOpciones(v);
+  if(state.step==='salidaPedido') return salidaPedido(v);
   if(state.step==='pedidoNombre') return null;
   if(state.step==='puntos') return puntoDetalle(v);
   if(state.step==='puntoAccion') return puntoAccion(v);
@@ -150,12 +154,64 @@ function route(v){
   if(state.step==='conocerMas') return conocerMas(v);
 }
 
+function hayPedidoEnCurso(){
+  return state && state.branch==='pedido' && (
+    (state.data && state.data.point) ||
+    (state.data && state.data.cart && state.data.cart.length) ||
+    (state.data && state.data.product) ||
+    (state.data && state.data.nombre) ||
+    (state.data && state.data.telefono)
+  );
+}
+function confirmarSalidaInicio(){
+  if(hayPedidoEnCurso()){
+    state.step='salidaPedido';
+    return bot('<strong>Tiene un pedido en curso.</strong><br><br>¿Qué desea hacer?',[
+      {label:'🛍️ Continuar pedido',value:'continuar_pedido'},
+      {label:'🗑️ Cancelar pedido y volver al inicio',value:'cancelar_ir_inicio',cls:'dark'}
+    ]);
+  }
+  return home();
+}
+function volverMenuPedido(){
+  if(!state.data) state.data={};
+  state.step='pedidoModo';
+  return bot('<strong>Menú del pedido</strong><br><br>¿Ya sabe qué quiere pedir?',[
+    {label:'Sí, elegir productos',value:'elegir'},
+    {label:'✨ No, ayúdeme a elegir',value:'ayuda'},
+    {label:'🏠 Volver al inicio',value:'inicio',cls:'dark'}
+  ]);
+}
+function volverCategoriasPedido(){
+  state.step='pedidoCategoria';
+  return bot('<strong>¿Qué desea pedir?</strong>',[
+    {label:'🍦 Helados',value:'helados'},
+    {label:'🥤 Horchata / granizados',value:'granizados'},
+    {label:'🥞 Crepes / gofres',value:'crepes'},
+    {label:'🥛 Batidos / smoothies',value:'batidos'},
+    {label:'☕ Cafés / bebidas',value:'cafes'},
+    {label:'⭐ Especialidades Can Soler',value:'especiales',cls:'gold'},
+    {label:'↩️ Volver al menú de pedidos',value:'menu_pedido',cls:'dark'},
+    {label:'🏠 Inicio',value:'inicio',cls:'dark'}
+  ]);
+}
+function salidaPedido(v){
+  if(v==='continuar_pedido'){
+    return volverMenuPedido();
+  }
+  if(v==='cancelar_ir_inicio'){
+    msg('Pedido de demostración cancelado. No se ha enviado ninguna solicitud real.');
+    state={step:'menu',branch:null,data:{}};
+    return home();
+  }
+}
 function pedidoStart(){
   state={step:'pedidoPunto',branch:'pedido',data:{cart:[]}};
   bot('<strong>¿Dónde desea recoger el pedido?</strong>',[
     {label:'Can Soler Mar',value:'mar'},
     {label:'Francesc Layret',value:'layret'},
-    {label:'Mercado de Montgat',value:'montgat'}
+    {label:'Mercado de Montgat',value:'montgat'},
+    {label:'🏠 Volver al inicio',value:'inicio',cls:'dark'}
   ]);
 }
 function pedidoPunto(v){
@@ -166,7 +222,8 @@ function pedidoPunto(v){
   state.step='pedidoModo';
   bot('Perfecto: <strong>'+POINTS[v].name+'</strong>.<br><br>¿Ya sabe qué quiere pedir?',[
     {label:'Sí, elegir productos',value:'elegir'},
-    {label:'✨ No, ayúdeme a elegir',value:'ayuda'}
+    {label:'✨ No, ayúdeme a elegir',value:'ayuda'},
+    {label:'🏠 Volver al inicio',value:'inicio',cls:'dark'}
   ]);
 }
 function pedidoModo(v){
@@ -176,7 +233,9 @@ function pedidoModo(v){
       {label:'🍫 Chocolate / intenso',value:'mood_choc'},
       {label:'🍓 Frutal / fresco',value:'mood_fruit'},
       {label:'❄️ Refrescante',value:'mood_cold'},
-      {label:'⭐ Algo muy Can Soler',value:'mood_cansoler',cls:'gold'}
+      {label:'⭐ Algo muy Can Soler',value:'mood_cansoler',cls:'gold'},
+      {label:'↩️ Volver al menú de pedidos',value:'menu_pedido',cls:'dark'},
+      {label:'🏠 Inicio',value:'inicio',cls:'dark'}
     ]);
   }
   state.step='pedidoCategoria';
@@ -186,7 +245,9 @@ function pedidoModo(v){
     {label:'🥞 Crepes / gofres',value:'crepes'},
     {label:'🥛 Batidos / smoothies',value:'batidos'},
     {label:'☕ Cafés / bebidas',value:'cafes'},
-    {label:'⭐ Especialidades Can Soler',value:'especiales',cls:'gold'}
+    {label:'⭐ Especialidades Can Soler',value:'especiales',cls:'gold'},
+    {label:'↩️ Volver al menú de pedidos',value:'menu_pedido',cls:'dark'},
+    {label:'🏠 Inicio',value:'inicio',cls:'dark'}
   ]);
 }
 function pedidoCategoria(v){
@@ -196,9 +257,28 @@ function pedidoCategoria(v){
     if(v==='mood_fruit')text='Si busca algo frutal, podemos mirar sorbetes, helados de fruta, granizados o smoothies.';
     if(v==='mood_cold')text='Para algo refrescante podemos empezar por horchata, granizados, sorbetes o combinados como <strong>Palmera</strong>.';
     if(v==='mood_cansoler'){
-      msg('Para algo muy Can Soler podemos empezar por <strong>Xixollana, Agua de Badalona, Palmera, Canario, Cubano</strong> o <strong>Blanco y negro</strong>.');
+      msg('<strong>Estas son algunas especialidades de Can Soler:</strong><br><br>'+
+        '🍦 <strong>Xixollana</strong> — sabor de helado publicado por Can Soler como ganador de España en 2019. La composición concreta no está configurada en esta demo.<br><br>'+
+        '🍋 <strong>Agua de Badalona</strong> — granizado de limón con menta peppermint y un toque de Anís del Mono dulce.<br><br>'+
+        '🥤 <strong>Palmera</strong> — horchata y granizado de limón.<br><br>'+
+        '🌿 <strong>Lletuga</strong> — granizado de limón con menta peppermint.<br><br>'+
+        '🍋🍦 <strong>Canario</strong> — granizado de limón con 1 bola de helado de vainilla.<br><br>'+
+        '🥤🍫 <strong>Cubano</strong> — horchata con 1 bola de helado de chocolate.<br><br>'+
+        '☕🍦 <strong>Blanco y negro</strong> — granizado de café con 1 bola de helado de leche merengada.<br><br>'+
+        '☕🥤 <strong>Café con leche de verano</strong> — leche merengada u horchata con café granizado.');
       state.step='pedidoCantidad';
-      return bot('<strong>¿Cuál le apetece?</strong>',SPECIALS.map(x=>({label:x,value:x,cls:'gold'})));
+      return bot('<strong>Ahora que sabe qué es cada uno, ¿cuál le apetece?</strong>',[
+        {label:'Xixollana',value:'Xixollana',cls:'gold'},
+        {label:'Agua de Badalona',value:'Agua de Badalona',cls:'gold'},
+        {label:'Palmera',value:'Palmera',cls:'gold'},
+        {label:'Lletuga',value:'Lletuga',cls:'gold'},
+        {label:'Canario',value:'Canario',cls:'gold'},
+        {label:'Cubano',value:'Cubano',cls:'gold'},
+        {label:'Blanco y negro',value:'Blanco y negro',cls:'gold'},
+        {label:'Café con leche de verano',value:'Café con leche de verano',cls:'gold'},
+        {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},
+        {label:'🏠 Inicio',value:'inicio',cls:'dark'}
+      ]);
     }
     msg(text);
     state.step='pedidoCategoria';
@@ -387,7 +467,9 @@ function pedidoCantidad(v){
   state.step='pedidoMas';
   bot('<strong>¿Desea algún producto más?</strong>',[
     {label:'Sí, añadir otro producto',value:'si'},
-    {label:'No, continuar',value:'no'}
+    {label:'No, continuar',value:'no'},
+    {label:'↩️ Volver a categorías',value:'categorias',cls:'dark'},
+    {label:'🏠 Inicio',value:'inicio',cls:'dark'}
   ]);
 }
 function pedidoMas(v){
@@ -462,8 +544,13 @@ function pedidoModificar(v){
     return bot('¿A qué nombre registramos el pedido?');
   }
   if(v==='recogida'){
-    state.step='pedidoFecha';
-    return bot('¿Para qué día desea solicitar la recogida?');
+    state.step='pedidoFechaOpciones';
+    return bot('<strong>¿Para qué día desea solicitar la recogida?</strong>',[
+      {label:'Hoy',value:'hoy'},
+      {label:'Mañana',value:'manana'},
+      {label:'Otra fecha',value:'otra_fecha'},
+      {label:'↩️ Volver al resumen',value:'volver_resumen',cls:'dark'}
+    ]);
   }
   if(v==='punto'){
     state.step='pedidoPunto';
@@ -472,6 +559,27 @@ function pedidoModificar(v){
       {label:'Francesc Layret',value:'layret'},
       {label:'Mercado de Montgat',value:'montgat'}
     ]);
+  }
+}
+
+function pedidoFechaOpciones(v){
+  if(v==='volver_resumen'){
+    return mostrarResumenPedido();
+  }
+  if(v==='hoy'){
+    state.data.fechaRecogida='Hoy';
+    state.step='pedidoHora';
+    return bot('<strong>¿A qué hora aproximadamente desea recogerlo?</strong><br><br>Es una preferencia; el local deberá confirmarla.');
+  }
+  if(v==='manana'){
+    state.data.fechaRecogida='Mañana';
+    state.step='pedidoHora';
+    return bot('<strong>¿A qué hora aproximadamente desea recogerlo?</strong><br><br>Es una preferencia; el local deberá confirmarla.');
+  }
+  if(v==='otra_fecha'){
+    state.step='pedidoFecha';
+    bot('<strong>Indique el día o la fecha que desea.</strong><br><br>Por ejemplo: viernes, 14 de agosto o 14/08.');
+    input.focus();
   }
 }
 
@@ -579,8 +687,13 @@ function handleOrderText(text){
       return true;
     }
     state.data.telefono=String(text).trim();
-    state.step='pedidoFecha';
-    bot('<strong>¿Para qué día desea solicitar la recogida?</strong><br><br>Puede escribir, por ejemplo: hoy, mañana, viernes o una fecha.');
+    state.step='pedidoFechaOpciones';
+    bot('<strong>¿Para qué día desea solicitar la recogida?</strong>',[
+      {label:'Hoy',value:'hoy'},
+      {label:'Mañana',value:'manana'},
+      {label:'Otra fecha',value:'otra_fecha'},
+      {label:'↩️ Volver al resumen',value:'volver_resumen',cls:'dark'}
+    ]);
     return true;
   }
   if(state.step==='pedidoFecha'){
