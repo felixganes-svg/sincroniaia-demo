@@ -6,90 +6,52 @@
 <meta name="theme-color" content="#efe9de">
 <title>Can Soler Demo · SINCRONIAIA</title>
 <style>
-:root{
-  --bg:#efe9de;
-  --panel:#f8f5ef;
-  --ink:#222326;
-  --muted:#737373;
-  --line:#d9d2c7;
-  --brand:#17223d;
-  --accent:#a52a2a;
-  --chip:#ffffff;
-  --user:#17223d;
-  --bot:#ffffff;
-  --safe:#efe4c9;
-}
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink)}
-body{display:flex;justify-content:center}
-.app{width:100%;max-width:760px;min-height:100vh;display:flex;flex-direction:column;background:var(--panel)}
-.header{
-  padding:22px 16px 14px;text-align:center;background:var(--panel);
-  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5
-}
-.title{font-weight:850;font-size:22px;letter-spacing:-.3px}
-.title .mark{font-family:Georgia,serif;color:var(--brand);font-size:25px}
-.status{margin-top:5px;font-size:11px;color:var(--muted);letter-spacing:.45px;text-transform:lowercase}
-.isolated{margin-top:9px;display:inline-block;font-size:9px;font-weight:800;letter-spacing:1.4px;color:#6f6659;border:1px solid #cfc4b5;border-radius:999px;padding:4px 8px}
-.thread{flex:1;overflow:auto;padding:15px 12px 118px}
-.row{display:flex;margin:8px 0}
-.row.bot{justify-content:flex-start}.row.user{justify-content:flex-end}
-.bubble{max-width:89%;font-size:14px;line-height:1.47;padding:11px 12px;border-radius:15px;white-space:normal}
-.bot .bubble{background:var(--bot);border:1px solid var(--line);border-bottom-left-radius:5px}
-.user .bubble{background:var(--user);color:white;border-bottom-right-radius:5px}
-.note{font-size:11px;color:var(--muted);margin:5px 3px 0}
-.chips{display:flex;flex-wrap:wrap;gap:7px;margin:9px 0 3px 2px}
-.chip{
-  border:1px solid #cfc5b6;background:var(--chip);color:var(--ink);border-radius:999px;
-  padding:8px 11px;font-size:12.5px;font-weight:720;cursor:pointer
-}
-.chip:active{transform:scale(.98)}
-.safe{
-  margin:10px 0 4px;border:1px solid #d8c79e;background:var(--safe);border-radius:12px;
-  padding:9px 10px;font-size:11.5px;line-height:1.42;color:#5f522f
-}
-.composer{
-  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
-  width:100%;max-width:760px;background:rgba(248,245,239,.97);backdrop-filter:blur(8px);
-  border-top:1px solid var(--line);padding:10px 10px calc(10px + env(safe-area-inset-bottom));
-}
-.inputline{display:flex;gap:7px;align-items:center}
-.reset{
-  width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#fff;
-  font-size:19px;cursor:pointer;color:#4d4d4d;flex:0 0 auto
-}
-input{
-  flex:1;min-width:0;height:44px;border:1px solid var(--line);background:#fff;border-radius:22px;
-  padding:0 15px;font-size:16px;outline:none
-}
-.send{
-  height:42px;border:0;border-radius:21px;background:var(--brand);color:white;
-  padding:0 15px;font-weight:800;cursor:pointer
-}
-.micro{margin-top:6px;text-align:center;color:var(--muted);font-size:9.5px}
-@media(min-width:700px){
-  .thread{padding-left:28px;padding-right:28px}
-  .header{padding-top:25px}
-}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+:root{--green:#00a884;--ink:#111b21;--paper:#efeae2;--danger:#c62828;--amber-bg:#fff7df;--blue-bg:#eef5ff;--navy:#17223d}
+body{background:#0b141a;color:var(--ink);display:flex;justify-content:center;align-items:center;height:100vh;height:100dvh;overflow:hidden}
+.app{width:100%;max-width:480px;height:100%;background:var(--paper);display:flex;flex-direction:column;position:relative;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+@media(min-width:481px){.app{height:94vh;border-radius:20px;overflow:hidden}}
+.header{background:var(--green);color:#fff;padding:9px 12px;display:flex;align-items:center;gap:10px;z-index:10;box-shadow:0 1px 3px rgba(0,0,0,.15);text-align:left}
+.avatar{width:42px;height:42px;border-radius:50%;background:#fff;color:var(--navy);display:grid;place-items:center;font-family:Georgia,serif;font-size:18px;font-weight:900;flex:0 0 auto}
+.headcopy{min-width:0;flex:1}.title{font-size:16px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.title .mark{font-family:inherit;color:inherit;font-size:inherit}.status{font-size:11px;opacity:.93;display:flex;align-items:center;gap:6px;margin-top:2px}.pulse{width:7px;height:7px;background:#b9ffdf;border-radius:50%;box-shadow:0 0 0 0 rgba(185,255,223,.8);animation:pulse 1.8s infinite}@keyframes pulse{70%{box-shadow:0 0 0 7px rgba(185,255,223,0)}100%{box-shadow:0 0 0 0 rgba(185,255,223,0)}}
+.isolated{font-size:10px;border:1px solid rgba(255,255,255,.65);padding:5px 8px;border-radius:14px;white-space:nowrap;font-weight:500}
+.thread{flex:1;padding:14px 12px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;background-image:radial-gradient(#d1d7db .75px,transparent .75px);background-size:24px 24px;background-color:var(--paper);scroll-behavior:smooth}
+.day{align-self:center;background:#d7e7ee;color:#4a5f69;font-size:11px;padding:5px 9px;border-radius:7px;box-shadow:0 1px 1px rgba(0,0,0,.08);margin:2px 0 5px}
+.row{display:flex;margin:0}.row.bot{justify-content:flex-start}.row.user{justify-content:flex-end}
+.bubble{max-width:87%;padding:9px 11px 18px;border-radius:8px;font-size:14.5px;line-height:1.42;position:relative;box-shadow:0 1px 1px rgba(0,0,0,.08);animation:in .2s ease-out;white-space:normal}@keyframes in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.bot .bubble{background:#fff;border-top-left-radius:2px}.user .bubble{background:#d9fdd3;border-top-right-radius:2px;color:var(--ink)}.time{position:absolute;right:7px;bottom:3px;font-size:9.5px;color:#7a8b93}
+.note{font-size:11px;color:#53656f;margin:2px 3px 0}.chips{display:flex;flex-wrap:wrap;gap:7px;align-self:flex-start;max-width:94%;margin:0 0 4px}.chip{background:#fff;color:var(--green);border:1px solid var(--green);padding:9px 12px;border-radius:17px;font-size:13px;cursor:pointer;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.06);touch-action:manipulation}.chip:active{transform:scale(.97);background:#e2fbf0}
+.safe{align-self:stretch;border-radius:12px;padding:11px 12px;font-size:13px;line-height:1.4;box-shadow:0 1px 2px rgba(0,0,0,.08);background:var(--amber-bg);border:1px solid #f1cd6d;color:#684800}
+.bottom{background:#f0f2f5;border-top:1px solid #e0e3e5;flex:0 0 auto}.quickbar{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:7px 10px 0}.quick{border:1px solid var(--green);background:#fff;color:#087c66;border-radius:16px;padding:8px 6px;font-weight:700;font-size:12px;cursor:pointer}.quick.secondary{border-color:#7c8990;color:#46555d}
+.composer{position:static;transform:none;width:100%;max-width:none;background:transparent;border:0;padding:7px 10px 9px}.inputline{display:flex;gap:8px;align-items:center}.reset{border:0;background:transparent;color:#53656f;font-size:20px;padding:8px;cursor:pointer;width:auto;height:auto;border-radius:0;flex:0 0 auto}.inputline input{flex:1;min-width:0;height:auto;border:0;background:#fff;border-radius:19px;padding:11px 14px;font-size:14px;outline:none;color:var(--ink)}.send{width:42px;height:42px;border:0;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;cursor:pointer;padding:0;font-size:0;flex:0 0 auto}.send:after{content:'➤';font-size:18px}.micro{display:none}
+@media(max-width:360px){.isolated{display:none}.bubble{font-size:14px}.chip{font-size:12.5px;padding:8px 10px}.quick{font-size:11.5px}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="header">
-    <div class="title"><span class="mark">Can Soler</span> Demo · SINCRONIAIA</div>
-    <div class="status">carta real · reglas activas</div>
+    <div class="avatar">CS</div>
+    <div class="headcopy">
+      <div class="title"><span class="mark">Can Soler Demo</span> · SINCRONIAIA</div>
+      <div class="status"><span class="pulse"></span> asistente en línea · reglas activas</div>
+    </div>
     <div class="isolated">PRUEBA AISLADA</div>
   </header>
 
   <main id="thread" class="thread"></main>
 
-  <div class="composer">
-    <div class="inputline">
-      <button class="reset" title="Reiniciar" onclick="resetDemo()">↻</button>
-      <input id="msg" aria-label="Mensaje" placeholder="Escriba un mensaje…" autocomplete="off">
-      <button class="send" onclick="sendFree()">Enviar</button>
+  <div class="bottom">
+    <div class="quickbar">
+      <button class="quick" onclick="quickChoose()">✨ Ayúdame a elegir</button>
+      <button class="quick secondary" onclick="quickOther()">💬 Otra consulta</button>
     </div>
-    <div class="micro">Demo no oficial · sin pedidos, stock ni horarios en tiempo real</div>
+    <div class="composer">
+      <div class="inputline">
+        <button class="reset" title="Reiniciar" onclick="resetDemo()">↻</button>
+        <input id="msg" aria-label="Mensaje" placeholder="Escriba un mensaje…" autocomplete="off">
+        <button class="send" onclick="sendFree()">Enviar</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -116,17 +78,19 @@ const CREPES_DULCES = ['Sencilla','Especiada','Sorprendente','Blanca','Deseada',
 const CREPES_SALADOS = ['Atún','Havarti y orégano','Pizzera','Mixta','Azul','Mallorquina','Atrevida','Parmesana','4 Quesos'];
 const SMOOTHIES = ['Mora y plátano','Piña','Kiwi y naranja','Papaya y plátano','Mango y melocotón','Piña colada','Yogur'];
 
+function E(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function norm(s){
   return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 }
-function scrollEnd(){thread.scrollTop=thread.scrollHeight}
+function now(){return new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}
+function scrollEnd(){setTimeout(()=>thread.scrollTop=thread.scrollHeight,40)}
 function addBot(html){
   const r=document.createElement('div'); r.className='row bot';
-  r.innerHTML='<div class="bubble">'+html+'</div>'; thread.appendChild(r); scrollEnd();
+  r.innerHTML='<div class="bubble">'+html+'<span class="time">'+now()+'</span></div>'; thread.appendChild(r); scrollEnd();
 }
 function addUser(text){
   const r=document.createElement('div'); r.className='row user';
-  const b=document.createElement('div'); b.className='bubble'; b.textContent=text;
+  const b=document.createElement('div'); b.className='bubble'; b.innerHTML=E(text)+'<span class="time">'+now()+'</span>';
   r.appendChild(b); thread.appendChild(r); scrollEnd();
 }
 function addNote(text){
@@ -146,16 +110,21 @@ function safety(text){ const d=document.createElement('div'); d.className='safe'
 
 function start(){
   state={flow:null,step:null,data:{}};
-  ask('Hola. Soy una <b>demo aislada</b> de cómo podría atender Can Soler. ¿Qué desea consultar?',[
-    '🍦 Helados','🥤 Horchata y granizados','✨ Ayúdeme a elegir','⭐ Especialidades',
+  const day=document.createElement('div'); day.className='day'; day.textContent='HOY · DEMOSTRACIÓN'; thread.appendChild(day);
+  safety('PROTOCOLO: esta prueba no realiza pedidos reales, no consulta stock en tiempo real y no inventa datos que no estén configurados.');
+  ask('Buenos días. Soy el asistente virtual de <b>Can Soler</b>.<br><br>Puedo ayudarle a descubrir productos, buscar sabores, conocer especialidades y resolver consultas con la información configurada.<br><br><b>¿En qué puedo ayudarle?</b>',[
+    '🍦 Helados','🥤 Horchata y granizados','⭐ Especialidades',
     '🥞 Crepes y gofres','🥛 Batidos y smoothies','📦 Llevar helado a casa',
-    '⚠️ Alérgenos','📍 Puntos de venta','🏆 Conocer Can Soler','💬 Otra consulta'
+    '⚠️ Alérgenos','📍 Puntos de venta','🏆 Conocer Can Soler'
   ]);
 }
 
+function quickChoose(){addUser('✨ Ayúdame a elegir'); flowElegir();}
+function quickOther(){addUser('💬 Otra consulta'); flowOtra(); input.focus();}
 function resetDemo(){ thread.innerHTML=''; start(); input.focus(); }
 
 function onChoice(label){
+  if(label==='Volver al inicio'){state={flow:null,step:null,data:{}}; return ask('¿En qué más puedo ayudarle?',['🍦 Helados','🥤 Horchata y granizados','⭐ Especialidades','🥞 Crepes y gofres','🥛 Batidos y smoothies','📦 Llevar helado a casa','⚠️ Alérgenos','📍 Puntos de venta','🏆 Conocer Can Soler']);}
   const l=norm(label.replace(/^[^\p{L}\p{N}]+/u,''));
   if(!state.flow){
     if(l.startsWith('helados')) return flowHelados();
@@ -251,6 +220,10 @@ function onChoice(label){
   }
 
   if(state.flow==='historia'){
+    if(state.step==='historiaExtra'){
+      if(label==='📖 Seguir conociendo Can Soler'){state.step='tema'; return ask('¿Qué otra parte quiere conocer?',['📖 La historia familiar','👨‍👩‍👧 Tres generaciones','🏆 Campeonato 2019','🏭 Obradores y elaboración','🍦 Qué hace especial a Can Soler']);}
+      if(label==='⭐ Ver especialidades'){return flowEspeciales();}
+    }
     historyAnswer(label); return;
   }
 
@@ -270,7 +243,7 @@ function onChoice(label){
 
 function followup(){
   state={flow:null,step:null,data:{}};
-  buttons(['Volver al inicio','💬 Otra consulta']);
+  buttons(['Volver al inicio']);
 }
 function flowHelados(){
   state={flow:'helados',step:'formato',data:{}};
@@ -361,15 +334,19 @@ function pointsAnswer(label){
 }
 function flowHistoria(){
   state={flow:'historia',step:'tema',data:{}};
-  ask('¿Qué quiere conocer?', ['Historia','Tres generaciones','Campeonato 2019','Elaboración artesanal']);
+  addBot('<b>Can Soler tiene una historia que empieza en Badalona en 1969.</b><br><br>La casa explica que Albert Soler y Pilar Miquel fundaron el negocio al llegar a la ciudad con la intención de difundir su oficio. La primera heladería fue la actual de Francesc Layret; posteriormente llegó el establecimiento de la calle Mar y, en 2016, el punto del Mercado de Montgat.<br><br>Actualmente hablan de <b>tres generaciones</b> dedicadas a helados, horchatas, turrones y dulces, manteniendo la elaboración artesanal.');
+  ask('¿Qué parte quiere descubrir ahora?', ['📖 La historia familiar','👨‍👩‍👧 Tres generaciones','🏆 Campeonato 2019','🏭 Obradores y elaboración','🍦 Qué hace especial a Can Soler']);
 }
 function historyAnswer(label){
   let t='';
-  if(label==='Historia') t='Can Soler fue fundada en Badalona en 1969.';
-  if(label==='Tres generaciones') t='La web de Can Soler explica que ya son tres generaciones dedicadas a helados, horchatas, turrones y dulces.';
-  if(label==='Campeonato 2019') t='La web oficial indica que Albert Soler ganó en 2019 el Campeonato de España de Heladería Artesana.';
-  if(label==='Elaboración artesanal') t='Can Soler explica que elabora sus productos artesanalmente en sus obradores y que dispone de obradores en Badalona y Jijona.';
-  addBot(t); followup();
+  if(label.includes('historia familiar')) t='<b>Una tradición heladera y turronera.</b><br><br>La historia familiar que publica Can Soler enlaza dos ramas: el abuelo Miquel, procedente de Alicante y dedicado a turrones y helados, y el abuelo Soler, maestro turronero y heladero que trabajó para empresas de Sevilla y Xixona. Esa tradición termina asentándose en Badalona.';
+  if(label.includes('Tres generaciones')) t='<b>Tres generaciones.</b><br><br>Can Soler explica que ya son tres generaciones trabajando en la elaboración de helados, horchatas, turrones y dulces. La continuidad familiar forma parte central de la identidad del negocio.';
+  if(label.includes('Campeonato 2019')) t='<b>Campeonato de España de Heladería Artesana · 2019.</b><br><br>La web oficial indica que el maestro heladero Albert Soler consiguió ese año el campeonato de España, reconocimiento que la casa vincula al trabajo, la constancia y la innovación. En su carta, Xixollana aparece destacada como sabor ganador de España en 2019.';
+  if(label.includes('Obradores')) t='<b>Elaboración propia.</b><br><br>Can Soler explica que elabora diariamente helados, horchatas, granizados y helados con palo en sus obradores. En temporada también fabrica panellets y turrones artesanos, con obradores vinculados a Badalona y Xixona.';
+  if(label.includes('especial')) t='<b>Más que una heladería.</b><br><br>La web indica que han creado más de 90 sabores a lo largo de su historia. A ello se suman horchata, granizados, crepes, turrones de temporada y combinaciones con identidad propia como Agua de Badalona, Palmera, Lletuga, Canario, Cubano, Blanco y negro o Café con leche de verano.';
+  addBot(t);
+  buttons(['📖 Seguir conociendo Can Soler','⭐ Ver especialidades','Volver al inicio']);
+  state.step='historiaExtra';
 }
 function flowOtra(){
   state={flow:'otra',step:'libre',data:{}};
@@ -381,6 +358,7 @@ function freeReply(text){
   if(!n) return;
   if(n.includes('pistacho')) return replyFlavour('Pistacho');
   if(n.includes('xixollana')) return explainSpecial('Xixollana');
+  if(n.includes('historia') || n.includes('1969') || n.includes('campeonato') || n.includes('albert soler') || n.includes('generaciones')) return flowHistoria();
   if(n.includes('horchata')) {addBot('Sí. Can Soler publica horchata natural de chufa, además de combinaciones que la utilizan. Esta demo no confirma disponibilidad diaria.'); return followup();}
   if(n.includes('granizado')) return flowGranizados();
   if(n.includes('crepe') || n.includes('gofre')) return flowCrepes();
