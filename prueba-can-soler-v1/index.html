@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#efe9de">
+<title>Can Soler Demo · SINCRONIAIA</title>
+<style>
+:root{
+  --bg:#efe9de;
+  --panel:#f8f5ef;
+  --ink:#222326;
+  --muted:#737373;
+  --line:#d9d2c7;
+  --brand:#17223d;
+  --accent:#a52a2a;
+  --chip:#ffffff;
+  --user:#17223d;
+  --bot:#ffffff;
+  --safe:#efe4c9;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink)}
+body{display:flex;justify-content:center}
+.app{width:100%;max-width:760px;min-height:100vh;display:flex;flex-direction:column;background:var(--panel)}
+.header{
+  padding:22px 16px 14px;text-align:center;background:var(--panel);
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5
+}
+.title{font-weight:850;font-size:22px;letter-spacing:-.3px}
+.title .mark{font-family:Georgia,serif;color:var(--brand);font-size:25px}
+.status{margin-top:5px;font-size:11px;color:var(--muted);letter-spacing:.45px;text-transform:lowercase}
+.isolated{margin-top:9px;display:inline-block;font-size:9px;font-weight:800;letter-spacing:1.4px;color:#6f6659;border:1px solid #cfc4b5;border-radius:999px;padding:4px 8px}
+.thread{flex:1;overflow:auto;padding:15px 12px 118px}
+.row{display:flex;margin:8px 0}
+.row.bot{justify-content:flex-start}.row.user{justify-content:flex-end}
+.bubble{max-width:89%;font-size:14px;line-height:1.47;padding:11px 12px;border-radius:15px;white-space:normal}
+.bot .bubble{background:var(--bot);border:1px solid var(--line);border-bottom-left-radius:5px}
+.user .bubble{background:var(--user);color:white;border-bottom-right-radius:5px}
+.note{font-size:11px;color:var(--muted);margin:5px 3px 0}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:9px 0 3px 2px}
+.chip{
+  border:1px solid #cfc5b6;background:var(--chip);color:var(--ink);border-radius:999px;
+  padding:8px 11px;font-size:12.5px;font-weight:720;cursor:pointer
+}
+.chip:active{transform:scale(.98)}
+.safe{
+  margin:10px 0 4px;border:1px solid #d8c79e;background:var(--safe);border-radius:12px;
+  padding:9px 10px;font-size:11.5px;line-height:1.42;color:#5f522f
+}
+.composer{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:760px;background:rgba(248,245,239,.97);backdrop-filter:blur(8px);
+  border-top:1px solid var(--line);padding:10px 10px calc(10px + env(safe-area-inset-bottom));
+}
+.inputline{display:flex;gap:7px;align-items:center}
+.reset{
+  width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#fff;
+  font-size:19px;cursor:pointer;color:#4d4d4d;flex:0 0 auto
+}
+input{
+  flex:1;min-width:0;height:44px;border:1px solid var(--line);background:#fff;border-radius:22px;
+  padding:0 15px;font-size:16px;outline:none
+}
+.send{
+  height:42px;border:0;border-radius:21px;background:var(--brand);color:white;
+  padding:0 15px;font-weight:800;cursor:pointer
+}
+.micro{margin-top:6px;text-align:center;color:var(--muted);font-size:9.5px}
+@media(min-width:700px){
+  .thread{padding-left:28px;padding-right:28px}
+  .header{padding-top:25px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="title"><span class="mark">Can Soler</span> Demo · SINCRONIAIA</div>
+    <div class="status">carta real · reglas activas</div>
+    <div class="isolated">PRUEBA AISLADA</div>
+  </header>
+
+  <main id="thread" class="thread"></main>
+
+  <div class="composer">
+    <div class="inputline">
+      <button class="reset" title="Reiniciar" onclick="resetDemo()">↻</button>
+      <input id="msg" aria-label="Mensaje" placeholder="Escriba un mensaje…" autocomplete="off">
+      <button class="send" onclick="sendFree()">Enviar</button>
+    </div>
+    <div class="micro">Demo no oficial · sin pedidos, stock ni horarios en tiempo real</div>
+  </div>
+</div>
+
+<script>
+const thread = document.getElementById('thread');
+const input = document.getElementById('msg');
+
+let state = {flow:null, step:null, data:{}};
+
+const HELADOS = [
+  'After-eight','Agua de Badalona','Avellana','Café','Carrot Cake','Coco','Cola-cao',
+  'Crema catalana','Dulce de leche','Donut','Pistacho','Yogur con mermelada de frambuesa',
+  'Yogur natural','Kinder','Lemon pie','Leche merengada','Limón','Fresa','Melón','Nata',
+  'Nata nueces','Orenata','Horchata','Pastel de Galleta','Piña','Plátano','Ron con pasas',
+  'Sacher','San Marco','Sorbete de mandarina','Sorbete de mango','Sorbete de mojito',
+  'Sorbete de frambuesa','Speculoos','Stracciatella','Tiramisú','Turrón de Jijona D.O.',
+  'Turrón light','Turrón leche de coco','Trufa','Tutti frutti','Vainilla','Vainilla cookies',
+  'Vainilla light','Vainilla macadamia','Xixollana','Chocolate 60% chocolate belga',
+  'Chocolate bio light','Chocolate leche coco','Chocolate bio naranja'
+];
+const GRANIZADOS = ['Horchata natural de chufa','Leche merengada','Limón','Naranja','Fresa','Mango y maracuyá','Café','Trifásico de granizados'];
+const ESPECIALES = ['Xixollana','Agua de Badalona','Palmera','Lletuga','Canario','Cubano','Blanco y negro','Café con leche de verano'];
+const CREPES_DULCES = ['Sencilla','Especiada','Sorprendente','Blanca','Deseada','Nostálgica','Dulce','Esperada','Morena','Mermelada','Tropical','Canaria','Irresistible'];
+const CREPES_SALADOS = ['Atún','Havarti y orégano','Pizzera','Mixta','Azul','Mallorquina','Atrevida','Parmesana','4 Quesos'];
+const SMOOTHIES = ['Mora y plátano','Piña','Kiwi y naranja','Papaya y plátano','Mango y melocotón','Piña colada','Yogur'];
+
+function norm(s){
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+}
+function scrollEnd(){thread.scrollTop=thread.scrollHeight}
+function addBot(html){
+  const r=document.createElement('div'); r.className='row bot';
+  r.innerHTML='<div class="bubble">'+html+'</div>'; thread.appendChild(r); scrollEnd();
+}
+function addUser(text){
+  const r=document.createElement('div'); r.className='row user';
+  const b=document.createElement('div'); b.className='bubble'; b.textContent=text;
+  r.appendChild(b); thread.appendChild(r); scrollEnd();
+}
+function addNote(text){
+  const d=document.createElement('div'); d.className='note'; d.textContent=text; thread.appendChild(d); scrollEnd();
+}
+function buttons(items){
+  const d=document.createElement('div'); d.className='chips';
+  items.forEach(label=>{
+    const b=document.createElement('button'); b.className='chip'; b.textContent=label;
+    b.onclick=()=>{addUser(label); onChoice(label)};
+    d.appendChild(b);
+  });
+  thread.appendChild(d); scrollEnd();
+}
+function ask(text, items=[]){ addBot(text); if(items.length) buttons(items); }
+function safety(text){ const d=document.createElement('div'); d.className='safe'; d.textContent=text; thread.appendChild(d); scrollEnd(); }
+
+function start(){
+  state={flow:null,step:null,data:{}};
+  ask('Hola. Soy una <b>demo aislada</b> de cómo podría atender Can Soler. ¿Qué desea consultar?',[
+    '🍦 Helados','🥤 Horchata y granizados','✨ Ayúdeme a elegir','⭐ Especialidades',
+    '🥞 Crepes y gofres','🥛 Batidos y smoothies','📦 Llevar helado a casa',
+    '⚠️ Alérgenos','📍 Puntos de venta','🏆 Conocer Can Soler','💬 Otra consulta'
+  ]);
+}
+
+function resetDemo(){ thread.innerHTML=''; start(); input.focus(); }
+
+function onChoice(label){
+  const l=norm(label.replace(/^[^\p{L}\p{N}]+/u,''));
+  if(!state.flow){
+    if(l.startsWith('helados')) return flowHelados();
+    if(l.includes('horchata')) return flowGranizados();
+    if(l.includes('ayudeme')) return flowElegir();
+    if(l.includes('especialidades')) return flowEspeciales();
+    if(l.includes('crepes')) return flowCrepes();
+    if(l.includes('batidos')) return flowBatidos();
+    if(l.includes('llevar helado')) return flowCasa();
+    if(l.includes('alergenos')) return flowAlergenos();
+    if(l.includes('puntos de venta')) return flowPuntos();
+    if(l.includes('conocer can soler')) return flowHistoria();
+    if(l.includes('otra consulta')) return flowOtra();
+  }
+
+  if(state.flow==='helados'){
+    if(state.step==='formato'){
+      state.data.formato=label;
+      if(label==='Ver sabores') return showFlavours();
+      state.step='sabor';
+      ask('Perfecto. ¿Qué sabor quiere buscar? Puede escribirlo o ver una selección.', ['Pistacho','Xixollana','Turrón de Jijona D.O.','Chocolate','Fresa','Limón','Ver sabores']);
+      return;
+    }
+    if(state.step==='sabor'){
+      if(label==='Ver sabores') return showFlavours();
+      replyFlavour(label);
+      return;
+    }
+  }
+
+  if(state.flow==='granizados'){
+    if(state.step==='tipo'){
+      if(label==='Ver opciones'){
+        ask('En la carta publicada aparecen:', GRANIZADOS);
+        state.step='producto';
+      } else {
+        addBot('Sí, esa opción aparece en la carta publicada de Can Soler. En esta prueba no confirmo disponibilidad diaria ni precio actual.');
+        followup();
+      }
+      return;
+    }
+    if(state.step==='producto'){
+      addBot('<b>'+label+'</b> aparece en la carta publicada. La disponibilidad del día debe confirmarse con el establecimiento.');
+      followup(); return;
+    }
+  }
+
+  if(state.flow==='especiales'){
+    explainSpecial(label); return;
+  }
+
+  if(state.flow==='crepes'){
+    if(state.step==='tipo'){
+      state.step='crepe';
+      if(label==='Dulces') ask('Estas son algunas opciones dulces publicadas:', CREPES_DULCES);
+      else if(label==='Salados') ask('Estas son las opciones saladas publicadas:', CREPES_SALADOS);
+      else {addBot('Can Soler publica crepes dulces, salados y gofres en su carta.'); followup();}
+      return;
+    }
+    addBot('<b>'+label+'</b> figura en la carta publicada. Esta demo no confirma precio ni disponibilidad actual.');
+    followup(); return;
+  }
+
+  if(state.flow==='batidos'){
+    if(state.step==='tipo'){
+      if(label==='Smoothies'){
+        state.step='smoothie'; ask('Smoothies publicados:', SMOOTHIES);
+      } else if(label==='Batidos'){
+        addBot('La carta publica batido normal o con nata montada. El sabor concreto debe comprobarse según disponibilidad.');
+        followup();
+      } else {
+        state={flow:'elegir',step:'perfil',data:{}};
+        ask('¿Qué perfil le apetece?', ['Frutal','Cremoso','Refrescante','Algo muy Can Soler']);
+      }
+      return;
+    }
+    addBot('<b>'+label+'</b> aparece entre los smoothies publicados.'); followup(); return;
+  }
+
+  if(state.flow==='casa'){
+    if(state.step==='formato'){
+      addBot('El formato <b>'+label+'</b> aparece publicado. Antes de convertir esto en un pedido real habría que confirmar reglas, sabores máximos, precios y disponibilidad con Can Soler.');
+      followup(); return;
+    }
+  }
+
+  if(state.flow==='elegir'){
+    recommend(label); return;
+  }
+
+  if(state.flow==='puntos'){
+    pointsAnswer(label); return;
+  }
+
+  if(state.flow==='historia'){
+    historyAnswer(label); return;
+  }
+
+  if(state.flow==='alergenos'){
+    addBot('Para una consulta de alérgenos necesito una tabla oficial aprobada por Can Soler. <b>No deduzco seguridad alimentaria por el nombre del producto.</b>');
+    safety('DATO NO CONFIGURADO → NO INFERIR → NO INVENTAR → DERIVAR AL ESTABLECIMIENTO.');
+    followup(); return;
+  }
+
+  if(state.flow==='otra'){
+    addBot('Escríbame la consulta. Si el dato no está configurado, la demo no lo inventará y propondrá derivarlo al establecimiento.');
+    return;
+  }
+
+  if(label==='Volver al inicio'){ state={flow:null,step:null,data:{}}; start(); }
+}
+
+function followup(){
+  state={flow:null,step:null,data:{}};
+  buttons(['Volver al inicio','💬 Otra consulta']);
+}
+function flowHelados(){
+  state={flow:'helados',step:'formato',data:{}};
+  ask('Claro. ¿Cómo lo quiere consultar?', ['Cucurucho','Tarrina','Para llevar','Ver sabores']);
+}
+function showFlavours(){
+  state.flow='helados'; state.step='sabor';
+  addBot('La web oficial publica una carta amplia de sabores. Puede buscar uno escribiendo su nombre. Entre ellos aparecen, por ejemplo: <b>Pistacho, Xixollana, Turrón de Jijona D.O., Crema catalana, Horchata, Stracciatella, Tiramisú, varios chocolates y sorbetes.</b>');
+  buttons(['Pistacho','Xixollana','Turrón de Jijona D.O.','Chocolate','Limón']);
+}
+function replyFlavour(label){
+  const n=norm(label);
+  const hit=HELADOS.find(x=>norm(x).includes(n) || n.includes(norm(x)));
+  if(hit) addBot('Sí. <b>'+hit+'</b> aparece en la carta publicada de Can Soler. En esta demo no confirmo que esté disponible hoy.');
+  else {
+    addBot('No encuentro <b>'+label+'</b> en los datos configurados de esta prueba.');
+    safety('No inferir · no inventar · registrar / derivar.');
+  }
+  followup();
+}
+function flowGranizados(){
+  state={flow:'granizados',step:'tipo',data:{}};
+  ask('¿Qué desea consultar?', ['Horchata natural de chufa','Leche merengada','Granizado','Ver opciones']);
+}
+function flowEspeciales(){
+  state={flow:'especiales',step:'especial',data:{}};
+  ask('¿Qué especialidad quiere conocer?', ESPECIALES);
+}
+function explainSpecial(label){
+  const data={
+    'Agua de Badalona':'granizado de limón con menta peppermint y un toque de Anís del Mono dulce.',
+    'Palmera':'horchata y granizado de limón.',
+    'Lletuga':'granizado de limón con menta peppermint.',
+    'Canario':'granizado de limón con una bola de helado de vainilla.',
+    'Cubano':'horchata con una bola de helado de chocolate.',
+    'Blanco y negro':'granizado de café con una bola de helado de leche merengada.',
+    'Café con leche de verano':'leche merengada u horchata con café granizado.',
+    'Xixollana':'un sabor publicado por Can Soler como ganador de España en 2019.'
+  };
+  addBot('<b>'+label+':</b> '+(data[label]||'especialidad publicada por Can Soler.'));
+  followup();
+}
+function flowCrepes(){
+  state={flow:'crepes',step:'tipo',data:{}};
+  ask('¿Qué quiere consultar?', ['Dulces','Salados','Información general']);
+}
+function flowBatidos(){
+  state={flow:'batidos',step:'tipo',data:{}};
+  ask('¿Qué le interesa?', ['Batidos','Smoothies','Ayúdeme a elegir']);
+}
+function flowCasa(){
+  state={flow:'casa',step:'formato',data:{}};
+  ask('Para llevar, la web publica varios formatos de tarrina. ¿Cuál quiere consultar?', ['½ litro','½ litro porex','1,3 litros tupper','No lo sé']);
+}
+function flowElegir(){
+  state={flow:'elegir',step:'perfil',data:{}};
+  ask('Le ayudo. ¿Qué le apetece más?', ['Chocolate / intenso','Frutal / fresco','Cremoso','Muy refrescante','Algo muy Can Soler','No lo sé']);
+}
+function recommend(label){
+  let t='';
+  if(label.includes('Chocolate')) t='Puedo enseñarle opciones publicadas de chocolate, como chocolate belga, chocolate con leche de coco o combinaciones como el Cubano.';
+  else if(label.includes('Frutal')) t='Podemos mirar helados y sorbetes de fruta, granizados o smoothies publicados.';
+  else if(label.includes('Cremoso')) t='Podemos mirar sabores como vainilla, nata, yogur, leche merengada o turrón, entre los publicados.';
+  else if(label.includes('refrescante')) t='Podemos empezar por horchata, granizados de fruta, sorbetes o combinados como Palmera o Lletuga.';
+  else if(label.includes('muy Can Soler')) t='Yo empezaría por productos con identidad de la casa: Xixollana, Agua de Badalona, Palmera, Canario, Cubano o Café con leche de verano.';
+  else t='Puedo hacerle una pregunta más: ¿prefiere helado, bebida fría o crepe?';
+  addBot(t+' La recomendación se limita a productos configurados; no presupone stock actual.');
+  followup();
+}
+function flowAlergenos(){
+  state={flow:'alergenos',step:'consulta',data:{}};
+  addBot('Indíqueme el alérgeno o producto que le preocupa.');
+  safety('En alergias, esta demo no interpreta ingredientes ni promete ausencia de trazas sin la tabla oficial del establecimiento.');
+}
+function flowPuntos(){
+  state={flow:'puntos',step:'punto',data:{}};
+  ask('La web oficial publica estos puntos. ¿Cuál quiere consultar?', ['Can Soler Mar','Francesc Layret','Mercado de Montgat']);
+}
+function pointsAnswer(label){
+  const p={
+    'Can Soler Mar':'C/ Mar, 97 · 08911 Badalona · 934 642 083 · mar@cansoler.com',
+    'Francesc Layret':'C/ Francesc Layret, 98 · 08911 Badalona · 93 389 06 34 / 657 60 20 14 · francesclayret@cansoler.com',
+    'Mercado de Montgat':'Plaça de la Mare s/n · 08390 Montgat · 937 608 349 / 655 97 14 45'
+  };
+  addBot('<b>'+label+'</b><br>'+p[label]);
+  safety('Los horarios publicados en la web no se usan como horarios actuales en esta prueba porque parte de la información visible está fechada. Deben confirmarse.');
+  followup();
+}
+function flowHistoria(){
+  state={flow:'historia',step:'tema',data:{}};
+  ask('¿Qué quiere conocer?', ['Historia','Tres generaciones','Campeonato 2019','Elaboración artesanal']);
+}
+function historyAnswer(label){
+  let t='';
+  if(label==='Historia') t='Can Soler fue fundada en Badalona en 1969.';
+  if(label==='Tres generaciones') t='La web de Can Soler explica que ya son tres generaciones dedicadas a helados, horchatas, turrones y dulces.';
+  if(label==='Campeonato 2019') t='La web oficial indica que Albert Soler ganó en 2019 el Campeonato de España de Heladería Artesana.';
+  if(label==='Elaboración artesanal') t='Can Soler explica que elabora sus productos artesanalmente en sus obradores y que dispone de obradores en Badalona y Jijona.';
+  addBot(t); followup();
+}
+function flowOtra(){
+  state={flow:'otra',step:'libre',data:{}};
+  addBot('Claro. Escriba su pregunta.');
+}
+
+function freeReply(text){
+  const n=norm(text);
+  if(!n) return;
+  if(n.includes('pistacho')) return replyFlavour('Pistacho');
+  if(n.includes('xixollana')) return explainSpecial('Xixollana');
+  if(n.includes('horchata')) {addBot('Sí. Can Soler publica horchata natural de chufa, además de combinaciones que la utilizan. Esta demo no confirma disponibilidad diaria.'); return followup();}
+  if(n.includes('granizado')) return flowGranizados();
+  if(n.includes('crepe') || n.includes('gofre')) return flowCrepes();
+  if(n.includes('alerg') || n.includes('gluten') || n.includes('lactosa') || n.includes('frutos secos')) return flowAlergenos();
+  if(n.includes('horario') || n.includes('abierto') || n.includes('cierra')) {
+    addBot('No voy a confirmar un horario actual con datos que pueden estar desactualizados. En esta demo ese dato se deriva hasta que Can Soler lo configure y lo mantenga vigente.');
+    safety('DATO NO CONFIGURADO / VIGENCIA NO CONFIRMADA → NO INVENTAR.');
+    return followup();
+  }
+  if(n.includes('direccion') || n.includes('donde esta') || n.includes('ubicacion')) return flowPuntos();
+  if(n.includes('precio') || n.includes('cuanto cuesta')) {
+    addBot('Los precios no están configurados como fuente vigente en esta prueba. No voy a inventarlos.');
+    safety('Precio no configurado → registrar / derivar.');
+    return followup();
+  }
+  if(n.includes('pedido') || n.includes('encargo') || n.includes('reserv')) {
+    addBot('Esta prueba no realiza pedidos ni confirma encargos. Esa función solo se activaría con reglas aprobadas por Can Soler.');
+    return followup();
+  }
+  const possible = HELADOS.find(x=>n.includes(norm(x)));
+  if(possible) return replyFlavour(possible);
+
+  addBot('No tengo ese dato configurado de forma segura en esta prueba.');
+  safety('DATO NO CONFIGURADO → NO INFERIR → NO INVENTAR → REGISTRAR / DERIVAR AL ESTABLECIMIENTO.');
+  followup();
+}
+
+function sendFree(){
+  const t=input.value.trim();
+  if(!t) return;
+  input.value='';
+  addUser(t);
+  freeReply(t);
+}
+input.addEventListener('keydown',e=>{if(e.key==='Enter')sendFree()});
+
+start();
+</script>
+</body>
+</html>
