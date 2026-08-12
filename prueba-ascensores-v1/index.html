@@ -53,8 +53,19 @@ body{background:#0b141a;color:var(--ink);display:flex;justify-content:center;ali
   <button class="send" onclick="sendFree()" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1.1 21.76 23.8 12.03 1.1 2.3l.01 7.91 13.62 1.82-13.62 1.82-.01 7.91z"/></svg></button>
 </footer>
 </div>
+
 <script>
-const PROTOCOLO_DEMO={empresa:'Ascensores Demo',urgencias24h:true,atrapados:'PRIORIDAD ALTA → responsable/técnico de guardia',emergencia:'RIESGO MÉDICO / HUMO / INCENDIO / PELIGRO → 112 + escalado interno',tiemposLlegada:null,zonas:null,precios:null,avisosReales:false};
+const PROTOCOLO_DEMO={
+  empresa:'Ascensores Demo',
+  urgencias24h:true,
+  atrapados:'PRIORIDAD ALTA → responsable/técnico de guardia',
+  emergencia:'RIESGO MÉDICO / HUMO / INCENDIO / PELIGRO → 112 + escalado interno',
+  tiemposLlegada:null,
+  zonas:null,
+  precios:null,
+  avisosReales:false
+};
+
 let state={step:'menu',branch:null,data:{}};
 const chat=document.getElementById('chat'),input=document.getElementById('input');
 const E=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -69,39 +80,370 @@ function typing(cb){const d=document.createElement('div');d.className='typing';d
 function bot(html,opts){typing(()=>{addMsg(html);if(opts)buttons(opts)})}
 function user(v){clearOptions();addMsg(E(v),'user')}
 function choose(label,val){user(label);route(val)}
-const roles=[{label:'Presidente/a de comunidad',value:'presidente'},{label:'Administrador/a de fincas',value:'administrador'},{label:'Propietario/a',value:'propietario'},{label:'Responsable de empresa',value:'empresa'},{label:'Vecino/a o usuario',value:'usuario'},{label:'Otro',value:'otro'}];
-const types=[{label:'Comunidad de propietarios',value:'comunidad'},{label:'Empresa / oficina',value:'empresa'},{label:'Vivienda particular',value:'vivienda'},{label:'Local comercial',value:'local'},{label:'Otro',value:'otro'}];
-const LABELS={presidente:'Presidente/a de comunidad',administrador:'Administrador/a de fincas',propietario:'Propietario/a',empresa:'Empresa / responsable',usuario:'Vecino/a o usuario',comunidad:'Comunidad de propietarios',vivienda:'Vivienda particular',local:'Local comercial',parado:'No funciona',puertas:'Puertas bloqueadas',intermitente:'Se queda parado',ruidos:'Hace ruidos',otro:'Otro',escalera:'Subir una escalera',niveles:'Comunicar dos niveles',entrada:'Acceder al edificio',movilidad:'Movilidad reducida',ninguno:'No existe sistema de elevación',ascensor:'Ascensor',plataforma:'Plataforma / salvaescaleras',silla:'Acceso para silla de ruedas',mayor:'Persona mayor',escaleras:'Evitar escaleras',general:'Mejorar accesibilidad general',vertical:'Vertical entre plantas',recta:'Escalera recta',curva:'Escalera con curvas',una:'Una instalación',varias:'Varias comunidades',averias:'Averías frecuentes',atencion:'Atención recibida',precio:'Precio',modernizacion:'Modernización',seguimiento:'Falta de seguimiento',nuevo:'Instalar un ascensor nuevo',modernizar:'Modernizar uno existente',accesibilidad:'Mejorar accesibilidad',sustituir:'Sustituir elementos',ns:'No lo sé',sin:'Edificio sin ascensor',antiguo:'Ascensor antiguo',mejorar:'Mejorar la instalación',seguridad:'Seguridad',eficiencia:'Consumo / eficiencia',funcionamiento:'Funcionamiento'};
+
+const roles=[
+ {label:'Presidente/a de comunidad',value:'presidente'},
+ {label:'Administrador/a de fincas',value:'administrador'},
+ {label:'Propietario/a',value:'propietario'},
+ {label:'Responsable de empresa',value:'empresa'},
+ {label:'Vecino/a o usuario',value:'usuario'},
+ {label:'Otro',value:'otro'}
+];
+const types=[
+ {label:'Comunidad de propietarios',value:'comunidad'},
+ {label:'Empresa / oficina',value:'empresa'},
+ {label:'Vivienda particular',value:'vivienda'},
+ {label:'Local comercial',value:'local'},
+ {label:'Otro',value:'otro'}
+];
+const LABELS={
+ presidente:'Presidente/a de comunidad',administrador:'Administrador/a de fincas',propietario:'Propietario/a',
+ empresa:'Empresa / responsable',usuario:'Vecino/a o usuario',comunidad:'Comunidad de propietarios',
+ vivienda:'Vivienda particular',local:'Local comercial',parado:'No funciona',puertas:'Puertas bloqueadas',
+ intermitente:'Se queda parado',ruidos:'Hace ruidos',otro:'Otro',escalera:'Subir una escalera',
+ niveles:'Comunicar dos niveles',entrada:'Acceder al edificio',movilidad:'Movilidad reducida',
+ ninguno:'No existe sistema de elevación',ascensor:'Ascensor',plataforma:'Plataforma / salvaescaleras',
+ silla:'Acceso para silla de ruedas',mayor:'Persona mayor',escaleras:'Evitar escaleras',
+ general:'Mejorar accesibilidad general',vertical:'Vertical entre plantas',recta:'Escalera recta',
+ curva:'Escalera con curvas',una:'Una instalación',varias:'Varias comunidades',averias:'Averías frecuentes',
+ atencion:'Atención recibida',precio:'Precio',modernizacion:'Modernización',seguimiento:'Falta de seguimiento',
+ nuevo:'Instalar un ascensor nuevo',modernizar:'Modernizar uno existente',accesibilidad:'Mejorar accesibilidad',
+ sustituir:'Sustituir elementos',ns:'No lo sé',sin:'Edificio sin ascensor',antiguo:'Ascensor antiguo',
+ mejorar:'Mejorar la instalación',seguridad:'Seguridad',eficiencia:'Consumo / eficiencia',
+ funcionamiento:'Funcionamiento'
+};
 function L(v){return LABELS[v]||v||'—'}
-function mainOptions(){return[{label:'🚨 PERSONAS ATRAPADAS / URGENCIA',value:'atrapados_directo',cls:'danger hero-danger'},{label:'🔧 Comunicar una avería',value:'averia',cls:'danger'},{label:'🛠️ Mantenimiento',value:'mantenimiento'},{label:'🔄 Cambiar de mantenedor',value:'cambio'},{label:'🏗️ Instalación / modernización',value:'instalacion'},{label:'♿ Accesibilidad',value:'accesibilidad'},{label:'💬 Otra consulta',value:'otra',cls:'dark'}]}
-function restart(){state={step:'menu',branch:null,data:{}};chat.innerHTML='';const day=document.createElement('div');day.className='day';day.textContent='HOY · DEMOSTRACIÓN';chat.appendChild(day);addNotice('protocol','PROTOCOLO DE DEMOSTRACIÓN','Esta prueba simula cómo SINCRONIAIA seguiría las reglas de una empresa real. <strong>No envía avisos reales, no asigna técnicos y no confirma tiempos de llegada.</strong>');bot('<span class="lead">Buenos días.<br>Soy el asistente de <strong>Ascensores Demo</strong>.</span>Puedo recoger y organizar la información siguiendo el protocolo configurado por la empresa.<br><br><strong>¿En qué puedo ayudarle?</strong>',mainOptions())}
-function route(v){switch(state.step){case'menu':return start(v);case'hayAtrapados':return trapped(v);case'estadoAtrapado':return trappedStatus(v);case'numAtrapados':return trappedCount(v);case'tipoAveria':return fault(v);case'clienteMantenimiento':return maintenanceClient(v);case'mantNecesidad':return maintenanceNeed(v);case'mantNum':return setAndAskRole('numAsc',v);case'mantClienteActualNecesidad':return existingMaintenanceNeed(v);case'cambioTieneMantenedor':return changeHasMaintainer(v);case'cambioNum':state.data.numAsc=v;state.step='cambioMotivo';return bot('¿Cuál es el motivo principal por el que está valorando el cambio?',changeReasonButtons());case'cambioMotivo':state.data.motivo=v;state.step='cambioAmbito';return bot('¿Se trata de una sola instalación o gestiona varias comunidades?',[{label:'Una instalación',value:'una'},{label:'Varias comunidades',value:'varias'}]);case'cambioAmbito':state.data.ambito=v;return askRole();case'instObjetivo':return installGoal(v);case'instProblema':return installProblem(v);case'instDetalle':state.data.detalle=v;return askType();case'accObjetivo':return accessGoal(v);case'accTipo':state.data.tipo=v;state.step='accSistema';return bot('¿Existe actualmente algún sistema de elevación?',[{label:'No',value:'ninguno'},{label:'Sí, hay ascensor',value:'ascensor'},{label:'Plataforma / salvaescaleras',value:'plataforma'},{label:'No lo sé',value:'ns'}]);case'accSistema':state.data.sistema=v;state.step='accMotivo';return bot('¿Cuál es la necesidad principal que quiere resolver?',[{label:'Acceso para silla de ruedas',value:'silla'},{label:'Persona mayor',value:'mayor'},{label:'Evitar escaleras',value:'escaleras'},{label:'Mejorar accesibilidad general',value:'general'},{label:'Otro',value:'otro'}]);case'accMotivo':state.data.motivo=v;state.step='accRecorrido';return bot('¿Cómo es aproximadamente el recorrido?',[{label:'Vertical entre plantas',value:'vertical'},{label:'Escalera recta',value:'recta'},{label:'Escalera con curvas',value:'curva'},{label:'No lo sé',value:'ns'}]);case'accRecorrido':state.data.recorrido=v;state.step='accPlantas';return bot('¿Cuántas plantas o niveles hay que salvar aproximadamente?',[{label:'1 nivel',value:'1'},{label:'2 niveles',value:'2'},{label:'3–5 niveles',value:'3-5'},{label:'Más de 5',value:'5+'},{label:'No lo sé',value:'ns'}]);case'accPlantas':state.data.plantas=v;state.step='accUnicoAcceso';return bot('¿Las escaleras son actualmente la única forma de acceder o comunicar esos niveles?',[{label:'Sí',value:'si'},{label:'No',value:'no'},{label:'No lo sé',value:'ns'}]);case'accUnicoAcceso':state.data.unicoAcceso=v;return askRole();case'rol':state.data.rol=v;return askLocation();case'tipo':state.data.tipo=v;return askRole();case'confirm':return confirm(v);case'more':return more(v)}}
-function start(v){state.branch=v;if(v==='atrapados_directo'){state.branch='averia';state.data.atrapados='si';state.step='estadoAtrapado';addNotice('priority','🚨 PERSONAS ATRAPADAS','Prioridad alta. Esta demo recogerá primero los datos imprescindibles y aplicará el protocolo configurado.');return bot('Antes de continuar necesito comprobar una sola cosa:<br><br><strong>¿Hay una emergencia médica, humo, incendio o peligro inmediato?</strong>',[{label:'No, pueden comunicarse',value:'normal'},{label:'Emergencia médica',value:'medico',cls:'danger'},{label:'Humo / incendio / peligro',value:'peligro',cls:'danger'},{label:'No lo sé',value:'ns'}])}if(v==='averia'){state.step='hayAtrapados';return bot('De acuerdo.<br>Lo primero que necesito saber es:<br><br><strong>¿Hay alguna persona atrapada dentro del ascensor?</strong>',[{label:'Sí',value:'si',cls:'danger'},{label:'No',value:'no'},{label:'No lo sé',value:'ns'}])}if(v==='mantenimiento'){state.step='clienteMantenimiento';return bot('Para orientarle correctamente:<br><br><strong>¿Actualmente este ascensor tiene el mantenimiento con nuestra empresa?</strong>',[{label:'Sí, ya soy cliente',value:'si'},{label:'No, tengo otra empresa',value:'otra'},{label:'No tengo mantenimiento',value:'no'},{label:'No lo sé',value:'ns'}])}if(v==='cambio'){state.data.solicitud='Cambio de empresa mantenedora';state.step='cambioTieneMantenedor';return bot('Podemos preparar la solicitud para que el equipo comercial no empiece desde cero.<br><br><strong>¿Actualmente tiene otra empresa de mantenimiento?</strong>',[{label:'Sí',value:'si'},{label:'No',value:'no'},{label:'No lo sé',value:'ns'}])}if(v==='instalacion'){state.step='instObjetivo';return bot('¿Qué situación quiere estudiar?',[{label:'Instalar un ascensor nuevo',value:'nuevo'},{label:'Modernizar uno existente',value:'modernizar'},{label:'Mejorar accesibilidad',value:'accesibilidad'},{label:'Sustituir elementos',value:'sustituir'},{label:'No sé qué solución necesito',value:'ns'}])}if(v==='accesibilidad'){state.step='accObjetivo';return bot('Cuénteme qué necesidad quiere resolver.<br>No hace falta que conozca la solución técnica.',[{label:'Subir una escalera',value:'escalera'},{label:'Comunicar dos niveles',value:'niveles'},{label:'Acceder al edificio',value:'entrada'},{label:'Facilitar acceso a movilidad reducida',value:'movilidad'},{label:'No sé qué solución necesito',value:'ns'},{label:'Otro',value:'otro'}])}state.step='free';return bot('Puede escribir su consulta con sus propias palabras.<br><br>Si el dato no está configurado en el protocolo, <strong>no lo inventaré</strong>: registraré la consulta para que la empresa pueda revisarla.')}
-function trapped(v){state.data.atrapados=v;if(v==='si'){state.step='estadoAtrapado';addNotice('priority','🚨 INCIDENCIA PRIORITARIA DETECTADA','Personas atrapadas: SÍ · Aplicando protocolo de demostración.');return bot('¿Hay una emergencia médica, humo, incendio o peligro inmediato?',[{label:'No, pueden comunicarse',value:'normal'},{label:'Emergencia médica',value:'medico',cls:'danger'},{label:'Humo / incendio / peligro',value:'peligro',cls:'danger'},{label:'No lo sé',value:'ns'}])}if(v==='no'){state.step='tipoAveria';return bot('Gracias.<br>¿Qué está ocurriendo con el ascensor?',faultButtons())}addNotice('priority','⚠️ SITUACIÓN POR CONFIRMAR','El protocolo prioriza aclarar si hay personas atrapadas.');state.step='estadoAtrapado';return bot('Si puede comprobarlo sin ponerse en riesgo, confirme la situación.',[{label:'Sí, hay personas',value:'normal',cls:'danger'},{label:'No hay personas',value:'sin'},{label:'No puedo comprobarlo',value:'ns'}])}
-function trappedStatus(v){if(v==='medico'||v==='peligro'){state.data.atrapados='si';state.data.averia=v==='medico'?'Emergencia médica comunicada':'Humo / incendio / peligro comunicado';state.data.emergencia=true;addNotice('emergency','🆘 POSIBLE EMERGENCIA','El protocolo DEMO indica contactar con el <strong>112</strong> cuando exista una emergencia médica, humo, incendio o peligro inmediato, además del escalado interno que configure la empresa.');addStatus('DEMO: ningún aviso real ha sido enviado');return askAddressEmergency()}if(v==='sin'){state.data.atrapados='no';state.step='tipoAveria';return bot('De acuerdo.<br>¿Qué está ocurriendo con el ascensor?',faultButtons())}state.data.atrapados='si';state.data.averia=v==='normal'?'Persona atrapada · avería pendiente de diagnóstico':'Persona atrapada · situación por confirmar';addNotice('protocol','🛡️ PROTOCOLO DE EMPRESA','Persona atrapada → prioridad alta → derivación al responsable/técnico de guardia según las reglas configuradas.');addStatus('DEMO: no se ha enviado ningún aviso real');state.step='numAtrapados';return bot('Para dejar la incidencia mejor preparada:<br><br><strong>¿Cuántas personas hay dentro aproximadamente?</strong>',[{label:'1',value:'1'},{label:'2',value:'2'},{label:'3',value:'3'},{label:'4 o más',value:'4+'},{label:'No lo sé',value:'ns'}])}
-function trappedCount(v){state.data.numPersonas=v;return askAddressEmergency()}
-function faultButtons(){return[{label:'No funciona',value:'parado'},{label:'Puertas bloqueadas',value:'puertas'},{label:'Se queda parado',value:'intermitente'},{label:'Hace ruidos',value:'ruidos'},{label:'Otro problema',value:'otro'}]}
+
+function mainOptions(){
+ return[
+  {label:'🚨 PERSONAS ATRAPADAS / URGENCIA',value:'atrapados_directo',cls:'danger hero-danger'},
+  {label:'🔧 Comunicar una avería',value:'averia',cls:'danger'},
+  {label:'🛠️ Mantenimiento',value:'mantenimiento'},
+  {label:'🔄 Cambiar de mantenedor',value:'cambio'},
+  {label:'🏗️ Instalación / modernización',value:'instalacion'},
+  {label:'♿ Accesibilidad',value:'accesibilidad'},
+  {label:'💬 Otra consulta',value:'otra',cls:'dark'}
+ ]
+}
+
+function restart(){
+ state={step:'menu',branch:null,data:{}};
+ chat.innerHTML='';
+ const day=document.createElement('div');day.className='day';day.textContent='HOY · DEMOSTRACIÓN';chat.appendChild(day);
+ addNotice('protocol','PROTOCOLO DE DEMOSTRACIÓN','Esta prueba simula cómo SINCRONIAIA seguiría las reglas de una empresa real. <strong>No envía avisos reales, no asigna técnicos y no confirma tiempos de llegada.</strong>');
+ bot('<span class="lead">Buenos días.<br>Soy el asistente de <strong>Ascensores Demo</strong>.</span>Puedo recoger y organizar la información siguiendo el protocolo configurado por la empresa.<br><br><strong>¿En qué puedo ayudarle?</strong>',mainOptions())
+}
+
+function route(v){
+ switch(state.step){
+  case'menu':return start(v);
+  case'hayAtrapados':return trapped(v);
+  case'estadoAtrapado':return trappedStatus(v);
+  case'numAtrapados':return trappedCount(v);
+  case'tipoAveria':return fault(v);
+  case'clienteMantenimiento':return maintenanceClient(v);
+  case'mantNecesidad':return maintenanceNeed(v);
+  case'mantNum':return setAndAskRole('numAsc',v);
+  case'mantClienteActualNecesidad':return existingMaintenanceNeed(v);
+  case'cambioTieneMantenedor':return changeHasMaintainer(v);
+  case'cambioNum':state.data.numAsc=v;state.step='cambioMotivo';return bot('¿Cuál es el motivo principal por el que está valorando el cambio?',changeReasonButtons());
+  case'cambioMotivo':state.data.motivo=v;state.step='cambioAmbito';return bot('¿Se trata de una sola instalación o gestiona varias comunidades?',[{label:'Una instalación',value:'una'},{label:'Varias comunidades',value:'varias'}]);
+  case'cambioAmbito':state.data.ambito=v;return askRole();
+  case'instObjetivo':return installGoal(v);
+  case'instProblema':return installProblem(v);
+  case'instDetalle':state.data.detalle=v;return askType();
+  case'accObjetivo':return accessGoal(v);
+  case'accTipo':state.data.tipo=v;state.step='accSistema';return bot('¿Existe actualmente algún sistema de elevación?',[{label:'No',value:'ninguno'},{label:'Sí, hay ascensor',value:'ascensor'},{label:'Plataforma / salvaescaleras',value:'plataforma'},{label:'No lo sé',value:'ns'}]);
+  case'accSistema':state.data.sistema=v;state.step='accMotivo';return bot('¿Cuál es la necesidad principal que quiere resolver?',[{label:'Acceso para silla de ruedas',value:'silla'},{label:'Persona mayor',value:'mayor'},{label:'Evitar escaleras',value:'escaleras'},{label:'Mejorar accesibilidad general',value:'general'},{label:'Otro',value:'otro'}]);
+  case'accMotivo':state.data.motivo=v;state.step='accRecorrido';return bot('¿Cómo es aproximadamente el recorrido?',[{label:'Vertical entre plantas',value:'vertical'},{label:'Escalera recta',value:'recta'},{label:'Escalera con curvas',value:'curva'},{label:'No lo sé',value:'ns'}]);
+  case'accRecorrido':state.data.recorrido=v;state.step='accPlantas';return bot('¿Cuántas plantas o niveles hay que salvar aproximadamente?',[{label:'1 nivel',value:'1'},{label:'2 niveles',value:'2'},{label:'3–5 niveles',value:'3-5'},{label:'Más de 5',value:'5+'},{label:'No lo sé',value:'ns'}]);
+  case'accPlantas':state.data.plantas=v;state.step='accUnicoAcceso';return bot('¿Las escaleras son actualmente la única forma de acceder o comunicar esos niveles?',[{label:'Sí',value:'si'},{label:'No',value:'no'},{label:'No lo sé',value:'ns'}]);
+  case'accUnicoAcceso':state.data.unicoAcceso=v;return askRole();
+  case'rol':state.data.rol=v;return askLocation();
+  case'tipo':state.data.tipo=v;return askRole();
+  case'confirm':return confirm(v);
+  case'more':return more(v);
+ }
+}
+
+function start(v){
+ state.branch=v;
+ if(v==='atrapados_directo'){
+   state.branch='averia'; state.data.atrapados='si'; state.step='estadoAtrapado';
+   addNotice('priority','🚨 PERSONAS ATRAPADAS','Prioridad alta. Esta demo recogerá primero los datos imprescindibles y aplicará el protocolo configurado.');
+   return bot('Antes de continuar necesito comprobar una sola cosa:<br><br><strong>¿Hay una emergencia médica, humo, incendio o peligro inmediato?</strong>',[
+     {label:'No, pueden comunicarse',value:'normal'},
+     {label:'Emergencia médica',value:'medico',cls:'danger'},
+     {label:'Humo / incendio / peligro',value:'peligro',cls:'danger'},
+     {label:'No lo sé',value:'ns'}
+   ])
+ }
+ if(v==='averia'){
+   state.step='hayAtrapados';
+   return bot('De acuerdo.<br>Lo primero que necesito saber es:<br><br><strong>¿Hay alguna persona atrapada dentro del ascensor?</strong>',[
+     {label:'Sí',value:'si',cls:'danger'},{label:'No',value:'no'},{label:'No lo sé',value:'ns'}
+   ])
+ }
+ if(v==='mantenimiento'){
+   state.step='clienteMantenimiento';
+   return bot('Para orientarle correctamente:<br><br><strong>¿Actualmente este ascensor tiene el mantenimiento con nuestra empresa?</strong>',[
+     {label:'Sí, ya soy cliente',value:'si'},{label:'No, tengo otra empresa',value:'otra'},
+     {label:'No tengo mantenimiento',value:'no'},{label:'No lo sé',value:'ns'}
+   ])
+ }
+ if(v==='cambio'){
+   state.data.solicitud='Cambio de empresa mantenedora';state.step='cambioTieneMantenedor';
+   return bot('Podemos preparar la solicitud para que el equipo comercial no empiece desde cero.<br><br><strong>¿Actualmente tiene otra empresa de mantenimiento?</strong>',[
+     {label:'Sí',value:'si'},{label:'No',value:'no'},{label:'No lo sé',value:'ns'}
+   ])
+ }
+ if(v==='instalacion'){
+   state.step='instObjetivo';
+   return bot('¿Qué situación quiere estudiar?',[
+     {label:'Instalar un ascensor nuevo',value:'nuevo'},{label:'Modernizar uno existente',value:'modernizar'},
+     {label:'Mejorar accesibilidad',value:'accesibilidad'},{label:'Sustituir elementos',value:'sustituir'},
+     {label:'No sé qué solución necesito',value:'ns'}
+   ])
+ }
+ if(v==='accesibilidad'){
+   state.step='accObjetivo';
+   return bot('Cuénteme qué necesidad quiere resolver.<br>No hace falta que conozca la solución técnica.',[
+     {label:'Subir una escalera',value:'escalera'},{label:'Comunicar dos niveles',value:'niveles'},
+     {label:'Acceder al edificio',value:'entrada'},{label:'Facilitar acceso a movilidad reducida',value:'movilidad'},
+     {label:'No sé qué solución necesito',value:'ns'},{label:'Otro',value:'otro'}
+   ])
+ }
+ state.step='free';
+ return bot('Puede escribir su consulta con sus propias palabras.<br><br>Si el dato no está configurado en el protocolo, <strong>no lo inventaré</strong>: registraré la consulta para que la empresa pueda revisarla.')
+}
+
+function trapped(v){
+ state.data.atrapados=v;
+ if(v==='si'){
+   state.step='estadoAtrapado';
+   addNotice('priority','🚨 INCIDENCIA PRIORITARIA DETECTADA','Personas atrapadas: SÍ · Aplicando protocolo de demostración.');
+   return bot('¿Hay una emergencia médica, humo, incendio o peligro inmediato?',[
+     {label:'No, pueden comunicarse',value:'normal'},
+     {label:'Emergencia médica',value:'medico',cls:'danger'},
+     {label:'Humo / incendio / peligro',value:'peligro',cls:'danger'},
+     {label:'No lo sé',value:'ns'}
+   ])
+ }
+ if(v==='no'){state.step='tipoAveria';return bot('Gracias.<br>¿Qué está ocurriendo con el ascensor?',faultButtons())}
+ addNotice('priority','⚠️ SITUACIÓN POR CONFIRMAR','El protocolo prioriza aclarar si hay personas atrapadas.');
+ state.step='estadoAtrapado';
+ return bot('Si puede comprobarlo sin ponerse en riesgo, confirme la situación.',[
+   {label:'Sí, hay personas',value:'normal',cls:'danger'},
+   {label:'No hay personas',value:'sin'},
+   {label:'No puedo comprobarlo',value:'ns'}
+ ])
+}
+
+function trappedStatus(v){
+ if(v==='medico'||v==='peligro'){
+   state.data.atrapados='si';
+   state.data.averia=v==='medico'?'Emergencia médica comunicada':'Humo / incendio / peligro comunicado';
+   state.data.emergencia=true;
+   addNotice('emergency','🆘 POSIBLE EMERGENCIA','El protocolo DEMO indica contactar con el <strong>112</strong> cuando exista una emergencia médica, humo, incendio o peligro inmediato, además del escalado interno que configure la empresa.');
+   addStatus('DEMO: ningún aviso real ha sido enviado');
+   return askAddressEmergency()
+ }
+ if(v==='sin'){state.data.atrapados='no';state.step='tipoAveria';return bot('De acuerdo.<br>¿Qué está ocurriendo con el ascensor?',faultButtons())}
+ state.data.atrapados='si';
+ state.data.averia=v==='normal'?'Persona atrapada · avería pendiente de diagnóstico':'Persona atrapada · situación por confirmar';
+ addNotice('protocol','🛡️ PROTOCOLO DE EMPRESA','Persona atrapada → prioridad alta → derivación al responsable/técnico de guardia según las reglas configuradas.');
+ addStatus('DEMO: no se ha enviado ningún aviso real');
+ state.step='numAtrapados';
+ return bot('Para dejar la incidencia mejor preparada:<br><br><strong>¿Cuántas personas hay dentro aproximadamente?</strong>',[
+   {label:'1',value:'1'},{label:'2',value:'2'},{label:'3',value:'3'},{label:'4 o más',value:'4+'},{label:'No lo sé',value:'ns'}
+ ])
+}
+
+function trappedCount(v){
+ state.data.numPersonas=v;
+ return askAddressEmergency()
+}
+
+function faultButtons(){return[
+ {label:'No funciona',value:'parado'},{label:'Puertas bloqueadas',value:'puertas'},
+ {label:'Se queda parado',value:'intermitente'},{label:'Hace ruidos',value:'ruidos'},{label:'Otro problema',value:'otro'}
+]}
 function fault(v){state.data.averia=v;state.data.contexto='Incidencia de cliente/usuario';return askLocationUrgent(false)}
-function maintenanceClient(v){state.data.clienteActual=v;if(v==='si'){state.step='mantClienteActualNecesidad';return bot('Perfecto. En una implantación real, si el cliente y la instalación están identificados, sus datos podrían estar vinculados para evitar repetir preguntas.<br><br><strong>¿Qué necesita respecto al mantenimiento?</strong>',[{label:'Consultar una revisión',value:'revision'},{label:'Comunicar una incidencia',value:'incidencia'},{label:'Consultar una visita pendiente',value:'visita'},{label:'Otra consulta',value:'otra'}])}if(v==='otra'){state.data.solicitud='Información sobre mantenimiento / posible cambio';state.step='mantNecesidad';return bot('¿Qué desea hacer?',[{label:'Valorar cambiar de mantenedor',value:'cambio'},{label:'Pedir información de mantenimiento',value:'info'},{label:'Tenemos muchas averías',value:'averias'},{label:'Otro',value:'otro'}])}if(v==='no'){state.data.solicitud='Solicitud de mantenimiento';state.step='mantNecesidad';return bot('¿Qué situación describe mejor su caso?',[{label:'Instalación nueva',value:'nueva'},{label:'Ascensor sin contrato de mantenimiento',value:'sincontrato'},{label:'Quiero información',value:'info'},{label:'Otro',value:'otro'}])}state.step='mantNecesidad';return bot('Podemos preparar la consulta sin asumir datos no confirmados.<br><br>¿Qué necesita?',[{label:'Información de mantenimiento',value:'info'},{label:'Revisión por muchas averías',value:'averias'},{label:'Otra consulta',value:'otro'}])}
-function existingMaintenanceNeed(v){state.data.solicitud='Cliente actual: '+v;if(v==='incidencia'){state.branch='averia';state.step='hayAtrapados';return bot('Al tratarse de una incidencia, lo primero es comprobar:<br><br><strong>¿Hay alguna persona atrapada?</strong>',[{label:'Sí',value:'si',cls:'danger'},{label:'No',value:'no'},{label:'No lo sé',value:'ns'}])}addNotice('protocol','CLIENTE ACTUAL','En una implantación real, si existe integración con la fuente de verdad de la empresa, los datos de cliente e instalación podrían recuperarse sin volver a preguntarlos.');state.data.municipio='Dato vinculado en implantación real';state.data.direccion='Instalación vinculada en implantación real';state.data.nombre='Cliente identificado en implantación real';state.data.telefono='Dato vinculado en implantación real';return showSummary()}
-function maintenanceNeed(v){state.data.necesidad=v;if(v==='cambio'){state.branch='cambio';state.data.solicitud='Cambio de empresa mantenedora';state.step='cambioNum';return bot('¿Cuántos ascensores tiene o gestiona?',[{label:'1',value:'1'},{label:'2',value:'2'},{label:'3–5',value:'3-5'},{label:'Más de 5',value:'5+'},{label:'No lo sé',value:'ns'}])}state.step='mantNum';return bot('¿Cuántos ascensores hay en la instalación?',[{label:'1',value:'1'},{label:'2',value:'2'},{label:'3–5',value:'3-5'},{label:'Más de 5',value:'5+'},{label:'No lo sé',value:'ns'}])}
+
+function maintenanceClient(v){
+ state.data.clienteActual=v;
+ if(v==='si'){
+   state.step='mantClienteActualNecesidad';
+   return bot('Perfecto. En una implantación real, si el cliente y la instalación están identificados, sus datos podrían estar vinculados para evitar repetir preguntas.<br><br><strong>¿Qué necesita respecto al mantenimiento?</strong>',[
+     {label:'Consultar una revisión',value:'revision'},{label:'Comunicar una incidencia',value:'incidencia'},
+     {label:'Consultar una visita pendiente',value:'visita'},{label:'Otra consulta',value:'otra'}
+   ])
+ }
+ if(v==='otra'){state.data.solicitud='Información sobre mantenimiento / posible cambio';state.step='mantNecesidad';return bot('¿Qué desea hacer?',[
+   {label:'Valorar cambiar de mantenedor',value:'cambio'},{label:'Pedir información de mantenimiento',value:'info'},
+   {label:'Tenemos muchas averías',value:'averias'},{label:'Otro',value:'otro'}])}
+ if(v==='no'){state.data.solicitud='Solicitud de mantenimiento';state.step='mantNecesidad';return bot('¿Qué situación describe mejor su caso?',[
+   {label:'Instalación nueva',value:'nueva'},{label:'Ascensor sin contrato de mantenimiento',value:'sincontrato'},
+   {label:'Quiero información',value:'info'},{label:'Otro',value:'otro'}])}
+ state.step='mantNecesidad';return bot('Podemos preparar la consulta sin asumir datos no confirmados.<br><br>¿Qué necesita?',[
+   {label:'Información de mantenimiento',value:'info'},{label:'Revisión por muchas averías',value:'averias'},{label:'Otra consulta',value:'otro'}])
+}
+
+function existingMaintenanceNeed(v){
+ state.data.solicitud='Cliente actual: '+v;
+ if(v==='incidencia'){state.branch='averia';state.step='hayAtrapados';return bot('Al tratarse de una incidencia, lo primero es comprobar:<br><br><strong>¿Hay alguna persona atrapada?</strong>',[
+   {label:'Sí',value:'si',cls:'danger'},{label:'No',value:'no'},{label:'No lo sé',value:'ns'}])}
+ addNotice('protocol','CLIENTE ACTUAL','En una implantación real, si existe integración con la fuente de verdad de la empresa, los datos de cliente e instalación podrían recuperarse sin volver a preguntarlos.');
+ state.data.municipio='Dato vinculado en implantación real';
+ state.data.direccion='Instalación vinculada en implantación real';
+ state.data.nombre='Cliente identificado en implantación real';
+ state.data.telefono='Dato vinculado en implantación real';
+ return showSummary()
+}
+
+function maintenanceNeed(v){
+ state.data.necesidad=v;
+ if(v==='cambio'){state.branch='cambio';state.data.solicitud='Cambio de empresa mantenedora';state.step='cambioNum';return bot('¿Cuántos ascensores tiene o gestiona?',[
+   {label:'1',value:'1'},{label:'2',value:'2'},{label:'3–5',value:'3-5'},{label:'Más de 5',value:'5+'},{label:'No lo sé',value:'ns'}])}
+ state.step='mantNum';return bot('¿Cuántos ascensores hay en la instalación?',[
+   {label:'1',value:'1'},{label:'2',value:'2'},{label:'3–5',value:'3-5'},{label:'Más de 5',value:'5+'},{label:'No lo sé',value:'ns'}])
+}
 function setAndAskRole(k,v){state.data[k]=v;return askRole()}
-function changeHasMaintainer(v){state.data.otraEmpresa=v;state.step='cambioNum';return bot('¿Cuántos ascensores tiene o gestiona?',[{label:'1',value:'1'},{label:'2',value:'2'},{label:'3–5',value:'3-5'},{label:'Más de 5',value:'5+'},{label:'No lo sé',value:'ns'}])}
-function changeReasonButtons(){return[{label:'Averías frecuentes',value:'averias'},{label:'Atención recibida',value:'atencion'},{label:'Precio',value:'precio'},{label:'Modernización',value:'modernizacion'},{label:'Falta de seguimiento',value:'seguimiento'},{label:'Otro',value:'otro'}]}
-function installGoal(v){state.data.objetivo=v;if(v==='ns'){state.step='instProblema';return bot('No hay problema.<br>Vamos a identificar primero qué necesita resolver.<br><br><strong>¿Qué situación describe mejor su caso?</strong>',[{label:'El edificio no tiene ascensor',value:'sin'},{label:'El ascensor es muy antiguo',value:'antiguo'},{label:'Hay muchas averías',value:'averias'},{label:'Hay problemas de accesibilidad',value:'accesibilidad'},{label:'Queremos mejorar la instalación',value:'mejorar'},{label:'Otro',value:'otro'}])}state.step='instDetalle';return bot('Antes de pedirle sus datos, quiero entender mejor el caso.<br><br>¿Qué aspecto es el principal?',[{label:'Averías / funcionamiento',value:'averias'},{label:'Seguridad',value:'seguridad'},{label:'Accesibilidad',value:'accesibilidad'},{label:'Consumo / eficiencia',value:'eficiencia'},{label:'No lo sé',value:'ns'}])}
-function installProblem(v){state.data.problema=v;state.step='instDetalle';if(v==='antiguo')return bot('¿Qué es lo que más les preocupa actualmente?',[{label:'Averías frecuentes',value:'averias'},{label:'Puertas / funcionamiento',value:'puertas'},{label:'Seguridad',value:'seguridad'},{label:'Consumo / eficiencia',value:'eficiencia'},{label:'Accesibilidad',value:'accesibilidad'},{label:'No lo sé',value:'ns'}]);return bot('Gracias.<br>¿Qué aspecto quiere que valore principalmente el técnico?',[{label:'Funcionamiento',value:'funcionamiento'},{label:'Seguridad',value:'seguridad'},{label:'Accesibilidad',value:'accesibilidad'},{label:'Eficiencia',value:'eficiencia'},{label:'No lo sé',value:'ns'}])}
+function changeHasMaintainer(v){state.data.otraEmpresa=v;state.step='cambioNum';return bot('¿Cuántos ascensores tiene o gestiona?',[
+ {label:'1',value:'1'},{label:'2',value:'2'},{label:'3–5',value:'3-5'},{label:'Más de 5',value:'5+'},{label:'No lo sé',value:'ns'}])}
+function changeReasonButtons(){return[
+ {label:'Averías frecuentes',value:'averias'},{label:'Atención recibida',value:'atencion'},
+ {label:'Precio',value:'precio'},{label:'Modernización',value:'modernizacion'},
+ {label:'Falta de seguimiento',value:'seguimiento'},{label:'Otro',value:'otro'}
+]}
+
+function installGoal(v){
+ state.data.objetivo=v;
+ if(v==='ns'){state.step='instProblema';return bot('No hay problema.<br>Vamos a identificar primero qué necesita resolver.<br><br><strong>¿Qué situación describe mejor su caso?</strong>',[
+   {label:'El edificio no tiene ascensor',value:'sin'},{label:'El ascensor es muy antiguo',value:'antiguo'},
+   {label:'Hay muchas averías',value:'averias'},{label:'Hay problemas de accesibilidad',value:'accesibilidad'},
+   {label:'Queremos mejorar la instalación',value:'mejorar'},{label:'Otro',value:'otro'}])}
+ state.step='instDetalle';
+ return bot('Antes de pedirle sus datos, quiero entender mejor el caso.<br><br>¿Qué aspecto es el principal?',[
+   {label:'Averías / funcionamiento',value:'averias'},{label:'Seguridad',value:'seguridad'},
+   {label:'Accesibilidad',value:'accesibilidad'},{label:'Consumo / eficiencia',value:'eficiencia'},{label:'No lo sé',value:'ns'}])
+}
+function installProblem(v){
+ state.data.problema=v;state.step='instDetalle';
+ if(v==='antiguo')return bot('¿Qué es lo que más les preocupa actualmente?',[
+   {label:'Averías frecuentes',value:'averias'},{label:'Puertas / funcionamiento',value:'puertas'},
+   {label:'Seguridad',value:'seguridad'},{label:'Consumo / eficiencia',value:'eficiencia'},
+   {label:'Accesibilidad',value:'accesibilidad'},{label:'No lo sé',value:'ns'}]);
+ return bot('Gracias.<br>¿Qué aspecto quiere que valore principalmente el técnico?',[
+   {label:'Funcionamiento',value:'funcionamiento'},{label:'Seguridad',value:'seguridad'},
+   {label:'Accesibilidad',value:'accesibilidad'},{label:'Eficiencia',value:'eficiencia'},{label:'No lo sé',value:'ns'}])
+}
 function accessGoal(v){state.data.necesidad=v;state.step='accTipo';return bot('Entendido. Primero recogemos la información útil y después ubicación y contacto.<br><br><strong>¿Dónde necesita resolver esta situación?</strong>',types)}
 function askType(){state.step='tipo';return bot('¿De qué tipo de instalación se trata?',types)}
 function askRole(){state.step='rol';return bot('Antes de pedirle la ubicación:<br><br><strong>¿Cuál es su relación con esta instalación?</strong>',roles)}
 function askLocation(){state.step='askMunicipio';return bot('Gracias. ¿En qué <strong>municipio</strong> se encuentra la instalación?')}
 function askLocationUrgent(emergency){state.data.urgente=!!emergency;state.step='askMunicipioUrgent';return bot((emergency?'La prioridad ahora es <strong>localizar la incidencia y disponer de un contacto</strong>.<br><br>':'Para preparar la incidencia necesito localizar la instalación.<br><br>')+'¿En qué <strong>población o municipio</strong> se encuentra el edificio?')}
 function askAddressEmergency(){return askLocationUrgent(true)}
-function normalizePhone(raw){const map={cero:'0',uno:'1',un:'1',una:'1',dos:'2',tres:'3',cuatro:'4',cinco:'5',seis:'6',siete:'7',ocho:'8',nueve:'9',seiscientos:'600'};const clean=String(raw??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9+]+/g,' ').trim();if(!clean)return '';const tokens=clean.split(/\s+/);let out='',repeat=1;for(const tok of tokens){if(tok==='doble'){repeat=2;continue}if(tok==='triple'){repeat=3;continue}let part='';if(/^\d+$/.test(tok))part=tok;else if(map[tok]!=null)part=map[tok];else continue;if(repeat>1&&part.length===1)part=part.repeat(repeat);repeat=1;out+=part}if(out.startsWith('34')&&out.length===11)return '+'+out;return out}
+
+function normalizePhone(raw){
+ const map={cero:'0',uno:'1',un:'1',una:'1',dos:'2',tres:'3',cuatro:'4',cinco:'5',seis:'6',siete:'7',ocho:'8',nueve:'9',seiscientos:'600'};
+ const clean=String(raw??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9+]+/g,' ').trim();
+ if(!clean)return '';
+ const tokens=clean.split(/\s+/);let out='',repeat=1;
+ for(const tok of tokens){
+  if(tok==='doble'){repeat=2;continue}
+  if(tok==='triple'){repeat=3;continue}
+  let part='';
+  if(/^\d+$/.test(tok))part=tok; else if(map[tok]!=null)part=map[tok]; else continue;
+  if(repeat>1 && part.length===1)part=part.repeat(repeat);
+  repeat=1;out+=part;
+ }
+ if(out.startsWith('34')&&out.length===11)return '+'+out;
+ return out
+}
 function validPhone(raw){const n=normalizePhone(raw).replace(/\D/g,'');return n.length>=9&&n.length<=15}
-function handleFreeText(txt){const s=txt.trim();if(state.step==='askMunicipio'){state.data.municipio=s;state.step='askAddress';return bot('¿Me indica ahora la <strong>dirección</strong> de la instalación?')}if(state.step==='askAddress'){state.data.direccion=s;state.step='askName';return bot('¿A nombre de quién dejamos la solicitud?')}if(state.step==='askMunicipioUrgent'){state.data.municipio=s;state.step='askAddressUrgent';return bot('Gracias. Indíqueme ahora la <strong>dirección exacta del edificio</strong>.')}if(state.step==='askAddressUrgent'){state.data.direccion=s;state.step='askPhoneUrgent';return bot('Ahora necesito un <strong>teléfono de contacto</strong> por si el responsable o técnico necesita comunicarse con usted.')}if(state.step==='askPhoneUrgent'){const tel=normalizePhone(s);if(!validPhone(s))return bot('No parece un teléfono completo. Puede escribirlo o decirlo cifra a cifra, por ejemplo: <strong>seis cero cero uno dos tres cuatro cinco seis</strong>.');state.data.telefono=tel;state.step='askNameUrgent';return bot('Gracias. He registrado el teléfono <strong>'+E(tel)+'</strong>.<br><br>¿Cuál es el <strong>nombre de la persona de contacto</strong>?')}if(state.step==='askNameUrgent'){if(s.length<2)return bot('Necesito un nombre válido, por favor.');state.data.nombre=s;return showSummary()}if(state.step==='askName'){if(s.length<2)return bot('Necesito un nombre válido, por favor.');state.data.nombre=s;state.step='askPhone';return bot('Gracias. Indíqueme ahora un <strong>teléfono de contacto</strong>.')}if(state.step==='askPhone'){const tel=normalizePhone(s);if(!validPhone(s))return bot('No parece un teléfono completo. Puede escribirlo o decirlo cifra a cifra.');state.data.telefono=tel;return showSummary()}if(state.step==='free'){state.data.consulta=s;addNotice('protocol','DATO NO CONFIGURADO → NO INVENTAR','La consulta se registra para revisión. SINCRONIAIA no inventa precios, coberturas, tiempos de llegada ni procedimientos no incluidos en el protocolo.');return askRole()}const low=s.toLowerCase();if(/atrapad|encerrad|dentro del ascensor/.test(low)){state.branch='averia';state.data.atrapados='si';state.step='estadoAtrapado';return trappedStatus('ns')}if(/precio|cu[aá]nto cuesta|tardar|tiempo de llegada/.test(low)){addNotice('protocol','INFORMACIÓN NO CONFIGURADA','El protocolo DEMO no contiene ese dato. SINCRONIAIA no lo inventa.');return bot('Puedo registrar su consulta para que la empresa la confirme.')}bot('Puedo ayudarle mejor si elige una de las opciones principales.');state.step='menu';buttons(mainOptions())}
-function showSummary(){const d=state.data;if(state.branch==='averia'){addNotice('success','✓ INCIDENCIA PREPARADA',`<b>Tipo de incidencia:</b> ${E(L(d.averia)||'Pendiente de valoración técnica')}<br><b>Personas atrapadas:</b> ${d.atrapados==='si'?'SÍ':d.atrapados==='no'?'NO':'por confirmar'}<br>${d.numPersonas?`<b>Nº aproximado de personas:</b> ${E(d.numPersonas)}<br>`:''}<b>Población:</b> ${E(d.municipio||'—')}<br><b>Dirección:</b> ${E(d.direccion||'—')}<br><b>Contacto:</b> ${E(d.nombre||'—')} · ${E(d.telefono||'—')}${d.emergencia?'<br><b>Prioridad:</b> POSIBLE EMERGENCIA · protocolo de empresa':''}`);addStatus('DEMO: incidencia preparada; pendiente de actuación real de la empresa')}else if(state.branch==='accesibilidad'){addNotice('success','✓ SOLICITUD PREPARADA',`<b>Necesidad:</b> ${E(L(d.necesidad))}<br><b>Tipo de instalación:</b> ${E(L(d.tipo))}<br><b>Sistema actual:</b> ${E(L(d.sistema))}<br><b>Objetivo:</b> ${E(L(d.motivo))}<br><b>Recorrido:</b> ${E(L(d.recorrido))}<br><b>Plantas / niveles:</b> ${E(d.plantas||'—')}<br><b>Municipio:</b> ${E(d.municipio||'—')}<br><b>Dirección:</b> ${E(d.direccion||'—')}<br><b>Contacto:</b> ${E(d.nombre||'—')} · ${E(d.telefono||'—')}<br><br><b>La solución técnica deberá valorarla un profesional.</b>`)}else if(state.branch==='cambio'){addNotice('success','✓ OPORTUNIDAD COMERCIAL PREPARADA',`<b>Solicitud:</b> Cambio de mantenedor<br><b>Nº de ascensores:</b> ${E(d.numAsc||'—')}<br><b>Motivo:</b> ${E(L(d.motivo))}<br><b>Ámbito:</b> ${E(L(d.ambito))}<br><b>Municipio:</b> ${E(d.municipio||'—')}<br><b>Dirección:</b> ${E(d.direccion||'—')}<br><b>Contacto:</b> ${E(d.nombre||'—')} · ${E(d.telefono||'—')}`)}else if(state.branch==='instalacion'){addNotice('success','✓ SOLICITUD TÉCNICA PREPARADA',`<b>Objetivo:</b> ${E(L(d.objetivo))}<br><b>Situación:</b> ${E(L(d.problema))}<br><b>Aspecto principal:</b> ${E(L(d.detalle))}<br><b>Tipo de instalación:</b> ${E(L(d.tipo||'—'))}<br><b>Municipio:</b> ${E(d.municipio||'—')}<br><b>Dirección:</b> ${E(d.direccion||'—')}<br><b>Contacto:</b> ${E(d.nombre||'—')} · ${E(d.telefono||'—')}<br><br><b>La solución exacta deberá valorarla un técnico.</b>`)}else{addNotice('success','✓ SOLICITUD PREPARADA',`<b>Solicitud:</b> ${E(d.solicitud||d.necesidad||d.consulta||'Mantenimiento')}<br><b>Nº de ascensores:</b> ${E(d.numAsc||'—')}<br><b>Municipio:</b> ${E(d.municipio||'—')}<br><b>Dirección:</b> ${E(d.direccion||'—')}<br><b>Contacto:</b> ${E(d.nombre||'—')} · ${E(d.telefono||'—')}`)}state.step='confirm';bot('<strong>No empieza desde cero. Empieza con información.</strong><br><br>¿Desea confirmar esta demostración o modificar algún dato?',[{label:'✅ Confirmar simulación',value:'ok'},{label:'✏️ Modificar / reiniciar',value:'edit'}])}
-function confirm(v){if(v==='edit')return restart();addStatus('DEMO: registro simulado · no se ha enviado ningún aviso real');state.step='more';bot('Perfecto. En una implantación real, a partir de aquí solo se ejecutaría lo que el backend y el protocolo de la empresa autoricen: <strong>registrar, avisar o derivar</strong> según corresponda.<br><br><strong>¿Desea probar otra situación?</strong>',[{label:'Sí, otra consulta',value:'si'},{label:'No, gracias',value:'no'}])}
-function more(v){if(v==='si')return restart();addNotice('success','∞ SINCRONIAIA','La empresa puede cerrar. <strong>La atención no tiene por qué cerrarse.</strong><br><br>Menos tiempo preguntando lo mismo · incidencias mejor preparadas · oportunidades que no se pierden.');state.step='end';bot('Gracias por probar la demostración de Ascensores.<br><br><strong>La empresa define el protocolo. SINCRONIAIA lo aplica.</strong>')}
+
+function handleFreeText(txt){
+ const s=txt.trim();
+ if(state.step==='askMunicipio'){state.data.municipio=s;state.step='askAddress';return bot('¿Me indica ahora la <strong>dirección</strong> de la instalación?')}
+ if(state.step==='askAddress'){state.data.direccion=s;state.step='askName';return bot('¿A nombre de quién dejamos la solicitud?')}
+ if(state.step==='askMunicipioUrgent'){state.data.municipio=s;state.step='askAddressUrgent';return bot('Gracias. Indíqueme ahora la <strong>dirección exacta del edificio</strong>.')}
+ if(state.step==='askAddressUrgent'){state.data.direccion=s;state.step='askPhoneUrgent';return bot('Ahora necesito un <strong>teléfono de contacto</strong> por si el responsable o técnico necesita comunicarse con usted.')}
+ if(state.step==='askPhoneUrgent'){
+   const tel=normalizePhone(s);
+   if(!validPhone(s))return bot('No parece un teléfono completo. Puede escribirlo o decirlo cifra a cifra, por ejemplo: <strong>seis cero cero uno dos tres cuatro cinco seis</strong>.');
+   state.data.telefono=tel;state.step='askNameUrgent';
+   return bot('Gracias. He registrado el teléfono <strong>'+E(tel)+'</strong>.<br><br>¿Cuál es el <strong>nombre de la persona de contacto</strong>?')
+ }
+ if(state.step==='askNameUrgent'){if(s.length<2)return bot('Necesito un nombre válido, por favor.');state.data.nombre=s;return showSummary()}
+ if(state.step==='askName'){if(s.length<2)return bot('Necesito un nombre válido, por favor.');state.data.nombre=s;state.step='askPhone';return bot('Gracias. Indíqueme ahora un <strong>teléfono de contacto</strong>.')}
+ if(state.step==='askPhone'){const tel=normalizePhone(s);if(!validPhone(s))return bot('No parece un teléfono completo. Puede escribirlo o decirlo cifra a cifra.');state.data.telefono=tel;return showSummary()}
+ if(state.step==='free'){state.data.consulta=s;addNotice('protocol','DATO NO CONFIGURADO → NO INVENTAR','La consulta se registra para revisión. SINCRONIAIA no inventa precios, coberturas, tiempos de llegada ni procedimientos no incluidos en el protocolo.');return askRole()}
+ const low=s.toLowerCase();
+ if(/atrapad|encerrad|dentro del ascensor/.test(low)){state.branch='averia';state.data.atrapados='si';state.step='estadoAtrapado';return trappedStatus('ns')}
+ if(/precio|cu[aá]nto cuesta|tardar|tiempo de llegada/.test(low)){addNotice('protocol','INFORMACIÓN NO CONFIGURADA','El protocolo DEMO no contiene ese dato. SINCRONIAIA no lo inventa.');return bot('Puedo registrar su consulta para que la empresa la confirme.')}
+ bot('Puedo ayudarle mejor si elige una de las opciones principales.');state.step='menu';buttons(mainOptions())
+}
+
+function showSummary(){
+ const d=state.data;
+ if(state.branch==='averia'){
+   addNotice('success','✓ INCIDENCIA PREPARADA',
+   `<b>Tipo de incidencia:</b> ${E(L(d.averia)||'Pendiente de valoración técnica')}<br>
+    <b>Personas atrapadas:</b> ${d.atrapados==='si'?'SÍ':d.atrapados==='no'?'NO':'por confirmar'}<br>
+    ${d.numPersonas?`<b>Nº aproximado de personas:</b> ${E(d.numPersonas)}<br>`:''}
+    <b>Población:</b> ${E(d.municipio||'—')}<br>
+    <b>Dirección:</b> ${E(d.direccion||'—')}<br>
+    <b>Contacto:</b> ${E(d.nombre||'—')} · ${E(d.telefono||'—')}
+    ${d.emergencia?'<br><b>Prioridad:</b> POSIBLE EMERGENCIA · protocolo de empresa':''}`)
+   addStatus('DEMO: incidencia preparada; pendiente de actuación real de la empresa')
+ }else if(state.branch==='accesibilidad'){
+   addNotice('success','✓ SOLICITUD PREPARADA',
+   `<b>Necesidad:</b> ${E(L(d.necesidad))}<br><b>Tipo de instalación:</b> ${E(L(d.tipo))}<br>
+    <b>Sistema actual:</b> ${E(L(d.sistema))}<br><b>Objetivo:</b> ${E(L(d.motivo))}<br>
+    <b>Recorrido:</b> ${E(L(d.recorrido))}<br><b>Plantas / niveles:</b> ${E(d.plantas||'—')}<br>
+    <b>Municipio:</b> ${E(d.municipio||'—')}<br><b>Dirección:</b> ${E(d.direccion||'—')}<br>
+    <b>Contacto:</b> ${E(d.nombre||'—')} · ${E(d.telefono||'—')}<br><br>
+    <b>La solución técnica deberá valorarla un profesional.</b>`)
+ }else if(state.branch==='cambio'){
+   addNotice('success','✓ OPORTUNIDAD COMERCIAL PREPARADA',
+   `<b>Solicitud:</b> Cambio de mantenedor<br><b>Nº de ascensores:</b> ${E(d.numAsc||'—')}<br>
+    <b>Motivo:</b> ${E(L(d.motivo))}<br><b>Ámbito:</b> ${E(L(d.ambito))}<br>
+    <b>Municipio:</b> ${E(d.municipio||'—')}<br><b>Dirección:</b> ${E(d.direccion||'—')}<br>
+    <b>Contacto:</b> ${E(d.nombre||'—')} · ${E(d.telefono||'—')}`)
+ }else if(state.branch==='instalacion'){
+   addNotice('success','✓ SOLICITUD TÉCNICA PREPARADA',
+   `<b>Objetivo:</b> ${E(L(d.objetivo))}<br><b>Situación:</b> ${E(L(d.problema))}<br>
+    <b>Aspecto principal:</b> ${E(L(d.detalle))}<br><b>Tipo de instalación:</b> ${E(L(d.tipo||'—'))}<br>
+    <b>Municipio:</b> ${E(d.municipio||'—')}<br><b>Dirección:</b> ${E(d.direccion||'—')}<br>
+    <b>Contacto:</b> ${E(d.nombre||'—')} · ${E(d.telefono||'—')}<br><br>
+    <b>La solución exacta deberá valorarla un técnico.</b>`)
+ }else{
+   addNotice('success','✓ SOLICITUD PREPARADA',
+   `<b>Solicitud:</b> ${E(d.solicitud||d.necesidad||d.consulta||'Mantenimiento')}<br>
+    <b>Nº de ascensores:</b> ${E(d.numAsc||'—')}<br><b>Municipio:</b> ${E(d.municipio||'—')}<br>
+    <b>Dirección:</b> ${E(d.direccion||'—')}<br><b>Contacto:</b> ${E(d.nombre||'—')} · ${E(d.telefono||'—')}`)
+ }
+ state.step='confirm';
+ bot('<strong>No empieza desde cero. Empieza con información.</strong><br><br>¿Desea confirmar esta demostración o modificar algún dato?',[
+   {label:'✅ Confirmar simulación',value:'ok'},{label:'✏️ Modificar / reiniciar',value:'edit'}
+ ])
+}
+
+function confirm(v){
+ if(v==='edit')return restart();
+ addStatus('DEMO: registro simulado · no se ha enviado ningún aviso real');
+ state.step='more';
+ bot('Perfecto. En una implantación real, a partir de aquí solo se ejecutaría lo que el backend y el protocolo de la empresa autoricen: <strong>registrar, avisar o derivar</strong> según corresponda.<br><br><strong>¿Desea probar otra situación?</strong>',[
+   {label:'Sí, otra consulta',value:'si'},{label:'No, gracias',value:'no'}
+ ])
+}
+function more(v){
+ if(v==='si')return restart();
+ addNotice('success','∞ SINCRONIAIA','La empresa puede cerrar. <strong>La atención no tiene por qué cerrarse.</strong><br><br>Menos tiempo preguntando lo mismo · incidencias mejor preparadas · oportunidades que no se pierden.');
+ state.step='end';
+ bot('Gracias por probar la demostración de Ascensores.<br><br><strong>La empresa define el protocolo. SINCRONIAIA lo aplica.</strong>')
+}
 function sendFree(){const txt=input.value.trim();if(!txt)return;input.value='';clearOptions();addMsg(E(txt),'user');handleFreeText(txt)}
 restart();
 </script>
