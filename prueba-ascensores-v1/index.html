@@ -43,7 +43,7 @@ body{background:#0b141a;color:var(--ink);display:flex;justify-content:center;ali
 <div class="mobile-container">
 <header class="wa-header">
   <div class="avatar">↕</div>
-  <div class="contact"><h1>Ascensores Demo · SINCRONIAIA</h1><p><span class="pulse"></span> atención 24/7 · protocolo demo activo</p></div>
+  <div class="contact"><h1>Ascensores Demo · SINCRONIAIA</h1><p><span class="pulse"></span> Asistente IA · atención 24/7 · protocolo demo activo</p></div>
   <div class="header-badge">PRUEBA AISLADA</div>
 </header>
 <main id="chat" class="chat" aria-live="polite"></main>
@@ -131,7 +131,7 @@ function restart(){
  chat.innerHTML='';
  const day=document.createElement('div');day.className='day';day.textContent='HOY · DEMOSTRACIÓN';chat.appendChild(day);
  addNotice('protocol','PROTOCOLO DE DEMOSTRACIÓN','Esta prueba simula cómo SINCRONIAIA seguiría las reglas de una empresa real. <strong>No envía avisos reales, no asigna técnicos y no confirma tiempos de llegada.</strong>');
- bot('<span class="lead">Buenos días.<br>Soy el asistente de <strong>Ascensores Demo</strong>.</span>Puedo recoger y organizar la información siguiendo el protocolo configurado por la empresa.<br><br><strong>¿En qué puedo ayudarle?</strong>',mainOptions())
+ bot('<span class="lead">Buenos días.<br>Soy el asistente virtual con inteligencia artificial de <strong>Ascensores Demo</strong>.</span>Puedo recoger y organizar la información siguiendo el protocolo configurado por la empresa.<br><br><strong>¿En qué puedo ayudarle?</strong>',mainOptions())
 }
 
 function route(v){
@@ -259,15 +259,8 @@ function trappedStatus(v){
  ])
 }
 
-function trappedCount(v){
- state.data.numPersonas=v;
- return askAddressEmergency()
-}
-
-function faultButtons(){return[
- {label:'No funciona',value:'parado'},{label:'Puertas bloqueadas',value:'puertas'},
- {label:'Se queda parado',value:'intermitente'},{label:'Hace ruidos',value:'ruidos'},{label:'Otro problema',value:'otro'}
-]}
+function trappedCount(v){state.data.numPersonas=v;return askAddressEmergency()}
+function faultButtons(){return[{label:'No funciona',value:'parado'},{label:'Puertas bloqueadas',value:'puertas'},{label:'Se queda parado',value:'intermitente'},{label:'Hace ruidos',value:'ruidos'},{label:'Otro problema',value:'otro'}]}
 function fault(v){state.data.averia=v;state.data.contexto='Incidencia de cliente/usuario';return askLocationUrgent(false)}
 
 function maintenanceClient(v){
@@ -279,20 +272,14 @@ function maintenanceClient(v){
      {label:'Consultar una visita pendiente',value:'visita'},{label:'Otra consulta',value:'otra'}
    ])
  }
- if(v==='otra'){state.data.solicitud='Información sobre mantenimiento / posible cambio';state.step='mantNecesidad';return bot('¿Qué desea hacer?',[
-   {label:'Valorar cambiar de mantenedor',value:'cambio'},{label:'Pedir información de mantenimiento',value:'info'},
-   {label:'Tenemos muchas averías',value:'averias'},{label:'Otro',value:'otro'}])}
- if(v==='no'){state.data.solicitud='Solicitud de mantenimiento';state.step='mantNecesidad';return bot('¿Qué situación describe mejor su caso?',[
-   {label:'Instalación nueva',value:'nueva'},{label:'Ascensor sin contrato de mantenimiento',value:'sincontrato'},
-   {label:'Quiero información',value:'info'},{label:'Otro',value:'otro'}])}
- state.step='mantNecesidad';return bot('Podemos preparar la consulta sin asumir datos no confirmados.<br><br>¿Qué necesita?',[
-   {label:'Información de mantenimiento',value:'info'},{label:'Revisión por muchas averías',value:'averias'},{label:'Otra consulta',value:'otro'}])
+ if(v==='otra'){state.data.solicitud='Información sobre mantenimiento / posible cambio';state.step='mantNecesidad';return bot('¿Qué desea hacer?',[{label:'Valorar cambiar de mantenedor',value:'cambio'},{label:'Pedir información de mantenimiento',value:'info'},{label:'Tenemos muchas averías',value:'averias'},{label:'Otro',value:'otro'}])}
+ if(v==='no'){state.data.solicitud='Solicitud de mantenimiento';state.step='mantNecesidad';return bot('¿Qué situación describe mejor su caso?',[{label:'Instalación nueva',value:'nueva'},{label:'Ascensor sin contrato de mantenimiento',value:'sincontrato'},{label:'Quiero información',value:'info'},{label:'Otro',value:'otro'}])}
+ state.step='mantNecesidad';return bot('Podemos preparar la consulta sin asumir datos no confirmados.<br><br>¿Qué necesita?',[{label:'Información de mantenimiento',value:'info'},{label:'Revisión por muchas averías',value:'averias'},{label:'Otra consulta',value:'otro'}])
 }
 
 function existingMaintenanceNeed(v){
  state.data.solicitud='Cliente actual: '+v;
- if(v==='incidencia'){state.branch='averia';state.step='hayAtrapados';return bot('Al tratarse de una incidencia, lo primero es comprobar:<br><br><strong>¿Hay alguna persona atrapada?</strong>',[
-   {label:'Sí',value:'si',cls:'danger'},{label:'No',value:'no'},{label:'No lo sé',value:'ns'}])}
+ if(v==='incidencia'){state.branch='averia';state.step='hayAtrapados';return bot('Al tratarse de una incidencia, lo primero es comprobar:<br><br><strong>¿Hay alguna persona atrapada?</strong>',[{label:'Sí',value:'si',cls:'danger'},{label:'No',value:'no'},{label:'No lo sé',value:'ns'}])}
  addNotice('protocol','CLIENTE ACTUAL','En una implantación real, si existe integración con la fuente de verdad de la empresa, los datos de cliente e instalación podrían recuperarse sin volver a preguntarlos.');
  state.data.municipio='Dato vinculado en implantación real';
  state.data.direccion='Instalación vinculada en implantación real';
@@ -303,19 +290,12 @@ function existingMaintenanceNeed(v){
 
 function maintenanceNeed(v){
  state.data.necesidad=v;
- if(v==='cambio'){state.branch='cambio';state.data.solicitud='Cambio de empresa mantenedora';state.step='cambioNum';return bot('¿Cuántos ascensores tiene o gestiona?',[
-   {label:'1',value:'1'},{label:'2',value:'2'},{label:'3–5',value:'3-5'},{label:'Más de 5',value:'5+'},{label:'No lo sé',value:'ns'}])}
- state.step='mantNum';return bot('¿Cuántos ascensores hay en la instalación?',[
-   {label:'1',value:'1'},{label:'2',value:'2'},{label:'3–5',value:'3-5'},{label:'Más de 5',value:'5+'},{label:'No lo sé',value:'ns'}])
+ if(v==='cambio'){state.branch='cambio';state.data.solicitud='Cambio de empresa mantenedora';state.step='cambioNum';return bot('¿Cuántos ascensores tiene o gestiona?',[{label:'1',value:'1'},{label:'2',value:'2'},{label:'3–5',value:'3-5'},{label:'Más de 5',value:'5+'},{label:'No lo sé',value:'ns'}])}
+ state.step='mantNum';return bot('¿Cuántos ascensores hay en la instalación?',[{label:'1',value:'1'},{label:'2',value:'2'},{label:'3–5',value:'3-5'},{label:'Más de 5',value:'5+'},{label:'No lo sé',value:'ns'}])
 }
 function setAndAskRole(k,v){state.data[k]=v;return askRole()}
-function changeHasMaintainer(v){state.data.otraEmpresa=v;state.step='cambioNum';return bot('¿Cuántos ascensores tiene o gestiona?',[
- {label:'1',value:'1'},{label:'2',value:'2'},{label:'3–5',value:'3-5'},{label:'Más de 5',value:'5+'},{label:'No lo sé',value:'ns'}])}
-function changeReasonButtons(){return[
- {label:'Averías frecuentes',value:'averias'},{label:'Atención recibida',value:'atencion'},
- {label:'Precio',value:'precio'},{label:'Modernización',value:'modernizacion'},
- {label:'Falta de seguimiento',value:'seguimiento'},{label:'Otro',value:'otro'}
-]}
+function changeHasMaintainer(v){state.data.otraEmpresa=v;state.step='cambioNum';return bot('¿Cuántos ascensores tiene o gestiona?',[{label:'1',value:'1'},{label:'2',value:'2'},{label:'3–5',value:'3-5'},{label:'Más de 5',value:'5+'},{label:'No lo sé',value:'ns'}])}
+function changeReasonButtons(){return[{label:'Averías frecuentes',value:'averias'},{label:'Atención recibida',value:'atencion'},{label:'Precio',value:'precio'},{label:'Modernización',value:'modernizacion'},{label:'Falta de seguimiento',value:'seguimiento'},{label:'Otro',value:'otro'}]}
 
 function installGoal(v){
  state.data.objetivo=v;
