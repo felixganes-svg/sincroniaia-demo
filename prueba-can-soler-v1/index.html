@@ -73,7 +73,7 @@ var(--paper);scroll-behavior:smooth}
       <input id="input" class="input" autocomplete="off" placeholder="Escriba un mensaje…" onkeydown="if(event.key==='Enter')sendFree()">
       <button class="send" onclick="sendFree()" aria-label="Enviar">➤</button>
     </footer>
-    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.15</div>
+    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.16</div>
   </div>
 </div>
 
@@ -1019,9 +1019,16 @@ function otraStart(){
   input.focus();
 }
 
+function normalizarTelefono(text){
+  return String(text||'').replace(/\D/g,'');
+}
 function telefonoValido(text){
-  const d=String(text||'').replace(/\D/g,'');
-  return d.length>=9 && d.length<=15;
+  const d=normalizarTelefono(text);
+  return /^\d{9}$/.test(d);
+}
+function formatearTelefono(text){
+  const d=normalizarTelefono(text);
+  return d.length===9 ? d.replace(/(\d{3})(\d{3})(\d{3})/,'$1 $2 $3') : d;
 }
 function handleOrderText(text){
   if(state.step==='pedidoCantidadManual'){
@@ -1030,11 +1037,42 @@ function handleOrderText(text){
     state.data.quantity=String(n);guardarProductoActual();state.step='pedidoMas';
     bot('<strong>¿Desea algún producto más?</strong>',[{label:'Sí, añadir otro producto',value:'si'},{label:'No, continuar',value:'no'}]);return true;
   }
-  if(state.step==='pedidoNombre'){state.data.nombre=String(text).trim();state.step='pedidoTelefono';bot('Gracias. <strong>¿Puede indicarme un teléfono de contacto?</strong>');return true;}
+  if(state.step==='pedidoNombre'){
+    const valor=String(text).trim();
+    if(telefonoValido(valor)){
+      state.data.telefono=normalizarTelefono(valor);
+      bot('Gracias. Ya tengo su número de teléfono: <strong>'+formatearTelefono(valor)+'</strong>.<br><br>Ahora indíqueme, por favor, <strong>su nombre</strong>.');
+      return true;
+    }
+    state.data.nombre=valor;
+    if(state.data.telefono){
+      state.step='pedidoFechaOpciones';
+      bot('Gracias, <strong>'+esc(state.data.nombre)+'</strong>.<br><br><strong>¿Para qué día desea solicitar la recogida?</strong>',[
+        {label:'Hoy',value:'hoy'},
+        {label:'Mañana',value:'manana'},
+        {label:'Otra fecha',value:'otra_fecha'},
+        {label:'↩️ Volver al resumen',value:'volver_resumen',cls:'dark'}
+      ]);
+      return true;
+    }
+    state.step='pedidoTelefono';
+    bot('Gracias. <strong>¿Puede indicarme un teléfono de contacto?</strong>');
+    return true;
+  }
   if(state.step==='pedidoTelefono'){
-    if(!telefonoValido(text)){bot('Necesito un teléfono válido para que el establecimiento pueda contactar con usted. Escríbalo de nuevo, por favor.');return true;}
-    state.data.telefono=String(text).trim();state.step='pedidoFechaOpciones';
-    bot('<strong>¿Para qué día desea solicitar la recogida?</strong>',[{label:'Hoy',value:'hoy'},{label:'Mañana',value:'manana'},{label:'Otra fecha',value:'otra_fecha'},{label:'↩️ Volver al resumen',value:'volver_resumen',cls:'dark'}]);return true;
+    if(!telefonoValido(text)){
+      bot('El teléfono debe tener <strong>9 cifras</strong>.<br><br>Escríbalo de nuevo, por ejemplo: <strong>600 123 456</strong>.');
+      return true;
+    }
+    state.data.telefono=normalizarTelefono(text);
+    state.step='pedidoFechaOpciones';
+    bot('Gracias. He registrado el teléfono <strong>'+formatearTelefono(text)+'</strong>.<br><br><strong>¿Para qué día desea solicitar la recogida?</strong>',[
+      {label:'Hoy',value:'hoy'},
+      {label:'Mañana',value:'manana'},
+      {label:'Otra fecha',value:'otra_fecha'},
+      {label:'↩️ Volver al resumen',value:'volver_resumen',cls:'dark'}
+    ]);
+    return true;
   }
   if(state.step==='pedidoFecha'){state.data.fechaRecogida=String(text).trim();preguntarFranjaHorario();return true;}
   return false;
