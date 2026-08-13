@@ -73,7 +73,7 @@ var(--paper);scroll-behavior:smooth}
       <input id="input" class="input" autocomplete="off" placeholder="Escriba un mensaje…" onkeydown="if(event.key==='Enter')sendFree()">
       <button class="send" onclick="sendFree()" aria-label="Enviar">➤</button>
     </footer>
-    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.14</div>
+    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.15</div>
   </div>
 </div>
 
@@ -207,6 +207,8 @@ function home(){
 }
 function restart(){
   state={step:'menu',branch:null,data:{}};chat.innerHTML='';
+  input.disabled=false;
+  document.querySelector('.send').disabled=false;
   const d=document.createElement('div');d.className='day';d.textContent='HOY · DEMOSTRACIÓN';chat.appendChild(d);
   notice('info','DEMO AISLADA','Conversación tipo WhatsApp. Mantiene el historial visible. Los pedidos son simulados hasta que Can Soler defina sus reglas reales.');
   bot('Hola. Soy el asistente virtual con inteligencia artificial de <strong>Can Soler</strong>.<br><br>Puedo ayudarle con pedidos de prueba, puntos de venta, información sobre Can Soler o cualquier otra consulta.',[
@@ -246,6 +248,7 @@ function route(v){
   if(state.step==='pedidoMas') return pedidoMas(v);
   if(state.step==='pedidoConfirmar') return pedidoConfirmar(v);
   if(state.step==='pedidoFinalizado') return pedidoFinalizado(v);
+  if(state.step==='pedidoCierreDecision') return pedidoCierreDecision(v);
   if(state.step==='pedidoModificar') return pedidoModificar(v);
   if(state.step==='pedidoFechaOpciones') return pedidoFechaOpciones(v);
   if(state.step==='pedidoFranjaHorario') return pedidoFranjaHorario(v);
@@ -819,17 +822,32 @@ function pedidoConfirmar(v){
 }
 function pedidoFinalizado(v){
   if(v==='finalizar'){
-    const punto = POINTS[state.data.point] ? POINTS[state.data.point].name : 'Can Soler';
     msg('Muchas gracias por confiar en <strong>Can Soler</strong>.<br><br>'+
-        'Su solicitud de demostración ha quedado cerrada correctamente. '+
-        'Esperamos haberle ayudado y que disfrute mucho de su pedido.<br><br>'+
-        '😊 <strong>Que tenga un feliz día.</strong>');
-    notice('info','FIN DE LA CONVERSACIÓN','La operación anterior queda cerrada. Puede volver al inicio o realizar una nueva consulta.');
-    state={step:'menu',branch:null,data:{}};
+        'Su solicitud de demostración ha quedado cerrada correctamente.');
+    notice('info','OPERACIÓN FINALIZADA','La solicitud anterior queda cerrada. <strong>¿Desea realizar otra consulta?</strong>');
+    state.step='pedidoCierreDecision';
     return buttons([
-      {label:'🏠 Volver al inicio',value:'inicio'},
-      {label:'💬 Nueva consulta',value:'otra',cls:'dark'}
+      {label:'💬 Sí, nueva consulta',value:'si'},
+      {label:'✅ No, finalizar',value:'no',cls:'dark'}
     ]);
+  }
+}
+function pedidoCierreDecision(v){
+  if(v==='si'){
+    state={step:'menu',branch:null,data:{}};
+    return home();
+  }
+  if(v==='no'){
+    clearOptions();
+    msg('Gracias por probar esta demostración de <strong>Can Soler</strong>.<br><br>'+
+        '<strong>La atención ha finalizado.</strong><br><br>'+
+        '😊 Que tenga un feliz día.');
+    notice('info','FIN DE LA CONVERSACIÓN','Demostración finalizada correctamente. Puede utilizar ↻ si desea iniciar una nueva prueba.');
+    state={step:'cerrado',branch:null,data:{}};
+    input.value='';
+    input.disabled=true;
+    document.querySelector('.send').disabled=true;
+    return;
   }
 }
 function pedidoModificar(v){
