@@ -73,7 +73,7 @@ var(--paper);scroll-behavior:smooth}
       <input id="input" class="input" autocomplete="off" placeholder="Escriba un mensaje…" onkeydown="if(event.key==='Enter')sendFree()">
       <button class="send" onclick="sendFree()" aria-label="Enviar">➤</button>
     </footer>
-    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.16</div>
+    <div class="smallnote">Demo no oficial · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.17</div>
   </div>
 </div>
 
@@ -198,7 +198,7 @@ function bot(html,opts){const t=document.createElement('div');t.className='typin
 function safe(body='Ese dato no está configurado o no está confirmado como vigente.'){notice('safe','REGLA MAESTRA',body+' No se infiere ni se inventa; la consulta se registra o deriva al establecimiento.')}
 function home(){
   state={step:'menu',branch:null,data:{}};
-  bot('<strong>¿Qué desea hacer?</strong>',[
+  bot('<strong>¿Qué desea hacer?</strong><br><br>Puede pulsar una opción o escribir su número.',[
     {label:'1. 🛍️ Hacer un pedido',value:'pedido'},
     {label:'2. 📍 Puntos de venta',value:'puntos'},
     {label:'3. 🏆 Conocer Can Soler',value:'conocer',cls:'gold'},
@@ -211,7 +211,7 @@ function restart(){
   document.querySelector('.send').disabled=false;
   const d=document.createElement('div');d.className='day';d.textContent='HOY · DEMOSTRACIÓN';chat.appendChild(d);
   notice('info','DEMO AISLADA','Conversación tipo WhatsApp. Mantiene el historial visible. Los pedidos son simulados hasta que Can Soler defina sus reglas reales.');
-  bot('Hola. Soy el asistente virtual con inteligencia artificial de <strong>Can Soler</strong>.<br><br>Puedo ayudarle con pedidos de prueba, puntos de venta, información sobre Can Soler o cualquier otra consulta.',[
+  bot('Hola. Soy el asistente virtual con inteligencia artificial de <strong>Can Soler</strong>.<br><br>Puedo ayudarle con pedidos de prueba, puntos de venta, información sobre Can Soler o cualquier otra consulta.<br><br>Puede pulsar una opción o escribir su número.',[
     {label:'1. 🛍️ Hacer un pedido',value:'pedido'},
     {label:'2. 📍 Puntos de venta',value:'puntos'},
     {label:'3. 🏆 Conocer Can Soler',value:'conocer',cls:'gold'},
@@ -1085,7 +1085,18 @@ function sendFree(){
   if(handleOrderText(text)) return;
   answerFree(text);
 }
+function manejarMenuNumerico(text){
+  if(state.step!=='menu') return false;
+  const opcion=String(text||'').trim().replace(/[.)\-\s]+$/,'');
+  if(opcion==='1'){ pedidoStart(); return true; }
+  if(opcion==='2'){ puntosStart(); return true; }
+  if(opcion==='3'){ conocerStart(); return true; }
+  if(opcion==='4'){ otraStart(); return true; }
+  return false;
+}
+
 function answerFree(text){
+  if(manejarMenuNumerico(text)) return;
   const n=norm(text);
   const f=FLAVOURS.find(x=>norm(x)===n || norm(x).includes(n) || n.includes(norm(x)));
   if(f){msg('Sí. <strong>'+esc(f)+'</strong> aparece entre los sabores publicados de Can Soler.<br><br>No estoy confirmando que esté disponible hoy.');state.step='menu';return buttons([{label:'🏠 Inicio',value:'inicio'}])}
