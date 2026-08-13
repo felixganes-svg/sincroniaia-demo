@@ -60,7 +60,7 @@ var(--paper);scroll-behavior:smooth}
     <div class="avatar">CS</div>
     <div class="headtxt">
       <h1>Can Soler · Demo SINCRONIAIA</h1>
-      <p>asistente en línea · conversación de prueba</p>
+      <p>Asistente IA · conversación de prueba</p>
     </div>
     <div class="badge">PRUEBA AISLADA</div>
   </header>
@@ -209,7 +209,7 @@ function restart(){
   state={step:'menu',branch:null,data:{}};chat.innerHTML='';
   const d=document.createElement('div');d.className='day';d.textContent='HOY · DEMOSTRACIÓN';chat.appendChild(d);
   notice('info','DEMO AISLADA','Conversación tipo WhatsApp. Mantiene el historial visible. Los pedidos son simulados hasta que Can Soler defina sus reglas reales.');
-  bot('Hola. Soy el asistente virtual de <strong>Can Soler</strong>.<br><br>Puedo ayudarle con pedidos de prueba, puntos de venta, información sobre Can Soler o cualquier otra consulta.',[
+  bot('Hola. Soy el asistente virtual con inteligencia artificial de <strong>Can Soler</strong>.<br><br>Puedo ayudarle con pedidos de prueba, puntos de venta, información sobre Can Soler o cualquier otra consulta.',[
     {label:'1. 🛍️ Hacer un pedido',value:'pedido'},
     {label:'2. 📍 Puntos de venta',value:'puntos'},
     {label:'3. 🏆 Conocer Can Soler',value:'conocer',cls:'gold'},
@@ -515,8 +515,6 @@ function pedidoHeladoFormato(v){
     ]);
   }
 
-  // Patrón Maestro: cucurucho/tarrina/para llevar pueden combinar varios sabores.
-  // Máximo 3 en la DEMO por UX; no se presenta como límite oficial de Can Soler.
   state.data.product='Helado';
   state.data.flavours=[];
   state.step='pedidoHeladoSaboresCantidad';
@@ -540,7 +538,6 @@ function pedidoHeladoSaboresCantidad(v){
     {label:'🏠 Inicio',value:'inicio',cls:'dark'}
   ]));
 }
-
 
 function pedidoEspecialFormato(v){
   state.data.size=v;
@@ -781,7 +778,7 @@ function pedidoMas(v){
   }
   state.step='pedidoNombre';
   notice('info','DATOS DE CONTACTO','Sus datos se utilizarán para gestionar su pedido y contactar con usted en relación con la recogida.');
-    bot('<strong>¿A qué nombre registramos el pedido?</strong>');
+  bot('<strong>¿A qué nombre registramos el pedido?</strong>');
   input.focus();
 }
 function mostrarResumenPedido(){
@@ -875,42 +872,26 @@ function pedidoModificar(v){
   }
 }
 
-
 const HORARIO_RECOGIDA={
   inicio:'11:00',
   fin:'23:00',
   franjas:{
-    mediodia:{
-      label:'☀️ Mediodía · 11:00–15:00',
-      intervalos:['11:00–12:00','12:00–13:00','13:00–14:00','14:00–15:00']
-    },
-    tarde:{
-      label:'🌤️ Tarde · 15:00–19:00',
-      intervalos:['15:00–16:00','16:00–17:00','17:00–18:00','18:00–19:00']
-    },
-    noche:{
-      label:'🌙 Noche · 19:00–23:00',
-      intervalos:['19:00–20:00','20:00–21:00','21:00–22:00','22:00–23:00']
-    }
+    mediodia:{label:'☀️ Mediodía · 11:00–15:00',intervalos:['11:00–12:00','12:00–13:00','13:00–14:00','14:00–15:00']},
+    tarde:{label:'🌤️ Tarde · 15:00–19:00',intervalos:['15:00–16:00','16:00–17:00','17:00–18:00','18:00–19:00']},
+    noche:{label:'🌙 Noche · 19:00–23:00',intervalos:['19:00–20:00','20:00–21:00','21:00–22:00','22:00–23:00']}
   }
 };
 
 function preguntarFranjaHorario(){
   state.step='pedidoFranjaHorario';
-  return bot(
-    '<strong>¿A qué hora desea recogerlo?</strong><br><br>'+
-    'Nuestro horario de recogida es de <strong>11:00 a 23:00</strong>.<br><br>'+
-    '<strong>¿En qué franja horaria lo desea?</strong>',
-    [
-      {label:HORARIO_RECOGIDA.franjas.mediodia.label,value:'mediodia'},
-      {label:HORARIO_RECOGIDA.franjas.tarde.label,value:'tarde'},
-      {label:HORARIO_RECOGIDA.franjas.noche.label,value:'noche'},
-      {label:'↩️ Volver al día',value:'volver_dia',cls:'dark'},
-      {label:'🏠 Inicio',value:'inicio',cls:'dark'}
-    ]
-  );
+  return bot('<strong>¿A qué hora desea recogerlo?</strong><br><br>Nuestro horario de recogida es de <strong>11:00 a 23:00</strong>.<br><br><strong>¿En qué franja horaria lo desea?</strong>',[
+    {label:HORARIO_RECOGIDA.franjas.mediodia.label,value:'mediodia'},
+    {label:HORARIO_RECOGIDA.franjas.tarde.label,value:'tarde'},
+    {label:HORARIO_RECOGIDA.franjas.noche.label,value:'noche'},
+    {label:'↩️ Volver al día',value:'volver_dia',cls:'dark'},
+    {label:'🏠 Inicio',value:'inicio',cls:'dark'}
+  ]);
 }
-
 function pedidoFranjaHorario(v){
   if(v==='volver_dia'){
     state.step='pedidoFechaOpciones';
@@ -921,46 +902,26 @@ function pedidoFranjaHorario(v){
       {label:'↩️ Volver al resumen',value:'volver_resumen',cls:'dark'}
     ]);
   }
-
   const franja=HORARIO_RECOGIDA.franjas[v];
   if(!franja) return;
-
   state.data.franjaGeneral=v;
   state.step='pedidoIntervaloHorario';
-  return bot(
-    '<strong>'+franja.label+'</strong><br><br>'+
-    '<strong>¿En qué intervalo desea recogerlo?</strong>',
-    franja.intervalos.map(x=>({label:x,value:x})).concat([
-      {label:'↩️ Cambiar franja',value:'volver_franja',cls:'dark'},
-      {label:'🏠 Inicio',value:'inicio',cls:'dark'}
-    ])
-  );
+  return bot('<strong>'+franja.label+'</strong><br><br><strong>¿En qué intervalo desea recogerlo?</strong>',franja.intervalos.map(x=>({label:x,value:x})).concat([
+    {label:'↩️ Cambiar franja',value:'volver_franja',cls:'dark'},
+    {label:'🏠 Inicio',value:'inicio',cls:'dark'}
+  ]));
 }
-
 function pedidoIntervaloHorario(v){
-  if(v==='volver_franja'){
-    return preguntarFranjaHorario();
-  }
-
+  if(v==='volver_franja') return preguntarFranjaHorario();
   const franja=HORARIO_RECOGIDA.franjas[state.data.franjaGeneral];
   if(!franja || !franja.intervalos.includes(v)) return;
-
   state.data.horaRecogida=v;
   mostrarResumenPedido();
 }
-
 function pedidoFechaOpciones(v){
-  if(v==='volver_resumen'){
-    return mostrarResumenPedido();
-  }
-  if(v==='hoy'){
-    state.data.fechaRecogida='Hoy';
-    return preguntarFranjaHorario();
-  }
-  if(v==='manana'){
-    state.data.fechaRecogida='Mañana';
-    return preguntarFranjaHorario();
-  }
+  if(v==='volver_resumen') return mostrarResumenPedido();
+  if(v==='hoy'){state.data.fechaRecogida='Hoy';return preguntarFranjaHorario();}
+  if(v==='manana'){state.data.fechaRecogida='Mañana';return preguntarFranjaHorario();}
   if(v==='otra_fecha'){
     state.step='pedidoFecha';
     bot('<strong>Indique el día o la fecha que desea.</strong><br><br>Por ejemplo: viernes, 14 de agosto o 14/08.');
@@ -1047,45 +1008,17 @@ function telefonoValido(text){
 function handleOrderText(text){
   if(state.step==='pedidoCantidadManual'){
     const n=parseInt(String(text).replace(/\D/g,''),10);
-    if(!n || n<1){
-      bot('Indíqueme una cantidad válida, por ejemplo 1, 2 o 4.');
-      return true;
-    }
-    state.data.quantity=String(n);
-    guardarProductoActual();
-    state.step='pedidoMas';
-    bot('<strong>¿Desea algún producto más?</strong>',[
-      {label:'Sí, añadir otro producto',value:'si'},
-      {label:'No, continuar',value:'no'}
-    ]);
-    return true;
+    if(!n || n<1){bot('Indíqueme una cantidad válida, por ejemplo 1, 2 o 4.');return true;}
+    state.data.quantity=String(n);guardarProductoActual();state.step='pedidoMas';
+    bot('<strong>¿Desea algún producto más?</strong>',[{label:'Sí, añadir otro producto',value:'si'},{label:'No, continuar',value:'no'}]);return true;
   }
-  if(state.step==='pedidoNombre'){
-    state.data.nombre=String(text).trim();
-    state.step='pedidoTelefono';
-    bot('Gracias. <strong>¿Puede indicarme un teléfono de contacto?</strong>');
-    return true;
-  }
+  if(state.step==='pedidoNombre'){state.data.nombre=String(text).trim();state.step='pedidoTelefono';bot('Gracias. <strong>¿Puede indicarme un teléfono de contacto?</strong>');return true;}
   if(state.step==='pedidoTelefono'){
-    if(!telefonoValido(text)){
-      bot('Necesito un teléfono válido para que el establecimiento pueda contactar con usted. Escríbalo de nuevo, por favor.');
-      return true;
-    }
-    state.data.telefono=String(text).trim();
-    state.step='pedidoFechaOpciones';
-    bot('<strong>¿Para qué día desea solicitar la recogida?</strong>',[
-      {label:'Hoy',value:'hoy'},
-      {label:'Mañana',value:'manana'},
-      {label:'Otra fecha',value:'otra_fecha'},
-      {label:'↩️ Volver al resumen',value:'volver_resumen',cls:'dark'}
-    ]);
-    return true;
+    if(!telefonoValido(text)){bot('Necesito un teléfono válido para que el establecimiento pueda contactar con usted. Escríbalo de nuevo, por favor.');return true;}
+    state.data.telefono=String(text).trim();state.step='pedidoFechaOpciones';
+    bot('<strong>¿Para qué día desea solicitar la recogida?</strong>',[{label:'Hoy',value:'hoy'},{label:'Mañana',value:'manana'},{label:'Otra fecha',value:'otra_fecha'},{label:'↩️ Volver al resumen',value:'volver_resumen',cls:'dark'}]);return true;
   }
-  if(state.step==='pedidoFecha'){
-    state.data.fechaRecogida=String(text).trim();
-    preguntarFranjaHorario();
-    return true;
-  }
+  if(state.step==='pedidoFecha'){state.data.fechaRecogida=String(text).trim();preguntarFranjaHorario();return true;}
   return false;
 }
 function sendFree(){
@@ -1108,15 +1041,9 @@ function answerFree(text){
     msg('Los precios vigentes no están configurados como fuente segura en esta demo.');
     safe('Precio vigente no configurado.');state.step='menu';return buttons([{label:'🏠 Inicio',value:'inicio'}]);
   }
-  if(n.includes('pedido')||n.includes('encargo')){
-    return pedidoStart();
-  }
-  if(n.includes('historia')||n.includes('1969')||n.includes('campeon')||n.includes('albert soler')||n.includes('obrador')){
-    return conocerStart();
-  }
-  if(n.includes('direccion')||n.includes('donde')||n.includes('ubicacion')){
-    return puntosStart();
-  }
+  if(n.includes('pedido')||n.includes('encargo')) return pedidoStart();
+  if(n.includes('historia')||n.includes('1969')||n.includes('campeon')||n.includes('albert soler')||n.includes('obrador')) return conocerStart();
+  if(n.includes('direccion')||n.includes('donde')||n.includes('ubicacion')) return puntosStart();
   if(n.includes('alerg')||n.includes('gluten')||n.includes('lactosa')||n.includes('frutos secos')){
     msg('En seguridad alimentaria no deduzco que un producto sea seguro solo por su nombre o descripción.');
     safe('La tabla oficial de alérgenos debe estar configurada y aprobada por el establecimiento.');
