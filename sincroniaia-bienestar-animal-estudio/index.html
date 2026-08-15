@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SINCRONIAIA · Estudio Bienestar Animal — Mataró</title>
+<style>
+:root{--bg:#f5f7f6;--card:#fff;--text:#17221d;--muted:#64726b;--line:#dfe7e2;--accent:#1f6f54;--accent2:#e8f4ef;--danger:#9b3832;--soft:#f0f6f3}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:760px;margin:auto;padding:14px 12px 48px}
+.hero{background:linear-gradient(135deg,#173f32,#245d49);color:#fff;border-radius:22px;padding:24px 20px;box-shadow:0 10px 28px rgba(23,63,50,.10)}
+.brand{font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.82}
+h1{font-size:27px;line-height:1.08;margin:8px 0 10px}
+.hero p{line-height:1.52;color:#edf5f1;margin:0}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pill{display:inline-block;background:#ffffff1f;padding:7px 10px;border-radius:999px;font-size:12px}
+.note{background:#eef7f2;border:1px solid #d3e7dc;border-radius:14px;padding:13px 14px;margin-top:14px;font-size:13px;line-height:1.5;color:#315243}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:14px}
+h2{font-size:18px;margin:0 0 6px}
+.sectionintro{font-size:13px;color:var(--muted);line-height:1.45;margin:0 0 14px}
+label{display:block;font-weight:700;font-size:14px;margin:15px 0 7px}
+.hint{font-size:12px;color:var(--muted);font-weight:400;line-height:1.35}
+input,select,textarea{width:100%;border:1px solid #cfd9d3;border-radius:12px;padding:12px 13px;font-size:16px;background:#fff;color:var(--text);outline:none}
+textarea{min-height:100px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(31,111,84,.10)}
+.checks{display:grid;gap:9px;margin-top:8px}
+.check{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);padding:11px 12px;border-radius:12px;background:#fbfcfb;margin:0;font-weight:600}
+.check input{width:auto;margin-top:2px;flex:0 0 auto}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.scale label{margin:0;text-align:center;border:1px solid var(--line);border-radius:12px;padding:10px 4px;font-size:13px;background:#fbfcfb}
+.scale input{width:auto}
+.progressbox{position:sticky;top:6px;z-index:5;background:rgba(245,247,246,.95);backdrop-filter:blur(6px);padding:8px 0}
+.progress{height:8px;background:#dde8e2;border-radius:999px;overflow:hidden}
+.bar{height:100%;width:0;background:var(--accent);transition:.2s}
+.small{font-size:12px;color:var(--muted);margin-top:5px;text-align:right}
+button{width:100%;border:0;border-radius:14px;background:var(--accent);color:#fff;padding:15px;font-size:16px;font-weight:800;cursor:pointer;margin-top:16px}
+button:disabled{opacity:.55;cursor:not-allowed}
+.status{display:none;border-radius:14px;padding:14px;margin-top:14px;line-height:1.45}
+.ok{display:block;background:#eef8f3;border:1px solid #cbe4d7}
+.err{display:block;background:#fff0ef;border:1px solid #ebc4c0;color:#6c2924}
+.hidden{display:none!important}
+.hp{position:absolute;left:-9999px;opacity:0}
+.footer{text-align:center;font-size:12px;color:var(--muted);margin-top:18px;line-height:1.5}
+@media(max-width:520px){
+  .hero{padding:21px 17px;border-radius:18px}
+  h1{font-size:24px}
+  .card{padding:15px}
+  .scale{grid-template-columns:1fr}
+  .small{text-align:left}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section class="hero">
+  <div class="brand">SINCRONIAIA · Investigación de Campo</div>
+  <h1>Estudio Bienestar Animal — Mataró</h1>
+  <p>Queremos entender cómo trabajan los negocios y profesionales del bienestar animal, qué tareas les ocupan más tiempo y dónde aparecen interrupciones durante la jornada.</p>
+  <div class="pills">
+    <span class="pill">≈ 3–4 minutos</span>
+    <span class="pill">Sin compromiso comercial</span>
+    <span class="pill">Pensado para móvil</span>
+  </div>
+</section>
+
+<div class="note">
+<strong>Objetivo del estudio:</strong> conocer cómo se reparte el tiempo en el día a día, qué tareas se repiten y qué situaciones interrumpen más el trabajo. Puede dejar en blanco cualquier dato de contacto si no desea recibir el estudio.
+</div>
+
+<div class="progressbox">
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <div class="small" id="progressText">0% completado</div>
+</div>
+
+<form id="form">
+<input class="hp" name="website" tabindex="-1" autocomplete="off">
+
+<section class="card">
+<h2>1 · Su negocio</h2>
+<p class="sectionintro">Empezamos por situar el tipo de actividad. No necesitamos información sensible ni datos clínicos de animales.</p>
+
+<label>Nombre del negocio *</label>
+<input name="negocio" required placeholder="Ej. Peluquería, clínica, guardería…">
+
+<label>Actividad principal *</label>
+<select name="actividad" required>
+  <option value="">Seleccionar…</option>
+  <option>Peluquería / estética canina o felina</option>
+  <option>Clínica / centro veterinario</option>
+  <option>Guardería / residencia</option>
+  <option>Educación / adiestramiento</option>
+  <option>Tienda / alimentación / complementos</option>
+  <option>Paseo / cuidado de animales</option>
+  <option>Fisioterapia / rehabilitación animal</option>
+  <option>Otro</option>
+</select>
+
+<label>¿Cuántas personas trabajan habitualmente en el negocio?</label>
+<select name="equipo">
+  <option value="">Seleccionar…</option>
+  <option>1 persona</option>
+  <option>2–3 personas</option>
+  <option>4–6 personas</option>
+  <option>7 o más</option>
+</select>
+</section>
+
+<section class="card">
+<h2>2 · Cómo llegan las consultas</h2>
+<p class="sectionintro">Queremos entender qué ocurre cuando el negocio está atendiendo y entra una nueva consulta.</p>
+
+<label>¿Por qué canales reciben más consultas? <span class="hint">Puede marcar varios.</span></label>
+<div class="checks">
+  <label class="check"><input type="checkbox" name="canal" value="WhatsApp"> WhatsApp</label>
+  <label class="check"><input type="checkbox" name="canal" value="Teléfono"> Teléfono</label>
+  <label class="check"><input type="checkbox" name="canal" value="Instagram"> Instagram / redes sociales</label>
+  <label class="check"><input type="checkbox" name="canal" value="Email"> Correo electrónico</label>
+  <label class="check"><input type="checkbox" name="canal" value="Web"> Web / formulario</label>
+</div>
+
+<label>Mientras están atendiendo a un animal o a un cliente, ¿con qué frecuencia les entran llamadas o mensajes que no pueden atender en ese momento?</label>
+<select name="interrupciones">
+  <option value="">Seleccionar…</option>
+  <option value="Muchas veces al día">Muchas veces al día</option>
+  <option value="Varias veces al día">Varias veces al día</option>
+  <option value="Alguna vez al día">Alguna vez al día</option>
+  <option value="Casi nunca">Casi nunca</option>
+</select>
+
+<label>Cuando no pueden responder en ese momento, ¿qué sucede normalmente?</label>
+<select name="no_respuesta">
+  <option value="">Seleccionar…</option>
+  <option>Respondemos más tarde</option>
+  <option>Devolvemos la llamada</option>
+  <option>El cliente vuelve a contactar</option>
+  <option value="A veces perdemos la consulta">A veces esa consulta se pierde</option>
+  <option>Otra persona responde</option>
+  <option>Ya tenemos un sistema que lo gestiona</option>
+</select>
+
+<label>En conjunto, ¿cuánto tiempo aproximado dedican cada día a llamadas, WhatsApp, citas y consultas de clientes?</label>
+<select name="tiempo">
+  <option value="">Seleccionar…</option>
+  <option>Menos de 30 minutos</option>
+  <option>30–60 minutos</option>
+  <option>1–2 horas</option>
+  <option>2–3 horas</option>
+  <option>Más de 3 horas</option>
+  <option>No sabría calcularlo</option>
+</select>
+
+<label>De ese tiempo, ¿cuánto cree que corresponde a tareas repetitivas o gestiones que podrían simplificarse sin empeorar la atención al cliente?</label>
+<select name="tiempo_recuperable">
+  <option value="">Seleccionar…</option>
+  <option>Casi nada</option>
+  <option>Menos de 30 minutos al día</option>
+  <option>30–60 minutos al día</option>
+  <option>1–2 horas al día</option>
+  <option>Más de 2 horas al día</option>
+  <option>No sabría calcularlo</option>
+</select>
+</section>
+
+<section class="card">
+<h2>3 · Qué consume tiempo</h2>
+<p class="sectionintro">No todas las tareas merecen cambiarse. Nos interesa detectar cuáles son realmente repetitivas o interrumpen el trabajo.</p>
+
+<label>¿Qué consultas reciben de forma repetida? <span class="hint">Puede marcar varias.</span></label>
+<div class="checks">
+  <label class="check"><input type="checkbox" name="consulta" value="Precios"> Precios</label>
+  <label class="check"><input type="checkbox" name="consulta" value="Horarios"> Horarios</label>
+  <label class="check"><input type="checkbox" name="consulta" value="Disponibilidad"> Disponibilidad</label>
+  <label class="check"><input type="checkbox" name="consulta" value="Servicios"> Servicios</label>
+  <label class="check"><input type="checkbox" name="consulta" value="Citas"> Pedir, cambiar o cancelar cita</label>
+  <label class="check"><input type="checkbox" name="consulta" value="Requisitos"> Requisitos para traer al animal</label>
+  <label class="check"><input type="checkbox" name="consulta" value="Productos"> Productos / alimentación</label>
+  <label class="check"><input type="checkbox" name="consulta" value="Ubicación"> Ubicación / cómo llegar</label>
+</div>
+
+<label>¿Cómo gestionan actualmente las citas o reservas?</label>
+<select name="agenda">
+  <option value="">Seleccionar…</option>
+  <option>No trabajamos con cita</option>
+  <option>Agenda de papel</option>
+  <option>Teléfono / WhatsApp</option>
+  <option>Google Calendar</option>
+  <option>Programa de gestión</option>
+  <option>Web / sistema de reservas</option>
+  <option>Combinamos varios sistemas</option>
+</select>
+
+<div id="noShowWrap">
+<label>Si trabajan con cita, ¿con qué frecuencia tienen olvidos o clientes que no se presentan?</label>
+<select name="no_show">
+  <option value="">Seleccionar…</option>
+  <option>Sí, con frecuencia</option>
+  <option>A veces</option>
+  <option>Muy pocas veces</option>
+  <option>No</option>
+  <option>No trabajamos con cita</option>
+</select>
+</div>
+
+<label>¿Qué tareas les quitan más tiempo? <span class="hint">Marque solo las que realmente representen una carga.</span></label>
+<div class="checks">
+  <label class="check"><input type="checkbox" name="tarea" value="Llamadas"> Atender llamadas</label>
+  <label class="check"><input type="checkbox" name="tarea" value="WhatsApp"> Responder WhatsApp</label>
+  <label class="check"><input type="checkbox" name="tarea" value="Citas"> Gestionar citas y cambios</label>
+  <label class="check"><input type="checkbox" name="tarea" value="Recordatorios"> Recordar citas</label>
+  <label class="check"><input type="checkbox" name="tarea" value="FAQ"> Responder preguntas repetitivas</label>
+  <label class="check"><input type="checkbox" name="tarea" value="Seguimiento"> Hacer seguimientos</label>
+  <label class="check"><input type="checkbox" name="tarea" value="Administración"> Tareas administrativas</label>
+  <label class="check"><input type="checkbox" name="tarea" value="Pedidos"> Gestionar pedidos / productos</label>
+</div>
+
+<label>Si mañana pudiera eliminar o simplificar una sola tarea repetitiva del negocio, ¿cuál elegiría?</label>
+<textarea name="eliminar" placeholder="Esta respuesta nos ayuda especialmente porque no limita el problema a opciones predefinidas."></textarea>
+</section>
+
+<section class="card">
+<h2>4 · ¿Hay algo que merezca la pena mejorar?</h2>
+<p class="sectionintro">Esta parte no supone aceptar ninguna solución. Solo mide si existe un problema con suficiente importancia como para estudiarlo.</p>
+
+<label>Cuando una consulta no puede atenderse a tiempo, ¿qué impacto tiene normalmente en el negocio?</label>
+<select name="perdidas">
+  <option value="">Seleccionar…</option>
+  <option value="Sí, claramente">A veces se pierde una oportunidad o un cliente</option>
+  <option value="Probablemente sí">Puede generar pérdida de oportunidades, aunque no podemos medirlo bien</option>
+  <option value="No lo sé">No sabemos qué impacto tiene</option>
+  <option value="Probablemente no">Normalmente el cliente espera o vuelve a contactar</option>
+  <option value="No">No suele tener impacto</option>
+</select>
+
+<label>¿Qué tareas, si alguna, tendría sentido simplificar o gestionar de otra manera? <span class="hint">Puede dejarlo en blanco.</span></label>
+<div class="checks">
+  <label class="check"><input type="checkbox" name="delegar" value="Horarios"> Consultas sobre horarios</label>
+  <label class="check"><input type="checkbox" name="delegar" value="Servicios"> Información de servicios</label>
+  <label class="check"><input type="checkbox" name="delegar" value="Precios"> Precios previamente definidos</label>
+  <label class="check"><input type="checkbox" name="delegar" value="Citas"> Solicitudes o cambios de cita</label>
+  <label class="check"><input type="checkbox" name="delegar" value="Recordatorios"> Recordatorios</label>
+  <label class="check"><input type="checkbox" name="delegar" value="FAQ"> Preguntas frecuentes</label>
+  <label class="check"><input type="checkbox" name="delegar" value="Datos"> Recogida inicial de datos</label>
+  <label class="check"><input type="checkbox" name="delegar" value="Pedidos"> Pedidos / recogidas</label>
+</div>
+
+<label>Del 1 al 5, ¿qué prioridad tendría para su negocio reducir interrupciones y tareas repetitivas?</label>
+<div class="scale">
+  <label><input type="radio" name="valor" value="1">1<br><span class="hint">Ninguna</span></label>
+  <label><input type="radio" name="valor" value="2">2</label>
+  <label><input type="radio" name="valor" value="3">3</label>
+  <label><input type="radio" name="valor" value="4">4</label>
+  <label><input type="radio" name="valor" value="5">5<br><span class="hint">Alta</span></label>
+</div>
+</section>
+
+<section class="card">
+<h2>5 · Recibir el estudio</h2>
+<p class="sectionintro">Puede enviar sus respuestas sin solicitar ningún contacto posterior.</p>
+
+<label>¿Le interesaría recibir un pequeño estudio inicial basado en sus respuestas?</label>
+<select name="estudio" id="estudio">
+  <option value="">Seleccionar…</option>
+  <option>Sí, me interesa</option>
+  <option>Quizá, primero quiero saber más</option>
+  <option>No, gracias</option>
+</select>
+
+<div id="contactFields" class="hidden">
+  <label>Persona de contacto</label>
+  <input name="contacto" placeholder="Nombre">
+
+  <label>Teléfono / WhatsApp</label>
+  <input name="telefono" inputmode="tel" placeholder="600 000 000">
+
+  <label>Correo electrónico</label>
+  <input name="email" type="email" placeholder="correo@negocio.com">
+</div>
+
+<label class="check" style="margin-top:16px">
+  <input type="checkbox" name="consentimiento" required>
+  He leído la información anterior y acepto que estas respuestas se utilicen para este estudio. Si he facilitado datos de contacto y he solicitado información, autorizo el contacto únicamente en relación con este estudio.
+</label>
+
+<p class="hint" style="margin-top:10px">No incluya información clínica de animales ni otros datos sensibles en las respuestas abiertas.</p>
+
+<button id="submitBtn" type="submit">Enviar respuestas</button>
+<div id="status" class="status"></div>
+</section>
+</form>
+
+<div class="footer">
+SINCRONIAIA · Estudio Bienestar Animal — Mataró<br>
+Primero comprender. Después decidir qué merece la pena mejorar.
+</div>
+
+</div>
+
+<script>
+const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbxCyS3AdQnwtkjC6dsDm2rHJV1z0cLMAeO5qAvBIrfAjfQ3RlC8b81KA5BkafC5WG7XQA/exec';
+
+const form = document.getElementById('form');
+const statusBox = document.getElementById('status');
+const submitBtn = document.getElementById('submitBtn');
+const bar = document.getElementById('bar');
+const progressText = document.getElementById('progressText');
+const estudio = document.getElementById('estudio');
+const contactFields = document.getElementById('contactFields');
+const agenda = form.elements['agenda'];
+const noShowWrap = document.getElementById('noShowWrap');
+
+function selected(name){ return [...form.querySelectorAll(`[name="${name}"]:checked`)].map(x=>x.value); }
+function value(name){ const el=form.elements[name]; return el ? String(el.value||'').trim() : ''; }
+
+function syncConditionalFields(){
+  const wantsContact = estudio.value === 'Sí, me interesa' || estudio.value === 'Quizá, primero quiero saber más';
+  contactFields.classList.toggle('hidden', !wantsContact);
+
+  const noAppointment = agenda.value === 'No trabajamos con cita';
+  noShowWrap.classList.toggle('hidden', noAppointment);
+  if(noAppointment) form.elements['no_show'].value = 'No trabajamos con cita';
+}
+
+function payload(){
+  return {
+    negocio:value('negocio'),
+    contacto:value('contacto'),
+    telefono:value('telefono'),
+    email:value('email'),
+    actividad:value('actividad'),
+    equipo:value('equipo'),
+    canal:selected('canal'),
+    interrupciones:value('interrupciones'),
+    no_respuesta:value('no_respuesta'),
+    tiempo:value('tiempo'),
+    tiempo_recuperable:value('tiempo_recuperable'),
+    consulta:selected('consulta'),
+    agenda:value('agenda'),
+    no_show:value('no_show'),
+    tarea:selected('tarea'),
+    delegar:selected('delegar'),
+    eliminar:value('eliminar'),
+    perdidas:value('perdidas'),
+    estudio:value('estudio'),
+    valor:value('valor'),
+    consentimiento:!!form.elements['consentimiento'].checked,
+    website:value('website'),
+    origen:'estudio-bienestar-animal-mataro-v3',
+    userAgent:navigator.userAgent
+  };
+}
+
+function updateProgress(){
+  const core=['negocio','actividad','interrupciones','tiempo','tiempo_recuperable','perdidas','estudio'];
+  let done=core.filter(n=>value(n)).length;
+  if(selected('canal').length) done++;
+  if(selected('consulta').length) done++;
+  if(selected('tarea').length) done++;
+  if(value('eliminar')) done++;
+  if(value('valor')) done++;
+  const total=12, pct=Math.min(100,Math.round(done/total*100));
+  bar.style.width=pct+'%';
+  progressText.textContent=pct+'% completado';
+}
+
+form.addEventListener('input',()=>{ updateProgress(); syncConditionalFields(); });
+form.addEventListener('change',()=>{ updateProgress(); syncConditionalFields(); });
+syncConditionalFields();
+updateProgress();
+
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  statusBox.className='status';
+  statusBox.textContent='';
+
+  if(!form.reportValidity()) return;
+
+  const wantsContact = estudio.value === 'Sí, me interesa' || estudio.value === 'Quizá, primero quiero saber más';
+  if(wantsContact && !value('telefono') && !value('email')){
+    statusBox.className='status err';
+    statusBox.textContent='Si desea recibir el estudio o más información, indique al menos un teléfono/WhatsApp o un correo electrónico.';
+    statusBox.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  submitBtn.disabled=true;
+  submitBtn.textContent='Enviando…';
+
+  try{
+    const res = await fetch(BACKEND_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(payload()),
+      redirect:'follow'
+    });
+    const data = await res.json();
+    if(!data.ok) throw new Error(data.error || 'No se pudo registrar la respuesta.');
+
+    statusBox.className='status ok';
+    statusBox.innerHTML='<strong>Gracias. Hemos recibido sus respuestas correctamente.</strong><br>ID de registro: '+data.id+
+      '<br><span class="hint">La valoración interna nos ayuda a priorizar el estudio; no implica ninguna propuesta comercial automática.</span>';
+    form.reset();
+    syncConditionalFields();
+    updateProgress();
+    statusBox.scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(err){
+    statusBox.className='status err';
+    statusBox.textContent='No se ha podido enviar. Sus respuestas no se han confirmado como registradas. Vuelva a intentarlo. Detalle: '+err.message;
+  }finally{
+    submitBtn.disabled=false;
+    submitBtn.textContent='Enviar respuestas';
+  }
+});
+</script>
+</body>
+</html>
