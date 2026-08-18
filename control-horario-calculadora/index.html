@@ -30,7 +30,7 @@
 <body>
 <div class="wrap">
   <div class="hero">
-    <div class="badge">HERRAMIENTA GRATUITA · DEMO AISLADA v0.4</div>
+    <div class="badge">HERRAMIENTA GRATUITA · DEMO AISLADA v0.5</div>
     <h1>¿Cuánto tiempo dedica tu empresa a gestionar el control horario?</h1>
     <p>Calcula de forma orientativa el tiempo que hoy se dedica a revisar fichajes, resolver incidencias y preparar el resumen de horas.</p>
   </div>
@@ -39,9 +39,9 @@
     <h2>1. Cómo trabajáis hoy</h2>
     <div class="muted">Introduce una media realista. Los resultados se calculan únicamente con estos datos.</div>
     <div class="grid">
-      <div class="field"><label>Nº de trabajadores</label><input id="workers" type="number" min="1" value="2"><small>Personas cuyo control horario se gestiona.</small></div>
+      <div class="field"><label>Nº de trabajadores</label><input id="workers" type="number" min="1" value="2"><small>Personas cuyo control horario se gestiona. Este dato sirve para dimensionar la empresa.</small></div>
       <div class="field"><label>Días de actividad al mes</label><input id="days" type="number" min="1" max="31" value="26"><small>Días en los que normalmente hay fichajes.</small></div>
-      <div class="field"><label>Minutos al día por trabajador</label><input id="dailyMinutesPerWorker" type="number" min="0" step="1" value="5"><small>Tiempo medio dedicado a revisar o comprobar el fichaje de cada trabajador.</small></div>
+      <div class="field"><label>Minutos al día dedicados en total a revisar fichajes</label><input id="dailyReviewMinutes" type="number" min="0" step="1" value="10"><small>Tiempo total aproximado que se dedica cada día a comprobar entradas, salidas, olvidos o incidencias de todos los trabajadores.</small></div>
       <div class="field"><label>Valor/hora de quien lo gestiona (€)</label><input id="hourCost" type="number" min="0" step="0.5" value="18"><small>Valor aproximado de una hora de la persona que realiza esta gestión.</small></div>
       <div class="field"><label>Horas al mes preparando el resumen de horas</label><input id="reportHours" type="number" min="0" step="0.25" value="1"><small>Tiempo total para revisar, ordenar y preparar el resumen mensual.</small></div>
       <div class="field"><label>Incidencias de fichaje al mes</label><input id="incidents" type="number" min="0" value="4"><small>Olvidos, fichajes incorrectos, cambios o aclaraciones.</small></div>
@@ -108,7 +108,7 @@
 </div>
 
 <script>
-const ids=['workers','days','dailyMinutesPerWorker','hourCost','reportHours','incidents','incidentMinutes','avoidableCosts','efficiency','setup','monthly'];
+const ids=['workers','days','dailyReviewMinutes','hourCost','reportHours','incidents','incidentMinutes','avoidableCosts','efficiency','setup','monthly'];
 const euro=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
 const num=n=>new Intl.NumberFormat('es-ES',{maximumFractionDigits:1}).format(n);
 const val=id=>Math.max(0,Number(document.getElementById(id).value||0));
@@ -116,7 +116,7 @@ const val=id=>Math.max(0,Number(document.getElementById(id).value||0));
 function calculate(){
   const workers=Math.max(1,val('workers'));
   const days=val('days');
-  const daily=val('dailyMinutesPerWorker');
+  const dailyReviewMinutes=val('dailyReviewMinutes');
   const hourCost=val('hourCost');
   const reportHours=val('reportHours');
   const incidents=val('incidents');
@@ -126,7 +126,7 @@ function calculate(){
   const setup=val('setup');
   const monthly=val('monthly');
 
-  const reviewHoursMonth=(workers*daily*days)/60;
+  const reviewHoursMonth=(dailyReviewMinutes*days)/60;
   const incidentHoursMonth=(incidents*incidentMinutes)/60;
   const hoursMonth=reviewHoursMonth+reportHours+incidentHoursMonth;
   const hoursYear=hoursMonth*12;
@@ -161,7 +161,7 @@ function calculate(){
   l.className=laterBalance>=0?'green':'warn';
 }
 function resetCalc(){
-  const defaults={workers:2,days:26,dailyMinutesPerWorker:5,hourCost:18,reportHours:1,incidents:4,incidentMinutes:5,avoidableCosts:0,efficiency:70,setup:99,monthly:29};
+  const defaults={workers:2,days:26,dailyReviewMinutes:10,hourCost:18,reportHours:1,incidents:4,incidentMinutes:5,avoidableCosts:0,efficiency:70,setup:99,monthly:29};
   Object.entries(defaults).forEach(([k,v])=>document.getElementById(k).value=v);
   calculate();
 }
