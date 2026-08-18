@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SINCRONIAIA · Control Horario</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--text:#17202a;--muted:#667085;--line:#e4e7ec;--dark:#111827;--green:#12844a;--greenSoft:#ecfdf3}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
+.wrap{max-width:880px;margin:auto;padding:14px 14px 70px}
+.hero{background:var(--dark);color:#fff;border-radius:24px;padding:28px 22px}
+.brand{font-size:12px;font-weight:900;letter-spacing:.08em;opacity:.75;margin-bottom:9px}
+.hero h1{font-size:30px;line-height:1.08;margin:0 0 10px}
+.hero p{font-size:17px;line-height:1.5;margin:0;opacity:.88}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;margin:12px 0}
+.card h2{font-size:20px;margin:0 0 8px}.card p{margin:0;color:var(--muted);line-height:1.5}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.item{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}.item b{display:block;margin-bottom:5px}.item span{font-size:13px;color:var(--muted);line-height:1.4}
+.mainmsg{background:var(--greenSoft);border:1px solid #abefc6;border-radius:16px;padding:17px;margin-top:12px}
+.mainmsg b{font-size:18px;color:#067647}
+.steps{display:grid;gap:8px;margin-top:12px}.step{display:flex;gap:10px;border:1px solid var(--line);border-radius:13px;padding:11px}
+.num{width:26px;height:26px;border-radius:50%;background:var(--dark);color:#fff;display:grid;place-items:center;font-weight:900;flex:0 0 26px}
+.step span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.cta{background:var(--dark);color:#fff;border-radius:20px;padding:20px;margin-top:14px}
+.cta h2{margin:0 0 7px;font-size:22px}.cta p{margin:0 0 13px;opacity:.85;line-height:1.5}
+.btn{display:inline-block;background:#fff;color:var(--dark);text-decoration:none;font-weight:900;padding:12px 15px;border-radius:13px}
+.note{font-size:12px;color:var(--muted);line-height:1.45;margin-top:12px}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.hero h1{font-size:25px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="brand">SINCRONIAIA · CONTROL HORARIO</div>
+    <h1>Control horario sencillo y listo para usar.</h1>
+    <p>Tus trabajadores fichan desde el móvil y tú puedes consultar entradas, salidas, horas e incidencias.</p>
+  </section>
+
+  <section class="card">
+    <h2>Así de sencillo</h2>
+    <div class="mainmsg">
+      <b>Nosotros te lo dejamos preparado y listo para usar.</b>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>El trabajador</h2>
+    <div class="grid">
+      <div class="item"><b>Ficha entrada</b><span>Desde su móvil, de forma sencilla.</span></div>
+      <div class="item"><b>Ficha salida</b><span>Queda registrado el final de la jornada o del tramo.</span></div>
+      <div class="item"><b>Ve sus horas</b><span>Puede consultar lo registrado durante el día.</span></div>
+      <div class="item"><b>Varios tramos</b><span>Permite una jornada partida con varias entradas y salidas.</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>La empresa</h2>
+    <div class="grid">
+      <div class="item"><b>Ve quién ha fichado</b><span>Consulta el estado de los trabajadores.</span></div>
+      <div class="item"><b>Consulta las horas</b><span>Revisa entradas, salidas y total trabajado.</span></div>
+      <div class="item"><b>Detecta incidencias</b><span>Olvidos o registros que necesitan revisión.</span></div>
+      <div class="item"><b>Controla el centro</b><span>Puede utilizar validación de ubicación cuando lo necesite.</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>¿Cómo lo probamos?</h2>
+    <p>Antes de decidir nada, puedes verlo funcionando con una prueba sencilla.</p>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><div><b>Creas una empresa de prueba</b><span>Puedes utilizar datos ficticios.</span></div></div>
+      <div class="step"><div class="num">2</div><div><b>Añades un trabajador</b><span>También puede ser un nombre de prueba.</span></div></div>
+      <div class="step"><div class="num">3</div><div><b>Haces una entrada y una salida</b><span>Compruebas cómo queda registrado.</span></div></div>
+      <div class="step"><div class="num">4</div><div><b>Entras como empresa</b><span>Compruebas las horas y el estado del trabajador.</span></div></div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <h2>Pruébalo tú mismo</h2>
+    <p>No hace falta que nadie te explique cómo funciona. Entra, haz la prueba y comprueba si te resulta sencillo.</p>
+    <a class="btn" href="demo.html">EMPEZAR PRUEBA</a>
+  </section>
+
+  <div class="note">Documento comercial de demostración. No es necesario introducir datos personales reales para realizar la prueba.</div>
+</div>
+</body>
+</html>
