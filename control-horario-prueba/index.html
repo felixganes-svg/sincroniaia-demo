@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SINCRONIAIA · Control Horario · v0.5</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--text:#17202a;--muted:#6b7280;--line:#e5e7eb;--ok:#12844a;--warn:#b66b00;--bad:#b42318;--dark:#111827;--soft:#f8fafc}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
+.app{max-width:780px;margin:auto;padding:12px 12px 86px}.hero{background:var(--dark);color:#fff;padding:17px 16px;border-radius:20px;margin:6px 0 12px}.brand{font-weight:900}.hero small{display:block;opacity:.75;margin-top:5px;line-height:1.35}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:sticky;top:0;background:var(--bg);padding:7px 0;z-index:5}.tab{border:0;border-radius:14px;padding:13px;font-weight:900;background:#e5e7eb}.tab.active{background:#111827;color:#fff}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin:11px 0;box-shadow:0 4px 16px rgba(0,0,0,.035)}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.muted{color:var(--muted);font-size:13px}.title{font-size:21px;font-weight:900}
+.badge{display:inline-block;padding:5px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:850}.status{padding:7px 10px;border-radius:999px;font-size:12px;font-weight:850;background:#f3f4f6;color:#374151}.big{font-size:36px;font-weight:950}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.kpi{padding:12px;border:1px solid var(--line);background:var(--soft);border-radius:14px}.kpi b{display:block;font-size:18px;margin-top:3px}
+.btn{width:100%;border:0;border-radius:15px;padding:15px 12px;margin-top:9px;font-weight:900;font-size:15px}.green{background:var(--ok);color:#fff}.dark{background:#111827;color:#fff}.outline{background:#fff;border:1px solid var(--line)}.red{background:#fff0ef;color:#9b1c13;border:1px solid #f5c4bf}
+.loc{padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--soft);margin-top:10px}.ok{color:var(--ok);font-weight:850}.warn{color:var(--warn);font-weight:850}.bad{color:var(--bad);font-weight:850}
+table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:9px 5px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--muted)}.hidden{display:none!important}
+.pills{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.pill{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px;font-weight:850}.pill.active{background:#111827;color:#fff}.notice{font-size:12px;line-height:1.45;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:11px 14px;border-radius:12px;max-width:92%;font-size:13px;opacity:0;transition:.25s;z-index:30;pointer-events:none}.toast.show{opacity:1}
+@media(max-width:430px){.grid3{grid-template-columns:1fr 1fr}.title{font-size:19px}.big{font-size:32px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hero"><div class="brand">SINCRONIAIA · CONTROL HORARIO</div><small>DEMO AISLADA v0.5 · Entrada/salida múltiple · GPS de prueba · Datos guardados solo en este navegador</small></div>
+  <div class="tabs"><button class="tab active" id="tw" onclick="show('worker')">👤 Trabajador</button><button class="tab" id="tc" onclick="show('company')">🏢 Empresa</button></div>
+  <section id="worker">
+    <div class="card">
+      <div class="row"><div><div class="muted">Acceso personal</div><div class="title">Adrián Martínez</div><div class="muted">ID: TRB-00001 · Centro: Carnicería Demo</div></div><span class="badge">DEMO</span></div>
+      <div class="row" style="margin-top:14px"><div><div class="muted">Hora actual</div><div class="big" id="clock">--:--</div></div><div class="status" id="status">● Fuera de jornada</div></div>
+      <div class="loc"><b>📍 Ubicación</b><div class="muted" id="gpsText">Se comprobará al fichar.</div></div>
+      <button class="btn green" id="punchBtn" onclick="doPunch()">FICHAR ENTRADA</button>
+      <div class="notice" style="margin-top:8px">Puedes hacer tantas entradas y salidas como necesites en el mismo día. Cada tramo se suma automáticamente.</div>
+    </div>
+    <div class="card">
+      <div class="row"><b>Hoy</b><span class="badge" id="todayBadge">0:00</span></div>
+      <table style="margin-top:8px"><thead><tr><th>Entrada</th><th>Salida</th><th>Tiempo</th></tr></thead><tbody id="todayRows"></tbody></table>
+      <div class="grid3" style="margin-top:10px">
+        <div class="kpi"><span class="muted">Hoy</span><b id="sumToday">0:00</b></div>
+        <div class="kpi"><span class="muted">Semana</span><b id="sumWeek">31:18</b></div>
+        <div class="kpi"><span class="muted">Mes</span><b id="sumMonth">112:36</b></div>
+      </div>
+      <div class="pills"><button class="pill active" onclick="range('today',this)">Hoy</button><button class="pill" onclick="range('week',this)">Semana</button><button class="pill" onclick="range('month',this)">Mes</button></div>
+      <div class="notice" id="rangeText" style="margin-top:10px">Detalle de los movimientos realizados hoy.</div>
+    </div>
+  </section>
+  <section id="company" class="hidden">
+    <div class="card">
+      <div class="row"><div><div class="muted">Vista Empresa</div><div class="title">Carnicería Demo</div></div><span class="badge">HOY</span></div>
+      <div class="grid3" style="margin-top:10px">
+        <div class="kpi"><span class="muted">Trabajando ahora</span><b id="cWorking">3</b></div>
+        <div class="kpi"><span class="muted">Fuera de jornada</span><b id="cOut">2</b></div>
+        <div class="kpi"><span class="muted">Incidencias</span><b id="cInc">0</b></div>
+      </div>
+    </div>
+    <div class="card">
+      <b>Trabajadores</b>
+      <table style="margin-top:8px"><thead><tr><th>Trabajador</th><th>Últ. entrada</th><th>Últ. salida</th><th>Hoy</th><th>Estado</th></tr></thead>
+      <tbody>
+        <tr><td><button style="border:0;background:none;padding:0;font:inherit;font-weight:800;text-decoration:underline" onclick="selectWorker()">Adrián</button></td><td id="aIn">—</td><td id="aOut">—</td><td id="aToday">0:00</td><td id="aStatus">⚪ Fuera</td></tr>
+        <tr><td>María</td><td>08:28</td><td>13:32</td><td>5:04</td><td>⚪ Fuera</td></tr>
+        <tr><td>Jordi</td><td>09:02</td><td>—</td><td>4:17</td><td>🟢 Trabajando</td></tr>
+        <tr><td>Laura</td><td>08:05</td><td>—</td><td>4:12</td><td>🟢 Trabajando</td></tr>
+        <tr><td>Carlos</td><td>07:55</td><td>—</td><td>4:22</td><td>🟢 Trabajando</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card" id="detail">
+      <div class="row"><div><b>Adrián Martínez</b><div class="muted">TRB-00001</div></div><span class="badge">Hoy · Semana · Mes</span></div>
+      <div class="grid3" style="margin-top:10px"><div class="kpi"><span class="muted">Hoy</span><b id="dToday">0:00</b></div><div class="kpi"><span class="muted">Semana</span><b id="dWeek">31:18</b></div><div class="kpi"><span class="muted">Mes</span><b id="dMonth">112:36</b></div></div>
+      <table style="margin-top:10px"><thead><tr><th>Entrada</th><th>Salida</th><th>Tiempo</th><th>GPS</th></tr></thead><tbody id="detailRows"></tbody></table>
+    </div>
+    <div class="card">
+      <div class="row"><b>Incidencias</b><span class="badge" id="incBadge">0</span></div>
+      <div class="notice" style="margin-top:7px">En esta demo, un fichaje GPS a más de 250 m del primer punto registrado se marca para revisión, pero no se borra.</div>
+      <table id="incTable" style="margin-top:8px"><tbody><tr id="noInc"><td>Sin incidencias en esta prueba.</td></tr></tbody></table>
+      <button class="btn outline" onclick="simulateOutside()">SIMULAR FICHAJE FUERA DE ZONA</button>
+    </div>
+    <div class="card">
+      <b>Acciones de empresa</b>
+      <div class="grid2" style="margin-top:8px">
+        <button class="btn outline" onclick="toast('Alta/baja de trabajador: módulo DEMO')">ALTAS / BAJAS</button>
+        <button class="btn outline" onclick="downloadCSV()">EXPORTAR CSV</button>
+      </div>
+      <button class="btn dark" onclick="toast('Registros preparados en modo DEMO')">PREPARAR REGISTROS PARA INSPECCIÓN</button>
+      <button class="btn red" onclick="resetDemo()">REINICIAR DEMO</button>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const KEY='sincronia_control_v05';
+let data=JSON.parse(localStorage.getItem(KEY)||'null')||{open:null,sessions:[],base:null,incidents:[]};
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+const hm=d=>pad(d.getHours())+':'+pad(d.getMinutes());
+function mins(ms){return Math.max(0,Math.round(ms/60000))}
+function durFromMin(m){return Math.floor(m/60)+':'+pad(m%60)}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function show(v){$('worker').classList.toggle('hidden',v!=='worker');$('company').classList.toggle('hidden',v!=='company');$('tw').classList.toggle('active',v==='worker');$('tc').classList.toggle('active',v==='company');render()}
+function toast(t){let e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2200)}
+function distance(a,b){const R=6371000,p=x=>x*Math.PI/180;let dlat=p(b.lat-a.lat),dlon=p(b.lon-a.lon);let q=Math.sin(dlat/2)**2+Math.cos(p(a.lat))*Math.cos(p(b.lat))*Math.sin(dlon/2)**2;return 2*R*Math.asin(Math.sqrt(q))}
+function getGPS(){return new Promise(resolve=>{if(!navigator.geolocation){resolve({ok:false,lat:null,lon:null,text:'GPS no disponible'});return}navigator.geolocation.getCurrentPosition(p=>{const g={lat:p.coords.latitude,lon:p.coords.longitude};if(!data.base){data.base=g;save();resolve({ok:true,...g,dist:0,text:'Centro DEMO fijado con este primer GPS'});return}const d=Math.round(distance(data.base,g));resolve({ok:d<=250,...g,dist:d,text:d<=250?'Dentro de zona DEMO':'Fuera de zona DEMO'})},()=>resolve({ok:false,lat:null,lon:null,text:'Permiso GPS no disponible'}),{enableHighAccuracy:true,timeout:8000,maximumAge:0})})}
+async function doPunch(){const gps=await getGPS();$('gpsText').innerHTML=gps.ok?'<span class="ok">✅ '+gps.text+'</span>':(gps.lat!==null?'<span class="warn">⚠️ '+gps.text+'</span>':'<span class="warn">⚠️ '+gps.text+' · se permite continuar en DEMO</span>');const now=new Date();if(!data.open){data.open={in:now.toISOString(),inGPS:gps,out:null,outGPS:null};if(gps.lat!==null&&!gps.ok)addIncident('Entrada fuera de zona',gps.dist+' m del centro DEMO');toast('Entrada registrada')}else{data.open.out=now.toISOString();data.open.outGPS=gps;if(gps.lat!==null&&!gps.ok)addIncident('Salida fuera de zona',gps.dist+' m del centro DEMO');data.sessions.push(data.open);data.open=null;toast('Salida registrada')}save();render()}
+function addIncident(type,detail){data.incidents.push({time:new Date().toISOString(),type,detail});save()}
+function totalMinutes(){let total=0;for(const s of data.sessions)total+=mins(new Date(s.out)-new Date(s.in));if(data.open)total+=mins(new Date()-new Date(data.open.in));return total}
+function lastSession(){return data.sessions[data.sessions.length-1]}
+function render(){$('clock').textContent=hm(new Date());const total=totalMinutes(),active=!!data.open;$('status').textContent=active?'● Jornada activa':'● Fuera de jornada';$('status').style.background=active?'#eefbf4':'#f3f4f6';$('status').style.color=active?'#0b6e3b':'#374151';$('punchBtn').textContent=active?'FICHAR SALIDA':'FICHAR ENTRADA';$('punchBtn').className='btn '+(active?'dark':'green');$('sumToday').textContent=$('todayBadge').textContent=$('aToday').textContent=$('dToday').textContent=durFromMin(total);$('sumWeek').textContent=$('dWeek').textContent=durFromMin(31*60+18+total);$('sumMonth').textContent=$('dMonth').textContent=durFromMin(112*60+36+total);$('aStatus').textContent=active?'🟢 Trabajando':'⚪ Fuera';$('cWorking').textContent=active?'4':'3';$('cOut').textContent=active?'1':'2';const ls=lastSession();$('aIn').textContent=active?hm(new Date(data.open.in)):(ls?hm(new Date(ls.in)):'—');$('aOut').textContent=active?(ls?hm(new Date(ls.out)):'—'):(ls?hm(new Date(ls.out)):'—');const rows=[...data.sessions];if(data.open)rows.push(data.open);$('todayRows').innerHTML=rows.length?rows.map(s=>`<tr><td>${hm(new Date(s.in))}</td><td>${s.out?hm(new Date(s.out)):'—'}</td><td>${s.out?durFromMin(mins(new Date(s.out)-new Date(s.in))):'En curso'}</td></tr>`).join(''):'<tr><td colspan="3">Todavía no hay movimientos hoy.</td></tr>';$('detailRows').innerHTML=rows.length?rows.map(s=>`<tr><td>${hm(new Date(s.in))}</td><td>${s.out?hm(new Date(s.out)):'—'}</td><td>${s.out?durFromMin(mins(new Date(s.out)-new Date(s.in))):'En curso'}</td><td>${s.inGPS?.lat!=null?(s.inGPS.ok?'✅':'⚠️'):'—'}</td></tr>`).join(''):'<tr><td colspan="4">Sin movimientos.</td></tr>';$('cInc').textContent=$('incBadge').textContent=data.incidents.length;$('incTable').innerHTML=data.incidents.length?data.incidents.map(x=>`<tr><td>⚠️ ${x.type}</td><td>${x.detail}</td><td>Pendiente</td></tr>`).join(''):'<tr><td>Sin incidencias en esta prueba.</td></tr>'}
+function range(r,b){document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('rangeText').textContent=r==='today'?'Detalle de los movimientos realizados hoy.':r==='week'?'Resumen semanal. En producto real mostraría cada día y sus tramos.':'Resumen mensual. En producto real mostraría todos los días y el total del mes.'}
+function selectWorker(){document.getElementById('detail').scrollIntoView({behavior:'smooth',block:'start'})}
+function simulateOutside(){addIncident('Fichaje fuera de zona','SIMULACIÓN manual · 4,8 km');render();toast('Incidencia simulada')}
+function downloadCSV(){let r=[['Trabajador','Entrada','Salida','Minutos']];data.sessions.forEach(s=>r.push(['Adrián',s.in,s.out,mins(new Date(s.out)-new Date(s.in))]));if(data.open)r.push(['Adrián',data.open.in,'',mins(new Date()-new Date(data.open.in))]);let text='\ufeff'+r.map(x=>x.join(';')).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'}));a.download='sincronia_control_horario_demo.csv';a.click()}
+function resetDemo(){if(confirm('¿Reiniciar los datos de esta demo en este navegador?')){localStorage.removeItem(KEY);data={open:null,sessions:[],base:null,incidents:[]};render();toast('Demo reiniciada')}}
+setInterval(()=>{if(data.open)render();else $('clock').textContent=hm(new Date())},1000);render();
+</script>
+</body>
+</html>
