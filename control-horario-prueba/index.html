@@ -22,7 +22,7 @@ table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:9px 5px
 </head>
 <body>
 <div class="app">
-  <div class="hero"><div class="brand">SINCRONIAIA · CONTROL HORARIO</div><small>DEMO AISLADA v0.5 · Entrada/salida múltiple · GPS de prueba · Conectada a Google Sheets · copia local en este navegador</small></div>
+  <div class="hero"><div class="brand">SINCRONIAIA · CONTROL HORARIO</div><small>DEMO AISLADA v0.5.1 · Entrada/salida múltiple · GPS de prueba · Conectada a Google Sheets · copia local en este navegador</small></div>
   <div class="tabs"><button class="tab active" id="tw" onclick="show('worker')">👤 Trabajador</button><button class="tab" id="tc" onclick="show('company')">🏢 Empresa</button></div>
 
   <section id="worker">
@@ -99,6 +99,7 @@ table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:9px 5px
 const KEY='sincronia_control_v05';
 const BACKEND_URL='https://script.google.com/macros/s/AKfycby-frFtY_PX-IYUOJ4ob7gxilc7tRyjgse2XSFOzeTfZvA1xloswGnoZyRGzgaONUPi/exec';
 let data=JSON.parse(localStorage.getItem(KEY)||'null')||{open:null,sessions:[],base:null,incidents:[]};
+let punchBusy=false;
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
 const hm=d=>pad(d.getHours())+':'+pad(d.getMinutes());
@@ -110,12 +111,19 @@ function toast(t){let e=$('toast');e.textContent=t;e.classList.add('show');setTi
 function distance(a,b){const R=6371000,p=x=>x*Math.PI/180;let dlat=p(b.lat-a.lat),dlon=p(b.lon-a.lon);let q=Math.sin(dlat/2)**2+Math.cos(p(a.lat))*Math.cos(p(b.lat))*Math.sin(dlon/2)**2;return 2*R*Math.asin(Math.sqrt(q))}
 function getGPS(){
  return new Promise(resolve=>{
-   if(!navigator.geolocation){resolve({ok:false,lat:null,lon:null,text:'GPS no disponible'});return}
+   if(!window.isSecureContext){resolve({ok:false,lat:null,lon:null,text:'GPS bloqueado: conexión no segura'});return}
+   if(!navigator.geolocation){resolve({ok:false,lat:null,lon:null,text:'GPS no disponible en este navegador'});return}
    navigator.geolocation.getCurrentPosition(p=>{
      const g={lat:p.coords.latitude,lon:p.coords.longitude};
-     if(!data.base){data.base=g;save();resolve({ok:true,...g,dist:0,text:'Centro DEMO fijado con este primer GPS'});return}
-     const d=Math.round(distance(data.base,g));resolve({ok:d<=250,...g,dist:d,text:d<=250?'Dentro de zona DEMO':'Fuera de zona DEMO'})
-   },()=>resolve({ok:false,lat:null,lon:null,text:'Permiso GPS no disponible'}),{enableHighAccuracy:true,timeout:8000,maximumAge:0})
+     if(!data.base){data.base=g;save();resolve({ok:true,...g,dist:0,text:'Ubicación obtenida · centro DEMO fijado'});return}
+     const d=Math.round(distance(data.base,g));resolve({ok:d<=250,...g,dist:d,text:d<=250?('Ubicación obtenida · '+d+' m del centro DEMO'):('Fuera de zona DEMO · '+d+' m')})
+   },err=>{
+     let text='GPS no disponible';
+     if(err && err.code===1) text='Permiso de ubicación denegado por el navegador';
+     else if(err && err.code===2) text='El dispositivo no ha podido obtener la ubicación';
+     else if(err && err.code===3) text='La ubicación ha tardado demasiado';
+     resolve({ok:false,lat:null,lon:null,text,geoCode:err&&err.code?err.code:null});
+   },{enableHighAccuracy:true,timeout:12000,maximumAge:0})
  })
 }
 async function sendBackend(tipo,gps){
@@ -128,22 +136,34 @@ async function sendBackend(tipo,gps){
  }catch(e){console.error(e);return {ok:false,error:String(e)}}
 }
 async function doPunch(){
- const gps=await getGPS();
- $('gpsText').innerHTML=gps.ok?'<span class="ok">✅ '+gps.text+'</span>':(gps.lat!==null?'<span class="warn">⚠️ '+gps.text+'</span>':'<span class="warn">⚠️ '+gps.text+' · se permite continuar en DEMO</span>');
- const now=new Date();
- const tipo=data.open?'SALIDA':'ENTRADA';
- const remote=await sendBackend(tipo,gps);
- if(!remote.ok){toast('⚠️ No se pudo guardar en la hoja');return;}
- if(!data.open){
-   data.open={in:now.toISOString(),inGPS:gps,out:null,outGPS:null,remoteIn:remote.fichaje_id};
-   if(gps.lat!==null&&!gps.ok)addIncident('Entrada fuera de zona',gps.dist+' m del centro DEMO');
-   toast('Entrada registrada en la hoja');
- }else{
-   data.open.out=now.toISOString();data.open.outGPS=gps;data.open.remoteOut=remote.fichaje_id;
-   if(gps.lat!==null&&!gps.ok)addIncident('Salida fuera de zona',gps.dist+' m del centro DEMO');
-   data.sessions.push(data.open);data.open=null;toast('Salida registrada en la hoja');
+ if(punchBusy){toast('Espera: el fichaje se está registrando');return;}
+ punchBusy=true;
+ const btn=$('punchBtn');
+ const originalText=btn.textContent;
+ btn.disabled=true;btn.style.opacity='.58';btn.textContent='REGISTRANDO…';
+ try{
+   const tipo=data.open?'SALIDA':'ENTRADA';
+   const gps=await getGPS();
+   $('gpsText').innerHTML=gps.ok?'<span class="ok">✅ '+gps.text+'</span>':(gps.lat!==null?'<span class="warn">⚠️ '+gps.text+'</span>':'<span class="warn">⚠️ '+gps.text+' · se permite continuar en DEMO</span>');
+   const remote=await sendBackend(tipo,gps);
+   if(!remote.ok){toast('⚠️ No se pudo guardar en la hoja');return;}
+   const now=new Date();
+   if(tipo==='ENTRADA'){
+     data.open={in:now.toISOString(),inGPS:gps,out:null,outGPS:null,remoteIn:remote.fichaje_id};
+     if(gps.lat!==null&&!gps.ok)addIncident('Entrada fuera de zona',gps.dist+' m del centro DEMO');
+     toast('✅ Entrada registrada en Google Sheets');
+   }else{
+     if(!data.open){toast('⚠️ No hay una entrada activa');return;}
+     data.open.out=now.toISOString();data.open.outGPS=gps;data.open.remoteOut=remote.fichaje_id;
+     if(gps.lat!==null&&!gps.ok)addIncident('Salida fuera de zona',gps.dist+' m del centro DEMO');
+     data.sessions.push(data.open);data.open=null;toast('✅ Salida registrada en Google Sheets');
+   }
+   save();render();
+ }finally{
+   punchBusy=false;btn.disabled=false;btn.style.opacity='1';
+   if(btn.textContent==='REGISTRANDO…')btn.textContent=originalText;
+   render();
  }
- save();render()
 }
 function addIncident(type,detail){data.incidents.push({time:new Date().toISOString(),type,detail});save()}
 function totalMinutes(){
@@ -157,7 +177,7 @@ function render(){
  const total=totalMinutes(), active=!!data.open;
  $('status').textContent=active?'● Jornada activa':'● Fuera de jornada';
  $('status').style.background=active?'#eefbf4':'#f3f4f6';$('status').style.color=active?'#0b6e3b':'#374151';
- $('punchBtn').textContent=active?'FICHAR SALIDA':'FICHAR ENTRADA';$('punchBtn').className='btn '+(active?'dark':'green');
+ if(!punchBusy){$('punchBtn').textContent=active?'FICHAR SALIDA':'FICHAR ENTRADA';$('punchBtn').className='btn '+(active?'dark':'green');}
  $('sumToday').textContent=$('todayBadge').textContent=$('aToday').textContent=$('dToday').textContent=durFromMin(total);
  $('sumWeek').textContent=$('dWeek').textContent=durFromMin(31*60+18+total);
  $('sumMonth').textContent=$('dMonth').textContent=durFromMin(112*60+36+total);
