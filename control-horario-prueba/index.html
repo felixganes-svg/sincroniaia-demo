@@ -1,200 +1,32 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>SINCRONIAIA · Control Horario · v0.5</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SINCRONIAIA · Control Horario · v0.6</title>
 <style>
 :root{--bg:#f4f6f8;--card:#fff;--text:#17202a;--muted:#6b7280;--line:#e5e7eb;--ok:#12844a;--warn:#b66b00;--bad:#b42318;--dark:#111827;--soft:#f8fafc}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
-.app{max-width:780px;margin:auto;padding:12px 12px 86px}.hero{background:var(--dark);color:#fff;padding:17px 16px;border-radius:20px;margin:6px 0 12px}.brand{font-weight:900}.hero small{display:block;opacity:.75;margin-top:5px;line-height:1.35}
+.app{max-width:820px;margin:auto;padding:12px 12px 86px}.hero{background:var(--dark);color:#fff;padding:17px 16px;border-radius:20px;margin:6px 0 12px}.brand{font-weight:900}.hero small{display:block;opacity:.78;margin-top:5px;line-height:1.35}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:sticky;top:0;background:var(--bg);padding:7px 0;z-index:5}.tab{border:0;border-radius:14px;padding:13px;font-weight:900;background:#e5e7eb}.tab.active{background:#111827;color:#fff}
-.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin:11px 0;box-shadow:0 4px 16px rgba(0,0,0,.035)}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.muted{color:var(--muted);font-size:13px}.title{font-size:21px;font-weight:900}
-.badge{display:inline-block;padding:5px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:850}.status{padding:7px 10px;border-radius:999px;font-size:12px;font-weight:850;background:#f3f4f6;color:#374151}.big{font-size:36px;font-weight:950}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.kpi{padding:12px;border:1px solid var(--line);background:var(--soft);border-radius:14px}.kpi b{display:block;font-size:18px;margin-top:3px}
-.btn{width:100%;border:0;border-radius:15px;padding:15px 12px;margin-top:9px;font-weight:900;font-size:15px}.green{background:var(--ok);color:#fff}.dark{background:#111827;color:#fff}.outline{background:#fff;border:1px solid var(--line)}.red{background:#fff0ef;color:#9b1c13;border:1px solid #f5c4bf}
-.loc{padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--soft);margin-top:10px}.ok{color:var(--ok);font-weight:850}.warn{color:var(--warn);font-weight:850}.bad{color:var(--bad);font-weight:850}
-table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:9px 5px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--muted)}.hidden{display:none!important}
-.pills{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}.pill{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px;font-weight:850}.pill.active{background:#111827;color:#fff}.notice{font-size:12px;line-height:1.45;color:var(--muted)}
-.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:11px 14px;border-radius:12px;max-width:92%;font-size:13px;opacity:0;transition:.25s;z-index:30;pointer-events:none}.toast.show{opacity:1}
-@media(max-width:430px){.grid3{grid-template-columns:1fr 1fr}.title{font-size:19px}.big{font-size:32px}}
-</style>
-</head>
-<body>
-<div class="app">
-  <div class="hero"><div class="brand">SINCRONIAIA · CONTROL HORARIO</div><small>DEMO AISLADA v0.5.1 · Entrada/salida múltiple · GPS de prueba · Conectada a Google Sheets · copia local en este navegador</small></div>
-  <div class="tabs"><button class="tab active" id="tw" onclick="show('worker')">👤 Trabajador</button><button class="tab" id="tc" onclick="show('company')">🏢 Empresa</button></div>
-
-  <section id="worker">
-    <div class="card">
-      <div class="row"><div><div class="muted">Acceso personal</div><div class="title">Adrián Martínez</div><div class="muted">ID: TRB-00001 · Centro: Carnicería Demo</div></div><span class="badge">DEMO</span></div>
-      <div class="row" style="margin-top:14px"><div><div class="muted">Hora actual</div><div class="big" id="clock">--:--</div></div><div class="status" id="status">● Fuera de jornada</div></div>
-      <div class="loc"><b>📍 Ubicación</b><div class="muted" id="gpsText">Se comprobará al fichar.</div></div>
-      <button class="btn green" id="punchBtn" onclick="doPunch()">FICHAR ENTRADA</button>
-      <div class="notice" style="margin-top:8px">Puedes hacer tantas entradas y salidas como necesites en el mismo día. Cada tramo se suma automáticamente.</div>
-    </div>
-
-    <div class="card">
-      <div class="row"><b>Hoy</b><span class="badge" id="todayBadge">0:00</span></div>
-      <table style="margin-top:8px"><thead><tr><th>Entrada</th><th>Salida</th><th>Tiempo</th></tr></thead><tbody id="todayRows"></tbody></table>
-      <div class="grid3" style="margin-top:10px">
-        <div class="kpi"><span class="muted">Hoy</span><b id="sumToday">0:00</b></div>
-        <div class="kpi"><span class="muted">Semana</span><b id="sumWeek">31:18</b></div>
-        <div class="kpi"><span class="muted">Mes</span><b id="sumMonth">112:36</b></div>
-      </div>
-      <div class="pills"><button class="pill active" onclick="range('today',this)">Hoy</button><button class="pill" onclick="range('week',this)">Semana</button><button class="pill" onclick="range('month',this)">Mes</button></div>
-      <div class="notice" id="rangeText" style="margin-top:10px">Detalle de los movimientos realizados hoy.</div>
-    </div>
-  </section>
-
-  <section id="company" class="hidden">
-    <div class="card">
-      <div class="row"><div><div class="muted">Vista Empresa</div><div class="title">Carnicería Demo</div></div><span class="badge">HOY</span></div>
-      <div class="grid3" style="margin-top:10px">
-        <div class="kpi"><span class="muted">Trabajando ahora</span><b id="cWorking">3</b></div>
-        <div class="kpi"><span class="muted">Fuera de jornada</span><b id="cOut">2</b></div>
-        <div class="kpi"><span class="muted">Incidencias</span><b id="cInc">0</b></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <b>Trabajadores</b>
-      <table style="margin-top:8px"><thead><tr><th>Trabajador</th><th>Últ. entrada</th><th>Últ. salida</th><th>Hoy</th><th>Estado</th></tr></thead>
-      <tbody>
-        <tr><td><button style="border:0;background:none;padding:0;font:inherit;font-weight:800;text-decoration:underline" onclick="selectWorker()">Adrián</button></td><td id="aIn">—</td><td id="aOut">—</td><td id="aToday">0:00</td><td id="aStatus">⚪ Fuera</td></tr>
-        <tr><td>María</td><td>08:28</td><td>13:32</td><td>5:04</td><td>⚪ Fuera</td></tr>
-        <tr><td>Jordi</td><td>09:02</td><td>—</td><td>4:17</td><td>🟢 Trabajando</td></tr>
-        <tr><td>Laura</td><td>08:05</td><td>—</td><td>4:12</td><td>🟢 Trabajando</td></tr>
-        <tr><td>Carlos</td><td>07:55</td><td>—</td><td>4:22</td><td>🟢 Trabajando</td></tr>
-      </tbody></table>
-    </div>
-
-    <div class="card" id="detail">
-      <div class="row"><div><b>Adrián Martínez</b><div class="muted">TRB-00001</div></div><span class="badge">Hoy · Semana · Mes</span></div>
-      <div class="grid3" style="margin-top:10px"><div class="kpi"><span class="muted">Hoy</span><b id="dToday">0:00</b></div><div class="kpi"><span class="muted">Semana</span><b id="dWeek">31:18</b></div><div class="kpi"><span class="muted">Mes</span><b id="dMonth">112:36</b></div></div>
-      <table style="margin-top:10px"><thead><tr><th>Entrada</th><th>Salida</th><th>Tiempo</th><th>GPS</th></tr></thead><tbody id="detailRows"></tbody></table>
-    </div>
-
-    <div class="card">
-      <div class="row"><b>Incidencias</b><span class="badge" id="incBadge">0</span></div>
-      <div class="notice" style="margin-top:7px">En esta demo, un fichaje GPS a más de 250 m del primer punto registrado se marca para revisión, pero no se borra.</div>
-      <table id="incTable" style="margin-top:8px"><tbody><tr id="noInc"><td>Sin incidencias en esta prueba.</td></tr></tbody></table>
-      <button class="btn outline" onclick="simulateOutside()">SIMULAR FICHAJE FUERA DE ZONA</button>
-    </div>
-
-    <div class="card">
-      <b>Acciones de empresa</b>
-      <div class="grid2" style="margin-top:8px">
-        <button class="btn outline" onclick="toast('Alta/baja de trabajador: módulo DEMO')">ALTAS / BAJAS</button>
-        <button class="btn outline" onclick="downloadCSV()">EXPORTAR CSV</button>
-      </div>
-      <button class="btn dark" onclick="toast('Registros preparados en modo DEMO')">PREPARAR REGISTROS PARA INSPECCIÓN</button>
-      <button class="btn red" onclick="resetDemo()">REINICIAR DEMO</button>
-    </div>
-  </section>
-</div>
-<div class="toast" id="toast"></div>
-
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin:11px 0;box-shadow:0 4px 16px rgba(0,0,0,.035)}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.muted{color:var(--muted);font-size:13px}.title{font-size:21px;font-weight:900}.badge{display:inline-block;padding:5px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:850}.status{padding:7px 10px;border-radius:999px;font-size:12px;font-weight:850;background:#f3f4f6;color:#374151}.big{font-size:36px;font-weight:950}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.kpi{padding:12px;border:1px solid var(--line);background:var(--soft);border-radius:14px}.kpi b{display:block;font-size:18px;margin-top:3px}.btn{width:100%;border:0;border-radius:15px;padding:15px 12px;margin-top:9px;font-weight:900;font-size:15px}.green{background:var(--ok);color:#fff}.dark{background:#111827;color:#fff}.outline{background:#fff;border:1px solid var(--line)}.red{background:#fff0ef;color:#9b1c13;border:1px solid #f5c4bf}.btn:disabled{opacity:.55;cursor:not-allowed}
+.loc{padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--soft);margin-top:10px}.ok{color:var(--ok);font-weight:850}.warn{color:var(--warn);font-weight:850}.bad{color:var(--bad);font-weight:850}.hidden{display:none!important}.notice{font-size:12px;line-height:1.45;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:9px 5px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--muted)}
+.field{margin-top:9px}.field label{display:block;font-size:12px;color:var(--muted);font-weight:800;margin-bottom:4px}.field input{width:100%;padding:11px;border:1px solid var(--line);border-radius:12px;font:inherit;background:#fff}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:11px 14px;border-radius:12px;max-width:92%;font-size:13px;opacity:0;transition:.25s;z-index:30;pointer-events:none}.toast.show{opacity:1}
+@media(max-width:520px){.grid3,.grid2{grid-template-columns:1fr 1fr}.title{font-size:19px}.big{font-size:32px}}
+</style></head>
+<body><div class="app">
+<div class="hero"><div class="brand">SINCRONIAIA · CONTROL HORARIO</div><small>DEMO AISLADA v0.6 · Centros configurados por empresa · Entrada/salida múltiple · GPS · Google Sheets</small></div>
+<div class="tabs"><button class="tab active" id="tw" onclick="show('worker')">👤 Trabajador</button><button class="tab" id="tc" onclick="show('company')">🏢 Empresa</button></div>
+<section id="worker">
+<div class="card"><div class="row"><div><div class="muted">Acceso personal</div><div class="title">Adrián Martínez</div><div class="muted">ID: TRB-00001 · <span id="workerCenter">Centro principal</span></div></div><span class="badge">DEMO</span></div><div class="row" style="margin-top:14px"><div><div class="muted">Hora actual</div><div class="big" id="clock">--:--</div></div><div class="status" id="status">● Fuera de jornada</div></div><div class="loc"><b>📍 Ubicación</b><div class="muted" id="gpsText">Se comprobará al fichar contra el centro autorizado.</div></div><button class="btn green" id="punchBtn" onclick="doPunch()">FICHAR ENTRADA</button><div class="notice" style="margin-top:8px">Puedes realizar tantas entradas y salidas como necesites. El trabajador ve si está dentro de la zona autorizada; la distancia técnica no se muestra como medida exacta.</div></div>
+<div class="card"><div class="row"><b>Hoy</b><span class="badge" id="todayBadge">0:00</span></div><table style="margin-top:8px"><thead><tr><th>Entrada</th><th>Salida</th><th>Tiempo</th></tr></thead><tbody id="todayRows"></tbody></table><div class="grid3" style="margin-top:10px"><div class="kpi"><span class="muted">Hoy</span><b id="sumToday">0:00</b></div><div class="kpi"><span class="muted">Semana</span><b id="sumWeek">31:18</b></div><div class="kpi"><span class="muted">Mes</span><b id="sumMonth">112:36</b></div></div></div>
+</section>
+<section id="company" class="hidden">
+<div class="card"><div class="row"><div><div class="muted">Vista Empresa</div><div class="title">Carnicería Demo</div></div><span class="badge">v0.6</span></div><div class="grid3" style="margin-top:10px"><div class="kpi"><span class="muted">Trabajando ahora</span><b id="cWorking">3</b></div><div class="kpi"><span class="muted">Fuera de jornada</span><b id="cOut">2</b></div><div class="kpi"><span class="muted">Incidencias</span><b id="cInc">0</b></div></div></div>
+<div class="card"><div class="row"><div><b>Centro autorizado</b><div class="muted">Configuración por empresa</div></div><span class="badge">CTR-001</span></div><div class="grid2"><div class="field"><label>Nombre del centro</label><input id="fName" value="Centro principal"></div><div class="field"><label>Dirección</label><input id="fAddress" placeholder="Calle, número"></div><div class="field"><label>Población</label><input id="fCity" placeholder="Población"></div><div class="field"><label>Provincia</label><input id="fProvince" placeholder="Provincia"></div><div class="field"><label>Código postal</label><input id="fPostal" placeholder="00000"></div><div class="field"><label>Radio autorizado (m)</label><input id="fRadius" type="number" min="20" value="150"></div></div><div class="loc" id="centerSummary"><b>📌 Coordenadas del centro</b><div class="muted">Pendientes de confirmar.</div></div><button class="btn dark" onclick="saveCenterWithCurrentLocation()">GUARDAR CENTRO + CONFIRMAR UBICACIÓN ACTUAL (DEMO)</button><button class="btn outline" onclick="saveCenterDataOnly()">GUARDAR DATOS SIN CAMBIAR COORDENADAS</button><div class="notice" style="margin-top:8px">En producción, la dirección quedará asociada a sus coordenadas. Para esta demo, confirmamos la ubicación física desde el dispositivo para no depender todavía de un servicio externo de geocodificación.</div></div>
+<div class="card"><b>Trabajadores</b><table style="margin-top:8px"><thead><tr><th>Trabajador</th><th>Últ. entrada</th><th>Últ. salida</th><th>Hoy</th><th>Estado</th></tr></thead><tbody><tr><td><b>Adrián</b></td><td id="aIn">—</td><td id="aOut">—</td><td id="aToday">0:00</td><td id="aStatus">⚪ Fuera</td></tr><tr><td>María</td><td>08:28</td><td>13:32</td><td>5:04</td><td>⚪ Fuera</td></tr><tr><td>Jordi</td><td>09:02</td><td>—</td><td>4:17</td><td>🟢 Trabajando</td></tr></tbody></table></div><div class="card"><div class="row"><b>Incidencias</b><span class="badge" id="incBadge">0</span></div><table id="incTable" style="margin-top:8px"><tbody><tr><td>Sin incidencias en esta prueba.</td></tr></tbody></table></div><div class="card"><b>Acciones de empresa</b><div class="grid2"><button class="btn outline" onclick="downloadCSV()">EXPORTAR CSV</button><button class="btn outline" onclick="toast('Módulo de altas/bajas: DEMO')">ALTAS / BAJAS</button></div><button class="btn red" onclick="resetDemo()">REINICIAR DEMO LOCAL</button></div>
+</section></div><div class="toast" id="toast"></div>
 <script>
-const KEY='sincronia_control_v05';
-const BACKEND_URL='https://script.google.com/macros/s/AKfycby-frFtY_PX-IYUOJ4ob7gxilc7tRyjgse2XSFOzeTfZvA1xloswGnoZyRGzgaONUPi/exec';
-let data=JSON.parse(localStorage.getItem(KEY)||'null')||{open:null,sessions:[],base:null,incidents:[]};
-let punchBusy=false;
-const $=id=>document.getElementById(id);
-const pad=n=>String(n).padStart(2,'0');
-const hm=d=>pad(d.getHours())+':'+pad(d.getMinutes());
-function mins(ms){return Math.max(0,Math.round(ms/60000))}
-function durFromMin(m){return Math.floor(m/60)+':'+pad(m%60)}
-function save(){localStorage.setItem(KEY,JSON.stringify(data))}
-function show(v){$('worker').classList.toggle('hidden',v!=='worker');$('company').classList.toggle('hidden',v!=='company');$('tw').classList.toggle('active',v==='worker');$('tc').classList.toggle('active',v==='company');render()}
-function toast(t){let e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2200)}
-function distance(a,b){const R=6371000,p=x=>x*Math.PI/180;let dlat=p(b.lat-a.lat),dlon=p(b.lon-a.lon);let q=Math.sin(dlat/2)**2+Math.cos(p(a.lat))*Math.cos(p(b.lat))*Math.sin(dlon/2)**2;return 2*R*Math.asin(Math.sqrt(q))}
-function getGPS(){
- return new Promise(resolve=>{
-   if(!window.isSecureContext){resolve({ok:false,lat:null,lon:null,text:'GPS bloqueado: conexión no segura'});return}
-   if(!navigator.geolocation){resolve({ok:false,lat:null,lon:null,text:'GPS no disponible en este navegador'});return}
-   navigator.geolocation.getCurrentPosition(p=>{
-     const g={lat:p.coords.latitude,lon:p.coords.longitude};
-     if(!data.base){data.base=g;save();resolve({ok:true,...g,dist:0,text:'Ubicación obtenida · centro DEMO fijado'});return}
-     const d=Math.round(distance(data.base,g));resolve({ok:d<=250,...g,dist:d,text:d<=250?('Ubicación obtenida · '+d+' m del centro DEMO'):('Fuera de zona DEMO · '+d+' m')})
-   },err=>{
-     let text='GPS no disponible';
-     if(err && err.code===1) text='Permiso de ubicación denegado por el navegador';
-     else if(err && err.code===2) text='El dispositivo no ha podido obtener la ubicación';
-     else if(err && err.code===3) text='La ubicación ha tardado demasiado';
-     resolve({ok:false,lat:null,lon:null,text,geoCode:err&&err.code?err.code:null});
-   },{enableHighAccuracy:true,timeout:12000,maximumAge:0})
- })
-}
-async function sendBackend(tipo,gps){
- const payload={action:'fichaje',empresa_id:'EMP-001',trabajador_id:'TRB-00001',nombre:'Adrián Martínez',tipo:tipo,centro_id:'CTR-001',centro:'Centro principal',latitud:gps&&gps.lat!=null?gps.lat:'',longitud:gps&&gps.lon!=null?gps.lon:'',gps_estado:gps?(gps.ok?'OK':(gps.lat!=null?'REVISAR':'NO_DISPONIBLE')):'NO_DISPONIBLE',incidencia:!!(gps&&gps.lat!=null&&!gps.ok),incidencia_tipo:'GPS_FUERA_ZONA',incidencia_detalle:(gps&&gps.dist!=null)?(gps.dist+' m del centro DEMO'):''};
- try{
-  const r=await fetch(BACKEND_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-  const j=await r.json();
-  if(!j.ok) throw new Error(j.error||'Error backend');
-  return j;
- }catch(e){console.error(e);return {ok:false,error:String(e)}}
-}
-async function doPunch(){
- if(punchBusy){toast('Espera: el fichaje se está registrando');return;}
- punchBusy=true;
- const btn=$('punchBtn');
- const originalText=btn.textContent;
- btn.disabled=true;btn.style.opacity='.58';btn.textContent='REGISTRANDO…';
- try{
-   const tipo=data.open?'SALIDA':'ENTRADA';
-   const gps=await getGPS();
-   $('gpsText').innerHTML=gps.ok?'<span class="ok">✅ '+gps.text+'</span>':(gps.lat!==null?'<span class="warn">⚠️ '+gps.text+'</span>':'<span class="warn">⚠️ '+gps.text+' · se permite continuar en DEMO</span>');
-   const remote=await sendBackend(tipo,gps);
-   if(!remote.ok){toast('⚠️ No se pudo guardar en la hoja');return;}
-   const now=new Date();
-   if(tipo==='ENTRADA'){
-     data.open={in:now.toISOString(),inGPS:gps,out:null,outGPS:null,remoteIn:remote.fichaje_id};
-     if(gps.lat!==null&&!gps.ok)addIncident('Entrada fuera de zona',gps.dist+' m del centro DEMO');
-     toast('✅ Entrada registrada en Google Sheets');
-   }else{
-     if(!data.open){toast('⚠️ No hay una entrada activa');return;}
-     data.open.out=now.toISOString();data.open.outGPS=gps;data.open.remoteOut=remote.fichaje_id;
-     if(gps.lat!==null&&!gps.ok)addIncident('Salida fuera de zona',gps.dist+' m del centro DEMO');
-     data.sessions.push(data.open);data.open=null;toast('✅ Salida registrada en Google Sheets');
-   }
-   save();render();
- }finally{
-   punchBusy=false;btn.disabled=false;btn.style.opacity='1';
-   if(btn.textContent==='REGISTRANDO…')btn.textContent=originalText;
-   render();
- }
-}
-function addIncident(type,detail){data.incidents.push({time:new Date().toISOString(),type,detail});save()}
-function totalMinutes(){
- let total=0;for(const s of data.sessions)total+=mins(new Date(s.out)-new Date(s.in));
- if(data.open) total+=mins(new Date()-new Date(data.open.in));
- return total
-}
-function lastSession(){return data.sessions[data.sessions.length-1]}
-function render(){
- $('clock').textContent=hm(new Date());
- const total=totalMinutes(), active=!!data.open;
- $('status').textContent=active?'● Jornada activa':'● Fuera de jornada';
- $('status').style.background=active?'#eefbf4':'#f3f4f6';$('status').style.color=active?'#0b6e3b':'#374151';
- if(!punchBusy){$('punchBtn').textContent=active?'FICHAR SALIDA':'FICHAR ENTRADA';$('punchBtn').className='btn '+(active?'dark':'green');}
- $('sumToday').textContent=$('todayBadge').textContent=$('aToday').textContent=$('dToday').textContent=durFromMin(total);
- $('sumWeek').textContent=$('dWeek').textContent=durFromMin(31*60+18+total);
- $('sumMonth').textContent=$('dMonth').textContent=durFromMin(112*60+36+total);
- $('aStatus').textContent=active?'🟢 Trabajando':'⚪ Fuera';$('cWorking').textContent=active?'4':'3';$('cOut').textContent=active?'1':'2';
- const ls=lastSession();$('aIn').textContent=active?hm(new Date(data.open.in)):(ls?hm(new Date(ls.in)):'—');$('aOut').textContent=active?(ls?hm(new Date(ls.out)):'—'):(ls?hm(new Date(ls.out)):'—');
- const rows=[...data.sessions];if(data.open)rows.push(data.open);
- $('todayRows').innerHTML=rows.length?rows.map(s=>`<tr><td>${hm(new Date(s.in))}</td><td>${s.out?hm(new Date(s.out)):'—'}</td><td>${s.out?durFromMin(mins(new Date(s.out)-new Date(s.in))):'En curso'}</td></tr>`).join(''):'<tr><td colspan="3">Todavía no hay movimientos hoy.</td></tr>';
- $('detailRows').innerHTML=rows.length?rows.map(s=>`<tr><td>${hm(new Date(s.in))}</td><td>${s.out?hm(new Date(s.out)):'—'}</td><td>${s.out?durFromMin(mins(new Date(s.out)-new Date(s.in))):'En curso'}</td><td>${s.inGPS?.lat!=null?(s.inGPS.ok?'✅':'⚠️'):'—'}</td></tr>`).join(''):'<tr><td colspan="4">Sin movimientos.</td></tr>';
- $('cInc').textContent=$('incBadge').textContent=data.incidents.length;
- $('incTable').innerHTML=data.incidents.length?data.incidents.map(x=>`<tr><td>⚠️ ${x.type}</td><td>${x.detail}</td><td>Pendiente</td></tr>`).join(''):'<tr><td>Sin incidencias en esta prueba.</td></tr>'
-}
-function range(r,b){document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('rangeText').textContent=r==='today'?'Detalle de los movimientos realizados hoy.':r==='week'?'Resumen semanal. En producto real mostraría cada día y sus tramos.':'Resumen mensual. En producto real mostraría todos los días y el total del mes.'}
-function selectWorker(){document.getElementById('detail').scrollIntoView({behavior:'smooth',block:'start'})}
-function simulateOutside(){addIncident('Fichaje fuera de zona','SIMULACIÓN manual · 4,8 km');render();toast('Incidencia simulada')}
-function downloadCSV(){let r=[['Trabajador','Entrada','Salida','Minutos']];data.sessions.forEach(s=>r.push(['Adrián',s.in,s.out,mins(new Date(s.out)-new Date(s.in))]));if(data.open)r.push(['Adrián',data.open.in,'',mins(new Date()-new Date(data.open.in))]);let text='\ufeff'+r.map(x=>x.join(';')).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'}));a.download='sincronia_control_horario_demo.csv';a.click()}
-function resetDemo(){if(confirm('¿Reiniciar los datos de esta demo en este navegador?')){localStorage.removeItem(KEY);data={open:null,sessions:[],base:null,incidents:[]};render();toast('Demo reiniciada')}}
-setInterval(()=>{if(data.open)render();else $('clock').textContent=hm(new Date())},1000);render();
-</script>
-</body>
-</html>
+const KEY='sincronia_control_v06';const OLDKEY='sincronia_control_v05';const BACKEND_URL='https://script.google.com/macros/s/AKfycby-frFtY_PX-IYUOJ4ob7gxilc7tRyjgse2XSFOzeTfZvA1xloswGnoZyRGzgaONUPi/exec';const $=id=>document.getElementById(id);const pad=n=>String(n).padStart(2,'0');const hm=d=>pad(d.getHours())+':'+pad(d.getMinutes());function defaultData(){return{open:null,sessions:[],incidents:[],center:{id:'CTR-001',name:'Centro principal',address:'',city:'',province:'',postal:'',radius:150,lat:null,lon:null}}}let data=JSON.parse(localStorage.getItem(KEY)||'null');if(!data){data=defaultData();const old=JSON.parse(localStorage.getItem(OLDKEY)||'null');if(old){data.open=old.open||null;data.sessions=old.sessions||[];data.incidents=old.incidents||[];if(old.base){data.center.lat=old.base.lat;data.center.lon=old.base.lon;}}save();}function save(){localStorage.setItem(KEY,JSON.stringify(data))}function mins(ms){return Math.max(0,Math.round(ms/60000))}function dur(m){return Math.floor(m/60)+':'+pad(m%60)}function toast(t){let e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2300)}function show(v){$('worker').classList.toggle('hidden',v!=='worker');$('company').classList.toggle('hidden',v!=='company');$('tw').classList.toggle('active',v==='worker');$('tc').classList.toggle('active',v==='company');render()}function distance(a,b){const R=6371000,p=x=>x*Math.PI/180;let dlat=p(b.lat-a.lat),dlon=p(b.lon-a.lon);let q=Math.sin(dlat/2)**2+Math.cos(p(a.lat))*Math.cos(p(b.lat))*Math.sin(dlon/2)**2;return 2*R*Math.asin(Math.sqrt(q))}function getGPS(){return new Promise(resolve=>{if(!navigator.geolocation){resolve({ok:false,lat:null,lon:null,accuracy:null,error:'GPS no disponible'});return}navigator.geolocation.getCurrentPosition(p=>resolve({ok:true,lat:p.coords.latitude,lon:p.coords.longitude,accuracy:p.coords.accuracy||null}),e=>resolve({ok:false,lat:null,lon:null,accuracy:null,error:e.code===1?'Permiso de ubicación denegado':e.code===2?'Ubicación no disponible':'Tiempo de espera agotado'}),{enableHighAccuracy:true,timeout:12000,maximumAge:0})})}function evaluateGPS(g){if(!g.ok)return{state:'NO_DISPONIBLE',inside:false,dist:null,text:g.error};if(data.center.lat==null||data.center.lon==null)return{state:'CENTRO_NO_CONFIGURADO',inside:false,dist:null,text:'Centro sin coordenadas configuradas'};const d=Math.round(distance({lat:data.center.lat,lon:data.center.lon},{lat:g.lat,lon:g.lon}));return{state:d<=Number(data.center.radius||150)?'OK':'REVISAR',inside:d<=Number(data.center.radius||150),dist:d,text:d<=Number(data.center.radius||150)?'Dentro de zona autorizada':'Fuera de zona autorizada'}}async function sendBackend(tipo,g,e){const payload={action:'fichaje',empresa_id:'EMP-001',trabajador_id:'TRB-00001',nombre:'Adrián Martínez',tipo,centro_id:data.center.id,centro:data.center.name,latitud:g.lat??'',longitud:g.lon??'',gps_estado:e.state,incidencia:e.state==='REVISAR',incidencia_tipo:'GPS_FUERA_ZONA',incidencia_detalle:e.dist!=null?(e.dist+' m del centro configurado'):''};try{const r=await fetch(BACKEND_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});return await r.json()}catch(err){return{ok:false,error:String(err)}}}let busy=false;async function doPunch(){if(busy)return;busy=true;const btn=$('punchBtn');btn.disabled=true;btn.textContent='REGISTRANDO...';const g=await getGPS();const ev=evaluateGPS(g);if(ev.state==='OK')$('gpsText').innerHTML='<span class="ok">✅ Ubicación verificada · Centro autorizado: '+data.center.name+'</span>';else if(ev.state==='REVISAR')$('gpsText').innerHTML='<span class="warn">⚠️ Ubicación fuera de zona autorizada · se registrará para revisión</span>';else $('gpsText').innerHTML='<span class="warn">⚠️ '+ev.text+' · se permite continuar en DEMO</span>';const tipo=data.open?'SALIDA':'ENTRADA';const remote=await sendBackend(tipo,g,ev);if(!remote.ok){toast('⚠️ No se pudo guardar en Google Sheets');busy=false;btn.disabled=false;render();return}const now=new Date();if(!data.open){data.open={in:now.toISOString(),inGPS:g,out:null,outGPS:null,remoteIn:remote.fichaje_id};if(ev.state==='REVISAR')data.incidents.push({time:now.toISOString(),type:'Entrada fuera de zona',detail:'Pendiente de revisión'});toast('✅ Entrada registrada en Google Sheets')}else{data.open.out=now.toISOString();data.open.outGPS=g;data.open.remoteOut=remote.fichaje_id;if(ev.state==='REVISAR')data.incidents.push({time:now.toISOString(),type:'Salida fuera de zona',detail:'Pendiente de revisión'});data.sessions.push(data.open);data.open=null;toast('✅ Salida registrada en Google Sheets')}save();busy=false;btn.disabled=false;render()}async function saveCenterWithCurrentLocation(){const g=await getGPS();if(!g.ok){toast('No se pudo obtener la ubicación del centro');return}readCenterForm();data.center.lat=g.lat;data.center.lon=g.lon;save();render();toast('✅ Centro DEMO configurado')}function saveCenterDataOnly(){readCenterForm();save();render();toast('Datos del centro guardados')}function readCenterForm(){data.center.name=$('fName').value.trim()||'Centro principal';data.center.address=$('fAddress').value.trim();data.center.city=$('fCity').value.trim();data.center.province=$('fProvince').value.trim();data.center.postal=$('fPostal').value.trim();data.center.radius=Math.max(20,Number($('fRadius').value||150))}function totalMinutes(){let t=0;for(const s of data.sessions)t+=mins(new Date(s.out)-new Date(s.in));if(data.open)t+=mins(new Date()-new Date(data.open.in));return t}function render(){$('clock').textContent=hm(new Date());const active=!!data.open,total=totalMinutes();$('status').textContent=active?'● Jornada activa':'● Fuera de jornada';$('status').style.background=active?'#eefbf4':'#f3f4f6';$('status').style.color=active?'#0b6e3b':'#374151';$('punchBtn').textContent=busy?'REGISTRANDO...':(active?'FICHAR SALIDA':'FICHAR ENTRADA');$('punchBtn').className='btn '+(active?'dark':'green');$('workerCenter').textContent=data.center.name;$('sumToday').textContent=$('todayBadge').textContent=$('aToday').textContent=dur(total);$('sumWeek').textContent=dur(31*60+18+total);$('sumMonth').textContent=dur(112*60+36+total);$('aStatus').textContent=active?'🟢 Trabajando':'⚪ Fuera';$('cWorking').textContent=active?'4':'3';$('cOut').textContent=active?'1':'2';const ls=data.sessions[data.sessions.length-1];$('aIn').textContent=active?hm(new Date(data.open.in)):(ls?hm(new Date(ls.in)):'—');$('aOut').textContent=active?(ls?hm(new Date(ls.out)):'—'):(ls?hm(new Date(ls.out)):'—');const rows=[...data.sessions];if(data.open)rows.push(data.open);$('todayRows').innerHTML=rows.length?rows.map(s=>`<tr><td>${hm(new Date(s.in))}</td><td>${s.out?hm(new Date(s.out)):'—'}</td><td>${s.out?dur(mins(new Date(s.out)-new Date(s.in))):'En curso'}</td></tr>`).join(''):'<tr><td colspan="3">Todavía no hay movimientos hoy.</td></tr>';$('cInc').textContent=$('incBadge').textContent=data.incidents.length;$('incTable').innerHTML=data.incidents.length?data.incidents.map(x=>`<tr><td>⚠️ ${x.type}</td><td>${x.detail}</td></tr>`).join(''):'<tr><td>Sin incidencias en esta prueba.</td></tr>';$('fName').value=data.center.name;$('fAddress').value=data.center.address;$('fCity').value=data.center.city;$('fProvince').value=data.center.province;$('fPostal').value=data.center.postal;$('fRadius').value=data.center.radius;const addr=[data.center.address,data.center.city,data.center.province,data.center.postal].filter(Boolean).join(' · ');$('centerSummary').innerHTML='<b>📌 '+data.center.name+'</b><div class="muted">'+(addr||'Dirección pendiente de completar')+'</div><div class="muted">'+(data.center.lat!=null?'Coordenadas técnicas configuradas · radio '+data.center.radius+' m':'Coordenadas pendientes de confirmar')+'</div>'}function downloadCSV(){let r=[['Trabajador','Entrada','Salida','Minutos','Centro']];data.sessions.forEach(s=>r.push(['Adrián',s.in,s.out,mins(new Date(s.out)-new Date(s.in)),data.center.name]));let a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+r.map(x=>x.join(';')).join('\n')],{type:'text/csv;charset=utf-8'}));a.download='sincronia_control_horario_v06.csv';a.click()}function resetDemo(){if(confirm('¿Reiniciar la demo local v0.6?')){localStorage.removeItem(KEY);data=defaultData();save();render();toast('Demo reiniciada')}}setInterval(()=>{if(data.open&&!busy)render();else $('clock').textContent=hm(new Date())},1000);render();
+</script></body></html>
