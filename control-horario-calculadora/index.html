@@ -13,7 +13,7 @@
 .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 4px 18px rgba(0,0,0,.035)}
 .card h2{font-size:18px;margin:0 0 4px}.muted{color:var(--muted);font-size:13px;line-height:1.45}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}.field label{display:block;font-size:12px;font-weight:850;color:#475467;margin-bottom:5px}
-.field input{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;background:#fff}.field small{display:block;color:var(--muted);font-size:11px;margin-top:4px;line-height:1.35}
+.field input,.field select{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;background:#fff}.field small{display:block;color:var(--muted);font-size:11px;margin-top:4px;line-height:1.35}.context{margin-top:10px;padding:11px 12px;border-radius:12px;background:var(--soft);border:1px solid var(--line);font-size:12px;line-height:1.45;color:#475467}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.btn{border:0;border-radius:14px;padding:14px;font-weight:900;font-size:14px;cursor:pointer}
 .primary{background:var(--dark);color:#fff}.secondary{background:#fff;border:1px solid var(--line);color:var(--text)}
 .results{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.kpi{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:13px}
@@ -30,7 +30,7 @@
 <body>
 <div class="wrap">
   <div class="hero">
-    <div class="badge">HERRAMIENTA GRATUITA · DEMO AISLADA v0.5</div>
+    <div class="badge">HERRAMIENTA GRATUITA · DEMO AISLADA v0.6</div>
     <h1>¿Cuánto tiempo dedica tu empresa a gestionar el control horario?</h1>
     <p>Calcula de forma orientativa el tiempo que hoy se dedica a revisar fichajes, resolver incidencias y preparar el resumen de horas.</p>
   </div>
@@ -39,6 +39,16 @@
     <h2>1. Cómo trabajáis hoy</h2>
     <div class="muted">Introduce una media realista. Los resultados se calculan únicamente con estos datos.</div>
     <div class="grid">
+      <div class="field">
+        <label>¿Quién gestiona actualmente el control horario?</label>
+        <select id="managementMode" onchange="updateManagementContext();calculate()">
+          <option value="empresa">La propia empresa / responsable interno</option>
+          <option value="gestoria">Gestoría o asesoría</option>
+          <option value="ambas">Empresa y gestoría/asesoría</option>
+          <option value="sin_organizar">No se gestiona de forma organizada</option>
+        </select>
+        <small>Selecciona quién revisa, organiza o recibe actualmente los datos de horas.</small>
+      </div>
       <div class="field"><label>Nº de trabajadores</label><input id="workers" type="number" min="1" value="2"><small>Personas cuyo control horario se gestiona. Este dato sirve para dimensionar la empresa.</small></div>
       <div class="field"><label>Días de actividad al mes</label><input id="days" type="number" min="1" max="31" value="26"><small>Días en los que normalmente hay fichajes.</small></div>
       <div class="field"><label>Minutos al día dedicados en total a revisar fichajes</label><input id="dailyReviewMinutes" type="number" min="0" step="1" value="10"><small>Tiempo total aproximado que se dedica cada día a comprobar entradas, salidas, olvidos o incidencias de todos los trabajadores.</small></div>
@@ -46,8 +56,9 @@
       <div class="field"><label>Horas al mes preparando el resumen de horas</label><input id="reportHours" type="number" min="0" step="0.25" value="1"><small>Tiempo total para revisar, ordenar y preparar el resumen mensual.</small></div>
       <div class="field"><label>Incidencias de fichaje al mes</label><input id="incidents" type="number" min="0" value="4"><small>Olvidos, fichajes incorrectos, cambios o aclaraciones.</small></div>
       <div class="field"><label>Minutos por incidencia</label><input id="incidentMinutes" type="number" min="0" value="5"><small>Tiempo medio dedicado a comprobar y resolver cada incidencia.</small></div>
-      <div class="field"><label>Otros costes anuales evitables (€)</label><input id="avoidableCosts" type="number" min="0" value="0"><small>Solo costes directamente ligados al sistema actual que dejarían de existir.</small></div>
+      <div class="field"><label>Otros costes anuales evitables del control horario (€)</label><input id="avoidableCosts" type="number" min="0" value="0"><small>Incluye únicamente costes específicos del control horario que realmente dejarían de existir. No incluyas la cuota completa de una gestoría.</small></div>
     </div>
+    <div class="context" id="managementContext"></div>
   </div>
 
   <div class="card">
@@ -97,7 +108,7 @@
       <div><span>Diferencia estimada · años siguientes</span><b id="laterBalance">—</b></div>
     </div>
 
-    <div class="note"><b>Importante:</b> esta herramienta ofrece una estimación orientativa. No garantiza un ahorro concreto. SINCRONIAIA Control Horario se centra en registrar entradas y salidas, organizar horas, centros e incidencias y facilitar informes o exportaciones del registro horario. El resultado real dependerá de cómo trabaje cada empresa.</div>
+    <div class="note"><b>Importante:</b> esta herramienta ofrece una estimación orientativa. No garantiza un ahorro concreto. SINCRONIAIA Control Horario se centra en registrar entradas y salidas, organizar horas, centros e incidencias y facilitar informes o exportaciones del registro horario. SINCRONIAIA no sustituye a la gestoría o asesoría de la empresa. El resultado real dependerá de cómo trabaje cada empresa.</div>
   </div>
 
   <div class="cta">
@@ -112,6 +123,18 @@ const ids=['workers','days','dailyReviewMinutes','hourCost','reportHours','incid
 const euro=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
 const num=n=>new Intl.NumberFormat('es-ES',{maximumFractionDigits:1}).format(n);
 const val=id=>Math.max(0,Number(document.getElementById(id).value||0));
+
+function updateManagementContext(){
+  const mode=document.getElementById('managementMode').value;
+  const box=document.getElementById('managementContext');
+  const messages={
+    empresa:'La empresa realiza la gestión. Introduce el tiempo real que dedica a revisar fichajes, resolver incidencias y preparar el resumen de horas.',
+    gestoria:'La gestoría o asesoría interviene en la gestión. SINCRONIAIA no la sustituye: calcula solo el tiempo que todavía dedica la empresa a recopilar, revisar o enviar datos. En costes evitables, incluye únicamente la parte específica del control horario si realmente dejaría de cobrarse.',
+    ambas:'La gestión está compartida. Introduce el tiempo que dedica la empresa y, si existe un coste específico del control horario externo que pudiera desaparecer, añádelo aparte. No incluyas la cuota completa de la gestoría.',
+    sin_organizar:'Actualmente no hay una gestión organizada. Puedes dejar en 0 los tiempos que no existan y usar la herramienta para estimar el coste de implantar un sistema de control horario.'
+  };
+  box.textContent=messages[mode]||'';
+}
 
 function calculate(){
   const workers=Math.max(1,val('workers'));
@@ -166,6 +189,7 @@ function resetCalc(){
   calculate();
 }
 ids.forEach(id=>document.getElementById(id).addEventListener('input',calculate));
+updateManagementContext();
 calculate();
 </script>
 </body></html>
