@@ -3,82 +3,60 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>SINCRONIAIA · Calculadora de coste del control horario</title>
+<title>SINCRONIAIA · Calculadora de control horario</title>
 <style>
-:root{--bg:#f4f6f8;--card:#fff;--text:#17202a;--muted:#667085;--line:#e4e7ec;--dark:#111827;--ok:#12844a;--accent:#0f766e;--soft:#f8fafc;--warn:#b54708}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
-.wrap{max-width:920px;margin:auto;padding:14px 14px 80px}
-.hero{background:var(--dark);color:#fff;padding:22px;border-radius:22px;margin:6px 0 14px}
-.hero h1{font-size:25px;line-height:1.12;margin:0 0 8px}
-.hero p{margin:0;opacity:.82;line-height:1.45}
+:root{--bg:#f4f6f8;--card:#fff;--text:#17202a;--muted:#667085;--line:#e4e7ec;--dark:#111827;--ok:#12844a;--soft:#f8fafc;--warn:#b54708}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
+.wrap{max-width:920px;margin:auto;padding:14px 14px 80px}.hero{background:var(--dark);color:#fff;padding:22px;border-radius:22px;margin:6px 0 14px}
+.hero h1{font-size:25px;line-height:1.15;margin:0 0 8px}.hero p{margin:0;opacity:.84;line-height:1.45}
 .badge{display:inline-block;font-size:11px;font-weight:900;background:#ecfdf3;color:#067647;border-radius:999px;padding:5px 8px;margin-bottom:10px}
 .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 4px 18px rgba(0,0,0,.035)}
-.card h2{font-size:18px;margin:0 0 4px}
-.muted{color:var(--muted);font-size:13px;line-height:1.45}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}
-.field label{display:block;font-size:12px;font-weight:850;color:#475467;margin-bottom:5px}
-.field input{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;background:#fff}
-.field small{display:block;color:var(--muted);font-size:11px;margin-top:4px;line-height:1.35}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.btn{border:0;border-radius:14px;padding:14px;font-weight:900;font-size:14px;cursor:pointer}
+.card h2{font-size:18px;margin:0 0 4px}.muted{color:var(--muted);font-size:13px;line-height:1.45}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}.field label{display:block;font-size:12px;font-weight:850;color:#475467;margin-bottom:5px}
+.field input{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;background:#fff}.field small{display:block;color:var(--muted);font-size:11px;margin-top:4px;line-height:1.35}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.btn{border:0;border-radius:14px;padding:14px;font-weight:900;font-size:14px;cursor:pointer}
 .primary{background:var(--dark);color:#fff}.secondary{background:#fff;border:1px solid var(--line);color:var(--text)}
-.results{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}
-.kpi{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:13px}
-.kpi span{display:block;font-size:12px;color:var(--muted)}
-.kpi b{display:block;font-size:22px;margin-top:3px}
-.green{color:var(--ok)} .warn{color:var(--warn)}
-.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.box{border:1px solid var(--line);border-radius:15px;padding:14px}
-.box h3{margin:0 0 6px;font-size:15px}
-.big{font-size:30px;font-weight:950;letter-spacing:-.5px}
+.results{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.kpi{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:13px}
+.kpi span{display:block;font-size:12px;color:var(--muted)}.kpi b{display:block;font-size:22px;margin-top:3px}.green{color:var(--ok)}.warn{color:var(--warn)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.box{border:1px solid var(--line);border-radius:15px;padding:14px}
+.box h3{margin:0 0 6px;font-size:15px}.big{font-size:30px;font-weight:950;letter-spacing:-.5px}
+.breakdown{font-size:13px;margin-top:10px;border-top:1px solid var(--line);padding-top:10px}.breakdown div{display:flex;justify-content:space-between;gap:10px;padding:5px 0}
 .note{background:#fffaeb;border:1px solid #fedf89;border-radius:14px;padding:12px;font-size:12px;line-height:1.5;color:#7a2e0e;margin-top:12px}
-.cta{background:#ecfdf3;border:1px solid #abefc6;border-radius:18px;padding:17px;margin-top:13px}
-.cta h2{margin:0 0 5px;font-size:19px}.cta p{margin:0 0 10px}
+.cta{background:#ecfdf3;border:1px solid #abefc6;border-radius:18px;padding:17px;margin-top:13px}.cta h2{margin:0 0 5px;font-size:19px}.cta p{margin:0 0 10px}
 .linkbtn{display:inline-block;text-decoration:none;background:#067647;color:#fff;padding:12px 15px;border-radius:13px;font-weight:900}
-.breakdown{font-size:13px;margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
-.breakdown div{display:flex;justify-content:space-between;gap:10px;padding:5px 0}
 @media(max-width:650px){.grid,.compare,.actions{grid-template-columns:1fr}.results{grid-template-columns:1fr 1fr}.hero h1{font-size:22px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="hero">
-    <div class="badge">HERRAMIENTA GRATUITA · DEMO AISLADA v0.3</div>
-    <h1>¿Cuánto tiempo y dinero dedica tu empresa al control horario?</h1>
-    <p>Introduce cómo gestionáis hoy los fichajes y obtén una estimación orientativa del tiempo dedicado al control horario. Después compáralo con una gestión más automatizada.</p>
+    <div class="badge">HERRAMIENTA GRATUITA · DEMO AISLADA v0.4</div>
+    <h1>¿Cuánto tiempo dedica tu empresa a gestionar el control horario?</h1>
+    <p>Calcula de forma orientativa el tiempo que hoy se dedica a revisar fichajes, resolver incidencias y preparar el resumen de horas.</p>
   </div>
 
   <div class="card">
-    <h2>1. Tu empresa</h2>
-    <div class="muted">Datos básicos para dimensionar el cálculo.</div>
+    <h2>1. Cómo trabajáis hoy</h2>
+    <div class="muted">Introduce una media realista. Los resultados se calculan únicamente con estos datos.</div>
     <div class="grid">
-      <div class="field"><label>Nº de trabajadores</label><input id="workers" type="number" min="1" value="8"><small>Personas cuyo horario se revisa o gestiona.</small></div>
-      <div class="field"><label>Nº de centros</label><input id="centers" type="number" min="1" value="1"><small>Tiendas, obras, locales o ubicaciones habituales.</small></div>
-      <div class="field"><label>Días de actividad al mes</label><input id="days" type="number" min="1" max="31" value="22"><small>Días en los que normalmente hay fichajes.</small></div>
-      <div class="field"><label>Valor/hora de la persona que lo gestiona (€)</label><input id="hourCost" type="number" min="0" step="0.5" value="18"><small>Valor aproximado de una hora de la persona que revisa fichajes, incidencias e informes.</small></div>
+      <div class="field"><label>Nº de trabajadores</label><input id="workers" type="number" min="1" value="2"><small>Personas cuyo control horario se gestiona.</small></div>
+      <div class="field"><label>Días de actividad al mes</label><input id="days" type="number" min="1" max="31" value="26"><small>Días en los que normalmente hay fichajes.</small></div>
+      <div class="field"><label>Minutos al día por trabajador</label><input id="dailyMinutesPerWorker" type="number" min="0" step="1" value="5"><small>Tiempo medio dedicado a revisar o comprobar el fichaje de cada trabajador.</small></div>
+      <div class="field"><label>Valor/hora de quien lo gestiona (€)</label><input id="hourCost" type="number" min="0" step="0.5" value="18"><small>Valor aproximado de una hora de la persona que realiza esta gestión.</small></div>
+      <div class="field"><label>Horas al mes preparando el resumen de horas</label><input id="reportHours" type="number" min="0" step="0.25" value="1"><small>Tiempo total para revisar, ordenar y preparar el resumen mensual.</small></div>
+      <div class="field"><label>Incidencias de fichaje al mes</label><input id="incidents" type="number" min="0" value="4"><small>Olvidos, fichajes incorrectos, cambios o aclaraciones.</small></div>
+      <div class="field"><label>Minutos por incidencia</label><input id="incidentMinutes" type="number" min="0" value="5"><small>Tiempo medio dedicado a comprobar y resolver cada incidencia.</small></div>
+      <div class="field"><label>Otros costes anuales evitables (€)</label><input id="avoidableCosts" type="number" min="0" value="0"><small>Solo costes directamente ligados al sistema actual que dejarían de existir.</small></div>
     </div>
   </div>
 
   <div class="card">
-    <h2>2. Tiempo dedicado al control horario</h2>
-    <div class="muted">No hace falta que sea exacto: usa una media razonable.</div>
+    <h2>2. Escenario con SINCRONIAIA</h2>
+    <div class="muted">Valores editables para comparar escenarios. No representan una promesa de ahorro ni una tarifa definitiva.</div>
     <div class="grid">
-      <div class="field"><label>Minutos totales al día revisando fichajes</label><input id="dailyReview" type="number" min="0" value="20"><small>Comprobar entradas y salidas, olvidos, fichajes incorrectos o diferencias.</small></div>
-      <div class="field"><label>Horas al mes preparando el resumen de horas</label><input id="reportHours" type="number" min="0" step="0.25" value="2"><small>Recopilar, revisar y preparar el resumen mensual de horas para uso interno o para entregarlo a quien corresponda.</small></div>
-      <div class="field"><label>Incidencias de fichaje al mes</label><input id="incidents" type="number" min="0" value="10"><small>Olvidos de fichaje, entradas o salidas incorrectas, cambios y aclaraciones.</small></div>
-      <div class="field"><label>Minutos por incidencia</label><input id="incidentMinutes" type="number" min="0" value="6"><small>Tiempo medio que se dedica a comprobar y resolver cada incidencia.</small></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>3. Escenario con SINCRONIAIA</h2>
-    <div class="muted">Los valores son editables. El objetivo es comparar escenarios, no prometer un ahorro fijo.</div>
-    <div class="grid">
-      <div class="field"><label>% del tiempo de gestión que podría reducirse</label><input id="efficiency" type="number" min="0" max="100" value="70"><small>Estimación orientativa del tiempo repetitivo que podría reducirse al automatizar registros, totales e incidencias.</small></div>
-      <div class="field"><label>Implantación SINCRONIAIA (€) · ejemplo</label><input id="setup" type="number" min="0" value="99"><small>Importe de ejemplo editable mientras validamos la tarifa.</small></div>
-      <div class="field"><label>Cuota mensual SINCRONIAIA (€) · ejemplo</label><input id="monthly" type="number" min="0" value="29"><small>Importe mensual de ejemplo editable mientras validamos la tarifa.</small></div>
-      <div class="field"><label>Otros costes anuales del control horario (€)</label><input id="otherCosts" type="number" min="0" value="0"><small>Por ejemplo, otro software o tareas externas directamente relacionadas con el control horario, si procede.</small></div>
+      <div class="field"><label>% del tiempo de gestión que podría reducirse</label><input id="efficiency" type="number" min="0" max="100" value="70"><small>Estimación orientativa del tiempo repetitivo que podría reducirse.</small></div>
+      <div class="field"><label>Implantación SINCRONIAIA (€) · ejemplo</label><input id="setup" type="number" min="0" value="99"><small>Importe editable mientras se valida la tarifa comercial.</small></div>
+      <div class="field"><label>Cuota mensual SINCRONIAIA (€) · ejemplo</label><input id="monthly" type="number" min="0" value="29"><small>Importe editable mientras se valida la tarifa comercial.</small></div>
     </div>
   </div>
 
@@ -87,10 +65,9 @@ body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,
     <button class="btn secondary" onclick="resetCalc()">RESTABLECER</button>
   </div>
 
-  <div class="card" id="resultCard">
+  <div class="card">
     <h2>Resultado estimado</h2>
-    <div class="muted">Basado únicamente en los datos introducidos.</div>
-
+    <div class="muted">Comparación orientativa basada exclusivamente en los valores introducidos.</div>
     <div class="results">
       <div class="kpi"><span>Horas de gestión / mes</span><b id="hoursMonth">—</b></div>
       <div class="kpi"><span>Horas de gestión / año</span><b id="hoursYear">—</b></div>
@@ -100,27 +77,27 @@ body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,
 
     <div class="compare">
       <div class="box">
-        <h3>Gestión actual del control horario</h3>
+        <h3>Gestión actual estimada</h3>
         <div class="big" id="annualCurrent">—</div>
-        <div class="muted">Estimación anual del tiempo dedicado al control horario + otros costes indicados.</div>
+        <div class="muted">Valor anual del tiempo de gestión más los costes evitables indicados.</div>
       </div>
       <div class="box">
         <h3>SINCRONIAIA · escenario primer año</h3>
         <div class="big" id="sincroniaFirst">—</div>
-        <div class="muted">Implantación + 12 mensualidades utilizando los importes de ejemplo introducidos.</div>
+        <div class="muted">Implantación + 12 mensualidades con los importes de ejemplo.</div>
       </div>
     </div>
 
     <div class="breakdown">
       <div><span>Valor del tiempo potencialmente recuperable</span><b id="timeValueRecovered">—</b></div>
-      <div><span>Coste SINCRONIAIA · escenario primer año</span><b id="firstYearCost">—</b></div>
+      <div><span>Otros costes evitables indicados</span><b id="avoidableCostsResult">—</b></div>
+      <div><span>Beneficio potencial antes de pagar SINCRONIAIA</span><b id="potentialBenefit">—</b></div>
+      <div><span>Coste SINCRONIAIA · primer año</span><b id="firstYearCost">—</b></div>
       <div><span>Diferencia estimada · primer año</span><b id="firstYearBalance">—</b></div>
       <div><span>Diferencia estimada · años siguientes</span><b id="laterBalance">—</b></div>
     </div>
 
-    <div class="note">
-      <b>Importante:</b> esta calculadora ofrece una estimación orientativa y no garantiza un ahorro concreto. SINCRONIAIA Control Horario registra entradas y salidas, organiza horas, centros e incidencias y puede generar informes o exportaciones. <b>SINCRONIAIA no confecciona nóminas ni presta servicios de gestoría laboral.</b> El resultado depende de cómo trabaje realmente cada empresa.
-    </div>
+    <div class="note"><b>Importante:</b> esta herramienta ofrece una estimación orientativa. No garantiza un ahorro concreto. SINCRONIAIA Control Horario se centra en registrar entradas y salidas, organizar horas, centros e incidencias y facilitar informes o exportaciones del registro horario. El resultado real dependerá de cómo trabaje cada empresa.</div>
   </div>
 
   <div class="cta">
@@ -131,39 +108,48 @@ body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,
 </div>
 
 <script>
-const ids=['workers','centers','days','hourCost','dailyReview','reportHours','incidents','incidentMinutes','efficiency','setup','monthly','otherCosts'];
+const ids=['workers','days','dailyMinutesPerWorker','hourCost','reportHours','incidents','incidentMinutes','avoidableCosts','efficiency','setup','monthly'];
 const euro=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
 const num=n=>new Intl.NumberFormat('es-ES',{maximumFractionDigits:1}).format(n);
 const val=id=>Math.max(0,Number(document.getElementById(id).value||0));
 
 function calculate(){
-  const days=val('days'), hourCost=val('hourCost'), dailyReview=val('dailyReview');
-  const reportHours=val('reportHours'), incidents=val('incidents'), incMins=val('incidentMinutes');
-  const efficiency=Math.min(100,val('efficiency'))/100, setup=val('setup'), monthly=val('monthly'), other=val('otherCosts');
+  const workers=Math.max(1,val('workers'));
+  const days=val('days');
+  const daily=val('dailyMinutesPerWorker');
+  const hourCost=val('hourCost');
+  const reportHours=val('reportHours');
+  const incidents=val('incidents');
+  const incidentMinutes=val('incidentMinutes');
+  const avoidableCosts=val('avoidableCosts');
+  const efficiency=Math.min(100,val('efficiency'))/100;
+  const setup=val('setup');
+  const monthly=val('monthly');
 
-  const reviewHoursMonth=(dailyReview*days)/60;
-  const incidentHoursMonth=(incidents*incMins)/60;
+  const reviewHoursMonth=(workers*daily*days)/60;
+  const incidentHoursMonth=(incidents*incidentMinutes)/60;
   const hoursMonth=reviewHoursMonth+reportHours+incidentHoursMonth;
   const hoursYear=hoursMonth*12;
-  const managementCostYear=hoursYear*hourCost;
-  const currentAnnual=managementCostYear+other;
+  const timeCostYear=hoursYear*hourCost;
+  const currentAnnual=timeCostYear+avoidableCosts;
 
   const recoverableHours=hoursYear*efficiency;
   const timeValueRecovered=recoverableHours*hourCost;
+  const potentialBenefit=timeValueRecovered+avoidableCosts;
   const firstYear=setup+(monthly*12);
   const laterYear=monthly*12;
-
-  const firstBalance=timeValueRecovered-firstYear;
-  const laterBalance=timeValueRecovered-laterYear;
+  const firstBalance=potentialBenefit-firstYear;
+  const laterBalance=potentialBenefit-laterYear;
 
   document.getElementById('hoursMonth').textContent=num(hoursMonth)+' h';
   document.getElementById('hoursYear').textContent=num(hoursYear)+' h';
   document.getElementById('currentCost').textContent=euro(currentAnnual);
   document.getElementById('recoverableHours').textContent=num(recoverableHours)+' h';
-
   document.getElementById('annualCurrent').textContent=euro(currentAnnual);
   document.getElementById('sincroniaFirst').textContent=euro(firstYear);
   document.getElementById('timeValueRecovered').textContent=euro(timeValueRecovered);
+  document.getElementById('avoidableCostsResult').textContent=euro(avoidableCosts);
+  document.getElementById('potentialBenefit').textContent=euro(potentialBenefit);
   document.getElementById('firstYearCost').textContent=euro(firstYear);
 
   const f=document.getElementById('firstYearBalance');
@@ -175,12 +161,11 @@ function calculate(){
   l.className=laterBalance>=0?'green':'warn';
 }
 function resetCalc(){
-  const defaults={workers:8,centers:1,days:22,hourCost:18,dailyReview:20,reportHours:2,incidents:10,incidentMinutes:6,efficiency:70,setup:99,monthly:29,otherCosts:0};
+  const defaults={workers:2,days:26,dailyMinutesPerWorker:5,hourCost:18,reportHours:1,incidents:4,incidentMinutes:5,avoidableCosts:0,efficiency:70,setup:99,monthly:29};
   Object.entries(defaults).forEach(([k,v])=>document.getElementById(k).value=v);
   calculate();
 }
 ids.forEach(id=>document.getElementById(id).addEventListener('input',calculate));
 calculate();
 </script>
-</body>
-</html>
+</body></html>
