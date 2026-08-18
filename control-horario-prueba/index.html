@@ -22,8 +22,9 @@ table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:9px 5px
 </head>
 <body>
 <div class="app">
-  <div class="hero"><div class="brand">SINCRONIAIA · CONTROL HORARIO</div><small>DEMO AISLADA v0.5 · Entrada/salida múltiple · GPS de prueba · Datos guardados solo en este navegador</small></div>
+  <div class="hero"><div class="brand">SINCRONIAIA · CONTROL HORARIO</div><small>DEMO AISLADA v0.5 · Entrada/salida múltiple · GPS de prueba · Conectada a Google Sheets · copia local en este navegador</small></div>
   <div class="tabs"><button class="tab active" id="tw" onclick="show('worker')">👤 Trabajador</button><button class="tab" id="tc" onclick="show('company')">🏢 Empresa</button></div>
+
   <section id="worker">
     <div class="card">
       <div class="row"><div><div class="muted">Acceso personal</div><div class="title">Adrián Martínez</div><div class="muted">ID: TRB-00001 · Centro: Carnicería Demo</div></div><span class="badge">DEMO</span></div>
@@ -32,6 +33,7 @@ table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:9px 5px
       <button class="btn green" id="punchBtn" onclick="doPunch()">FICHAR ENTRADA</button>
       <div class="notice" style="margin-top:8px">Puedes hacer tantas entradas y salidas como necesites en el mismo día. Cada tramo se suma automáticamente.</div>
     </div>
+
     <div class="card">
       <div class="row"><b>Hoy</b><span class="badge" id="todayBadge">0:00</span></div>
       <table style="margin-top:8px"><thead><tr><th>Entrada</th><th>Salida</th><th>Tiempo</th></tr></thead><tbody id="todayRows"></tbody></table>
@@ -44,6 +46,7 @@ table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:9px 5px
       <div class="notice" id="rangeText" style="margin-top:10px">Detalle de los movimientos realizados hoy.</div>
     </div>
   </section>
+
   <section id="company" class="hidden">
     <div class="card">
       <div class="row"><div><div class="muted">Vista Empresa</div><div class="title">Carnicería Demo</div></div><span class="badge">HOY</span></div>
@@ -53,6 +56,7 @@ table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:9px 5px
         <div class="kpi"><span class="muted">Incidencias</span><b id="cInc">0</b></div>
       </div>
     </div>
+
     <div class="card">
       <b>Trabajadores</b>
       <table style="margin-top:8px"><thead><tr><th>Trabajador</th><th>Últ. entrada</th><th>Últ. salida</th><th>Hoy</th><th>Estado</th></tr></thead>
@@ -64,17 +68,20 @@ table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:9px 5px
         <tr><td>Carlos</td><td>07:55</td><td>—</td><td>4:22</td><td>🟢 Trabajando</td></tr>
       </tbody></table>
     </div>
+
     <div class="card" id="detail">
       <div class="row"><div><b>Adrián Martínez</b><div class="muted">TRB-00001</div></div><span class="badge">Hoy · Semana · Mes</span></div>
       <div class="grid3" style="margin-top:10px"><div class="kpi"><span class="muted">Hoy</span><b id="dToday">0:00</b></div><div class="kpi"><span class="muted">Semana</span><b id="dWeek">31:18</b></div><div class="kpi"><span class="muted">Mes</span><b id="dMonth">112:36</b></div></div>
       <table style="margin-top:10px"><thead><tr><th>Entrada</th><th>Salida</th><th>Tiempo</th><th>GPS</th></tr></thead><tbody id="detailRows"></tbody></table>
     </div>
+
     <div class="card">
       <div class="row"><b>Incidencias</b><span class="badge" id="incBadge">0</span></div>
       <div class="notice" style="margin-top:7px">En esta demo, un fichaje GPS a más de 250 m del primer punto registrado se marca para revisión, pero no se borra.</div>
       <table id="incTable" style="margin-top:8px"><tbody><tr id="noInc"><td>Sin incidencias en esta prueba.</td></tr></tbody></table>
       <button class="btn outline" onclick="simulateOutside()">SIMULAR FICHAJE FUERA DE ZONA</button>
     </div>
+
     <div class="card">
       <b>Acciones de empresa</b>
       <div class="grid2" style="margin-top:8px">
@@ -87,8 +94,10 @@ table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:9px 5px
   </section>
 </div>
 <div class="toast" id="toast"></div>
+
 <script>
 const KEY='sincronia_control_v05';
+const BACKEND_URL='https://script.google.com/macros/s/AKfycby-frFtY_PX-IYUOJ4ob7gxilc7tRyjgse2XSFOzeTfZvA1xloswGnoZyRGzgaONUPi/exec';
 let data=JSON.parse(localStorage.getItem(KEY)||'null')||{open:null,sessions:[],base:null,incidents:[]};
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
@@ -99,12 +108,67 @@ function save(){localStorage.setItem(KEY,JSON.stringify(data))}
 function show(v){$('worker').classList.toggle('hidden',v!=='worker');$('company').classList.toggle('hidden',v!=='company');$('tw').classList.toggle('active',v==='worker');$('tc').classList.toggle('active',v==='company');render()}
 function toast(t){let e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2200)}
 function distance(a,b){const R=6371000,p=x=>x*Math.PI/180;let dlat=p(b.lat-a.lat),dlon=p(b.lon-a.lon);let q=Math.sin(dlat/2)**2+Math.cos(p(a.lat))*Math.cos(p(b.lat))*Math.sin(dlon/2)**2;return 2*R*Math.asin(Math.sqrt(q))}
-function getGPS(){return new Promise(resolve=>{if(!navigator.geolocation){resolve({ok:false,lat:null,lon:null,text:'GPS no disponible'});return}navigator.geolocation.getCurrentPosition(p=>{const g={lat:p.coords.latitude,lon:p.coords.longitude};if(!data.base){data.base=g;save();resolve({ok:true,...g,dist:0,text:'Centro DEMO fijado con este primer GPS'});return}const d=Math.round(distance(data.base,g));resolve({ok:d<=250,...g,dist:d,text:d<=250?'Dentro de zona DEMO':'Fuera de zona DEMO'})},()=>resolve({ok:false,lat:null,lon:null,text:'Permiso GPS no disponible'}),{enableHighAccuracy:true,timeout:8000,maximumAge:0})})}
-async function doPunch(){const gps=await getGPS();$('gpsText').innerHTML=gps.ok?'<span class="ok">✅ '+gps.text+'</span>':(gps.lat!==null?'<span class="warn">⚠️ '+gps.text+'</span>':'<span class="warn">⚠️ '+gps.text+' · se permite continuar en DEMO</span>');const now=new Date();if(!data.open){data.open={in:now.toISOString(),inGPS:gps,out:null,outGPS:null};if(gps.lat!==null&&!gps.ok)addIncident('Entrada fuera de zona',gps.dist+' m del centro DEMO');toast('Entrada registrada')}else{data.open.out=now.toISOString();data.open.outGPS=gps;if(gps.lat!==null&&!gps.ok)addIncident('Salida fuera de zona',gps.dist+' m del centro DEMO');data.sessions.push(data.open);data.open=null;toast('Salida registrada')}save();render()}
+function getGPS(){
+ return new Promise(resolve=>{
+   if(!navigator.geolocation){resolve({ok:false,lat:null,lon:null,text:'GPS no disponible'});return}
+   navigator.geolocation.getCurrentPosition(p=>{
+     const g={lat:p.coords.latitude,lon:p.coords.longitude};
+     if(!data.base){data.base=g;save();resolve({ok:true,...g,dist:0,text:'Centro DEMO fijado con este primer GPS'});return}
+     const d=Math.round(distance(data.base,g));resolve({ok:d<=250,...g,dist:d,text:d<=250?'Dentro de zona DEMO':'Fuera de zona DEMO'})
+   },()=>resolve({ok:false,lat:null,lon:null,text:'Permiso GPS no disponible'}),{enableHighAccuracy:true,timeout:8000,maximumAge:0})
+ })
+}
+async function sendBackend(tipo,gps){
+ const payload={action:'fichaje',empresa_id:'EMP-001',trabajador_id:'TRB-00001',nombre:'Adrián Martínez',tipo:tipo,centro_id:'CTR-001',centro:'Centro principal',latitud:gps&&gps.lat!=null?gps.lat:'',longitud:gps&&gps.lon!=null?gps.lon:'',gps_estado:gps?(gps.ok?'OK':(gps.lat!=null?'REVISAR':'NO_DISPONIBLE')):'NO_DISPONIBLE',incidencia:!!(gps&&gps.lat!=null&&!gps.ok),incidencia_tipo:'GPS_FUERA_ZONA',incidencia_detalle:(gps&&gps.dist!=null)?(gps.dist+' m del centro DEMO'):''};
+ try{
+  const r=await fetch(BACKEND_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+  const j=await r.json();
+  if(!j.ok) throw new Error(j.error||'Error backend');
+  return j;
+ }catch(e){console.error(e);return {ok:false,error:String(e)}}
+}
+async function doPunch(){
+ const gps=await getGPS();
+ $('gpsText').innerHTML=gps.ok?'<span class="ok">✅ '+gps.text+'</span>':(gps.lat!==null?'<span class="warn">⚠️ '+gps.text+'</span>':'<span class="warn">⚠️ '+gps.text+' · se permite continuar en DEMO</span>');
+ const now=new Date();
+ const tipo=data.open?'SALIDA':'ENTRADA';
+ const remote=await sendBackend(tipo,gps);
+ if(!remote.ok){toast('⚠️ No se pudo guardar en la hoja');return;}
+ if(!data.open){
+   data.open={in:now.toISOString(),inGPS:gps,out:null,outGPS:null,remoteIn:remote.fichaje_id};
+   if(gps.lat!==null&&!gps.ok)addIncident('Entrada fuera de zona',gps.dist+' m del centro DEMO');
+   toast('Entrada registrada en la hoja');
+ }else{
+   data.open.out=now.toISOString();data.open.outGPS=gps;data.open.remoteOut=remote.fichaje_id;
+   if(gps.lat!==null&&!gps.ok)addIncident('Salida fuera de zona',gps.dist+' m del centro DEMO');
+   data.sessions.push(data.open);data.open=null;toast('Salida registrada en la hoja');
+ }
+ save();render()
+}
 function addIncident(type,detail){data.incidents.push({time:new Date().toISOString(),type,detail});save()}
-function totalMinutes(){let total=0;for(const s of data.sessions)total+=mins(new Date(s.out)-new Date(s.in));if(data.open)total+=mins(new Date()-new Date(data.open.in));return total}
+function totalMinutes(){
+ let total=0;for(const s of data.sessions)total+=mins(new Date(s.out)-new Date(s.in));
+ if(data.open) total+=mins(new Date()-new Date(data.open.in));
+ return total
+}
 function lastSession(){return data.sessions[data.sessions.length-1]}
-function render(){$('clock').textContent=hm(new Date());const total=totalMinutes(),active=!!data.open;$('status').textContent=active?'● Jornada activa':'● Fuera de jornada';$('status').style.background=active?'#eefbf4':'#f3f4f6';$('status').style.color=active?'#0b6e3b':'#374151';$('punchBtn').textContent=active?'FICHAR SALIDA':'FICHAR ENTRADA';$('punchBtn').className='btn '+(active?'dark':'green');$('sumToday').textContent=$('todayBadge').textContent=$('aToday').textContent=$('dToday').textContent=durFromMin(total);$('sumWeek').textContent=$('dWeek').textContent=durFromMin(31*60+18+total);$('sumMonth').textContent=$('dMonth').textContent=durFromMin(112*60+36+total);$('aStatus').textContent=active?'🟢 Trabajando':'⚪ Fuera';$('cWorking').textContent=active?'4':'3';$('cOut').textContent=active?'1':'2';const ls=lastSession();$('aIn').textContent=active?hm(new Date(data.open.in)):(ls?hm(new Date(ls.in)):'—');$('aOut').textContent=active?(ls?hm(new Date(ls.out)):'—'):(ls?hm(new Date(ls.out)):'—');const rows=[...data.sessions];if(data.open)rows.push(data.open);$('todayRows').innerHTML=rows.length?rows.map(s=>`<tr><td>${hm(new Date(s.in))}</td><td>${s.out?hm(new Date(s.out)):'—'}</td><td>${s.out?durFromMin(mins(new Date(s.out)-new Date(s.in))):'En curso'}</td></tr>`).join(''):'<tr><td colspan="3">Todavía no hay movimientos hoy.</td></tr>';$('detailRows').innerHTML=rows.length?rows.map(s=>`<tr><td>${hm(new Date(s.in))}</td><td>${s.out?hm(new Date(s.out)):'—'}</td><td>${s.out?durFromMin(mins(new Date(s.out)-new Date(s.in))):'En curso'}</td><td>${s.inGPS?.lat!=null?(s.inGPS.ok?'✅':'⚠️'):'—'}</td></tr>`).join(''):'<tr><td colspan="4">Sin movimientos.</td></tr>';$('cInc').textContent=$('incBadge').textContent=data.incidents.length;$('incTable').innerHTML=data.incidents.length?data.incidents.map(x=>`<tr><td>⚠️ ${x.type}</td><td>${x.detail}</td><td>Pendiente</td></tr>`).join(''):'<tr><td>Sin incidencias en esta prueba.</td></tr>'}
+function render(){
+ $('clock').textContent=hm(new Date());
+ const total=totalMinutes(), active=!!data.open;
+ $('status').textContent=active?'● Jornada activa':'● Fuera de jornada';
+ $('status').style.background=active?'#eefbf4':'#f3f4f6';$('status').style.color=active?'#0b6e3b':'#374151';
+ $('punchBtn').textContent=active?'FICHAR SALIDA':'FICHAR ENTRADA';$('punchBtn').className='btn '+(active?'dark':'green');
+ $('sumToday').textContent=$('todayBadge').textContent=$('aToday').textContent=$('dToday').textContent=durFromMin(total);
+ $('sumWeek').textContent=$('dWeek').textContent=durFromMin(31*60+18+total);
+ $('sumMonth').textContent=$('dMonth').textContent=durFromMin(112*60+36+total);
+ $('aStatus').textContent=active?'🟢 Trabajando':'⚪ Fuera';$('cWorking').textContent=active?'4':'3';$('cOut').textContent=active?'1':'2';
+ const ls=lastSession();$('aIn').textContent=active?hm(new Date(data.open.in)):(ls?hm(new Date(ls.in)):'—');$('aOut').textContent=active?(ls?hm(new Date(ls.out)):'—'):(ls?hm(new Date(ls.out)):'—');
+ const rows=[...data.sessions];if(data.open)rows.push(data.open);
+ $('todayRows').innerHTML=rows.length?rows.map(s=>`<tr><td>${hm(new Date(s.in))}</td><td>${s.out?hm(new Date(s.out)):'—'}</td><td>${s.out?durFromMin(mins(new Date(s.out)-new Date(s.in))):'En curso'}</td></tr>`).join(''):'<tr><td colspan="3">Todavía no hay movimientos hoy.</td></tr>';
+ $('detailRows').innerHTML=rows.length?rows.map(s=>`<tr><td>${hm(new Date(s.in))}</td><td>${s.out?hm(new Date(s.out)):'—'}</td><td>${s.out?durFromMin(mins(new Date(s.out)-new Date(s.in))):'En curso'}</td><td>${s.inGPS?.lat!=null?(s.inGPS.ok?'✅':'⚠️'):'—'}</td></tr>`).join(''):'<tr><td colspan="4">Sin movimientos.</td></tr>';
+ $('cInc').textContent=$('incBadge').textContent=data.incidents.length;
+ $('incTable').innerHTML=data.incidents.length?data.incidents.map(x=>`<tr><td>⚠️ ${x.type}</td><td>${x.detail}</td><td>Pendiente</td></tr>`).join(''):'<tr><td>Sin incidencias en esta prueba.</td></tr>'
+}
 function range(r,b){document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('rangeText').textContent=r==='today'?'Detalle de los movimientos realizados hoy.':r==='week'?'Resumen semanal. En producto real mostraría cada día y sus tramos.':'Resumen mensual. En producto real mostraría todos los días y el total del mes.'}
 function selectWorker(){document.getElementById('detail').scrollIntoView({behavior:'smooth',block:'start'})}
 function simulateOutside(){addIncident('Fichaje fuera de zona','SIMULACIÓN manual · 4,8 km');render();toast('Incidencia simulada')}
