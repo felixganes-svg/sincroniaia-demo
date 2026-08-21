@@ -1,7 +1,8 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Todo Bueno · Demo conectada</title><style>html,body{margin:0;height:100%;background:#0b141a;color:white;font-family:Arial,sans-serif}.loading{height:100%;display:grid;place-items:center;text-align:center;padding:24px}</style></head><body><div class="loading">Cargando demo Todo Bueno…</div><script>
 (async()=>{
   try{
-    const r=await fetch('../index.html?connected=12',{cache:'no-store'});
+    const r=await fetch('../index.html?connected=13',{cache:'no-store'});
+    if(!r.ok) throw new Error('No se pudo cargar la demo base');
     let html=await r.text();
     const patch=`<script>
 const TB_ORDERS_KEY='todoBuenoPedidosDemoV1';
@@ -18,7 +19,7 @@ tbRegistrar=function(){
  notice('safe','MODO PRUEBA',saved?'Este pedido de demostración queda guardado en este navegador y puede consultarse desde el listado de pedidos de empresa. No se ha enviado ningún pedido real.':'No se ha podido guardar en este navegador. No se ha enviado ningún pedido real.');
  state.step='tb_final';return buttons([{label:'✅ Finalizar',value:'tb_finalizar'}]);
 };
-</script>`;
+<\/script>`;
     html=html.replace('</body>',patch+'</body>');
     document.open();document.write(html);document.close();
   }catch(e){document.body.innerHTML='<div class="loading">No se ha podido cargar la demo. Vuelve a intentarlo.</div>'}
