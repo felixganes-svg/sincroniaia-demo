@@ -4,271 +4,44 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0d5c63">
-<title>SINCRONIAIA · Módulo Universal de Gestión · DEMO v0.1</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SINCRONIAIA Gestión">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>SINCRONIAIA Gestión · Multiempresa v0.4</title>
 <style>
-:root{
-  --bg:#f4f7f8;--card:#fff;--ink:#142126;--muted:#68777d;--line:#d9e2e5;
-  --brand:#0d5c63;--brand2:#12717a;--soft:#eaf5f5;--warn:#fff7dc;--danger:#fff0f0;
-  --good:#edf8f1;--shadow:0 8px 24px rgba(18,42,50,.08);
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-button,select,input{font:inherit}
-button{cursor:pointer}
-.top{
-  position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--brand),var(--brand2));
-  color:#fff;padding:14px 16px;box-shadow:0 2px 10px rgba(0,0,0,.14)
-}
-.topin{max-width:1180px;margin:auto;display:flex;gap:16px;align-items:center;justify-content:space-between}
-.brand h1{font-size:18px;margin:0}.brand p{font-size:11px;margin:3px 0 0;opacity:.9}
-.demo-tag{border:1px solid rgba(255,255,255,.6);border-radius:999px;padding:6px 9px;font-size:10px;font-weight:800;white-space:nowrap}
-.wrap{max-width:1180px;margin:auto;padding:16px}
-.notice{background:var(--warn);border:1px solid #edcd69;border-radius:12px;padding:11px 13px;font-size:12px;line-height:1.45;margin-bottom:14px}
-.controls{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10px;margin-bottom:14px}
-.control{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;box-shadow:var(--shadow)}
-.control label{display:block;font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.control select{width:100%;border:1px solid var(--line);border-radius:9px;background:#fff;padding:9px;color:var(--ink)}
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
-.kpi .n{font-size:28px;font-weight:850}.kpi .l{font-size:11px;color:var(--muted);margin-top:3px}
-.filters{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
-.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;font-size:12px;font-weight:750;color:#41545b}
-.chip.active{background:var(--brand);border-color:var(--brand);color:#fff}
-.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(310px,.65fr);gap:14px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
-.panelhead{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;gap:10px;justify-content:space-between;align-items:center}
-.panelhead h2{font-size:14px;margin:0}.panelhead small{color:var(--muted)}
-.list{display:grid}
-.item{padding:13px 14px;border-bottom:1px solid #edf1f2;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:#fff}
-.item:last-child{border-bottom:0}.item:hover{background:#fafcfc}
-.item.selected{background:var(--soft)}
-.item h3{margin:0;font-size:13px}.meta{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
-.status{display:inline-flex;border-radius:999px;padding:5px 8px;font-size:9px;font-weight:850;white-space:nowrap}
-.s-new{background:#eef4ff;color:#2a579a}.s-confirmed{background:#eaf7ef;color:#247045}
-.s-progress{background:#fff4dc;color:#8a5a00}.s-ready{background:#e9f7f7;color:#0b6970}
-.s-done{background:#edf1f2;color:#4e5e63}.s-cancel{background:#fff0f0;color:#9b3030}
-.detail{padding:14px}
-.empty{padding:30px;text-align:center;color:var(--muted);font-size:12px}
-.detail h3{font-size:17px;margin:0 0 4px}.detail .sub{font-size:11px;color:var(--muted);margin-bottom:12px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.fact{border:1px solid var(--line);border-radius:10px;padding:9px;background:#fbfcfc}
-.fact b{display:block;font-size:9px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}.fact span{font-size:12px}
-.summary{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fbfcfc;font-size:12px;line-height:1.5}
-.actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
-.btn{border:1px solid var(--brand);background:#fff;color:var(--brand);border-radius:9px;padding:8px 10px;font-size:11px;font-weight:800}
-.btn.primary{background:var(--brand);color:#fff}.btn.danger{border-color:#b14b4b;color:#9b3030}.btn.gray{border-color:#87959a;color:#58686e}
-.timeline{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
-.timeline h4{font-size:11px;margin:0 0 8px}.event{border-left:2px solid #c9d6d9;padding:2px 0 8px 9px;font-size:10px;color:#53646a}.event b{color:var(--ink)}
-.footactions{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid var(--line);background:#fbfcfc}
-.helper{font-size:10px;color:var(--muted);padding:0 14px 13px}
-@media(max-width:820px){
-  .controls{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.layout{grid-template-columns:1fr}
-  .topin{align-items:flex-start}.item{grid-template-columns:1fr}.status{justify-self:start}.grid2{grid-template-columns:1fr}
-}
-@media(max-width:420px){.kpis{grid-template-columns:1fr 1fr}.kpi .n{font-size:24px}.wrap{padding:11px}.top{padding:11px}}
+:root{--b:#0d5c63;--b2:#12717a;--bg:#f4f7f8;--c:#fff;--t:#142126;--m:#68777d;--l:#d9e2e5;--w:#fff7dc}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}button,select{font:inherit}button{cursor:pointer}.top{position:sticky;top:0;z-index:5;background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:14px 16px}.topin,.wrap{max-width:1100px;margin:auto}.topin{display:flex;justify-content:space-between;gap:12px;align-items:center}.top h1{font-size:18px;margin:0}.tag{border:1px solid #ffffff99;border-radius:999px;padding:6px 9px;font-size:10px;font-weight:800}.wrap{padding:14px}.notice,.card{background:var(--c);border:1px solid var(--l);border-radius:14px}.notice{background:var(--w);padding:11px 13px;font-size:12px;margin-bottom:12px}.install{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px;margin-bottom:12px}.install span{display:block;font-size:11px;color:var(--m);margin-top:3px}.btn{border:1px solid var(--b);background:#fff;color:var(--b);border-radius:9px;padding:9px 11px;font-weight:800}.btn.primary{background:var(--b);color:#fff}.grid{display:grid;gap:10px}.controls{grid-template-columns:repeat(3,1fr);margin-bottom:12px}.field{padding:11px}.field label{display:block;font-size:10px;text-transform:uppercase;font-weight:800;color:var(--m);margin-bottom:6px}.field select{width:100%;padding:10px;border:1px solid var(--l);border-radius:9px;background:#fff}.cfg{grid-template-columns:repeat(4,1fr);margin-bottom:12px}.fact{padding:11px}.fact b{display:block;font-size:9px;text-transform:uppercase;color:var(--m);margin-bottom:5px}.kpis{grid-template-columns:repeat(4,1fr);margin-bottom:12px}.kpi{padding:13px}.kpi strong{display:block;font-size:26px}.kpi span{font-size:11px;color:var(--m)}.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.chip{border:1px solid var(--l);background:#fff;border-radius:999px;padding:8px 11px;font-weight:750}.chip.active{background:var(--b);color:#fff;border-color:var(--b)}.layout{grid-template-columns:1.3fr .7fr}.head{padding:12px 14px;border-bottom:1px solid var(--l);font-weight:800}.item{padding:13px 14px;border-bottom:1px solid #edf1f2;display:grid;grid-template-columns:1fr auto;gap:8px}.item:hover,.item.sel{background:#eef7f7}.item h3{margin:0;font-size:13px}.meta{font-size:11px;color:var(--m);margin-top:4px;line-height:1.4}.status{font-size:9px;font-weight:850;border-radius:999px;padding:5px 8px;background:#eef4ff;height:max-content}.detail{padding:14px}.detail h3{margin:0 0 8px}.summary{padding:10px;border:1px solid var(--l);border-radius:10px;background:#fbfcfc;font-size:12px;line-height:1.5}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.timeline{margin-top:14px;border-top:1px solid var(--l);padding-top:10px}.event{font-size:10px;color:var(--m);border-left:2px solid #c9d6d9;padding:2px 0 8px 9px}.foot{padding:12px;border-top:1px solid var(--l);display:flex;gap:8px;flex-wrap:wrap}.counter{display:none}.counter-mode .main-ui{display:none}.counter-mode .counter{display:block}.counter-card{padding:16px;margin-bottom:10px}.counter-card h3{margin:0 0 6px;font-size:20px}.counter-card .sum{font-size:18px;font-weight:800;margin:10px 0}.counter-actions{grid-template-columns:repeat(4,1fr);margin-top:12px}.counter-actions button{min-height:52px}.empty{padding:28px;text-align:center;color:var(--m)}@media(max-width:800px){.controls,.cfg,.layout{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.counter-actions{grid-template-columns:1fr 1fr}}@media(max-width:520px){.install{align-items:stretch;flex-direction:column}.install .btn{width:100%}.topin{align-items:flex-start}}
 </style>
 </head>
 <body>
-<header class="top">
-  <div class="topin">
-    <div class="brand">
-      <h1>SINCRONIAIA · Gestión</h1>
-      <p>Panel interno de la empresa · módulo universal</p>
-    </div>
-    <span class="demo-tag">SIMULACIÓN · v0.1</span>
-  </div>
-</header>
-
+<header class="top"><div class="topin"><div><h1>SINCRONIAIA · Gestión</h1><small>Núcleo multiempresa reutilizable</small></div><span class="tag">MULTIEMPRESA · v0.4</span></div></header>
 <main class="wrap">
-  <div class="notice"><strong>DEMO AISLADA.</strong> Los registros, avisos y copias que aparecen aquí son simulados. No se envía ningún WhatsApp, email, reserva, pedido o solicitud real.</div>
-
-  <section class="controls">
-    <div class="control">
-      <label>Empresa / sector de demostración</label>
-      <select id="sector"></select>
-    </div>
-    <div class="control">
-      <label>Copia / aviso al negocio</label>
-      <select id="notify">
-        <option value="panel">Solo panel interno</option>
-        <option value="whatsapp">Panel + WhatsApp</option>
-        <option value="email">Panel + Email</option>
-        <option value="both">Panel + WhatsApp + Email</option>
-      </select>
-    </div>
-    <div class="control">
-      <label>Destino configurado · DEMO</label>
-      <select id="dest">
-        <option>Canal principal del negocio</option>
-        <option>Responsable de tienda</option>
-        <option>Administración / recepción</option>
-        <option>Equipo operativo</option>
-      </select>
-    </div>
-  </section>
-
-  <section class="kpis">
-    <div class="kpi"><div class="n" id="kNew">0</div><div class="l">Nuevos / pendientes</div></div>
-    <div class="kpi"><div class="n" id="kProgress">0</div><div class="l">En curso</div></div>
-    <div class="kpi"><div class="n" id="kReady">0</div><div class="l">Listos / confirmados</div></div>
-    <div class="kpi"><div class="n" id="kDone">0</div><div class="l">Cerrados</div></div>
-  </section>
-
-  <div class="filters" id="filters"></div>
-
-  <section class="layout">
-    <article class="panel">
-      <div class="panelhead">
-        <div><h2 id="listTitle">Gestiones</h2><small id="listCount"></small></div>
-        <button class="btn gray" onclick="resetDemo()">↻ Reiniciar demo</button>
-      </div>
-      <div id="list" class="list"></div>
-      <div class="footactions">
-        <button class="btn" onclick="exportCSV()">⬇ Exportar listado CSV</button>
-        <button class="btn" onclick="simulateNew()">＋ Simular nueva entrada</button>
-      </div>
-      <div class="helper">En producción, este listado se alimentaría desde la fuente de verdad configurada (por ejemplo, backend + base de datos/Sheets). Esta demo usa almacenamiento local del navegador.</div>
-    </article>
-
-    <aside class="panel">
-      <div class="panelhead"><h2>Detalle y trazabilidad</h2><small>Vista empresa</small></div>
-      <div id="detail" class="detail"><div class="empty">Selecciona una gestión para ver el detalle.</div></div>
-    </aside>
-  </section>
+<div class="notice"><strong>DEMO.</strong> Los registros y avisos son simulados. No se envía ningún pedido, WhatsApp o email real.</div>
+<section class="card install"><div><strong>Instalable como app</strong><span id="installText">En HTTPS puedes instalarla en móvil, tablet u ordenador.</span></div><button id="installBtn" class="btn primary" hidden>Instalar app</button></section>
+<div class="main-ui">
+<section class="grid controls">
+<div class="card field"><label>Empresa</label><select id="company"></select></div>
+<div class="card field"><label>Vista</label><select id="view"><option value="admin">Panel completo</option><option value="counter">Modo mostrador / tablet</option></select></div>
+<div class="card field"><label>Aviso al negocio · demo</label><select id="notify"><option>Solo panel</option><option>Panel + WhatsApp</option><option>Panel + Email</option><option>Panel + WhatsApp + Email</option></select></div>
+</section>
+<section class="grid cfg"><div class="card fact"><b>Empresa</b><span id="cfgName"></span></div><div class="card fact"><b>Sector</b><span id="cfgSector"></span></div><div class="card fact"><b>Gestión</b><span id="cfgType"></span></div><div class="card fact"><b>Módulos</b><span id="cfgModules"></span></div></section>
+<section class="grid kpis"><div class="card kpi"><strong id="k1">0</strong><span>Pendientes</span></div><div class="card kpi"><strong id="k2">0</strong><span>En curso</span></div><div class="card kpi"><strong id="k3">0</strong><span>Listos / confirmados</span></div><div class="card kpi"><strong id="k4">0</strong><span>Cerrados</span></div></section>
+<div id="filters" class="filters"></div>
+<section class="grid layout"><article class="card"><div class="head" id="listTitle">Gestiones</div><div id="list"></div><div class="foot"><button class="btn" id="newBtn">＋ Simular nueva entrada</button><button class="btn" id="resetBtn">↻ Reiniciar demo</button></div></article><aside class="card"><div class="head">Detalle y trazabilidad</div><div id="detail" class="detail"><div class="empty">Selecciona una gestión.</div></div></aside></section>
+</div>
+<section class="counter" id="counter"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px"><div><h2 id="counterTitle" style="margin:0">Modo mostrador</h2><div class="meta">Vista rápida para tablet o pantalla del negocio</div></div><button class="btn" id="backBtn">Volver al panel</button></div><div id="counterList"></div></section>
 </main>
-
 <script>
-const SECTORS={
-  todo:{name:'Todo Bueno · Panadería',entity:'pedido',plural:'pedidos',prefix:'TB',ready:'LISTO PARA RECOGER'},
-  cansoler:{name:'Can Soler · Heladería',entity:'pedido',plural:'pedidos',prefix:'CS',ready:'LISTO PARA RECOGER'},
-  restaurante:{name:'Restaurante',entity:'reserva',plural:'reservas',prefix:'RS',ready:'CONFIRMADA / PREPARADA'},
-  fisio:{name:'Fisioterapia',entity:'cita',plural:'citas',prefix:'FT',ready:'CONFIRMADA'},
-  animal:{name:'Bienestar Animal',entity:'solicitud',plural:'solicitudes',prefix:'BA',ready:'CONFIRMADA'},
-  reformas:{name:'Reformas',entity:'solicitud',plural:'solicitudes',prefix:'RF',ready:'DERIVADA / ENVIADA'},
-  ascensores:{name:'Ascensores',entity:'incidencia',plural:'incidencias',prefix:'AS',ready:'ASIGNADA / RESUELTA'}
-};
-const STATUS=[
-  {id:'NEW',label:'NUEVO / PENDIENTE',cls:'s-new'},
-  {id:'CONFIRMED',label:'CONFIRMADO',cls:'s-confirmed'},
-  {id:'PROGRESS',label:'EN CURSO / PREPARACIÓN',cls:'s-progress'},
-  {id:'READY',label:'LISTO / PREPARADO',cls:'s-ready'},
-  {id:'DONE',label:'ENTREGADO / SERVIDO / CERRADO',cls:'s-done'},
-  {id:'CANCEL',label:'CANCELADO',cls:'s-cancel'}
-];
-const sectorSel=document.getElementById('sector');
-Object.entries(SECTORS).forEach(([k,s])=>{const o=document.createElement('option');o.value=k;o.textContent=s.name;sectorSel.appendChild(o)});
-sectorSel.value='todo';
-
-let filter='ALL', selectedId=null;
-function seed(sectorKey){
- const s=SECTORS[sectorKey], d='2026-08-22';
- return [
-  {id:`${s.prefix}-${d.replaceAll('-','')}-001`,customer:'Marta López',phone:'612 345 678',channel:'Web / asistente',when:'Hoy · 11:30',summary:sampleSummary(sectorKey,1),status:'NEW',created:'09:12',events:[['09:12','Entrada registrada · SIMULACIÓN']]},
-  {id:`${s.prefix}-${d.replaceAll('-','')}-002`,customer:'Jordi Serra',phone:'633 221 904',channel:'WhatsApp / asistente',when:'Hoy · 12:15',summary:sampleSummary(sectorKey,2),status:'PROGRESS',created:'09:28',events:[['09:28','Entrada registrada · SIMULACIÓN'],['09:35','Estado cambiado a EN CURSO']]},
-  {id:`${s.prefix}-${d.replaceAll('-','')}-003`,customer:'Ana Martín',phone:'677 845 110',channel:'Web / asistente',when:'Mañana · 10:00',summary:sampleSummary(sectorKey,3),status:'READY',created:'10:03',events:[['10:03','Entrada registrada · SIMULACIÓN'],['10:08','Confirmada por el negocio']]},
-  {id:`${s.prefix}-${d.replaceAll('-','')}-004`,customer:'Carlos Ruiz',phone:'611 002 781',channel:'Teléfono / registro interno',when:'Hoy · 10:45',summary:sampleSummary(sectorKey,4),status:'DONE',created:'08:46',events:[['08:46','Entrada registrada · SIMULACIÓN'],['10:46','Gestión cerrada']]}
- ];
-}
-function sampleSummary(k,n){
- const map={
-  todo:['2 barras artesanas · 4 croissants · 500 g pastas','Tarta celebración · 8 personas','1 hogaza · 2 napolitanas','6 empanadillas artesanales'],
-  cansoler:['Helado para llevar · 2 L · 3 sabores','Horchata · 2 unidades','Tarrinas y cucuruchos · pedido familiar','Crepes · recogida en tienda'],
-  restaurante:['Reserva 4 personas · terraza si disponible','Reserva 2 personas · interior','Reserva 6 personas · cumpleaños','Reserva 3 personas · sin preferencias'],
-  fisio:['Primera visita · dolor lumbar','Seguimiento de rehabilitación','Valoración inicial · rodilla','Fisioterapia · cervicales'],
-  animal:['Veterinario · Luna · Mataró','Peluquería · Thor · Badalona','Cuidador · fin de semana','Alojamiento · 3 noches'],
-  reformas:['Presupuesto cocina · Mataró','Reforma baño · Badalona','Pintura piso · 80 m²','Consulta accesibilidad vivienda'],
-  ascensores:['Avería · no hay personas atrapadas','Cambio de mantenedor · 2 ascensores','Modernización · consulta técnica','Accesibilidad · 4 niveles']
- };
- return map[k][n-1];
-}
-function key(){return 'sincroniaia_gestion_v01_'+sectorSel.value}
-function load(){try{return JSON.parse(localStorage.getItem(key()))||seed(sectorSel.value)}catch(e){return seed(sectorSel.value)}}
-function save(rows){try{localStorage.setItem(key(),JSON.stringify(rows))}catch(e){}}
-function statusObj(id){return STATUS.find(s=>s.id===id)||STATUS[0]}
-function visible(rows){
- if(filter==='ALL')return rows;
- if(filter==='OPEN')return rows.filter(r=>['NEW','CONFIRMED'].includes(r.status));
- if(filter==='PROGRESS')return rows.filter(r=>r.status==='PROGRESS');
- if(filter==='READY')return rows.filter(r=>r.status==='READY');
- if(filter==='CLOSED')return rows.filter(r=>['DONE','CANCEL'].includes(r.status));
- return rows;
-}
-function renderFilters(){
- const fs=[['ALL','Todos'],['OPEN','Pendientes'],['PROGRESS','En curso'],['READY','Listos / confirmados'],['CLOSED','Cerrados']];
- const box=document.getElementById('filters');box.innerHTML='';
- fs.forEach(([id,l])=>{const b=document.createElement('button');b.className='chip '+(filter===id?'active':'');b.textContent=l;b.onclick=()=>{filter=id;render()};box.appendChild(b)});
-}
-function render(){
- const rows=load(), s=SECTORS[sectorSel.value], list=visible(rows);
- document.getElementById('listTitle').textContent='Listado de '+s.plural;
- document.getElementById('listCount').textContent=list.length+' visibles · '+rows.length+' totales';
- document.getElementById('kNew').textContent=rows.filter(r=>['NEW','CONFIRMED'].includes(r.status)).length;
- document.getElementById('kProgress').textContent=rows.filter(r=>r.status==='PROGRESS').length;
- document.getElementById('kReady').textContent=rows.filter(r=>r.status==='READY').length;
- document.getElementById('kDone').textContent=rows.filter(r=>['DONE','CANCEL'].includes(r.status)).length;
- renderFilters();
- const box=document.getElementById('list');box.innerHTML='';
- if(!list.length){box.innerHTML='<div class="empty">No hay registros con este filtro.</div>'}
- list.forEach(r=>{
-   const st=statusObj(r.status),el=document.createElement('div');
-   el.className='item '+(selectedId===r.id?'selected':'');
-   el.innerHTML=`<div><h3>${esc(r.id)} · ${esc(r.customer)}</h3><div class="meta">${esc(r.when)} · ${esc(r.channel)}<br>${esc(r.summary)}</div></div><span class="status ${st.cls}">${st.label}</span>`;
-   el.onclick=()=>{selectedId=r.id;render();renderDetail()};
-   box.appendChild(el);
- });
- renderDetail();
-}
-function renderDetail(){
- const rows=load(),r=rows.find(x=>x.id===selectedId),box=document.getElementById('detail');
- if(!r){box.innerHTML='<div class="empty">Selecciona una gestión para ver el detalle.</div>';return}
- const st=statusObj(r.status);
- const notify=document.getElementById('notify').selectedOptions[0].textContent;
- box.innerHTML=`
- <h3>${esc(r.id)}</h3><div class="sub">SIMULACIÓN · creado a las ${esc(r.created)}</div>
- <div class="grid2">
-  <div class="fact"><b>Cliente</b><span>${esc(r.customer)}</span></div>
-  <div class="fact"><b>Teléfono</b><span>${esc(r.phone)}</span></div>
-  <div class="fact"><b>Canal</b><span>${esc(r.channel)}</span></div>
-  <div class="fact"><b>Fecha / franja</b><span>${esc(r.when)}</span></div>
- </div>
- <div class="summary"><b>Resumen</b><br>${esc(r.summary)}<br><br><b>Estado actual:</b> ${esc(st.label)}<br><b>Copia / aviso:</b> ${esc(notify)} · SIMULACIÓN</div>
- <div class="actions" id="stateActions"></div>
- <div class="timeline"><h4>Trazabilidad</h4>${r.events.slice().reverse().map(e=>`<div class="event"><b>${esc(e[0])}</b> · ${esc(e[1])}</div>`).join('')}</div>`;
- const ab=document.getElementById('stateActions');
- STATUS.forEach(s=>{
-   if(s.id===r.status)return;
-   const b=document.createElement('button');b.className='btn '+(s.id==='CANCEL'?'danger':'');
-   b.textContent='→ '+s.label;b.onclick=()=>changeStatus(r.id,s.id);ab.appendChild(b)
- });
-}
-function changeStatus(id,newStatus){
- const rows=load(),r=rows.find(x=>x.id===id);if(!r)return;
- r.status=newStatus;
- const now=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
- r.events.push([now,'Estado cambiado a '+statusObj(newStatus).label+' · SIMULACIÓN']);
- save(rows);render();
-}
-function resetDemo(){
- localStorage.removeItem(key());selectedId=null;filter='ALL';render();
-}
-function simulateNew(){
- const rows=load(),s=SECTORS[sectorSel.value],num=String(rows.length+1).padStart(3,'0');
- const id=`${s.prefix}-20260822-${num}`;
- rows.unshift({id,customer:'Cliente de prueba',phone:'600 000 000',channel:'Asistente · DEMO',when:'Hoy · pendiente de franja',summary:'Nueva '+s.entity+' simulada desde el asistente',status:'NEW',created:new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}),events:[[new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}),'Entrada registrada · SIMULACIÓN']]});
- save(rows);selectedId=id;filter='ALL';render();
-}
-function exportCSV(){
- const rows=visible(load()),headers=['ID','Cliente','Telefono','Canal','Fecha/franja','Resumen','Estado'];
- const csv=[headers,...rows.map(r=>[r.id,r.customer,r.phone,r.channel,r.when,r.summary,statusObj(r.status).label])]
-   .map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(';')).join('\n');
- const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
- const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='SINCRONIAIA_'+SECTORS[sectorSel.value].plural+'.csv';a.click();URL.revokeObjectURL(a.href);
-}
-function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-sectorSel.addEventListener('change',()=>{selectedId=null;filter='ALL';render()});
-document.getElementById('notify').addEventListener('change',renderDetail);
-document.getElementById('dest').addEventListener('change',renderDetail);
+const C={todo:{name:'Todo Bueno Els Molins',sector:'Panadería / pastelería',type:'pedido',plural:'pedidos',prefix:'TB',modules:'pedidos · mostrador · trazabilidad'},cansoler:{name:'Can Soler',sector:'Heladería',type:'pedido',plural:'pedidos',prefix:'CS',modules:'pedidos · mostrador · trazabilidad'},restaurante:{name:'Restaurante · DEMO',sector:'Restauración',type:'reserva',plural:'reservas',prefix:'RS',modules:'reservas · agenda · trazabilidad'},fisio:{name:'Fisioterapia · DEMO',sector:'Fisioterapia',type:'cita',plural:'citas',prefix:'FT',modules:'citas · agenda · trazabilidad'},animal:{name:'Bienestar Animal · DEMO',sector:'Bienestar animal',type:'solicitud',plural:'solicitudes',prefix:'BA',modules:'solicitudes · agenda · trazabilidad'},reformas:{name:'Reformas · DEMO',sector:'Reformas / servicios',type:'solicitud',plural:'solicitudes',prefix:'RF',modules:'solicitudes · derivación · trazabilidad'},ascensores:{name:'Ascensores · DEMO',sector:'Ascensores',type:'incidencia',plural:'incidencias',prefix:'AS',modules:'incidencias · derivación · trazabilidad'}};
+const S={NEW:'NUEVO / PENDIENTE',CONFIRMED:'CONFIRMADO',PROGRESS:'EN CURSO / PREPARACIÓN',READY:'LISTO / PREPARADO',DONE:'CERRADO / ENTREGADO',CANCEL:'CANCELADO'};
+const company=document.getElementById('company');Object.entries(C).forEach(([k,v])=>{const o=document.createElement('option');o.value=k;o.textContent=v.name;company.appendChild(o)});company.value='todo';let filter='ALL',selected=null;
+function key(){return 'sincroniaia_gestion_v04_'+company.value}function samples(k){const c=C[k],x={todo:['2 barras · 4 croissants · 500 g de pastas','Tarta celebración · 8 personas','1 hogaza · 2 napolitanas','6 empanadillas'],cansoler:['Helado 2 L · 3 sabores','Horchata · 2 unidades','Tarrinas familiares','Crepes · recogida'],restaurante:['Reserva 4 personas','Reserva 2 personas','Reserva 6 personas · cumpleaños','Reserva 3 personas'],fisio:['Primera visita · lumbar','Rehabilitación','Valoración rodilla','Cervicales'],animal:['Veterinario · Luna','Peluquería · Thor','Cuidador fin de semana','Alojamiento 3 noches'],reformas:['Presupuesto cocina','Reforma baño','Pintura piso 80 m²','Accesibilidad vivienda'],ascensores:['Avería sin atrapados','Cambio mantenedor','Modernización','Accesibilidad']}[k];return [['001','Marta López','NEW','Hoy · 11:30',x[0]],['002','Jordi Serra','PROGRESS','Hoy · 12:15',x[1]],['003','Ana Martín','READY','Mañana · 10:00',x[2]],['004','Carlos Ruiz','DONE','Hoy · 10:45',x[3]]].map(a=>({id:c.prefix+'-20260822-'+a[0],customer:a[1],phone:'612 345 678',channel:'Asistente · DEMO',status:a[2],when:a[3],summary:a[4],events:[['09:12','Entrada registrada · SIMULACIÓN']]}))}function load(){try{return JSON.parse(localStorage.getItem(key()))||samples(company.value)}catch(e){return samples(company.value)}}function save(r){try{localStorage.setItem(key(),JSON.stringify(r))}catch(e){}}function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function visible(r){if(filter==='ALL')return r;if(filter==='OPEN')return r.filter(x=>['NEW','CONFIRMED'].includes(x.status));if(filter==='PROGRESS')return r.filter(x=>x.status==='PROGRESS');if(filter==='READY')return r.filter(x=>x.status==='READY');return r.filter(x=>['DONE','CANCEL'].includes(x.status))}function renderFilters(){const box=document.getElementById('filters');box.innerHTML='';[['ALL','Todos'],['OPEN','Pendientes'],['PROGRESS','En curso'],['READY','Listos'],['CLOSED','Cerrados']].forEach(([id,label])=>{const b=document.createElement('button');b.className='chip '+(filter===id?'active':'');b.textContent=label;b.onclick=()=>{filter=id;render()};box.appendChild(b)})}
+function render(){const c=C[company.value],rows=load(),list=visible(rows);cfgName.textContent=c.name;cfgSector.textContent=c.sector;cfgType.textContent=c.type;cfgModules.textContent=c.modules;listTitle.textContent='Listado de '+c.plural;k1.textContent=rows.filter(x=>['NEW','CONFIRMED'].includes(x.status)).length;k2.textContent=rows.filter(x=>x.status==='PROGRESS').length;k3.textContent=rows.filter(x=>x.status==='READY').length;k4.textContent=rows.filter(x=>['DONE','CANCEL'].includes(x.status)).length;renderFilters();const box=document.getElementById('list');box.innerHTML='';list.forEach(r=>{const d=document.createElement('div');d.className='item '+(selected===r.id?'sel':'');d.innerHTML='<div><h3>'+esc(r.id)+' · '+esc(r.customer)+'</h3><div class="meta">'+esc(r.when)+' · '+esc(r.channel)+'<br>'+esc(r.summary)+'</div></div><span class="status">'+esc(S[r.status])+'</span>';d.onclick=()=>{selected=r.id;render();detailRender()};box.appendChild(d)});detailRender()}
+function detailRender(){const r=load().find(x=>x.id===selected),box=document.getElementById('detail');if(!r){box.innerHTML='<div class="empty">Selecciona una gestión.</div>';return}box.innerHTML='<h3>'+esc(r.id)+'</h3><div class="summary"><b>'+esc(r.customer)+'</b><br>📞 '+esc(r.phone)+'<br>'+esc(r.when)+'<br><br>'+esc(r.summary)+'<br><br><b>Estado:</b> '+esc(S[r.status])+'<br><b>Aviso:</b> '+esc(notify.value)+' · SIMULACIÓN</div><div class="actions" id="stateButtons"></div><div class="timeline">'+r.events.slice().reverse().map(e=>'<div class="event"><b>'+esc(e[0])+'</b> · '+esc(e[1])+'</div>').join('')+'</div>';Object.keys(S).forEach(s=>{if(s===r.status)return;const b=document.createElement('button');b.className='btn';b.textContent='→ '+S[s];b.onclick=()=>change(r.id,s);stateButtons.appendChild(b)})}function change(id,s){const rows=load(),r=rows.find(x=>x.id===id);r.status=s;r.events.push([new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}),'Estado cambiado a '+S[s]+' · SIMULACIÓN']);save(rows);render();if(document.body.classList.contains('counter-mode'))counterRender()}
+function counterRender(){const c=C[company.value],rows=load().filter(x=>!['DONE','CANCEL'].includes(x.status));counterTitle.textContent=c.name+' · '+c.plural;counterList.innerHTML=rows.length?'':'<div class="card empty">No hay gestiones abiertas.</div>';rows.forEach(r=>{const d=document.createElement('article');d.className='card counter-card';d.innerHTML='<h3>'+esc(r.id)+' · '+esc(r.customer)+'</h3><div class="meta">'+esc(r.when)+' · '+esc(S[r.status])+'</div><div class="sum">'+esc(r.summary)+'</div><div>📞 '+esc(r.phone)+'</div><div class="grid counter-actions"></div>';[['CONFIRMED','Aceptar'],['PROGRESS','En curso'],['READY','Listo'],['DONE','Cerrar / entregar']].forEach(a=>{const b=document.createElement('button');b.className='btn '+(a[0]==='CONFIRMED'?'primary':'');b.textContent=a[1];b.disabled=r.status===a[0];b.onclick=()=>change(r.id,a[0]);d.querySelector('.counter-actions').appendChild(b)});counterList.appendChild(d)})}
+company.onchange=()=>{selected=null;filter='ALL';render()};view.onchange=e=>{document.body.classList.toggle('counter-mode',e.target.value==='counter');if(e.target.value==='counter')counterRender()};backBtn.onclick=()=>{view.value='admin';document.body.classList.remove('counter-mode')};notify.onchange=detailRender;newBtn.onclick=()=>{const rows=load(),c=C[company.value],n=String(rows.length+1).padStart(3,'0'),id=c.prefix+'-20260822-'+n;rows.unshift({id,customer:'Cliente de prueba',phone:'600 000 000',channel:'Asistente · DEMO',status:'NEW',when:'Hoy · pendiente',summary:'Nueva '+c.type+' simulada',events:[[new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}),'Entrada registrada · SIMULACIÓN']]});save(rows);selected=id;render()};resetBtn.onclick=()=>{localStorage.removeItem(key());selected=null;filter='ALL';render()};
+let p=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();p=e;installBtn.hidden=false;installText.textContent='La app está preparada para instalarse en este dispositivo.'});installBtn.onclick=async()=>{if(!p){installText.textContent='Usa el menú del navegador → Añadir a pantalla de inicio / Instalar aplicación.';return}p.prompt();await p.userChoice;p=null;installBtn.hidden=true};window.addEventListener('appinstalled',()=>{installText.textContent='SINCRONIAIA Gestión está instalada.';installBtn.hidden=true});if(matchMedia('(display-mode: standalone)').matches)installText.textContent='Ejecutándose como aplicación instalada.';if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>installText.textContent='La app carga online, pero el modo instalable necesita HTTPS correcto.'));
 render();
 </script>
-</body>
-</html>
+</body></html>
