@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d5c63">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Todo Bueno Gestión">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>Todo Bueno Gestión · SINCRONIAIA</title>
+<style>
+:root{--b:#0d5c63;--b2:#12717a;--bg:#f4f7f8;--c:#fff;--t:#142126;--m:#68777d;--l:#d9e2e5;--w:#fff7dc;--good:#edf8f1}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+button{font:inherit;cursor:pointer}.top{position:sticky;top:0;z-index:5;background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:14px 16px}
+.topin,.wrap{max-width:1100px;margin:auto}.topin{display:flex;justify-content:space-between;gap:12px;align-items:center}.top h1{font-size:18px;margin:0}.tag{border:1px solid #ffffff99;border-radius:999px;padding:6px 9px;font-size:10px;font-weight:800}
+.wrap{padding:14px}.notice,.card{background:var(--c);border:1px solid var(--l);border-radius:14px}.notice{background:var(--w);padding:11px 13px;font-size:12px;margin-bottom:12px}
+.install{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px;margin-bottom:12px}.install span{display:block;font-size:11px;color:var(--m);margin-top:3px}
+.btn{border:1px solid var(--b);background:#fff;color:var(--b);border-radius:9px;padding:9px 11px;font-weight:800}.btn.primary{background:var(--b);color:#fff}
+.grid{display:grid;gap:10px}.cfg{grid-template-columns:repeat(4,1fr);margin-bottom:12px}.fact{padding:11px}.fact b{display:block;font-size:9px;text-transform:uppercase;color:var(--m);margin-bottom:5px}
+.kpis{grid-template-columns:repeat(4,1fr);margin-bottom:12px}.kpi{padding:13px}.kpi strong{display:block;font-size:26px}.kpi span{font-size:11px;color:var(--m)}
+.toolbar{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.seg{display:flex;gap:7px;flex-wrap:wrap}.chip{border:1px solid var(--l);background:#fff;border-radius:999px;padding:8px 11px;font-weight:750}.chip.active{background:var(--b);color:#fff;border-color:var(--b)}
+.layout{grid-template-columns:1.3fr .7fr}.head{padding:12px 14px;border-bottom:1px solid var(--l);font-weight:800}.item{padding:13px 14px;border-bottom:1px solid #edf1f2;display:grid;grid-template-columns:1fr auto;gap:8px}.item:hover,.item.sel{background:#eef7f7}.item h3{margin:0;font-size:13px}.meta{font-size:11px;color:var(--m);margin-top:4px;line-height:1.4}.status{font-size:9px;font-weight:850;border-radius:999px;padding:5px 8px;background:#eef4ff;height:max-content}
+.detail{padding:14px}.detail h3{margin:0 0 8px}.summary{padding:10px;border:1px solid var(--l);border-radius:10px;background:#fbfcfc;font-size:12px;line-height:1.5}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.timeline{margin-top:14px;border-top:1px solid var(--l);padding-top:10px}.event{font-size:10px;color:var(--m);border-left:2px solid #c9d6d9;padding:2px 0 8px 9px}
+.counter{display:none}.counter-mode .main-ui{display:none}.counter-mode .counter{display:block}.counter-card{padding:16px;margin-bottom:10px}.counter-card h3{margin:0 0 6px;font-size:20px}.counter-card .sum{font-size:18px;font-weight:800;margin:10px 0}.counter-actions{grid-template-columns:repeat(4,1fr);margin-top:12px}.counter-actions button{min-height:52px}.empty{padding:28px;text-align:center;color:var(--m)}
+@media(max-width:800px){.cfg,.layout{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.counter-actions{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.install{align-items:stretch;flex-direction:column}.install .btn{width:100%}.topin{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header class="top"><div class="topin"><div><h1>Todo Bueno · Gestión</h1><small>SINCRONIAIA · acceso de empresa</small></div><span class="tag">CLIENTE · v0.5</span></div></header>
+<main class="wrap">
+<div class="notice"><strong>DEMO CLIENTE.</strong> Esta versión solo muestra Todo Bueno Els Molins. Los registros actuales son simulados y se guardan en este dispositivo. Todavía no existe backend/login real.</div>
+
+<section class="card install">
+  <div><strong>Instalable como app</strong><span id="installText">Puedes añadir Todo Bueno Gestión a la pantalla de inicio.</span></div>
+  <button class="btn primary" id="installBtn" hidden>Instalar app</button>
+</section>
+
+<section class="grid cfg">
+  <div class="card fact"><b>Empresa</b><span>Todo Bueno Els Molins</span></div>
+  <div class="card fact"><b>Gestión</b><span>Pedidos</span></div>
+  <div class="card fact"><b>Vista</b><span id="viewLabel">Panel completo</span></div>
+  <div class="card fact"><b>Acceso</b><span>Solo esta empresa</span></div>
+</section>
+
+<section class="toolbar">
+  <div class="seg">
+    <button class="chip active" data-filter="ALL">Todos</button>
+    <button class="chip" data-filter="NEW">Nuevos</button>
+    <button class="chip" data-filter="PROGRESS">En curso</button>
+    <button class="chip" data-filter="READY">Listos</button>
+  </div>
+  <button class="btn" id="viewBtn">Modo mostrador / tablet</button>
+</section>
+
+<section class="grid kpis">
+  <div class="card kpi"><strong id="kOpen">0</strong><span>abiertos</span></div>
+  <div class="card kpi"><strong id="kNew">0</strong><span>nuevos</span></div>
+  <div class="card kpi"><strong id="kReady">0</strong><span>listos</span></div>
+  <div class="card kpi"><strong id="kDone">0</strong><span>cerrados</span></div>
+</section>
+
+<div class="main-ui">
+<section class="grid layout">
+  <div class="card"><div class="head">Pedidos</div><div id="list"></div></div>
+  <div class="card"><div class="head">Detalle</div><div id="detail" class="detail"><div class="empty">Selecciona un pedido.</div></div></div>
+</section>
+</div>
+
+<section class="counter">
+  <div class="toolbar"><strong>Modo mostrador / tablet</strong><button class="btn" id="backBtn">Volver al panel</button></div>
+  <div id="counterList"></div>
+</section>
+</main>
+
+<script>
+const COMPANY={
+ id:'todo-bueno-els-molins',
+ name:'Todo Bueno Els Molins',
+ entity:'pedido',
+ plural:'pedidos',
+ prefix:'TB'
+};
+const STATUS={
+ NEW:{label:'NUEVO'},
+ CONFIRMED:{label:'CONFIRMADO'},
+ PROGRESS:{label:'EN PREPARACIÓN'},
+ READY:{label:'LISTO PARA RECOGER'},
+ DONE:{label:'ENTREGADO'},
+ CANCEL:{label:'CANCELADO'}
+};
+const KEY='sincroniaia:cliente:'+COMPANY.id+':v05';
+const seed=[
+ {id:'TB-0042',customer:'Marta López',phone:'612 345 678',when:'Hoy · 11:30',channel:'Recogida',summary:'2 barras artesanas + 4 croissants',status:'NEW',timeline:['Pedido recibido · 10:41']},
+ {id:'TB-0041',customer:'Carlos Ruiz',phone:'644 210 987',when:'Hoy · 12:15',channel:'Recogida',summary:'1 tarta de queso · tamaño mediano',status:'CONFIRMED',timeline:['Pedido recibido · 10:22','Confirmado · 10:26']},
+ {id:'TB-0040',customer:'Ana Martín',phone:'633 190 441',when:'Hoy · 13:00',channel:'Recogida',summary:'500 g de pastas surtidas',status:'READY',timeline:['Pedido recibido · 09:55','Confirmado · 10:01','En preparación · 10:44','Listo · 11:08']}
+];
+let filter='ALL', selected=null, counter=false;
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(x))return x}catch{} localStorage.setItem(KEY,JSON.stringify(seed));return structuredClone(seed)}
+function save(x){localStorage.setItem(KEY,JSON.stringify(x))}
+function statusLabel(s){return STATUS[s]?.label||s}
+function changeStatus(id,status){
+ const rows=load(), r=rows.find(x=>x.id===id); if(!r)return;
+ r.status=status; r.timeline.push(statusLabel(status)+' · '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}));
+ save(rows); render();
+}
+function render(){
+ const rows=load(), visible=rows.filter(r=>filter==='ALL'||r.status===filter);
+ document.getElementById('kOpen').textContent=rows.filter(r=>!['DONE','CANCEL'].includes(r.status)).length;
+ document.getElementById('kNew').textContent=rows.filter(r=>r.status==='NEW').length;
+ document.getElementById('kReady').textContent=rows.filter(r=>r.status==='READY').length;
+ document.getElementById('kDone').textContent=rows.filter(r=>r.status==='DONE').length;
+ const list=document.getElementById('list'); list.innerHTML='';
+ if(!visible.length) list.innerHTML='<div class="empty">No hay pedidos en este filtro.</div>';
+ visible.forEach(r=>{
+  const el=document.createElement('div'); el.className='item'+(selected===r.id?' sel':'');
+  el.innerHTML=`<div><h3>${esc(r.id)} · ${esc(r.customer)}</h3><div class="meta">${esc(r.when)} · ${esc(r.summary)}</div></div><span class="status">${esc(statusLabel(r.status))}</span>`;
+  el.onclick=()=>{selected=r.id;render()}; list.appendChild(el);
+ });
+ renderDetail(rows); renderCounter(rows);
+}
+function renderDetail(rows){
+ const box=document.getElementById('detail'), r=rows.find(x=>x.id===selected);
+ if(!r){box.innerHTML='<div class="empty">Selecciona un pedido.</div>';return}
+ box.innerHTML=`<h3>${esc(r.id)} · ${esc(r.customer)}</h3>
+ <div class="meta">📞 ${esc(r.phone)}<br>${esc(r.when)} · ${esc(r.channel)}</div>
+ <div class="summary">${esc(r.summary)}</div>
+ <div class="actions"></div>
+ <div class="timeline"><strong>Histórico</strong>${r.timeline.map(t=>`<div class="event">${esc(t)}</div>`).join('')}</div>`;
+ const actions=box.querySelector('.actions');
+ [['CONFIRMED','Aceptar'],['PROGRESS','En preparación'],['READY','Listo'],['DONE','Entregado'],['CANCEL','Cancelar']].forEach(([s,l])=>{
+  const b=document.createElement('button');b.className='btn'+(s==='CONFIRMED'?' primary':'');b.textContent=l;b.onclick=()=>changeStatus(r.id,s);actions.appendChild(b)
+ });
+}
+function renderCounter(rows){
+ const box=document.getElementById('counterList');box.innerHTML='';
+ const open=rows.filter(r=>!['DONE','CANCEL'].includes(r.status));
+ if(!open.length){box.innerHTML='<div class="card empty">No hay pedidos pendientes.</div>';return}
+ open.forEach(r=>{
+  const el=document.createElement('article');el.className='card counter-card';
+  el.innerHTML=`<h3>${esc(r.id)} · ${esc(r.customer)}</h3><div class="meta">${esc(r.when)} · ${esc(statusLabel(r.status))}</div><div class="sum">${esc(r.summary)}</div><div class="meta">📞 ${esc(r.phone)}</div><div class="grid counter-actions"></div>`;
+  const a=el.querySelector('.counter-actions');
+  [['CONFIRMED','Aceptar'],['PROGRESS','Preparando'],['READY','Listo'],['DONE','Entregado']].forEach(([s,l])=>{
+   const b=document.createElement('button');b.className='btn'+(s==='CONFIRMED'?' primary':'');b.textContent=l;b.disabled=r.status===s;b.onclick=()=>changeStatus(r.id,s);a.appendChild(b)
+  });
+  box.appendChild(el)
+ })
+}
+document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));render()});
+function setCounter(v){counter=v;document.body.classList.toggle('counter-mode',v);document.getElementById('viewLabel').textContent=v?'Mostrador / tablet':'Panel completo'}
+document.getElementById('viewBtn').onclick=()=>setCounter(true);
+document.getElementById('backBtn').onclick=()=>setCounter(false);
+
+let installPrompt=null;
+const installBtn=document.getElementById('installBtn'), installText=document.getElementById('installText');
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;installBtn.hidden=false;installText.textContent='Todo Bueno Gestión está preparada para instalarse.'});
+installBtn.onclick=async()=>{if(!installPrompt)return;installPrompt.prompt();const x=await installPrompt.userChoice;installText.textContent=x.outcome==='accepted'?'Instalación aceptada.':'Puedes instalarla más adelante.';installPrompt=null;installBtn.hidden=true};
+window.addEventListener('appinstalled',()=>{installText.textContent='Todo Bueno Gestión está instalada.';installBtn.hidden=true});
+if(matchMedia('(display-mode: standalone)').matches){installText.textContent='Ejecutándose como aplicación instalada.';installBtn.hidden=true}
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+render();
+</script>
+</body></html>
