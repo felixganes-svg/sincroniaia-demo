@@ -1,0 +1,20 @@
+{
+  "name": "SINCRONIAIA Gestión",
+  "short_name": "SINCRONIAIA",
+  "description": "Núcleo multiempresa para pedidos, reservas, citas, solicitudes e incidencias.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7f8",
+  "theme_color": "#0d5c63",
+  "lang": "es-ES",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
