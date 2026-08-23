@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SINCRONIAIA · Calculadora Comercial y Propuestas</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#101828;--muted:#667085;--line:#e4e7ec;--dark:#111827;--ok:#067647;--warn:#b54708}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+.wrap{max-width:920px;margin:auto;padding:18px}
+.hero{background:linear-gradient(135deg,#111827,#344054);color:#fff;border-radius:20px;padding:22px;margin-bottom:14px}
+.hero h1{font-size:23px;margin:0 0 7px}.hero p{margin:0;color:#d0d5dd;line-height:1.5;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:17px;margin:12px 0;box-shadow:0 2px 8px rgba(16,24,40,.04)}
+h2{font-size:17px;margin:0 0 12px}h3{font-size:14px;margin:14px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+label{display:block;font-size:12px;font-weight:700;color:#475467;margin-bottom:5px}
+input,select{width:100%;padding:12px;border:1px solid #d0d5dd;border-radius:11px;background:#fff;font-size:15px}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.metric{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fafafa}.metric b{font-size:20px;display:block}.metric span{font-size:11px;color:var(--muted)}
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.plan{border:1px solid var(--line);border-radius:15px;padding:14px}.plan.best{border:2px solid #344054}.plan h3{margin:0 0 7px;font-size:16px}
+.price{font-size:21px;font-weight:800}.tag{display:inline-block;padding:5px 8px;border-radius:999px;background:#f2f4f7;font-size:10px;font-weight:800}
+.btns{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+button,a.btn{appearance:none;border:0;border-radius:11px;padding:12px 14px;font-weight:800;cursor:pointer;text-decoration:none;font-size:13px}
+.dark{background:var(--dark);color:white}.light{background:#f2f4f7;color:#101828}.green{background:#067647;color:white}
+.proposal{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:13px;padding:14px;font-size:13px;line-height:1.6}
+.note{background:#fffaeb;border:1px solid #fedf89;border-radius:12px;padding:11px;color:#7a2e0e;font-size:12px;line-height:1.5}
+.ok{color:var(--ok);font-weight:800}.muted{color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:9px 5px;border-bottom:1px solid var(--line);text-align:center}th:first-child,td:first-child{text-align:left}
+footer{font-size:11px;color:#98a2b3;padding:14px 3px 30px}
+@media(max-width:720px){.grid,.plan-grid,.metrics{grid-template-columns:1fr}.wrap{padding:11px}.hero{border-radius:15px;padding:17px}.btns button,.btns a{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>SINCRONIAIA · Gestión Laboral y Control Horario</h1>
+    <p>Calcula cuánto tiempo administrativo consume hoy el control de jornada y qué plan encaja mejor con la empresa.</p>
+  </div>
+
+  <div class="card">
+    <h2>1. Datos de la empresa</h2>
+    <div class="grid">
+      <div><label>Empresa</label><input id="company" placeholder="Nombre de la empresa"></div>
+      <div><label>Persona de contacto</label><input id="contact" placeholder="Nombre"></div>
+      <div><label>Número de trabajadores</label><input id="workers" type="number" min="1" value="10"></div>
+      <div><label>Valor hora administrativo (€)</label><input id="hourValue" type="number" min="0" step="0.5" value="15"></div>
+    </div>
+
+    <h3>Tiempo que se dedica actualmente cada mes</h3>
+    <div class="grid">
+      <div><label>Revisar fichajes e incidencias (h/mes)</label><input id="hPunch" type="number" min="0" step=".5" value="5"></div>
+      <div><label>Cuadrar horas y diferencias (h/mes)</label><input id="hBalance" type="number" min="0" step=".5" value="4"></div>
+      <div><label>Vacaciones, festivos y horarios (h/mes)</label><input id="hCalendar" type="number" min="0" step=".5" value="3"></div>
+      <div><label>Bajas, permisos y justificantes (h/mes)</label><input id="hAbsence" type="number" min="0" step=".5" value="2"></div>
+      <div><label>Informes / consultas trabajadores (h/mes)</label><input id="hReports" type="number" min="0" step=".5" value="2"></div>
+      <div><label>% de tiempo que SINCRONIAIA podría liberar</label><input id="savingPct" type="number" min="0" max="100" value="70"></div>
+    </div>
+    <div class="btns"><button class="dark" onclick="calculate()">CALCULAR VALOR</button></div>
+  </div>
+
+  <div class="card">
+    <h2>2. Coste actual estimado</h2>
+    <div class="metrics">
+      <div class="metric"><b id="hoursMonth">0 h</b><span>gestión administrativa / mes</span></div>
+      <div class="metric"><b id="costMonth">0 €</b><span>coste estimado / mes</span></div>
+      <div class="metric"><b id="savedHours">0 h</b><span>horas potencialmente liberables</span></div>
+      <div class="metric"><b id="savedValue">0 €</b><span>valor potencial liberado / mes</span></div>
+    </div>
+    <p class="small">Estos resultados son una estimación comercial basada en los datos introducidos por la empresa. No representan un ahorro garantizado.</p>
+  </div>
+
+  <div class="card">
+    <h2>3. Planes SINCRONIAIA</h2>
+    <div class="plan-grid">
+      <div class="plan">
+        <span class="tag">BÁSICA</span>
+        <h3>Control horario</h3>
+        <div class="price"><span id="basicMonth">35</span> €/mes</div>
+        <div class="small">Implantación: <b><span id="basicSetup">250</span> €</b><br>Incluye 5 trabajadores. Extra: 2 €/trab./mes + 15 €/trab. implantación.</div>
+      </div>
+      <div class="plan">
+        <span class="tag">INTERMEDIA</span>
+        <h3>Horarios y ausencias</h3>
+        <div class="price"><span id="midMonth">70</span> €/mes</div>
+        <div class="small">Implantación: <b><span id="midSetup">500</span> €</b><br>Incluye 10 trabajadores. Extra: 3 €/trab./mes + 20 €/trab. implantación.</div>
+      </div>
+      <div class="plan best">
+        <span class="tag">PREMIUM</span>
+        <h3>Gestión laboral avanzada</h3>
+        <div class="price"><span id="premMonth">120</span> €/mes</div>
+        <div class="small">Implantación: <b><span id="premSetup">850</span> €</b><br>Incluye 15 trabajadores. Extra: 4 €/trab./mes + 25 €/trab. implantación.</div>
+      </div>
+    </div>
+
+    <h3>Comparación funcional</h3>
+    <table>
+      <tr><th>Función</th><th>Básica</th><th>Intermedia</th><th>Premium</th></tr>
+      <tr><td>Entrada / salida / histórico</td><td>✓</td><td>✓</td><td>✓</td></tr>
+      <tr><td>GPS</td><td>Opc.</td><td>✓</td><td>✓</td></tr>
+      <tr><td>Horario por trabajador</td><td>—</td><td>✓</td><td>✓</td></tr>
+      <tr><td>Vacaciones / festivos</td><td>—</td><td>✓</td><td>✓</td></tr>
+      <tr><td>Bajas / permisos / justificadas</td><td>—</td><td>✓</td><td>✓</td></tr>
+      <tr><td>Vigencias de horarios</td><td>—</td><td>Limitado</td><td>✓</td></tr>
+      <tr><td>Saldo entre semanas</td><td>—</td><td>—</td><td>✓</td></tr>
+      <tr><td>Reglas propias empresa</td><td>—</td><td>—</td><td>✓</td></tr>
+      <tr><td>BOE / convenio</td><td>—</td><td>—</td><td>En desarrollo</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>4. Comparativa económica</h2>
+    <div class="metrics">
+      <div class="metric"><b id="recommended">—</b><span>plan recomendado</span></div>
+      <div class="metric"><b id="planMonthly">0 €</b><span>cuota mensual</span></div>
+      <div class="metric"><b id="netPotential">0 €</b><span>valor neto potencial / mes</span></div>
+      <div class="metric"><b id="yearPotential">0 €</b><span>valor neto potencial / año*</span></div>
+    </div>
+    <p class="small">*Comparación orientativa entre valor administrativo potencialmente liberado y cuota mensual. La implantación se muestra aparte.</p>
+    <div class="note">El argumento comercial no es “eliminar un puesto de trabajo”. El valor está en que la persona responsable deje de revisar a todos los trabajadores y se concentre en excepciones, incidencias y decisiones que realmente requieren intervención humana.</div>
+  </div>
+
+  <div class="card">
+    <h2>5. Propuesta preparada para enviar</h2>
+    <div class="grid" style="margin-bottom:12px">
+      <div>
+        <label>Formato de propuesta</label>
+        <select id="proposalMode" onchange="calculate()">
+          <option value="quick">Rápida · precio + ahorro</option>
+          <option value="detailed">Detallada · funciones + precio + ahorro</option>
+        </select>
+      </div>
+      <div>
+        <label>Plan a presentar</label>
+        <select id="forcePlan" onchange="calculate()">
+          <option value="auto">Recomendado automáticamente</option>
+          <option value="basic">Básica</option>
+          <option value="mid">Intermedia</option>
+          <option value="prem">Premium</option>
+        </select>
+      </div>
+    </div>
+    <div id="proposal" class="proposal">Introduce los datos de la empresa y pulsa CALCULAR VALOR.</div>
+    <div class="btns">
+      <button class="dark" onclick="copyProposal()">COPIAR PROPUESTA</button>
+      <button class="light" onclick="downloadTxt()">DESCARGAR TXT</button>
+      <a id="emailBtn" class="btn green" href="#">PREPARAR EMAIL</a>
+      <a id="waBtn" class="btn light" href="#" target="_blank">PREPARAR WHATSAPP</a>
+    </div>
+    <p class="small">“Preparar email” y “Preparar WhatsApp” abren la aplicación del dispositivo con el texto preparado. Para envío automático real necesitaremos conectar esta herramienta al backend/GHL/n8n.</p>
+  </div>
+
+  <footer>SINCRONIAIA · Herramienta comercial de estimación y propuestas · v1.1 · Importes sin IVA · La capa normativa BOE/convenio no se presenta como función activa hasta estar construida y validada.</footer>
+</div>
+
+<script>
+const eur=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
+const num=id=>Math.max(0,Number(document.getElementById(id).value||0));
+function prices(w){
+  const basicExtra=Math.max(0,w-5), midExtra=Math.max(0,w-10), premExtra=Math.max(0,w-15);
+  return {
+    basic:{setup:250+basicExtra*15, month:35+basicExtra*2},
+    mid:{setup:500+midExtra*20, month:70+midExtra*3},
+    prem:{setup:850+premExtra*25, month:120+premExtra*4}
+  }
+}
+function calculate(){
+  const w=Math.max(1,Math.round(num('workers'))), hv=num('hourValue');
+  const h=num('hPunch')+num('hBalance')+num('hCalendar')+num('hAbsence')+num('hReports');
+  const pct=Math.min(100,num('savingPct'))/100;
+  const monthlyCost=h*hv, freedH=h*pct, freedValue=monthlyCost*pct;
+  const p=prices(w);
+
+  document.getElementById('hoursMonth').textContent=h.toFixed(1)+' h';
+  document.getElementById('costMonth').textContent=eur(monthlyCost);
+  document.getElementById('savedHours').textContent=freedH.toFixed(1)+' h';
+  document.getElementById('savedValue').textContent=eur(freedValue);
+
+  basicSetup.textContent=p.basic.setup; basicMonth.textContent=p.basic.month;
+  midSetup.textContent=p.mid.setup; midMonth.textContent=p.mid.month;
+  premSetup.textContent=p.prem.setup; premMonth.textContent=p.prem.month;
+
+  // Recommendation by operational complexity, never by worker count alone
+  let recPlan='BÁSICA', recKey='basic';
+  if(num('hCalendar')+num('hAbsence')>=2){recPlan='INTERMEDIA';recKey='mid'}
+  if(num('hBalance')>=3 && (num('hCalendar')+num('hAbsence')>=3)){recPlan='PREMIUM';recKey='prem'}
+
+  const forced=document.getElementById('forcePlan')?.value||'auto';
+  let key=forced==='auto'?recKey:forced;
+  let plan=key==='basic'?'BÁSICA':key==='mid'?'INTERMEDIA':'PREMIUM';
+  const chosen=p[key], net=freedValue-chosen.month;
+
+  recommended.textContent=plan+(forced==='auto'?'':' (seleccionado)');
+  planMonthly.textContent=eur(chosen.month);
+  netPotential.textContent=eur(net);
+  yearPotential.textContent=eur(net*12);
+
+  const company=document.getElementById('company').value.trim()||'la empresa';
+  const contact=document.getElementById('contact').value.trim();
+  const intro=contact?`Hola ${contact},`:'Hola,';
+  const mode=document.getElementById('proposalMode')?.value||'quick';
+
+  const featureText={
+    basic:'Control de entrada/salida, histórico, horas trabajadas e informes. GPS opcional.',
+    mid:'Incluye lo anterior y añade horarios por trabajador, vacaciones, festivos, bajas, permisos y ausencias justificadas.',
+    prem:'Incluye lo anterior y añade vigencias avanzadas de horario, saldo entre semanas, compensaciones y reglas configurables de empresa.'
+  }[key];
+
+  let proposal;
+  if(mode==='quick'){
+    proposal =
+`${intro}
+
+Hemos preparado una estimación para ${company} con ${w} trabajador${w===1?'':'es'}.
+
+Según los datos introducidos, la gestión manual consume aproximadamente ${h.toFixed(1)} horas al mes, con un valor administrativo estimado de ${eur(monthlyCost)}.
+
+Con una reducción estimada del ${Math.round(pct*100)}% del trabajo repetitivo, SINCRONIAIA podría liberar unas ${freedH.toFixed(1)} horas al mes, equivalentes a ${eur(freedValue)} de capacidad administrativa.
+
+PLAN ${plan}
+Implantación: ${eur(chosen.setup)} + IVA
+Cuota: ${eur(chosen.month)}/mes + IVA
+
+Valor potencial después de la cuota: ${eur(net)}/mes (${eur(net*12)}/año).
+
+La finalidad no es sustituir a la persona responsable, sino reducir el tiempo que dedica a revisar manualmente fichajes, horarios, vacaciones, bajas, permisos e incidencias.
+
+SINCRONIAIA
+Gestión Laboral y Control Horario`;
+  }else{
+    proposal =
+`${intro}
+
+PROPUESTA SINCRONIAIA · GESTIÓN LABORAL Y CONTROL HORARIO
+
+Empresa: ${company}
+Trabajadores: ${w}
+
+SITUACIÓN ACTUAL ESTIMADA
+• Gestión administrativa: ${h.toFixed(1)} h/mes
+• Valor administrativo: ${eur(monthlyCost)}/mes
+• Tiempo potencialmente liberable: ${freedH.toFixed(1)} h/mes
+• Valor potencial liberado: ${eur(freedValue)}/mes
+
+PLAN ${plan}
+${featureText}
+
+PRECIO
+• Implantación: ${eur(chosen.setup)} + IVA
+• Cuota: ${eur(chosen.month)}/mes + IVA
+
+IMPACTO ECONÓMICO ESTIMADO
+• Valor potencial después de la cuota: ${eur(net)}/mes
+• Equivalente anual: ${eur(net*12)}/año
+
+Los cálculos son orientativos y se basan en los datos facilitados por la empresa. No se presenta como ahorro garantizado.
+
+SINCRONIAIA no busca sustituir a la persona que gestiona al equipo. El objetivo es que deje de revisar manualmente a toda la plantilla y pueda centrarse en excepciones, incidencias y decisiones.
+
+SINCRONIAIA
+Gestión Laboral y Control Horario`;
+  }
+
+  document.getElementById('proposal').textContent=proposal;
+
+  const subject=encodeURIComponent(`Propuesta SINCRONIAIA · ${company}`);
+  const body=encodeURIComponent(proposal);
+  emailBtn.href=`mailto:?subject=${subject}&body=${body}`;
+  waBtn.href=`https://wa.me/?text=${body}`;
+}
+async function copyProposal(){
+  const t=document.getElementById('proposal').textContent;
+  try{await navigator.clipboard.writeText(t);alert('Propuesta copiada')}catch(e){alert('No se pudo copiar automáticamente')}
+}
+function downloadTxt(){
+  const company=(document.getElementById('company').value.trim()||'empresa').replace(/[^\wáéíóúüñ -]/gi,'');
+  const blob=new Blob([document.getElementById('proposal').textContent],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`SINCRONIAIA_Propuesta_${company}.txt`;a.click();URL.revokeObjectURL(a.href);
+}
+calculate();
+</script>
+</body>
+</html>
