@@ -22,165 +22,46 @@ input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);borde
 </head>
 <body>
 <div class="wrap">
-  <div class="brand">
-    <h1>Panadería Todo Bueno Mataró</h1>
-    <p>Control horario</p>
-  </div>
+  <div class="brand"><h1>Panadería Todo Bueno Mataró</h1><p>Control horario · piloto v0.2.2</p></div>
 
   <section id="kiosk" class="card">
     <h2>Fichaje de trabajador</h2>
     <p class="muted">Introduce tu código de 4 cifras</p>
-    <div class="pin">
-      <input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric">
-      <input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric">
-    </div>
+    <div class="pin"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"></div>
     <button class="btn primary" onclick="procesarCodigo()">Fichar</button>
     <p class="muted small">Después de fichar, la pantalla vuelve aquí automáticamente.</p>
-    <p id="estadoConexion" class="muted small"></p>
   </section>
 
   <section id="confirmacion" class="card hidden success">
-    <div class="big">✓</div>
-    <h2 id="confTitulo">Entrada registrada</h2>
-    <h3 id="confNombre"></h3>
-    <div id="confDetalle"></div>
-    <p class="muted">Volviendo al código en <span id="contador">3</span> segundos…</p>
-  </section>
-
-  <section id="miComputo" class="card hidden">
-    <div class="topline"><h2>Mi cómputo</h2><button class="btn secondary" style="width:auto" onclick="volverKiosk()">Volver</button></div>
-    <h3 id="compNombre"></h3>
-    <div class="grid">
-      <div class="metric">Hoy<br><b id="compHoy">0:00</b></div>
-      <div class="metric">Semana<br><b id="compSemana">0:00</b></div>
-      <div class="metric">Mes<br><b id="compMes">0:00</b></div>
-    </div>
-    <div id="compTramos" style="margin-top:16px"></div>
+    <div class="big">✓</div><h2 id="confTitulo">Entrada registrada</h2><h3 id="confNombre"></h3><div id="confDetalle"></div><p class="muted">Volviendo al código en <span id="contador">3</span> segundos…</p>
   </section>
 
   <section id="empresa" class="hidden">
-    <div class="card">
-      <div class="topline"><div><h2>Empresa · Todo Bueno</h2><p class="muted">Panel del propietario</p></div><button class="btn secondary" style="width:auto" onclick="volverKiosk()">Salir</button></div>
-      <div class="grid">
-        <div class="metric">Hoy<br><b id="empHoy">0:00</b></div>
-        <div class="metric">Semana<br><b id="empSemana">0:00</b></div>
-        <div class="metric">Mes<br><b id="empMes">0:00</b></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="topline"><h3>Trabajadores</h3><button class="btn primary" style="width:auto" onclick="mostrarAlta()">Nuevo trabajador</button></div>
-      <div id="tablaTrabajadores"></div>
-    </div>
-
-    <div id="alta" class="card hidden">
-      <h3>Crear trabajador</h3>
-      <div class="form-grid">
-        <div class="field"><label>Código</label><input id="altaCodigo" maxlength="4" inputmode="numeric" placeholder="1001"></div>
-        <div class="field"><label>Nombre y apellidos</label><input id="altaNombre"></div>
-        <div class="field"><label>Horas semanales</label><input id="altaHoras" type="number" min="1" step="0.5"></div>
-        <div class="field"><label>Activo</label><select id="altaActivo"><option value="SI">Sí</option><option value="NO">No</option></select></div>
-        <div class="field"><label>Vigencia desde</label><input id="altaDesde" type="date"></div>
-        <div class="field"><label>Vigencia hasta</label><input id="altaHasta" type="date"></div>
-      </div>
-      <div class="actions"><button class="btn primary" onclick="guardarTrabajador()">Guardar</button><button class="btn secondary" onclick="ocultarAlta()">Cancelar</button></div>
-    </div>
-
-    <div class="card">
-      <h3>Informe de fichajes</h3>
-      <div class="form-grid no-print">
-        <div class="field"><label>Desde</label><input id="fDesde" type="date"></div>
-        <div class="field"><label>Hasta</label><input id="fHasta" type="date"></div>
-      </div>
-      <div class="actions no-print"><button class="btn primary" onclick="cargarInforme()">Consultar</button><button class="btn secondary" onclick="window.print()">Imprimir / PDF</button></div>
-      <div id="informe"></div>
-    </div>
-
-    <div class="card">
-      <h3>Copia de seguridad</h3>
-      <p><b>Automática diaria</b> · 23:59</p>
-      <p class="muted small">La copia se realiza automáticamente. La empresa no necesita hacer nada.</p>
-    </div>
+    <div class="card"><div class="topline"><div><h2>Empresa · Todo Bueno</h2><p class="muted">Panel del propietario</p></div><button class="btn secondary" style="width:auto" onclick="volverKiosk()">Salir</button></div><div class="grid"><div class="metric">Hoy<br><b id="empHoy">0:00</b></div><div class="metric">Semana<br><b id="empSemana">0:00</b></div><div class="metric">Mes<br><b id="empMes">0:00</b></div></div></div>
+    <div class="card"><div class="topline"><h3>Trabajadores</h3><button class="btn primary" style="width:auto" onclick="mostrarAlta()">Nuevo trabajador</button></div><div id="tablaTrabajadores"></div></div>
+    <div id="alta" class="card hidden"><h3>Crear trabajador</h3><div class="form-grid"><div class="field"><label>Código</label><input id="altaCodigo" maxlength="4" inputmode="numeric" placeholder="1001"></div><div class="field"><label>Nombre y apellidos</label><input id="altaNombre"></div><div class="field"><label>Horas semanales</label><input id="altaHoras" type="number" min="1" step="0.5"></div><div class="field"><label>Activo</label><select id="altaActivo"><option value="SI">Sí</option><option value="NO">No</option></select></div><div class="field"><label>Vigencia desde</label><input id="altaDesde" type="date"></div><div class="field"><label>Vigencia hasta</label><input id="altaHasta" type="date"></div></div><div class="actions"><button class="btn primary" onclick="guardarTrabajador()">Guardar</button><button class="btn secondary" onclick="ocultarAlta()">Cancelar</button></div></div>
+    <div class="card"><h3>Informe de fichajes</h3><div class="form-grid no-print"><div class="field"><label>Desde</label><input id="fDesde" type="date"></div><div class="field"><label>Hasta</label><input id="fHasta" type="date"></div></div><div class="actions no-print"><button class="btn primary" onclick="cargarInforme()">Consultar</button><button class="btn secondary" onclick="window.print()">Imprimir / PDF</button></div><div id="informe"></div></div>
+    <div class="card"><h3>Copia de seguridad</h3><p><b>Automática diaria</b></p><p class="muted small">La empresa no necesita hacer nada.</p></div>
   </section>
 </div>
-
-<script src="config.js"></script>
 <script>
-var CFG = window.TODO_BUENO_CONFIG || {};
-var modoLocal = !CFG.API_URL;
-var DBKEY='todoBuenoControlHorario_v020';
-var propietario='7826';
-
-function db(){
-  var x=localStorage.getItem(DBKEY);
-  if(x) return JSON.parse(x);
-  var init={trabajadores:[
-    {codigo:'1001',nombre:'Trabajador Demo 1',horas:40,activo:'SI',desde:'2026-08-24',hasta:''},
-    {codigo:'1002',nombre:'Trabajador Demo 2',horas:30,activo:'SI',desde:'2026-08-24',hasta:''},
-    {codigo:'1003',nombre:'Trabajador Demo 3',horas:20,activo:'SI',desde:'2026-08-24',hasta:''}
-  ],fichajes:[]};
-  localStorage.setItem(DBKEY,JSON.stringify(init)); return init;
-}
+var DBKEY='todoBuenoControlHorario_v022';var propietario='7826';
+function db(){var x=localStorage.getItem(DBKEY);if(x)return JSON.parse(x);var init={trabajadores:[{codigo:'1001',nombre:'Trabajador Demo 1',horas:40,activo:'SI',desde:'2026-08-24',hasta:''},{codigo:'1002',nombre:'Trabajador Demo 2',horas:30,activo:'SI',desde:'2026-08-24',hasta:''},{codigo:'1003',nombre:'Trabajador Demo 3',horas:20,activo:'SI',desde:'2026-08-24',hasta:''}],fichajes:[]};localStorage.setItem(DBKEY,JSON.stringify(init));return init}
 function save(d){localStorage.setItem(DBKEY,JSON.stringify(d))}
-function hhmm(d){return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)}
-function iso(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
-function fmt(m){var s=m<0?'-':'';m=Math.abs(Math.round(m));return s+Math.floor(m/60)+':'+('0'+(m%60)).slice(-2)}
-function mins(t){var p=t.split(':');return Number(p[0])*60+Number(p[1])}
-function limpiarPin(){document.querySelectorAll('.pin input').forEach(function(x){x.value=''});document.querySelector('.pin input').focus()}
-function pin(){var s='';document.querySelectorAll('.pin input').forEach(function(x){s+=x.value.replace(/\D/g,'')});return s}
+function hhmm(d){return('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)}function iso(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}function fmt(m){var s=m<0?'-':'';m=Math.abs(Math.round(m));return s+Math.floor(m/60)+':'+('0'+(m%60)).slice(-2)}function mins(t){var p=t.split(':');return Number(p[0])*60+Number(p[1])}
+function limpiarPin(){document.querySelectorAll('.pin input').forEach(function(x){x.value=''});document.querySelector('.pin input').focus()}function pin(){var s='';document.querySelectorAll('.pin input').forEach(function(x){s+=x.value.replace(/\D/g,'')});return s}
 document.querySelectorAll('.pin input').forEach(function(el,i,a){el.addEventListener('input',function(){el.value=el.value.replace(/\D/g,'');if(el.value&&a[i+1])a[i+1].focus()});el.addEventListener('keydown',function(e){if(e.key==='Backspace'&&!el.value&&a[i-1])a[i-1].focus()})});
-
-function procesarCodigo(){
-  var c=pin(); if(c.length!==4){alert('Introduce un código de 4 cifras');return}
-  if(c===propietario){abrirEmpresa();return}
-  var d=db(),t=d.trabajadores.find(function(x){return x.codigo===c&&x.activo==='SI'});
-  if(!t){alert('Código no válido');limpiarPin();return}
-  var hoy=iso(new Date()), ff=d.fichajes.filter(function(x){return x.codigo===c&&x.fecha===hoy});
-  var abierto=ff.length&&ff[ff.length-1].tipo==='ENTRADA';
-  var tipo=abierto?'SALIDA':'ENTRADA', ahora=new Date(), hora=hhmm(ahora);
-  d.fichajes.push({codigo:c,nombre:t.nombre,fecha:hoy,hora:hora,tipo:tipo,ts:ahora.toISOString()}); save(d);
-  mostrarConfirmacion(t,tipo,hora);
-}
-function mostrarConfirmacion(t,tipo,hora){
-  document.getElementById('kiosk').classList.add('hidden');document.getElementById('confirmacion').classList.remove('hidden');
-  document.getElementById('confTitulo').textContent=tipo==='ENTRADA'?'Entrada registrada':'Salida registrada';
-  document.getElementById('confNombre').textContent=t.nombre;
-  var r=resumenTrabajador(t.codigo);
-  document.getElementById('confDetalle').innerHTML=(tipo==='ENTRADA'?'<p>Hora de entrada · <b>'+hora+'</b></p><p class="ok">Trabajando</p>':'<p>Hora de salida · <b>'+hora+'</b></p><p>Total del día · <b>'+r.hoy+'</b></p>');
-  var n=3;document.getElementById('contador').textContent=n;var id=setInterval(function(){n--;document.getElementById('contador').textContent=n;if(n<=0){clearInterval(id);volverKiosk()}},1000)
-}
+function procesarCodigo(){var c=pin();if(c.length!==4){alert('Introduce un código de 4 cifras');return}if(c===propietario){abrirEmpresa();return}var d=db(),t=d.trabajadores.find(function(x){return x.codigo===c&&x.activo==='SI'});if(!t){alert('Código no válido');limpiarPin();return}var hoy=iso(new Date()),ff=d.fichajes.filter(function(x){return x.codigo===c&&x.fecha===hoy});var abierto=ff.length&&ff[ff.length-1].tipo==='ENTRADA';var tipo=abierto?'SALIDA':'ENTRADA',ahora=new Date(),hora=hhmm(ahora);d.fichajes.push({codigo:c,nombre:t.nombre,fecha:hoy,hora:hora,tipo:tipo,ts:ahora.toISOString()});save(d);mostrarConfirmacion(t,tipo,hora)}
+function mostrarConfirmacion(t,tipo,hora){document.getElementById('kiosk').classList.add('hidden');document.getElementById('confirmacion').classList.remove('hidden');document.getElementById('confTitulo').textContent=tipo==='ENTRADA'?'Entrada registrada':'Salida registrada';document.getElementById('confNombre').textContent=t.nombre;var r=resumenTrabajador(t.codigo);document.getElementById('confDetalle').innerHTML=tipo==='ENTRADA'?'<p>Hora de entrada · <b>'+hora+'</b></p><p class="ok">Trabajando</p>':'<p>Hora de salida · <b>'+hora+'</b></p><p>Total del día · <b>'+r.hoy+'</b></p>';var n=3;document.getElementById('contador').textContent=n;var id=setInterval(function(){n--;document.getElementById('contador').textContent=n;if(n<=0){clearInterval(id);volverKiosk()}},1000)}
 function volverKiosk(){document.querySelectorAll('section').forEach(function(s){if(s.id!=='kiosk')s.classList.add('hidden')});document.getElementById('kiosk').classList.remove('hidden');limpiarPin()}
-function resumenTrabajador(c){
-  var d=db(),f=d.fichajes.filter(function(x){return x.codigo===c}),now=new Date(),hoy=iso(now),dow=(now.getDay()+6)%7,lu=new Date(now);lu.setDate(now.getDate()-dow);var mes=iso(new Date(now.getFullYear(),now.getMonth(),1));
-  function total(desde){var por={};f.filter(function(x){return x.fecha>=desde}).forEach(function(x){(por[x.fecha]||(por[x.fecha]=[])).push(x)});var total=0;Object.keys(por).forEach(function(k){var ent=null;por[k].forEach(function(x){if(x.tipo==='ENTRADA')ent=x.hora;else if(x.tipo==='SALIDA'&&ent){var z=mins(x.hora)-mins(ent);if(z<0)z+=1440;total+=z;ent=null}})});return total}
-  return{hoy:fmt(total(hoy)),semana:fmt(total(iso(lu))),mes:fmt(total(mes))}
-}
+function resumenTrabajador(c){var d=db(),f=d.fichajes.filter(function(x){return x.codigo===c}),now=new Date(),hoy=iso(now),dow=(now.getDay()+6)%7,lu=new Date(now);lu.setDate(now.getDate()-dow);var mes=iso(new Date(now.getFullYear(),now.getMonth(),1));function total(desde){var por={};f.filter(function(x){return x.fecha>=desde}).forEach(function(x){(por[x.fecha]||(por[x.fecha]=[])).push(x)});var total=0;Object.keys(por).forEach(function(k){var ent=null;por[k].forEach(function(x){if(x.tipo==='ENTRADA')ent=x.hora;else if(x.tipo==='SALIDA'&&ent){var z=mins(x.hora)-mins(ent);if(z<0)z+=1440;total+=z;ent=null}})});return total}return{hoy:fmt(total(hoy)),semana:fmt(total(iso(lu))),mes:fmt(total(mes))}}
 function abrirEmpresa(){document.getElementById('kiosk').classList.add('hidden');document.getElementById('empresa').classList.remove('hidden');limpiarPin();cargarEmpresa()}
-function cargarEmpresa(){
-  var d=db(), totH=0,totS=0,totM=0,html='<table><tr><th>Código</th><th>Nombre</th><th>Horas/sem.</th><th>Estado</th><th>Hoy</th><th>Semana</th><th>Mes</th></tr>';
-  d.trabajadores.forEach(function(t){var r=resumenTrabajador(t.codigo), f=d.fichajes.filter(function(x){return x.codigo===t.codigo}),trab=f.length&&f[f.length-1].tipo==='ENTRADA';totH+=parseHH(r.hoy);totS+=parseHH(r.semana);totM+=parseHH(r.mes);html+='<tr><td>'+t.codigo+'</td><td>'+t.nombre+'</td><td>'+t.horas+'</td><td>'+(trab?'Trabajando':'Fuera')+'</td><td>'+r.hoy+'</td><td>'+r.semana+'</td><td>'+r.mes+'</td></tr>'});html+='</table>';
-  document.getElementById('tablaTrabajadores').innerHTML=html;document.getElementById('empHoy').textContent=fmt(totH);document.getElementById('empSemana').textContent=fmt(totS);document.getElementById('empMes').textContent=fmt(totM)
-}
 function parseHH(v){var neg=v.charAt(0)==='-',s=neg?v.slice(1):v,p=s.split(':'),m=Number(p[0])*60+Number(p[1]);return neg?-m:m}
-function mostrarAlta(){document.getElementById('alta').classList.remove('hidden');document.getElementById('altaDesde').value=iso(new Date())}
-function ocultarAlta(){document.getElementById('alta').classList.add('hidden')}
-function guardarTrabajador(){
-  var c=document.getElementById('altaCodigo').value.replace(/\D/g,''),n=document.getElementById('altaNombre').value.trim(),h=Number(document.getElementById('altaHoras').value);
-  if(c.length!==4||!n||!h){alert('Completa código de 4 cifras, nombre y horas semanales');return}
-  if(c===propietario){alert('Ese código está reservado');return}
-  var d=db();if(d.trabajadores.some(function(x){return x.codigo===c})){alert('Ese código ya existe');return}
-  d.trabajadores.push({codigo:c,nombre:n,horas:h,activo:document.getElementById('altaActivo').value,desde:document.getElementById('altaDesde').value,hasta:document.getElementById('altaHasta').value});save(d);ocultarAlta();cargarEmpresa()
-}
-function cargarInforme(){
-  var desde=document.getElementById('fDesde').value,hasta=document.getElementById('fHasta').value,d=db(),rows='';
-  d.trabajadores.forEach(function(t){var min=totalRango(t.codigo,desde,hasta);rows+='<tr><td>'+t.codigo+'</td><td>'+t.nombre+'</td><td>'+fmt(min)+'</td></tr>'});
-  document.getElementById('informe').innerHTML='<table><tr><th>Código</th><th>Trabajador</th><th>Total</th></tr>'+rows+'</table>'
-}
-function totalRango(c,desde,hasta){
-  var f=db().fichajes.filter(function(x){return x.codigo===c&&(!desde||x.fecha>=desde)&&(!hasta||x.fecha<=hasta)}),por={},total=0;
-  f.forEach(function(x){(por[x.fecha]||(por[x.fecha]=[])).push(x)});Object.keys(por).forEach(function(k){var ent=null;por[k].forEach(function(x){if(x.tipo==='ENTRADA')ent=x.hora;else if(x.tipo==='SALIDA'&&ent){var z=mins(x.hora)-mins(ent);if(z<0)z+=1440;total+=z;ent=null}})});return total
-}
-document.getElementById('estadoConexion').textContent=modoLocal?'Modo piloto de interfaz · backend real pendiente de conectar':'Conectado al backend';
+function cargarEmpresa(){var d=db(),totH=0,totS=0,totM=0,html='<table><tr><th>Código</th><th>Nombre</th><th>Horas/sem.</th><th>Estado</th><th>Hoy</th><th>Semana</th><th>Mes</th></tr>';d.trabajadores.forEach(function(t){var r=resumenTrabajador(t.codigo),f=d.fichajes.filter(function(x){return x.codigo===t.codigo}),trab=f.length&&f[f.length-1].tipo==='ENTRADA';totH+=parseHH(r.hoy);totS+=parseHH(r.semana);totM+=parseHH(r.mes);html+='<tr><td>'+t.codigo+'</td><td>'+t.nombre+'</td><td>'+t.horas+'</td><td>'+(trab?'Trabajando':'Fuera')+'</td><td>'+r.hoy+'</td><td>'+r.semana+'</td><td>'+r.mes+'</td></tr>'});html+='</table>';document.getElementById('tablaTrabajadores').innerHTML=html;document.getElementById('empHoy').textContent=fmt(totH);document.getElementById('empSemana').textContent=fmt(totS);document.getElementById('empMes').textContent=fmt(totM)}
+function mostrarAlta(){document.getElementById('alta').classList.remove('hidden');document.getElementById('altaDesde').value=iso(new Date())}function ocultarAlta(){document.getElementById('alta').classList.add('hidden')}
+function guardarTrabajador(){var c=document.getElementById('altaCodigo').value.replace(/\D/g,''),n=document.getElementById('altaNombre').value.trim(),h=Number(document.getElementById('altaHoras').value);if(c.length!==4||!n||!h){alert('Completa código de 4 cifras, nombre y horas semanales');return}if(c===propietario){alert('Ese código está reservado');return}var d=db();if(d.trabajadores.some(function(x){return x.codigo===c})){alert('Ese código ya existe');return}d.trabajadores.push({codigo:c,nombre:n,horas:h,activo:document.getElementById('altaActivo').value,desde:document.getElementById('altaDesde').value,hasta:document.getElementById('altaHasta').value});save(d);ocultarAlta();cargarEmpresa()}
+function cargarInforme(){var desde=document.getElementById('fDesde').value,hasta=document.getElementById('fHasta').value,d=db(),rows='';d.trabajadores.forEach(function(t){var min=totalRango(t.codigo,desde,hasta);rows+='<tr><td>'+t.codigo+'</td><td>'+t.nombre+'</td><td>'+fmt(min)+'</td></tr>'});document.getElementById('informe').innerHTML='<table><tr><th>Código</th><th>Trabajador</th><th>Total</th></tr>'+rows+'</table>'}
+function totalRango(c,desde,hasta){var f=db().fichajes.filter(function(x){return x.codigo===c&&(!desde||x.fecha>=desde)&&(!hasta||x.fecha<=hasta)}),por={},total=0;f.forEach(function(x){(por[x.fecha]||(por[x.fecha]=[])).push(x)});Object.keys(por).forEach(function(k){var ent=null;por[k].forEach(function(x){if(x.tipo==='ENTRADA')ent=x.hora;else if(x.tipo==='SALIDA'&&ent){var z=mins(x.hora)-mins(ent);if(z<0)z+=1440;total+=z;ent=null}})});return total}
 limpiarPin();
 </script>
 </body></html>
