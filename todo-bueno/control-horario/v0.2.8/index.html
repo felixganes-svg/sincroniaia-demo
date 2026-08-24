@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Todo Bueno · Control horario</title>
+<style>
+:root{--card:#fffdfa;--ink:#392414;--muted:#77695f;--accent:#d76a08;--line:#ead9c6;--ok:#2e8b57}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(#fbf7f1,#f5eee5);font-family:Arial,sans-serif;color:var(--ink)}
+.wrap{max-width:760px;margin:auto;padding:14px}.brand{text-align:center;padding:18px 4px}.brand h1{margin:0;font-size:29px}.brand p{margin:7px 0;color:var(--accent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;margin:14px 0;box-shadow:0 7px 20px rgba(67,42,24,.08)}
+h2,h3{margin:0 0 14px}.muted{color:var(--muted)}.hidden{display:none!important}.small{font-size:13px}
+.pin{display:flex;gap:10px;justify-content:center;margin:24px 0}.pin input{width:65px;height:72px;text-align:center;font-size:32px;border:2px solid var(--line);border-radius:14px;background:#fff}
+.btn{width:100%;border:0;border-radius:14px;padding:16px;font-size:17px;font-weight:700;margin:7px 0;cursor:pointer}.primary{background:var(--accent);color:#fff}.btn:disabled{opacity:.55;cursor:not-allowed}.secondary{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.ok{color:var(--ok)}.success{text-align:center}.success .big{font-size:42px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{background:#fbf7f1;border:1px solid var(--line);border-radius:14px;padding:14px}.metric b{font-size:22px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);font-size:14px}
+input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:16px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;margin-bottom:6px;font-weight:700;font-size:14px}
+.actions{display:flex;gap:10px}.actions .btn{flex:1}.topline{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.notice{background:#fff7ed;border:1px solid #fed7aa;padding:12px;border-radius:12px}.menu3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.menu3 .btn{height:100%}.success-note{background:#ecfdf5;border:1px solid #bbf7d0;padding:12px;border-radius:12px;color:#166534;margin:12px 0}@media(max-width:600px){.menu3{grid-template-columns:1fr}}
+@media(max-width:600px){.grid,.form-grid{grid-template-columns:1fr}.pin input{width:58px}.card{padding:16px}table{display:block;overflow-x:auto}}
+@media print{body{background:#fff}.no-print{display:none!important}.card{box-shadow:none}.wrap{max-width:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="brand"><h1>Panadería Todo Bueno Mataró</h1><p>Control horario <span class="small">v0.2.8</span></p></div>
+
+<section id="kiosk" class="card">
+  <h2>Fichaje de trabajador</h2>
+  <p class="muted">Introduce tu código de 4 cifras</p>
+  <div class="pin"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric"></div>
+  <button id="btnFichar" class="btn primary" onclick="procesarCodigo()">Fichar</button>
+  <p class="muted small">Después de fichar, la pantalla vuelve aquí automáticamente.</p>
+  <div id="aviso" class="notice small hidden"></div>
+</section>
+
+<section id="confirmarSalida" class="card hidden success">
+  <div class="big">?</div>
+  <h2>Acabas de registrar tu entrada</h2>
+  <h3 id="salidaNombre"></h3>
+  <p>Vas a registrar ahora una salida.</p>
+  <p><b>¿Es correcto?</b></p>
+  <div class="actions">
+    <button class="btn primary" onclick="confirmarSalidaAhora()">Sí, registrar salida</button>
+    <button class="btn secondary" onclick="cancelarSalida()">No, volver</button>
+  </div>
+</section>
+
+<section id="confirmacion" class="card hidden success">
+  <div class="big">✓</div><h2 id="confTitulo"></h2><h3 id="confNombre"></h3><div id="confDetalle"></div>
+  <button id="btnComputo" class="btn secondary hidden" onclick="verMiComputo()">Ver mi cómputo</button>
+  <p class="muted">Volviendo al código en <span id="contador">3</span> segundos…</p>
+</section>
+
+<section id="miComputo" class="card hidden">
+  <div class="topline"><h2>Mi cómputo</h2><button class="btn secondary" style="width:auto" onclick="volverKiosk()">Volver</button></div>
+  <h3 id="compNombre"></h3>
+  <div class="grid"><div class="metric">Hoy<br><b id="compHoy">0:00</b></div><div class="metric">Semana<br><b id="compSemana">0:00</b></div><div class="metric">Mes<br><b id="compMes">0:00</b></div></div>
+</section>
+
+<section id="empresa" class="hidden">
+  <div id="empresaMenu" class="card">
+    <div class="topline">
+      <div><h2>Empresa · Todo Bueno</h2><p class="muted">Control empresa</p></div>
+      <button class="btn secondary" style="width:auto" onclick="volverKiosk()">Salir</button>
+    </div>
+    <div class="no-print">
+      <button class="btn primary" onclick="abrirFichaEmpresa('panel')">Panel del propietario</button>
+      <button class="btn secondary" onclick="abrirFichaEmpresa('trabajadores')">Mostrar trabajadores</button>
+      <button class="btn secondary" onclick="abrirFichaEmpresa('informe')">Informe de fichajes</button>
+      <button class="btn secondary" onclick="abrirFichaEmpresa('nuevo')">Nuevo trabajador</button>
+      <button class="btn secondary" onclick="abrirFichaEmpresa('backup')">Copia de seguridad</button>
+    </div>
+  </div>
+
+  <div id="fichaPanel" class="card hidden">
+    <div class="topline">
+      <div><h2>Panel del propietario</h2><p class="muted">Resumen de la empresa</p></div>
+      <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+    </div>
+    <div class="grid">
+      <div class="metric">Hoy<br><b id="empHoy">0:00</b></div>
+      <div class="metric">Semana<br><b id="empSemana">0:00</b></div>
+      <div class="metric">Mes<br><b id="empMes">0:00</b></div>
+    </div>
+    <div id="empresaAviso" class="success-note hidden"></div>
+  </div>
+
+  <div id="fichaTrabajadores" class="card hidden">
+    <div class="topline">
+      <h2>Mostrar trabajadores</h2>
+      <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+    </div>
+    <div class="actions no-print" style="margin-bottom:14px">
+      <button id="btnActivos" class="btn primary" onclick="setFiltroTrabajadores('ACTIVOS')">Activos</button>
+      <button id="btnBajas" class="btn secondary" onclick="setFiltroTrabajadores('BAJAS')">Bajas</button>
+      <button id="btnTodos" class="btn secondary" onclick="setFiltroTrabajadores('TODOS')">Todos</button>
+    </div>
+    <div id="tablaTrabajadores"></div>
+  </div>
+
+  <div id="fichaInforme" class="card hidden">
+    <div class="topline">
+      <h2>Informe de fichajes</h2>
+      <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+    </div>
+    <div class="form-grid no-print">
+      <div class="field"><label>Desde</label><input id="fDesde" type="date"></div>
+      <div class="field"><label>Hasta</label><input id="fHasta" type="date"></div>
+    </div>
+    <div class="actions no-print">
+      <button class="btn primary" onclick="cargarInforme()">Consultar</button>
+      <button class="btn secondary" onclick="window.print()">Imprimir / PDF</button>
+    </div>
+    <div id="informe"></div>
+  </div>
+
+  <div id="fichaNuevo" class="card hidden">
+    <div class="topline">
+      <h2>Nuevo trabajador</h2>
+      <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Código</label><input id="altaCodigo" maxlength="4" inputmode="numeric" placeholder="1004"></div>
+      <div class="field"><label>Nombre y apellidos</label><input id="altaNombre"></div>
+      <div class="field"><label>Horas semanales</label><input id="altaHoras" type="number" min="1" step="0.5"></div>
+      <div class="field"><label>Activo</label><select id="altaActivo"><option value="SI">Sí</option><option value="NO">No</option></select></div>
+      <div class="field"><label>Vigencia desde</label><input id="altaDesde" type="date"></div>
+      <div class="field"><label>Vigencia hasta</label><input id="altaHasta" type="date"></div>
+    </div>
+    <div class="actions">
+      <button class="btn primary" onclick="guardarTrabajador()">Guardar trabajador</button>
+      <button class="btn secondary" onclick="volverMenuEmpresa()">Volver</button>
+    </div>
+  </div>
+
+  <div id="fichaBackup" class="card hidden">
+    <div class="topline">
+      <h2>Copia de seguridad</h2>
+      <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+    </div>
+    <p><b>Automática diaria</b></p>
+    <p class="muted">La empresa no necesita hacer nada.</p>
+  </div>
+</section>
+</div>
+
+<script src="config.js?v=0.2.8"></script>
+<script>
+var CFG=window.TODO_BUENO_CONFIG||{}, OWNER='7826', currentCode='', pendingCode='', countdownId=null, fichando=false, trabajadoresPanel=[], filtroTrabajadores='ACTIVOS';
+function api(action,params,done){
+  if(!CFG.API_URL){done({ok:false,error:'BACKEND_NO_CONFIGURADO'});return}
+  var cb='tbcb_'+Date.now()+'_'+Math.floor(Math.random()*9999);
+  window[cb]=function(data){try{done(data)}finally{delete window[cb];s.remove()}};
+  var q=['action='+encodeURIComponent(action),'callback='+encodeURIComponent(cb)];
+  Object.keys(params||{}).forEach(function(k){q.push(encodeURIComponent(k)+'='+encodeURIComponent(params[k]==null?'':params[k]))});
+  var s=document.createElement('script');s.src=CFG.API_URL+(CFG.API_URL.indexOf('?')>=0?'&':'?')+q.join('&');
+  s.onerror=function(){delete window[cb];s.remove();done({ok:false,error:'No se pudo conectar con el servicio'})};document.body.appendChild(s)
+}
+function showAviso(txt){var a=document.getElementById('aviso');a.textContent=txt;a.classList.remove('hidden')}
+function hideAviso(){document.getElementById('aviso').classList.add('hidden')}
+function pin(){var s='';document.querySelectorAll('.pin input').forEach(function(x){s+=x.value.replace(/\D/g,'')});return s}
+function limpiarPin(){document.querySelectorAll('.pin input').forEach(function(x){x.value=''});document.querySelector('.pin input').focus()}
+document.querySelectorAll('.pin input').forEach(function(el,i,a){el.addEventListener('input',function(){el.value=el.value.replace(/\D/g,'');if(el.value&&a[i+1])a[i+1].focus()});el.addEventListener('keydown',function(e){if(e.key==='Backspace'&&!el.value&&a[i-1])a[i-1].focus()})});
+function procesarCodigo(){
+  if(fichando)return;
+  hideAviso();
+  var c=pin();
+  if(c.length!==4){showAviso('Introduce un código de 4 cifras');return}
+  if(c===OWNER){
+    abrirEmpresa();
+    return
+  }
+  fichando=true;
+  var requestId='tb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+  var b=document.getElementById('btnFichar');
+  b.disabled=true;b.textContent='Registrando…';
+  api('fichar',{codigo:c,request_id:requestId},function(r){
+    fichando=false;b.disabled=false;b.textContent='Fichar';
+    if(!r.ok){
+      showAviso(r.error==='BACKEND_NO_CONFIGURADO'?'La conexión del piloto todavía no está activada.':r.error);
+      limpiarPin();return
+    }
+    if(r.rol==='EMPRESA'){abrirEmpresa();return}
+    if(r.requiere_confirmacion_salida){
+      pendingCode=c;
+      document.getElementById('kiosk').classList.add('hidden');
+      document.getElementById('salidaNombre').textContent=r.nombre||'';
+      document.getElementById('confirmarSalida').classList.remove('hidden');
+      return
+    }
+    currentCode=c;mostrarConfirmacion(r)
+  })
+}
+function confirmarSalidaAhora(){
+  if(fichando||!pendingCode)return;
+  fichando=true;
+  var c=pendingCode;
+  var requestId='tb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+  api('fichar',{codigo:c,request_id:requestId,confirmar_salida:'SI'},function(r){
+    fichando=false;
+    if(!r.ok){alert(r.error);cancelarSalida();return}
+    pendingCode='';
+    document.getElementById('confirmarSalida').classList.add('hidden');
+    currentCode=c;mostrarConfirmacion(r)
+  })
+}
+function cancelarSalida(){
+  pendingCode='';
+  document.getElementById('confirmarSalida').classList.add('hidden');
+  volverKiosk()
+}
+function mostrarConfirmacion(r){
+  document.getElementById('kiosk').classList.add('hidden');document.getElementById('confirmacion').classList.remove('hidden');
+  document.getElementById('confTitulo').textContent=r.tipo==='ENTRADA'?'Entrada registrada':'Salida registrada';document.getElementById('confNombre').textContent=r.resumen.nombre;
+  document.getElementById('confDetalle').innerHTML=r.tipo==='ENTRADA'?'<p>Hora de entrada · <b>'+r.hora+'</b></p><p class="ok">Trabajando</p>':'<p>Hora de salida · <b>'+r.hora+'</b></p><p>Total de hoy · <b>'+r.resumen.hoy+'</b></p>';
+  document.getElementById('btnComputo').classList.remove('hidden');var n=3;document.getElementById('contador').textContent=n;
+  countdownId=setInterval(function(){n--;document.getElementById('contador').textContent=n;if(n<=0){clearInterval(countdownId);volverKiosk()}},1000)
+}
+function verMiComputo(){
+  if(countdownId)clearInterval(countdownId);api('resumen',{codigo:currentCode},function(r){if(!r.ok){alert(r.error);return}
+    document.getElementById('confirmacion').classList.add('hidden');document.getElementById('miComputo').classList.remove('hidden');
+    document.getElementById('compNombre').textContent=r.resumen.nombre;document.getElementById('compHoy').textContent=r.resumen.hoy;document.getElementById('compSemana').textContent=r.resumen.semana;document.getElementById('compMes').textContent=r.resumen.mes
+  })
+}
+function volverKiosk(){if(countdownId)clearInterval(countdownId);document.querySelectorAll('section').forEach(function(s){if(s.id!=='kiosk')s.classList.add('hidden')});document.getElementById('kiosk').classList.remove('hidden');currentCode='';pendingCode='';limpiarPin()}
+function abrirEmpresa(){
+  document.getElementById('kiosk').classList.add('hidden');
+  document.getElementById('empresa').classList.remove('hidden');
+  limpiarPin();
+  volverMenuEmpresa()
+}
+function parseM(v){var p=String(v).split(':'),neg=p[0].charAt(0)==='-';if(neg)p[0]=p[0].slice(1);var m=Number(p[0])*60+Number(p[1]||0);return neg?-m:m}
+function fmt(m){var s=m<0?'-':'';m=Math.abs(m);return s+Math.floor(m/60)+':'+('0'+(m%60)).slice(-2)}
+function abrirFichaEmpresa(cual){
+  document.getElementById('empresaMenu').classList.add('hidden');
+  ['fichaPanel','fichaTrabajadores','fichaInforme','fichaNuevo','fichaBackup'].forEach(function(id){
+    document.getElementById(id).classList.add('hidden')
+  });
+  if(cual==='panel'){document.getElementById('fichaPanel').classList.remove('hidden');cargarEmpresa()}
+  if(cual==='trabajadores'){document.getElementById('fichaTrabajadores').classList.remove('hidden');setFiltroTrabajadores('ACTIVOS');cargarEmpresa()}
+  if(cual==='informe')document.getElementById('fichaInforme').classList.remove('hidden');
+  if(cual==='nuevo'){
+    document.getElementById('fichaNuevo').classList.remove('hidden');
+    document.getElementById('altaDesde').value=new Date().toISOString().slice(0,10)
+  }
+  if(cual==='backup')document.getElementById('fichaBackup').classList.remove('hidden')
+}
+function volverMenuEmpresa(){
+  ['fichaPanel','fichaTrabajadores','fichaInforme','fichaNuevo','fichaBackup'].forEach(function(id){
+    document.getElementById(id).classList.add('hidden')
+  });
+  document.getElementById('empresaMenu').classList.remove('hidden')
+}
+function setFiltroTrabajadores(filtro){filtroTrabajadores=filtro;actualizarBotonesFiltro();renderTrabajadores()}
+function actualizarBotonesFiltro(){[['btnActivos','ACTIVOS'],['btnBajas','BAJAS'],['btnTodos','TODOS']].forEach(function(x){var b=document.getElementById(x[0]);b.classList.remove('primary','secondary');b.classList.add(filtroTrabajadores===x[1]?'primary':'secondary')})}
+function cargarEmpresa(){api('panel',{owner:OWNER},function(r){if(!r.ok){alert(r.error);volverKiosk();return}trabajadoresPanel=r.trabajadores||[];actualizarTotalesEmpresa();if(!document.getElementById('fichaTrabajadores').classList.contains('hidden'))renderTrabajadores()})}
+function actualizarTotalesEmpresa(){var h=0,s=0,m=0;trabajadoresPanel.forEach(function(t){if(t.activo!==false){h+=parseM(t.hoy);s+=parseM(t.semana);m+=parseM(t.mes)}});document.getElementById('empHoy').textContent=fmt(h);document.getElementById('empSemana').textContent=fmt(s);document.getElementById('empMes').textContent=fmt(m)}
+function renderTrabajadores(){var lista=trabajadoresPanel.filter(function(t){if(filtroTrabajadores==='ACTIVOS')return t.activo!==false;if(filtroTrabajadores==='BAJAS')return t.activo===false;return true});var x='<table><tr><th>Código</th><th>Nombre</th><th>Contrato</th><th>Estado</th><th>Hoy</th><th>Semana</th><th>Mes</th><th></th></tr>';lista.forEach(function(t){x+='<tr><td>'+t.codigo+'</td><td>'+t.nombre+'</td><td>'+t.horas_contrato+' h</td><td>'+t.estado+'</td><td>'+t.hoy+'</td><td>'+t.semana+'</td><td>'+t.mes+'</td><td>'+(t.activo!==false?'<button class="btn secondary no-print" style="padding:8px 10px;font-size:13px" onclick="darBaja(\''+t.codigo+'\',\''+String(t.nombre).replace(/'/g,"&#39;")+'\')">Dar de baja</button>':'<span class="muted">Código conservado</span>')+'</td></tr>'});x+='</table>';document.getElementById('tablaTrabajadores').innerHTML=x}
+function darBaja(codigo,nombre){if(!confirm('Dar de baja a '+nombre+'?\\n\\nSe conservarán su código y todos sus fichajes.'))return;api('darBaja',{owner:OWNER,codigo:codigo},function(r){if(!r.ok){alert(r.error);return}cargarEmpresa()})}
+function limpiarAlta(){['altaCodigo','altaNombre','altaHoras','altaHasta'].forEach(function(id){document.getElementById(id).value=''});document.getElementById('altaActivo').value='SI';document.getElementById('altaDesde').value=''}
+function guardarTrabajador(){var p={owner:OWNER,codigo:document.getElementById('altaCodigo').value,nombre:document.getElementById('altaNombre').value,horas:document.getElementById('altaHoras').value,activo:document.getElementById('altaActivo').value,desde:document.getElementById('altaDesde').value,hasta:document.getElementById('altaHasta').value};api('crearTrabajador',p,function(r){if(!r.ok){alert(r.error);return}limpiarAlta();filtroTrabajadores='ACTIVOS';volverMenuEmpresa();var a=document.getElementById('empresaAviso');a.textContent='Trabajador creado correctamente.';a.classList.remove('hidden');cargarEmpresa()})}
+function cargarInforme(){api('informe',{owner:OWNER,desde:document.getElementById('fDesde').value,hasta:document.getElementById('fHasta').value},function(r){if(!r.ok){alert(r.error);return}var x='<table><tr><th>Código</th><th>Trabajador</th><th>Total</th></tr>';r.trabajadores.forEach(function(t){x+='<tr><td>'+t.codigo+'</td><td>'+t.nombre+'</td><td>'+t.total+'</td></tr>'});x+='</table>';document.getElementById('informe').innerHTML=x})}
+if(!CFG.API_URL)showAviso('Versión publicada. Falta activar la conexión del piloto antes de registrar fichajes reales.');
+limpiarPin();
+</script>
+</body></html>
