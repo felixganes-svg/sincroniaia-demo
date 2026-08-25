@@ -11,13 +11,7 @@
  * - El código general NO abre el panel de empresa.
  * - El código general NO crea un fichaje falso porque no identifica a un trabajador.
  * - Tras activar la alerta, la interfaz recibe "Código no válido" como respuesta neutra.
- *
- * INSTALACIÓN DE PRUEBA:
- * 1) En Apps Script del proyecto TODO_BUENO_CONTROL_HORARIO_v0.1 crear archivo SOS_PLUS_TEST.gs.
- * 2) Pegar este archivo completo.
- * 3) Guardar.
- * 4) Crear una NUEVA implementación de prueba. No sustituir todavía la implementación MASTER.
- * 5) En EMPRESAS configurar codigo_auxilio_empresa = 7670 y un email de prueba.
+ * - Los nuevos trabajadores ya NO necesitan código de auxilio individual.
  */
 
 var SOS_PLUS_TEST = {
@@ -25,13 +19,10 @@ var SOS_PLUS_TEST = {
   CODIGO_PRUEBA: '7670'
 };
 
-/* Guardamos las funciones originales de v0.3.7. */
+/* ======================== SOS+ GENERAL ======================== */
+
 var __tb_fichar_v037 = fichar_;
 
-/*
- * Sustituimos únicamente el punto de entrada del fichaje.
- * El resto del motor v0.3.7 continúa funcionando igual.
- */
 fichar_ = function(codigo, requestId, confirmarSalida) {
   codigo = limpiarCodigo_(codigo);
 
@@ -41,7 +32,6 @@ fichar_ = function(codigo, requestId, confirmarSalida) {
 
   var cfgEmpresa = configEmpresa_();
 
-  /* Acceso normal de empresa: sin cambios. */
   if (configCoincideOwner_(cfgEmpresa, codigo)) {
     return {
       ok:true,
@@ -50,11 +40,6 @@ fichar_ = function(codigo, requestId, confirmarSalida) {
     };
   }
 
-  /*
-   * SOS+ GENERAL.
-   * Registra la alerta, pero no identifica trabajador ni registra entrada/salida.
-   * Devuelve una respuesta neutra que la pantalla actual ya sabe manejar.
-   */
   if (configCoincideAuxEmpresa_(cfgEmpresa, codigo)) {
     var ahora = new Date();
     var fechaIso = Utilities.formatDate(ahora, CFG.TZ, 'yyyy-MM-dd');
@@ -67,32 +52,75 @@ fichar_ = function(codigo, requestId, confirmarSalida) {
       'SOS+ general activado · ' + fechaIso + ' ' + hora
     );
 
-    /*
-     * Importante: no devolvemos rol EMPRESA y no mostramos ninguna palabra
-     * relacionada con auxilio/SOS. Tampoco generamos un fichaje inventado.
-     */
     return {ok:false,error:'Código no válido'};
   }
 
-  /*
-   * Desactivamos los códigos de auxilio individuales antiguos.
-   * Se conservan en la hoja por histórico, pero dejan de tener efecto.
-   */
+  /* Códigos de auxilio individuales antiguos: conservados como histórico, sin efecto. */
   var antiguoAux = buscarTrabajadorPorCodigoAuxilio_(codigo);
   if (antiguoAux) {
     return {ok:false,error:'Código no válido'};
   }
 
-  /* Cualquier código personal normal sigue usando el motor v0.3.7 aprobado. */
   return __tb_fichar_v037(codigo, requestId, confirmarSalida);
 };
 
+/* ======================== ALTA SIN AUXILIO INDIVIDUAL ======================== */
+
 /*
- * Utilidad opcional para preparar la prueba en la hoja.
- * Ejecutar MANUALMENTE una sola vez desde Apps Script si se desea.
- * Configura únicamente 7670; no modifica el código normal de empresa.
- * El email se deja intacto.
+ * Sustituye únicamente el alta de trabajador de v0.3.7.
+ * El campo codigo_auxilio se conserva en la hoja por compatibilidad/histórico,
+ * pero para nuevos trabajadores queda vacío y no se solicita.
  */
+crearTrabajador_ = function(p) {
+  if (!esCodigoEmpresa_(p.owner)) return {ok:false,error:'Acceso no autorizado'};
+
+  var codigo = limpiarCodigo_(p.codigo);
+  var nombre = String(p.nombre || '').trim();
+  var horas = Number(p.horas || 0);
+
+  if (codigo.length !== 4) return {ok:false,error:'El código debe tener 4 cifras'};
+  if (esCodigoEmpresa_(codigo) || esCodigoAuxilioEmpresa_(codigo)) {
+    return {ok:false,error:'Código no disponible. Este código ya está registrado.'};
+  }
+  if (!nombre) return {ok:false,error:'Falta el nombre del trabajador'};
+  if (!horas || horas <= 0) return {ok:false,error:'Indica las horas semanales'};
+  if (codigoEnUso_(codigo)) return {ok:false,error:'Código no disponible. Este código ya está registrado.'};
+
+  var sh = hoja_('TRABAJADORES');
+  asegurarColumna_(sh,'codigo');
+  asegurarColumna_(sh,'codigo_auxilio');
+  var headers = cabeceras_(sh);
+  var id = siguienteIdTrabajador_();
+
+  appendObjeto_(sh, headers, {
+    empresa_id:CFG.EMPRESA_ID,
+    trabajador_id:id,
+    codigo:codigo,
+    codigo_auxilio:'',
+    nombre:nombre,
+    horas_contrato_semana:horas,
+    vigente_desde:String(p.desde || '') || Utilities.formatDate(new Date(), CFG.TZ, 'yyyy-MM-dd'),
+    vigente_hasta:String(p.hasta || ''),
+    activo:String(p.activo || 'SI').toUpperCase() === 'NO' ? 'NO' : 'SI',
+    observaciones:'',
+    actualizado:Utilities.formatDate(new Date(), CFG.TZ, 'yyyy-MM-dd HH:mm:ss')
+  });
+
+  registrarLog_('OK','crear_trabajador',id+' · '+nombre+' · '+codigo+' · sin auxilio individual');
+
+  return {
+    ok:true,
+    trabajador:{
+      trabajador_id:id,
+      codigo:codigo,
+      nombre:nombre,
+      horas_contrato:horas
+    }
+  };
+};
+
+/* ======================== PREPARACIÓN Y VERIFICACIÓN ======================== */
+
 function prepararSOSPlus7670_TEST() {
   var sh = hoja_('EMPRESAS');
   asegurarColumna_(sh, 'codigo_auxilio_empresa');
@@ -116,7 +144,6 @@ function prepararSOSPlus7670_TEST() {
   throw new Error('Empresa no encontrada');
 }
 
-/* Verificación sin activar ninguna alerta. */
 function verificarSOSPlus_TEST() {
   var cfg = configEmpresa_();
   var auxGeneral = limpiarCodigo_(cfg.codigo_auxilio_empresa || '');
@@ -137,6 +164,7 @@ function verificarSOSPlus_TEST() {
     codigo_auxilio_general:auxGeneral,
     codigo_prueba_esperado:SOS_PLUS_TEST.CODIGO_PRUEBA,
     general_configurado:(auxGeneral === SOS_PLUS_TEST.CODIGO_PRUEBA),
+    alta_nuevo_trabajador:'SIN CODIGO AUXILIO INDIVIDUAL',
     codigos_individuales_historicos:antiguos,
     comportamiento_general:'ALERTA + respuesta neutra; sin fichaje y sin panel empresa',
     comportamiento_auxilio_individual:'DESACTIVADO por este parche'
