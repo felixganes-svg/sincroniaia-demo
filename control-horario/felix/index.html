@@ -1,1 +1,41 @@
-placeholder
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Félix · Control horario</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#172033;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;background:#f4f6f8}.app{max-width:720px;margin:auto;min-height:100vh;background:#fff}.hero{padding:18px;background:#101828;color:#fff}.hero h1{font-size:20px;margin:0 0 4px}.view{padding:14px}.card{border:1px solid #e4e7ec;border-radius:16px;padding:14px;margin-bottom:12px;background:#fff}.status{display:inline-block;font-weight:800;padding:9px 12px;border-radius:999px}.on{background:#eaf8ef;color:#176b3a}.off{background:#f2f4f7;color:#475467}.big{font-size:34px;font-weight:800;margin:10px 0}.muted{color:#667085;font-size:13px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric{background:#f8fafc;border-radius:12px;padding:10px;text-align:center}.metric b{display:block;font-size:20px}.btn{width:100%;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:800;margin-top:9px}.dark{background:#101828;color:#fff}.green{background:#16a34a;color:#fff}.list{width:100%;border-collapse:collapse;font-size:14px}.list th,.list td{padding:9px 6px;border-bottom:1px solid #eaecf0;text-align:left}.notice{background:#eef4ff;border-radius:12px;padding:10px;margin-top:10px;font-size:13px}.ok{color:#176b3a}@media(max-width:420px){.grid3{grid-template-columns:1fr 1fr}.grid3 .metric:last-child{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="hero"><h1>SINCRONIAIA · CONTROL HORARIO</h1><small>Acceso personal · Félix</small></header>
+<main class="view">
+<div class="card">
+<div class="muted" id="dateLabel"></div>
+<div id="status" class="status on">● Trabajando</div>
+<div class="big" id="clock">--:--</div>
+<div><b>Félix</b> · Control personal</div>
+<div class="notice">Jornada actual iniciada hoy <b>25/08/2026 a las 07:30</b>.</div>
+<button id="punchBtn" class="btn dark" onclick="ficharSalida()">FICHAR SALIDA</button>
+</div>
+<div class="card"><div class="grid3"><div class="metric"><span class="muted">Última entrada</span><b>07:30</b></div><div class="metric"><span class="muted">Última salida</span><b>13:30</b></div><div class="metric"><span class="muted">Estado</span><b id="stateText">Trabajando</b></div></div></div>
+<div class="card"><b>Registro de hoy</b><table class="list"><thead><tr><th>Entrada</th><th>Salida</th><th>Total</th></tr></thead><tbody id="todayRows"><tr><td>07:30</td><td>—</td><td>En curso</td></tr></tbody></table></div>
+<div class="card"><b>Histórico reciente</b><table class="list"><thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Total</th></tr></thead><tbody><tr><td>24/08/2026</td><td>08:30</td><td>13:30</td><td>5:00</td></tr><tr><td>25/08/2026</td><td>07:30</td><td id="todayOut">—</td><td id="todayTotal">En curso</td></tr></tbody></table></div>
+<div class="card"><b>Mi jornada contratada</b><p class="muted">Referencia semanal.</p><div class="grid3"><div class="metric"><span class="muted">Contrato</span><b>40:00</b></div><div class="metric"><span class="muted">Ayer</span><b>5:00</b></div><div class="metric"><span class="muted">Hoy</span><b id="todayElapsed">—</b></div></div></div>
+<div class="card"><b>Ubicación</b><p class="muted">La comprobación GPS se realiza en el momento del fichaje cuando el navegador lo permite.</p><button class="btn green" onclick="checkGPS()">COMPROBAR UBICACIÓN</button><div id="gps" class="muted" style="margin-top:8px">Ubicación pendiente.</div></div>
+</main>
+</div>
+<script>
+const START=new Date('2026-08-25T07:30:00+02:00');
+let closed=localStorage.getItem('felix_2026_08_25_out')||'';
+function pad(n){return String(n).padStart(2,'0')}
+function hm(d){return pad(d.getHours())+':'+pad(d.getMinutes())}
+function duration(ms){let m=Math.max(0,Math.floor(ms/60000));return Math.floor(m/60)+':'+pad(m%60)}
+function render(){const n=new Date();document.getElementById('clock').textContent=hm(n);document.getElementById('dateLabel').textContent=n.toLocaleDateString('es-ES',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});if(closed){const out=new Date(closed),t=duration(out-START);document.getElementById('status').textContent='● Fuera de jornada';document.getElementById('status').className='status off';document.getElementById('stateText').textContent='Fuera';document.getElementById('punchBtn').textContent='JORNADA CERRADA';document.getElementById('punchBtn').disabled=true;document.getElementById('todayOut').textContent=hm(out);document.getElementById('todayTotal').textContent=t;document.getElementById('todayRows').innerHTML='<tr><td>07:30</td><td>'+hm(out)+'</td><td>'+t+'</td></tr>';document.getElementById('todayElapsed').textContent=t}else{document.getElementById('todayElapsed').textContent=duration(n-START)}}
+function ficharSalida(){if(closed)return;if(!confirm('¿Confirmas FICHAR SALIDA ahora?'))return;closed=new Date().toISOString();localStorage.setItem('felix_2026_08_25_out',closed);render()}
+function checkGPS(){const e=document.getElementById('gps');if(!navigator.geolocation){e.textContent='GPS no disponible en este navegador.';return}e.textContent='Comprobando ubicación…';navigator.geolocation.getCurrentPosition(p=>{e.innerHTML='<span class="ok">✅ Ubicación obtenida · precisión aprox. '+Math.round(p.coords.accuracy)+' m</span>'},()=>{e.textContent='No se pudo obtener la ubicación. Revisa los permisos del navegador.'},{enableHighAccuracy:true,timeout:10000,maximumAge:0})}
+render();setInterval(render,30000);
+</script>
+</body></html>
