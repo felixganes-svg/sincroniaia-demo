@@ -64,11 +64,11 @@ Actualizado: 25/08/2026 · 11:30 Europe/Madrid
 - Google Sheet `SINCRONIAIA — Respuestas Bienestar Animal` + Apps Script aislado — herramienta de estudio/investigación.
 - `/sincroniaia-bienestar-animal-estudio/` — estudio comercial aislado.
 
-## TPV
-- `tpv_con monedas.html` en Drive — prototipo ejecutable más avanzado localizado. REVISAR; aún no producto final ni ruta pública consolidada.
+## Caja / Arqueo (parte del futuro TPV)
+- `tpv_con monedas.html` en Drive — prototipo ejecutable de **caja y arqueo**, no TPV completo. Incluye ventas en efectivo/tarjeta, salidas de cajón, efectivo teórico, conteo físico por billetes/monedas y desviación. No publicarlo todavía como `SINCRONIAIA POS` porque faltan catálogo/artículos, ticket, cálculo de cambio al cliente, mesas/comandas y flujo real de venta.
 
 ## Control Horario personal
-- `SINCRONIAIA_CONTROL_HORARIO_PERSONAL_v0.6.6_MINUTOS_CONSOLIDADOS.html` — candidata posterior a v0.6.5. Revisar seguridad y funcionamiento antes de sustituir la ruta actual.
+- `SINCRONIAIA_CONTROL_HORARIO_PERSONAL_v0.6.6_MINUTOS_CONSOLIDADOS.html` — candidata posterior a v0.6.5. Auditoría inicial superada: no contiene el secreto hardcodeado y usa una clave guardada localmente. Se ha preparado una variante que elimina la aceptación de claves mediante `?k=` en URL. Falta publicación controlada y prueba contra backend antes de sustituir v0.6.5.
 
 ## Legal/comercial
 - Contratos Control Horario Básica / Avanzada / Premium — **BORRADORES**, no listos para firma.
@@ -84,6 +84,7 @@ Actualizado: 25/08/2026 · 11:30 Europe/Madrid
 - `/gestion/todo-bueno/` — demo local sin backend/login real.
 - `SINCRONIAIA_BACKEND_MULTIEMPRESA` — núcleo backend en desarrollo.
 - `TODO BUENO · PEDIDOS` — hoja localizada en Drive; no declararla fuente de verdad del panel actual sin integración real.
+- **SINCRONIAIA POS** — producto completo todavía en desarrollo. El módulo Caja/Arqueo existe, pero faltan catálogo/artículos, tickets, cálculo de cambio, mesas/comandas y posteriormente inventario básico.
 - Omuro / Yamaha — concepto; no se ha localizado entregable canónico validado.
 - Simuladores adicionales de hipoteca, márgenes, IVA, horas, amortización y presupuestos — conceptos/artefactos dispersos; no consolidar como productos aún.
 
@@ -114,8 +115,9 @@ Actualizado: 25/08/2026 · 11:30 Europe/Madrid
 ## SINCRONIA Animal LAB
 - v0.1, v0.2, v0.3, v0.4, v0.4.1 y variantes intermedias de v0.4.2 — históricos de laboratorio. La referencia pública actual es `/sincronia-animal/`, derivada de v0.4.2(2).
 
-## TPV
-- `TPV.html` y `TPV_Con_Arqueo.html` — históricos. `tpv_con monedas.html` es la candidata de revisión.
+## Caja / TPV
+- `TPV.html` y `TPV_Con_Arqueo.html` — históricos.
+- `tpv_con monedas.html` — candidato actual del módulo Caja/Arqueo, no del TPV completo.
 
 ## Documentación/material antiguo
 - `GUIA_UI.md` v1.0.0 — borrador sustituido por V2/v1.1.0.
@@ -130,15 +132,15 @@ Actualizado: 25/08/2026 · 11:30 Europe/Madrid
 2. Una credencial que haya estado publicada se considera comprometida incluso después de borrar el texto: debe rotarse.
 3. La ruta antigua `/control-horario-felix/` ya está retirada, pero **la rotación del secreto del backend continúa pendiente**.
 4. No publicar Copiloto Comercial administrativo mientras no exista separación entre frontend público y acceso interno protegido.
-5. Minificación, compresión u ofuscación no cuentan como protección de secretos.
+5. No transportar secretos mediante parámetros de URL. Minificación, compresión u ofuscación tampoco cuentan como protección.
 6. Para cada producto debe existir una sola fuente de verdad y una sola versión recomendada.
 7. No declarar ACTUAL una simulación, un LAB o una función normativa no conectada.
 
 # PRÓXIMOS PENDIENTES REALES
 
-1. Auditar `control-horario-felix-v065` y la candidata v0.6.6; decidir una sola versión personal y retirar la otra.
+1. Publicar y probar de forma controlada la variante saneada de v0.6.6; si pasa, convertirla en única versión personal y retirar v0.6.5.
 2. Rotar la credencial comprometida del backend de Control Horario cuando exista acceso de edición seguro al Apps Script.
 3. Validar Gestión Laboral en móvil, manteniéndola como LAB mientras BOE/convenio no sea una fuente oficial conectada.
 4. Definir acceso interno protegido para Copiloto Comercial v1.3.4.
-5. Decidir si el prototipo TPV merece una ruta pública de prueba o vuelve a desarrollo.
+5. Mantener Caja/Arqueo separado del producto POS hasta desarrollar el flujo real de venta.
 6. No abrir nuevas versiones de Can Soler, Ascensores, SINCRONIA Animal o Todo Bueno salvo incidencia concreta.
