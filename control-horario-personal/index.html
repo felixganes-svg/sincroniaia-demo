@@ -60,7 +60,8 @@ function seed(){return {days:{
 '2026-08-20':{sessions:[{in:isoLocal(2026,8,20,7,30),out:isoLocal(2026,8,20,13,30),minutes:360}],source:'histórico confirmado'},
 '2026-08-21':{sessions:[{in:isoLocal(2026,8,21,7,30),out:isoLocal(2026,8,21,13,30),minutes:360}],source:'histórico confirmado'},
 '2026-08-22':{sessions:[{in:isoLocal(2026,8,22,7,30),out:isoLocal(2026,8,22,13,30),minutes:360}],source:'histórico confirmado'},
-'2026-08-24':{sessions:[{in:isoLocal(2026,8,24,8,30,37),out:isoLocal(2026,8,24,13,30,0),minutes:300}],source:'salida 13:30 confirmada · pendiente regularización central'}
+'2026-08-24':{sessions:[{in:isoLocal(2026,8,24,8,30,37),out:isoLocal(2026,8,24,13,30,0),minutes:300}],source:'salida 13:30 confirmada · pendiente regularización central'},
+'2026-08-25':{sessions:[{in:isoLocal(2026,8,25,7,30),out:isoLocal(2026,8,25,13,30),minutes:360}],source:'fichaje real confirmado 07:30–13:30'}
 },open:null,pending:[],backups:[],gps:null,config:{weeklyContractHours:40},created:new Date().toISOString()}}
 let loaded=null;
 try{loaded=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem(LEGACY_KEY)||localStorage.getItem(V064_KEY)||localStorage.getItem('sincroniaia_control_personal_v063')||localStorage.getItem(V060_KEY)||localStorage.getItem(OLD_KEY)||localStorage.getItem(OLDER_KEY)||localStorage.getItem(OLDEST_KEY)||'null')}catch(e){loaded=null}
