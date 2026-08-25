@@ -1,9 +1,16 @@
 # SINCRONIAIA · CONTROL HORARIO — PANADERÍA TODO BUENO
 
-Versión actual: **v0.3.9 BÁSICA**
+## Estado consolidado
 
-Ruta pública:
+**Versión actual:** **v0.3.9 BÁSICA**  
+**Estado:** **APROBADA FUNCIONALMENTE · CANDIDATA A MASTER 1.0**  
+**Fecha de aprobación funcional:** 25/08/2026
+
+Ruta pública principal:  
 `/todo-bueno/control-horario/`
+
+Ruta de revisión/pantalla BÁSICA:  
+`/todo-bueno/control-horario/basica.html`
 
 ## Objetivo de la versión BÁSICA
 Una única pantalla de acceso para trabajador y empresa, usable desde tablet, ordenador o móvil mediante enlace/QR.
@@ -25,10 +32,9 @@ Una única pantalla de acceso para trabajador y empresa, usable desde tablet, or
 - Imprimir / guardar informe en PDF.
 - Mostrar/imprimir QR de acceso.
 - Copia de seguridad automática.
-- Seguridad y auxilio: aviso discreto al responsable configurado por la empresa.
 
-## Seguridad y auxilio
-La empresa puede definir un código secreto de auxilio y un destinatario para las alertas. Si un trabajador utiliza su código de auxilio, la pantalla se comporta como un fichaje normal y el sistema genera una alerta discreta para el responsable. Esta función no sustituye al 112 ni realiza llamadas automáticas a emergencias.
+## Funciones avanzadas conservadas
+No se borran. Seguridad/auxilio, calendario, ausencias, vacaciones, bajas, festivos y ficha mensual ampliada permanecen en el proyecto para versiones superiores. La versión BÁSICA se diferencia por una pantalla y un flujo más sencillos, no por destruir funciones ya desarrolladas.
 
 ## Modo de acceso
 - Si hay tablet u ordenador en el centro: se deja abierta la pantalla de fichaje.
@@ -38,21 +44,21 @@ La empresa puede definir un código secreto de auxilio y un destinatario para la
 ## GPS
 En esta versión BÁSICA de Todo Bueno el GPS no se utiliza porque existe un único centro de trabajo. La arquitectura conserva la posibilidad de añadir control de ubicación en versiones posteriores o para otros clientes.
 
-## Funciones avanzadas conservadas
-No se eliminan del desarrollo. Calendario, ausencias, festivos y otras funciones quedan disponibles para una versión profesional posterior.
-
 ## Datos y backend
 La interfaz pública está conectada mediante `config.js` al servicio desplegado para el piloto real. El cliente no ve la hoja de datos ni información técnica.
 
-## Criterio de validación BÁSICA
-Debe superarse el recorrido completo:
-1. Crear trabajador.
-2. Fichar entrada.
-3. Ver trabajador en “Trabajando ahora”.
-4. Fichar salida.
-5. Consultar cómputo.
-6. Consultar informe por fechas.
-7. Imprimir/guardar PDF.
-8. Dar de baja conservando histórico.
-9. Reabrir desde otro dispositivo y comprobar persistencia.
-10. Verificar código/alerta de auxilio con un destinatario de prueba antes de uso real.
+**Importante para el sellado MASTER:** el archivo `backend/Code.gs` guardado actualmente en GitHub es una copia histórica y todavía no se ha verificado que coincida exactamente con el Apps Script desplegado que está funcionando en producción/piloto. No tocar el backend desplegado mientras funciona; primero recuperar y guardar una copia exacta.
+
+## Prueba funcional BÁSICA aprobada
+Se ha confirmado manualmente que la v0.3.9 funciona correctamente en el flujo BÁSICO publicado.
+
+## Criterio pendiente para MASTER 1.0 sellado
+Antes de declarar `TODO BUENO · CONTROL HORARIO · BÁSICO MASTER 1.0 · SELLADO` deben quedar completados y documentados estos puntos:
+1. Recuperar/sincronizar el código exacto del backend desplegado.
+2. Guardar frontend + configuración + backend como conjunto recuperable.
+3. Repetir el recorrido integral: crear trabajador → entrada → “Trabajando ahora” → salida → cómputo → informe → PDF → baja → histórico.
+4. Reabrir desde otro dispositivo/navegador y confirmar persistencia.
+5. Mantener una versión estable separada antes de iniciar nuevas mejoras.
+
+## Regla de conservación
+No borrar funciones aprobadas ni sustituir la versión estable durante nuevas pruebas. Las mejoras futuras se harán en copias/versiones superiores hasta ser aprobadas.
