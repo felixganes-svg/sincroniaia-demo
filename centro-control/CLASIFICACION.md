@@ -23,6 +23,12 @@ Regla operativa:
 - Google Sheet `SINCRONIAIA - Respuestas de negocios` (ID `1MRcROiaKrFQtAr-AJaCNQnET51gIqN4dEoLbRqm4oOo`) — núcleo de captación/seguimiento. Incluye Respuestas, Captacion, Incidencias, backups y Seguimiento_Copiloto.
 - Apps Script `SINCRONIAIA — CONTROL DE CAPTACIÓN` — backend administrativo de captación. Uso interno.
 
+### DOCUMENTACIÓN MAESTRA INTERNA · SINCRONIAIA LABS
+- `Arquitectura de Interfaz y Método SINCRONIAIA LABS` — versión 2.0. Documento maestro vigente de método, flujo consultivo y matriz ILE / ICE.
+- `MODELO_DE_NEGOCIO.md v1.2.0` — documento estable y definitivo del modelo operativo, comercial y de ingresos. Define oferta, planes, fuentes de ingresos, cualificación y límites de personalización.
+- `GUIA_UI.md V2` — contenido interno versión 1.1.0, marcada como Versión Definitiva Aprobada. Es la referencia vigente de UX/UI, responsive, accesibilidad y plantillas.
+- `FASE_C_1_1_MODELO_CANONICO_DE_CAPTACION` — documento técnico maestro para arquitectura de captación, fuente única de verdad, estados del lead, conversión y reglas antduplicidad.
+
 ## REVISAR
 - `/prueba-ascensores-v1/` — Demo aislada de Ascensores. Buena base; pendiente validación móvil final.
 - `/prueba-can-soler-v1/` — Demo aislada Can Soler. APARCADA por decisión actual; no trabajar ahora.
@@ -51,6 +57,10 @@ Regla operativa:
 - `TODO BUENO · PEDIDOS` — hoja de pedidos localizada en Drive. Revisar relación con la demo/panel actual antes de declararla fuente de verdad.
 
 ## HISTÓRICO / LAB
+### Documentación interna
+- `GUIA_UI.md` — versión 1.0.0. Borrador oficial para revisión; sustituida por `GUIA_UI.md V2` / contenido v1.1.0 definitivo.
+- `Manifiesto y Base de Conocimiento - Sincronía IA` — HISTÓRICO / NO REUTILIZAR SIN REVISIÓN. Mezcla la marca actual con mensajes y contexto de compraventa inmobiliaria y una base de conocimiento de una etapa anterior; no debe alimentar demos, agentes ni comunicación comercial vigente.
+
 ### Control Horario Félix
 - `/control-horario-felix-v064/` — versión anterior.
 - `/control-horario/felix/` — prueba fechada 25/08/2026; no sirve como acceso permanente.
@@ -128,4 +138,5 @@ Antes de desarrollar una nueva versión de cualquier proyecto:
 3. pasar las anteriores a HISTÓRICO;
 4. no inventar ni publicar rutas no verificadas;
 5. no mover a ACTUAL nada que sea solo simulación, laboratorio o concepto;
-6. definir una sola fuente de verdad por producto cuando existan varias hojas/backends.
+6. definir una sola fuente de verdad por producto cuando existan varias hojas/backends;
+7. cuando exista documentación maestra, trabajar sobre la versión estable aprobada y no sobre borradores históricos.
