@@ -1,9 +1,10 @@
 # SINCRONIAIA · CLASIFICACIÓN MAESTRA
 
-Actualizado: 25/08/2026 · 11:42 Europe/Madrid
+Actualizado: 25/08/2026 · 14:11 Europe/Madrid
 
 ## Regla desde ahora
-- **ACTUAL** = funciona hoy y es la referencia recomendada.
+- **ACTUAL / OPERATIVO** = funciona hoy y es la referencia recomendada.
+- **MASTER CONSOLIDADO** = versión única validada en uso real. No se modifica salvo incidencia concreta o mejora planificada.
 - **PENDIENTE / LAB / INTERNO** = existe, pero no se presenta como operativo.
 - **HISTÓRICO / RETIRADO** = no usar.
 - Una sola versión operativa por proyecto. No crear cadenas de parches ni nuevas rutas por cada corrección.
@@ -25,7 +26,7 @@ Actualizado: 25/08/2026 · 11:42 Europe/Madrid
 - `/todo-bueno/control-horario/` — Control Horario estable del piloto.
 
 ## Control Horario
-- `/control-horario-personal/` — **MASTER v0.6.6**. Ruta canónica. Minutos consolidados. No contiene el secreto hardcodeado en el HTML; la clave de acceso se obtiene del almacenamiento local del navegador.
+- `/control-horario-personal/` — **MASTER CONSOLIDADO · OPERATIVO**. Validado en uso real el 25/08/2026: carga correcta en móvil, GPS correcto, recuperación del estado de jornada, entrada de las 07:30 reconocida y fichaje de salida completado correctamente. Ruta canónica única. No modificar salvo incidencia concreta o mejora planificada.
 - `/control-horario-versiones/` — Planes Básica / Intermedia / Premium.
 - `/control-horario-calculadora/` — Calculadora comercial.
 
@@ -65,7 +66,7 @@ Actualizado: 25/08/2026 · 11:42 Europe/Madrid
 
 # RETIRADO / HISTÓRICO
 - `/control-horario-felix/` — retirado por haber expuesto una credencial en una versión antigua. La página ya no contiene la aplicación.
-- `/control-horario-felix-v065/` — conserva compatibilidad, pero deja de ser la referencia. La referencia es `/control-horario-personal/` MASTER v0.6.6.
+- `/control-horario-felix-v065/` — histórico de compatibilidad. No usar como referencia.
 - `/control-horario-felix-v064/`, `/control-horario/felix/`, `/control-horario-prueba/` y versiones personales anteriores — histórico.
 - `/prueba-can-soler-v1/` — sustituida por `/can-soler/`.
 - Versiones anteriores de Todo Bueno, SINCRONIA Animal, Copiloto, Simulador, Bienestar y voz — histórico/trazabilidad.
@@ -77,6 +78,7 @@ Actualizado: 25/08/2026 · 11:42 Europe/Madrid
 3. La credencial del backend antiguo de Control Horario sigue pendiente de rotación porque no hay una acción segura disponible desde las conexiones actuales para modificar ese Apps Script.
 4. No publicar herramientas administrativas internas sin acceso protegido.
 5. ACTUAL nunca significa “demo que parece funcionar”; significa operativo de extremo a extremo para su alcance declarado.
+6. Un MASTER CONSOLIDADO validado no se modifica por estética ni por crear otra versión: solo por incidencia real o mejora planificada.
 
 # SIGUIENTE BLOQUE DE TRABAJO
 1. Crear/conectar backend central real para `TODO BUENO · PEDIDOS` y probar cliente → hoja → panel empresa desde dispositivos distintos.
