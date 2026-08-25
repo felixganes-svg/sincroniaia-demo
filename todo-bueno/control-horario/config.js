@@ -1,11 +1,11 @@
 window.TODO_BUENO_CONFIG = {
-  VERSION: "0.3.9",
+  VERSION: "0.4.0-TEST-SOS",
   API_URL: "https://script.google.com/macros/s/AKfycbzvN72QIBEiJ6ZJ5coC8BVTvLWYqhYzIUDeGH4oZPNuZ5GdMiAuc6g2dIJ3J067b1dLFg/exec"
 };
 
 window.addEventListener('load', function () {
   var version = document.querySelector('.brand .small');
-  if (version) version.textContent = 'v0.3.9';
+  if (version) version.textContent = 'v0.4.0 TEST SOS+';
 
   // MODO BÁSICO: ordenamos la pantalla sin eliminar funciones.
   var botonesMenu = document.querySelectorAll('#empresaMenu .no-print .btn');
@@ -19,17 +19,95 @@ window.addEventListener('load', function () {
     }
   });
 
-  // Explicación clara de la función de auxilio.
+  // SOS+ v0.4.0: un único código general por empresa.
   var fichaSeg = document.getElementById('fichaSeguridad');
-  if (fichaSeg && !document.getElementById('explicacionAuxilioBasic')) {
-    var info = document.createElement('div');
-    info.id = 'explicacionAuxilioBasic';
-    info.className = 'notice';
-    info.style.marginBottom = '14px';
-    info.innerHTML = '<b>Aviso discreto al responsable</b><p class="small" style="margin:7px 0 0">La empresa puede definir un código secreto de auxilio. Si un trabajador lo utiliza, la pantalla se comporta como un fichaje normal y el sistema genera una alerta para la persona responsable indicada por la empresa. No sustituye al 112 ni realiza llamadas automáticas a emergencias.</p>';
-    var grid = fichaSeg.querySelector('.form-grid');
-    if (grid) fichaSeg.insertBefore(info, grid);
+  if (fichaSeg) {
+    var auxInput = document.getElementById('segAuxEmpresa');
+    var auxInput2 = document.getElementById('segAuxEmpresa2');
+    if (auxInput && auxInput.closest('.field')) {
+      var lab1 = auxInput.closest('.field').querySelector('label');
+      if (lab1) lab1.textContent = 'Código general de auxilio (SOS+)';
+      auxInput.placeholder = '4 cifras secretas';
+    }
+    if (auxInput2 && auxInput2.closest('.field')) {
+      var lab2 = auxInput2.closest('.field').querySelector('label');
+      if (lab2) lab2.textContent = 'Repetir código general de auxilio';
+    }
+
+    var notaSeg = fichaSeg.querySelector('.form-grid + p.muted.small');
+    if (notaSeg) {
+      notaSeg.textContent = 'Existe un único código general de auxilio para la empresa. Debe ser distinto del código normal de empresa y de todos los códigos de trabajadores.';
+    }
+
+    if (!document.getElementById('explicacionAuxilioBasic')) {
+      var info = document.createElement('div');
+      info.id = 'explicacionAuxilioBasic';
+      info.className = 'notice';
+      info.style.marginBottom = '14px';
+      info.innerHTML = '<b>Aviso discreto al responsable</b><p class="small" style="margin:7px 0 0">La empresa define un único código general SOS+. Si alguien lo introduce, el sistema genera una alerta silenciosa para la persona responsable. La pantalla muestra una respuesta neutra, no abre el panel de empresa y no crea un fichaje falso. No sustituye al 112 ni realiza llamadas automáticas a emergencias.</p>';
+      var grid = fichaSeg.querySelector('.form-grid');
+      if (grid) fichaSeg.insertBefore(info, grid);
+    }
   }
+
+  // Nuevo trabajador: eliminamos el auxilio individual de la interfaz.
+  var fichaNuevo = document.getElementById('fichaNuevo');
+  if (fichaNuevo) {
+    var auxAlta = document.getElementById('altaAuxilio');
+    if (auxAlta && auxAlta.closest('.field')) auxAlta.closest('.field').remove();
+
+    var introAlta = fichaNuevo.querySelector('p.muted.small');
+    if (introAlta) {
+      introAlta.textContent = 'Cada trabajador utiliza únicamente su código personal de 4 cifras. El código general SOS+ pertenece a la empresa y se configura en Seguridad y auxilio.';
+    }
+  }
+
+  // Limpiar formulario sin depender del antiguo campo de auxilio individual.
+  window.limpiarAlta = function () {
+    ['altaCodigo','altaNombre','altaHoras','altaHasta'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    var activo = document.getElementById('altaActivo');
+    if (activo) activo.value = 'SI';
+    var desde = document.getElementById('altaDesde');
+    if (desde) desde.value = '';
+  };
+
+  // Alta de trabajador v0.4.0: sin código de auxilio individual.
+  window.guardarTrabajador = function () {
+    if (!validarCodigoAlta()) {
+      var cod = document.getElementById('altaCodigo');
+      if (cod) cod.focus();
+      return;
+    }
+
+    var p = {
+      owner: OWNER,
+      codigo: document.getElementById('altaCodigo').value,
+      nombre: document.getElementById('altaNombre').value,
+      horas: document.getElementById('altaHoras').value,
+      activo: document.getElementById('altaActivo').value,
+      desde: document.getElementById('altaDesde').value,
+      hasta: document.getElementById('altaHasta').value
+    };
+
+    api('crearTrabajador', p, function (r) {
+      if (!r.ok) {
+        alert(r.error || 'No se pudo crear el trabajador');
+        return;
+      }
+      limpiarAlta();
+      var ce = document.getElementById('altaCodigoEstado');
+      if (ce) {
+        ce.textContent = '';
+        ce.className = 'small muted';
+        ce.style.color = '';
+      }
+      if (typeof cargarEmpresa === 'function') cargarEmpresa();
+      alert('Trabajador creado correctamente.');
+    });
+  };
 
   // Panel: quién está trabajando ahora.
   var panel = document.getElementById('fichaPanel');
