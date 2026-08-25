@@ -1,7 +1,7 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Todo Bueno · Demo conectada</title><style>html,body{margin:0;height:100%;background:#0b141a;color:white;font-family:Arial,sans-serif}.loading{height:100%;display:grid;place-items:center;text-align:center;padding:24px}</style></head><body><div class="loading">Cargando demo Todo Bueno…</div><script>
 (async()=>{
   try{
-    const r=await fetch('../index.html?connected=13',{cache:'no-store'});
+    const r=await fetch('../index.html?connected=14',{cache:'no-store'});
     if(!r.ok) throw new Error('No se pudo cargar la demo base');
     let html=await r.text();
     const patch=`<script>
@@ -9,7 +9,7 @@ const TB_ORDERS_KEY='todoBuenoPedidosDemoV1';
 function tbIsoLocalConnected(date){return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0')}
 function tbPickupDateConnected(label){const raw=String(label||'').trim();const n=raw.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'');const d=new Date();if(n==='hoy')return tbIsoLocalConnected(d);if(n==='manana'){d.setDate(d.getDate()+1);return tbIsoLocalConnected(d)}let m=raw.match(/^(\\d{1,2})[\\/\\-](\\d{1,2})(?:[\\/\\-](\\d{2,4}))?$/);if(m){let y=m[3]?Number(m[3]):d.getFullYear();if(y<100)y+=2000;return y+'-'+String(Number(m[2])).padStart(2,'0')+'-'+String(Number(m[1])).padStart(2,'0')}if(/^\\d{4}-\\d{2}-\\d{2}$/.test(raw))return raw;return ''}
 function tbStoreConnected(o){try{const a=JSON.parse(localStorage.getItem(TB_ORDERS_KEY)||'[]');const list=Array.isArray(a)?a:[];list.unshift(o);localStorage.setItem(TB_ORDERS_KEY,JSON.stringify(list.slice(0,250)));return true}catch(e){return false}}
-tbRegistrar=function(){
+registerDemo=function(){
  const d=state.data;const cart=Array.isArray(d.cart)?d.cart:[];const now=new Date();const id='DEMO-'+now.getFullYear()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0')+'-'+String(Math.floor(Math.random()*900)+100);
  const saved=tbStoreConnected({id,createdAt:now.toISOString(),pickupDate:tbPickupDateConnected(d.fechaRecogida||''),pickupLabel:d.fechaRecogida||'',pickupTime:d.horaRecogida||'',name:d.nombre||'',phone:d.telefono||'',items:cart.map(it=>({nombre:it.nombre,cantidad:it.cantidad,mode:it.mode||''})),status:'Pendiente',demo:true});
  msg('✅ <strong>Pedido de demostración registrado con éxito.</strong><br><br>Código de seguimiento: <strong>'+id+'</strong>.');
@@ -17,7 +17,7 @@ tbRegistrar=function(){
  notice('info','📨 PEDIDO REGISTRADO EN LA DEMOSTRACIÓN',detalle);
  notice('info','📲 EN UNA IMPLANTACIÓN REAL','El pedido se enviaría automáticamente al canal que el establecimiento elija, por ejemplo WhatsApp, email o su panel de pedidos.');
  notice('safe','MODO PRUEBA',saved?'Este pedido de demostración queda guardado en este navegador y puede consultarse desde el listado de pedidos de empresa. No se ha enviado ningún pedido real.':'No se ha podido guardar en este navegador. No se ha enviado ningún pedido real.');
- state.step='tb_final';return buttons([{label:'✅ Finalizar',value:'tb_finalizar'}]);
+ state.step='final';return buttons([{label:'🏠 Volver al inicio',value:'inicio'}]);
 };
 <\/script>`;
     html=html.replace('</body>',patch+'</body>');
