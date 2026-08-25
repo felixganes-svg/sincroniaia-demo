@@ -1,9 +1,12 @@
 window.TODO_BUENO_CONFIG = {
-  VERSION: "0.3.6",
+  VERSION: "0.3.7",
   API_URL: "https://script.google.com/macros/s/AKfycbzvN72QIBEiJ6ZJ5coC8BVTvLWYqhYzIUDeGH4oZPNuZ5GdMiAuc6g2dIJ3J067b1dLFg/exec"
 };
 
 window.addEventListener('load', function () {
+  var version = document.querySelector('.brand .small');
+  if (version) version.textContent = 'v0.3.7';
+
   window.darBaja = function (codigo, nombre) {
     if (!confirm('Dar de baja a ' + nombre + '?\n\nSe conservarán su código y todos sus fichajes.')) return;
     var aviso = document.getElementById('empresaAviso');
