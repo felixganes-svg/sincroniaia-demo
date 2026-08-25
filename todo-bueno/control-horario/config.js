@@ -1,27 +1,37 @@
 window.TODO_BUENO_CONFIG = {
-  VERSION: "0.3.8",
+  VERSION: "0.3.9",
   API_URL: "https://script.google.com/macros/s/AKfycbzvN72QIBEiJ6ZJ5coC8BVTvLWYqhYzIUDeGH4oZPNuZ5GdMiAuc6g2dIJ3J067b1dLFg/exec"
 };
 
 window.addEventListener('load', function () {
   var version = document.querySelector('.brand .small');
-  if (version) version.textContent = 'v0.3.8';
+  if (version) version.textContent = 'v0.3.9';
 
-  // MODO BÁSICO: simplificamos la pantalla, pero NO eliminamos funciones.
-  // Seguridad/Auxilio continúa disponible en el código para versiones superiores.
+  // MODO BÁSICO: ordenamos la pantalla sin eliminar funciones.
   var botonesMenu = document.querySelectorAll('#empresaMenu .no-print .btn');
   botonesMenu.forEach(function (b) {
     var txt = (b.textContent || '').trim();
+    if (txt === 'Mostrar trabajadores') b.textContent = 'Trabajadores';
     if (txt === 'Seguridad y auxilio') {
-      b.style.display = 'none';
-      b.setAttribute('data-basic-hidden', 'true');
-    }
-    if (txt === 'Mostrar trabajadores') {
-      b.textContent = 'Trabajadores';
+      b.style.display = '';
+      b.removeAttribute('data-basic-hidden');
+      b.textContent = 'Seguridad y auxilio';
     }
   });
 
-  // Añadimos al panel del propietario una lectura inmediata de quién está trabajando.
+  // Explicación clara de la función de auxilio.
+  var fichaSeg = document.getElementById('fichaSeguridad');
+  if (fichaSeg && !document.getElementById('explicacionAuxilioBasic')) {
+    var info = document.createElement('div');
+    info.id = 'explicacionAuxilioBasic';
+    info.className = 'notice';
+    info.style.marginBottom = '14px';
+    info.innerHTML = '<b>Aviso discreto al responsable</b><p class="small" style="margin:7px 0 0">La empresa puede definir un código secreto de auxilio. Si un trabajador lo utiliza, la pantalla se comporta como un fichaje normal y el sistema genera una alerta para la persona responsable indicada por la empresa. No sustituye al 112 ni realiza llamadas automáticas a emergencias.</p>';
+    var grid = fichaSeg.querySelector('.form-grid');
+    if (grid) fichaSeg.insertBefore(info, grid);
+  }
+
+  // Panel: quién está trabajando ahora.
   var panel = document.getElementById('fichaPanel');
   if (panel && !document.getElementById('trabajandoAhoraBasic')) {
     var bloque = document.createElement('div');
@@ -38,8 +48,7 @@ window.addEventListener('load', function () {
   }
 
   function renderTrabajandoAhoraBasic() {
-    var lista = Array.isArray(window.trabajadoresPanel) ? window.trabajadoresPanel :
-      (typeof trabajadoresPanel !== 'undefined' && Array.isArray(trabajadoresPanel) ? trabajadoresPanel : []);
+    var lista = Array.isArray(window.trabajadoresPanel) ? window.trabajadoresPanel : [];
     var activos = lista.filter(function (t) { return t.activo !== false; });
     var trabajando = activos.filter(function (t) {
       return String(t.estado || '').toUpperCase() === 'TRABAJANDO';
@@ -50,36 +59,22 @@ window.addEventListener('load', function () {
     var fueraEl = document.getElementById('fueraAhoraResumen');
     if (!resumen || !detalle || !fueraEl) return;
     resumen.textContent = trabajando.length + (trabajando.length === 1 ? ' trabajador' : ' trabajadores');
-    if (!trabajando.length) {
-      detalle.innerHTML = '<p class="muted small">No hay trabajadores fichados como trabajando en este momento.</p>';
-    } else {
-      detalle.innerHTML = trabajando.map(function (t) {
-        return '<div style="padding:9px 0;border-bottom:1px solid #ead9c6"><b>' +
-          String(t.nombre || t.codigo || 'Trabajador') + '</b> · <span class="ok">Trabajando</span></div>';
-      }).join('');
-    }
+    detalle.innerHTML = trabajando.length ? trabajando.map(function (t) {
+      return '<div style="padding:9px 0;border-bottom:1px solid #ead9c6"><b>' + String(t.nombre || t.codigo || 'Trabajador') + '</b> · <span class="ok">Trabajando</span></div>';
+    }).join('') : '<p class="muted small">No hay trabajadores fichados como trabajando en este momento.</p>';
     fueraEl.textContent = 'Fuera: ' + fuera;
   }
 
-  // Conservamos la función existente y añadimos la actualización visual del modo básico.
   if (typeof window.actualizarTotalesEmpresa === 'function') {
     var actualizarOriginal = window.actualizarTotalesEmpresa;
     window.actualizarTotalesEmpresa = function () {
       actualizarOriginal.apply(this, arguments);
       renderTrabajandoAhoraBasic();
     };
-  } else if (typeof actualizarTotalesEmpresa === 'function') {
-    var actualizarOriginalLocal = actualizarTotalesEmpresa;
-    actualizarTotalesEmpresa = function () {
-      actualizarOriginalLocal.apply(this, arguments);
-      renderTrabajandoAhoraBasic();
-    };
   }
-
-  // Render inicial por si el panel ya tiene datos disponibles.
   renderTrabajandoAhoraBasic();
 
-  // Corrección visual de la baja: mantenemos histórico y código.
+  // Baja: se conserva histórico y código.
   window.darBaja = function (codigo, nombre) {
     if (!confirm('Dar de baja a ' + nombre + '?\n\nSe conservarán su código y todos sus fichajes.')) return;
     var aviso = document.getElementById('empresaAviso');
