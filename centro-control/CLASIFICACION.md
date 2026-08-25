@@ -11,11 +11,11 @@ Regla operativa:
 ## ACTUAL
 - `/` — Portal público SINCRONIAIA. Integra Restaurante, Fisioterapia, Reformas y Bienestar Animal.
 - `/investigacion/` — Investigación de campo.
-- `/todo-bueno/` — Demo cliente Todo Bueno.
-- `/todo-bueno/control-horario/` — Piloto estable de Control Horario Todo Bueno.
+- `/todo-bueno/` — Todo Bueno · Els Molins · BASE ESTABLE v1.1. La ruta pública coincide con la base estable enviada y contiene la corrección del teclado móvil. Es el acceso recomendado actual de esta demo.
+- `/todo-bueno/control-horario/` — Piloto estable de Control Horario Todo Bueno. Sigue siendo piloto, no producto definitivo.
 - `/control-horario-versiones/` — Menú comercial Básica / Intermedia / Premium.
 - `/control-horario-calculadora/` — Calculadora comercial de Control Horario.
-- `/control-horario-felix-v065/` — Último acceso personal recomendado localizado por ahora. Pendiente revisión específica de seguridad antes de considerarlo definitivo.
+- `/control-horario-felix-v065/` — Último acceso personal público recomendado localizado por ahora. Existe una v0.6.6 posterior por archivo/email, pero todavía no está consolidada en una ruta pública verificada.
 
 ### ACTUAL INTERNO · Drive / backend
 - Google Sheet `SINCRONIAIA — CONTROL HORARIO — TODO BUENO PILOTO` (ID `1ShVF1jKQal-jlErDwY8_ugfpH5d1oX2JUNGvfX5a2hc`) — fuente de datos activa del piloto. Contiene FICHAJES, INCIDENCIAS, EMPRESAS, TRABAJADORES, HORARIOS, CALENDARIO, LOG y ALERTAS. Tiene registros de fichaje de prueba reales del piloto.
@@ -45,6 +45,13 @@ Regla operativa:
 - Google Sheet `SINCRONIAIA — Respuestas Bienestar Animal` + Apps Script `SINCRONIAIA — Bienestar Animal Mataró — AISLADO` — pareja administrativa de estudio/recogida de datos. REVISAR como herramienta de investigación, no como producto final.
 - Gestoría Copiloto v0.1 — demo aislada localizada por correo. Clasificación: REVISAR / prueba sectorial temprana; no producto final.
 - TPV prototipo — `tpv_con monedas.html` localizado en Drive. Es el prototipo ejecutable más avanzado localizado de esta familia. Clasificación: REVISAR / prototipo, no producto final ni ruta pública consolidada.
+- `SINCRONIAIA_CONTROL_HORARIO_PERSONAL_v0.6.6_MINUTOS_CONSOLIDADOS.html` — candidata posterior a v0.6.5 localizada por email. Corrige consolidación de minutos, pero no tiene ruta pública verificada; revisar y publicar de forma controlada antes de sustituir el acceso v0.6.5.
+
+### BORRADORES COMERCIALES / LEGALES · REVISAR
+- `SINCRONIAIA_CONTRATO_CONTROL_HORARIO_BASICA_BORRADOR.docx` — borrador, no contrato final.
+- `SINCRONIAIA_CONTRATO_CONTROL_HORARIO_AVANZADA_BORRADOR.docx` — borrador, no contrato final.
+- `SINCRONIAIA_CONTRATO_CONTROL_HORARIO_PREMIUM_BORRADOR.docx` — borrador, no contrato final.
+- `SINCRONIAIA_CONTROL_HORARIO_VERSIONES_PRECIOS_PROVISIONALES.html` — precios provisionales; no usar como tarifa maestra actual hasta revisión comercial y legal.
 
 ### MATERIAL COMERCIAL / MARCA · REVISAR
 - `Sincronía IA - La Estrategia de la Intriga` — presentación creativa aprovechable como referencia de tono y marketing de atracción, pero NO doctrina maestra. Usa marca antigua `SINCRONIA.IA` y contiene cifras/afirmaciones sin fuente demostrada; no presentar tal cual.
@@ -70,6 +77,17 @@ Regla operativa:
 - `Estructura Landing Sincron IA - V1` — duplicado temprano de la landing, con nombre de marca incorrecto/incompleto; sustituido como referencia por `Estructura Landing Sincronía IA - V1`.
 - `IA en Veterinaria` — HISTÓRICO / MATERIAL DE CONTENIDO A REVISAR. Usa marca antigua y contiene afirmaciones clínicas y cifras de impacto sin referencias verificadas dentro del documento. Solo rescatar conceptos operativos tras nueva investigación y validación de fuentes.
 
+### Panadería / Todo Bueno · evolución de demo
+- `SINCRONIAIA_DEMO_PANADERIA_PASTELERIA_v0.1` — precursor genérico de Panadería/Pastelería; sustituido como referencia sectorial por Todo Bueno BASE ESTABLE v1.1.
+- Todo Bueno v0.3 — histórico.
+- Todo Bueno v0.6 — histórico.
+- Todo Bueno v0.8 basada en Can Soler — histórico.
+- Todo Bueno v0.9 — histórico.
+- Todo Bueno v0.11 VALIDADA — histórico funcional anterior.
+- Todo Bueno v0.12 — histórico anterior a la consolidación estable.
+- Todo Bueno BASE ESTABLE v1.0 VALIDADA — predecesora directa.
+- Todo Bueno BASE ESTABLE v1.1 — versión ACTUAL y desplegada en `/todo-bueno/`.
+
 ### Control Horario Félix
 - `/control-horario-felix-v064/` — versión anterior.
 - `/control-horario/felix/` — prueba fechada 25/08/2026; no sirve como acceso permanente.
@@ -77,6 +95,11 @@ Regla operativa:
 - `/control-horario-prueba/` — laboratorio/pruebas.
 - Google Sheet `SINCRONIAIA — CONTROL HORARIO — FÉLIX DEMO` y Apps Script homónimo — conservar como material de prueba, no como acceso actual recomendado.
 - HTML `SINCRONIAIA_CONTROL_HORARIO_DEMO_v0.3.7_FELIX_20AGO_ENTRADA_0730.html` en Drive — histórico fechado.
+- v0.4.0 / v0.4.1 / v0.4.2 — históricos de evolución personal.
+- v0.6.0 / v0.6.1 / v0.6.2 — históricos de evolución/conexión/GPS.
+- v0.6.4 — histórico publicado anterior.
+- v0.6.5 — acceso público recomendado actual.
+- v0.6.6 — candidata posterior por archivo/email, en REVISAR hasta publicación y verificación.
 
 ### Todo Bueno · Control Horario
 - `/todo-bueno/control-horario/v0.2.1/`
@@ -86,6 +109,7 @@ Regla operativa:
 - `/todo-bueno/control-horario/v0.3.3/`
 Estas versiones se conservan solo para trazabilidad.
 - Google Sheet `SINCRONIAIA — CONTROL HORARIO — TODO BUENO — PILOTO` (ID `1P_lz0RBteHM73CqSqFyPeeO_NFfm1hIs_m6U86E_Ezo`) — predecesora de la hoja activa; no usar como fuente de verdad.
+- Paquete enviado con `index_TODO_BUENO_v0.3.4`, `Code_TODO_BUENO_v0.3.2`, configuración, QR y manual — material de piloto/instalación; conservar para trazabilidad, no presentarlo como sistema definitivo.
 
 ### TPV
 - `TPV.html` — prototipo inicial en Drive.
@@ -149,4 +173,5 @@ Antes de desarrollar una nueva versión de cualquier proyecto:
 5. no mover a ACTUAL nada que sea solo simulación, laboratorio o concepto;
 6. definir una sola fuente de verdad por producto cuando existan varias hojas/backends;
 7. cuando exista documentación maestra, trabajar sobre la versión estable aprobada y no sobre borradores históricos;
-8. material comercial antiguo con marca obsoleta o cifras no verificadas no se reutiliza directamente: primero se revisa y se adapta al estado actual.
+8. material comercial antiguo con marca obsoleta o cifras no verificadas no se reutiliza directamente: primero se revisa y se adapta al estado actual;
+9. borradores contractuales o precios provisionales nunca se consideran condiciones comerciales vigentes sin revisión expresa.
