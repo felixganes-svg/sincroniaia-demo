@@ -1,177 +1,144 @@
-# SINCRONIAIA · Clasificación maestra del repositorio y artefactos externos
+# SINCRONIAIA · CLASIFICACIÓN MAESTRA
 
-Actualizado: 25/08/2026
+Actualizado: 25/08/2026 · 11:30 Europe/Madrid
 
-Regla operativa:
-- ACTUAL = acceso recomendado hoy.
-- REVISAR = existe y puede ser útil, pero no se presenta como versión final.
-- DESARROLLO = laboratorio, simulación o producto todavía incompleto.
-- HISTÓRICO = conservar para trazabilidad/recuperación, no usar como acceso recomendado.
+## Regla de trabajo
+- **ACTUAL** = referencia recomendada hoy.
+- **REVISAR** = útil y ejecutable, pero aún no debe presentarse como versión definitiva.
+- **DESARROLLO** = laboratorio, simulación o producto incompleto.
+- **HISTÓRICO** = conservar únicamente para trazabilidad.
+- Una sola referencia recomendada por proyecto. Antes de crear una nueva versión se comprueba primero esta clasificación.
 
-## ACTUAL
+# ACTUAL · ACCESOS RECOMENDADOS
+
+## Base
 - `/` — Portal público SINCRONIAIA. Integra Restaurante, Fisioterapia, Reformas y Bienestar Animal.
-- `/investigacion/` — Investigación de campo.
-- `/todo-bueno/` — Todo Bueno · Els Molins · BASE ESTABLE v1.1. La ruta pública coincide con la base estable enviada y contiene la corrección del teclado móvil. Es el acceso recomendado actual de esta demo.
-- `/todo-bueno/control-horario/` — Piloto estable de Control Horario Todo Bueno. Sigue siendo piloto, no producto definitivo.
-- `/control-horario-versiones/` — Menú comercial Básica / Intermedia / Premium.
-- `/control-horario-calculadora/` — Calculadora comercial de Control Horario.
-- `/control-horario-felix-v065/` — Último acceso personal público recomendado localizado por ahora. Existe una v0.6.6 posterior por archivo/email, pero todavía no está consolidada en una ruta pública verificada.
+- `/investigacion/` — Investigación de Campo.
+- `/centro-control/` — Centro de Control interno para decidir qué versión utilizar.
 
-### ACTUAL INTERNO · Drive / backend
-- Google Sheet `SINCRONIAIA — CONTROL HORARIO — TODO BUENO PILOTO` (ID `1ShVF1jKQal-jlErDwY8_ugfpH5d1oX2JUNGvfX5a2hc`) — fuente de datos activa del piloto. Contiene FICHAJES, INCIDENCIAS, EMPRESAS, TRABAJADORES, HORARIOS, CALENDARIO, LOG y ALERTAS. Tiene registros de fichaje de prueba reales del piloto.
-- Apps Script `TODO_BUENO_CONTROL_HORARIO_v0.1` — backend asociado al piloto Todo Bueno. Uso interno; no presentar al cliente.
-- Google Sheet `SINCRONIAIA - Respuestas de negocios` (ID `1MRcROiaKrFQtAr-AJaCNQnET51gIqN4dEoLbRqm4oOo`) — núcleo de captación/seguimiento. Incluye Respuestas, Captacion, Incidencias, backups y Seguimiento_Copiloto.
-- Apps Script `SINCRONIAIA — CONTROL DE CAPTACIÓN` — backend administrativo de captación. Uso interno.
+## Demos sectoriales
+- `/can-soler/` — Can Soler consolidada. Pedido simulado, catálogo, puntos de venta, Hoy/Mañana/Otra fecha, modificación y finalización. Sustituye a `prueba-can-soler-v1`.
+- `/prueba-ascensores-v1/` — Ascensores validada. Prioriza personas atrapadas, diferencia emergencia médica/humo/incendio, remite a 112 cuando procede y no inventa precios, técnicos en camino ni tiempos de llegada.
+- `/sincronia-animal/` — SINCRONIA Animal, consolidada desde la última rama v0.4.2(2). Uno/varios/todos los animales, ficha reutilizable, necesidades, servicios, consentimiento e historial. Datos simulados.
 
-### DOCUMENTACIÓN MAESTRA INTERNA · SINCRONIAIA LABS
-- `Arquitectura de Interfaz y Método SINCRONIAIA LABS` — versión 2.0. Documento maestro vigente de método, flujo consultivo y matriz ILE / ICE.
-- `MODELO_DE_NEGOCIO.md v1.2.0` — documento estable y definitivo del modelo operativo, comercial y de ingresos. Define oferta, planes, fuentes de ingresos, cualificación y límites de personalización.
-- `GUIA_UI.md V2` — contenido interno versión 1.1.0, marcada como Versión Definitiva Aprobada. Es la referencia vigente de UX/UI, responsive, accesibilidad y plantillas.
-- `FASE_C_1_1_MODELO_CANONICO_DE_CAPTACION` — documento técnico maestro para arquitectura de captación, fuente única de verdad, estados del lead, conversión y reglas antduplicidad.
+## Todo Bueno
+- `/todo-bueno/` — Cliente · BASE ESTABLE v1.1. Referencia actual.
+- `/todo-bueno/conectada/` — Cliente conectado en modo demostración local. Guarda pedidos en el navegador para que puedan verse en el panel de empresa del mismo navegador.
+- `/todo-bueno/empresa/` — Panel empresa/pedidos de demostración. Permite filtrar y cambiar estado Pendiente → Confirmado → Preparando → Listo → Entregado. No es todavía backend central multiusuario.
+- `/todo-bueno/control-horario/` — Control Horario estable del piloto Todo Bueno.
 
-## REVISAR
-- `/prueba-ascensores-v1/` — Demo aislada de Ascensores. Buena base; pendiente validación móvil final.
-- `/prueba-can-soler-v1/` — Demo aislada Can Soler. APARCADA por decisión actual; no trabajar ahora.
-- `/todo-bueno/empresa/` — Panel empresa / pedidos.
-- `/todo-bueno/conectada/` — Flujo conectado de demostración; no equivale todavía a backend compartido real.
-- `/control-horario-comercial/` — Presentación/entrada comercial, separada del motor operativo.
-- `/calculadora-gestion-laboral/` — Herramienta comercial de cálculo y propuesta.
-- `/gestion-laboral-lab/` — Gestión Laboral LAB; BOE/convenio todavía en desarrollo.
-- `/sincroniaia-bienestar-animal-estudio/` — Estudio comercial aislado de Bienestar Animal.
-- Copiloto Comercial SINCRONIAIA v1.3.4 — última versión localizada por correo y también como HTML en Drive. Tiene correcciones de CLIENTE_ID/INTERACCION_ID y estado ENVIADA. Clasificación: REVISAR CONECTADO. Mantener acceso administrativo fuera de GitHub Pages hasta consolidar una ruta interna segura.
-- Apps Script `Copiloto Comercial` — backend localizado en Drive; uso interno y asociado al seguimiento comercial.
-- Simulador Comercial SINCRONIAIA v2.1 — última versión localizada por correo, con separación Autónomo/Sociedad y tamaño del equipo. Clasificación: REVISAR / herramienta comercial. No existe ruta pública maestra confirmada.
-- Bienestar Animal v3.0 AISLADO — paquete de instalación localizado por correo con frontend + backend Apps Script. Clasificación: REVISAR / aislado conectado; no confundir con SINCRONIA Animal.
-- Google Sheet `SINCRONIAIA — Respuestas Bienestar Animal` + Apps Script `SINCRONIAIA — Bienestar Animal Mataró — AISLADO` — pareja administrativa de estudio/recogida de datos. REVISAR como herramienta de investigación, no como producto final.
-- Gestoría Copiloto v0.1 — demo aislada localizada por correo. Clasificación: REVISAR / prueba sectorial temprana; no producto final.
-- TPV prototipo — `tpv_con monedas.html` localizado en Drive. Es el prototipo ejecutable más avanzado localizado de esta familia. Clasificación: REVISAR / prototipo, no producto final ni ruta pública consolidada.
-- `SINCRONIAIA_CONTROL_HORARIO_PERSONAL_v0.6.6_MINUTOS_CONSOLIDADOS.html` — candidata posterior a v0.6.5 localizada por email. Corrige consolidación de minutos, pero no tiene ruta pública verificada; revisar y publicar de forma controlada antes de sustituir el acceso v0.6.5.
+## Control Horario
+- `/control-horario-versiones/` — Planes Básica / Intermedia / Premium.
+- `/control-horario-calculadora/` — Calculadora comercial.
+- `/control-horario-felix-v065/` — acceso personal público recomendado por ahora. **Pendiente revisión de seguridad específica antes de declararlo definitivo.** Existe v0.6.6 posterior por archivo/email aún no consolidada.
 
-### BORRADORES COMERCIALES / LEGALES · REVISAR
-- `SINCRONIAIA_CONTRATO_CONTROL_HORARIO_BASICA_BORRADOR.docx` — borrador, no contrato final.
-- `SINCRONIAIA_CONTRATO_CONTROL_HORARIO_AVANZADA_BORRADOR.docx` — borrador, no contrato final.
-- `SINCRONIAIA_CONTRATO_CONTROL_HORARIO_PREMIUM_BORRADOR.docx` — borrador, no contrato final.
-- `SINCRONIAIA_CONTROL_HORARIO_VERSIONES_PRECIOS_PROVISIONALES.html` — precios provisionales; no usar como tarifa maestra actual hasta revisión comercial y legal.
+# ACTUAL INTERNO · NO PRESENTAR COMO FRONTEND DE CLIENTE
 
-### MATERIAL COMERCIAL / MARCA · REVISAR
-- `Sincronía IA - La Estrategia de la Intriga` — presentación creativa aprovechable como referencia de tono y marketing de atracción, pero NO doctrina maestra. Usa marca antigua `SINCRONIA.IA` y contiene cifras/afirmaciones sin fuente demostrada; no presentar tal cual.
-- `Estructura Landing Sincronía IA - V1` — referencia de copy emocional centrado en recuperar tiempo y presencia. No sustituye al Portal público actual; conservar como banco de mensajes para una futura landing.
-- `SINCRONIAIA — Ficha Inteligencia Comercial — Mimats Perruqueria Canina` — caso concreto y, sobre todo, buena referencia metodológica de investigación comercial: separar hechos, desconocidos e hipótesis, no inventar necesidades y validar antes de crear demo.
+- Google Sheet `SINCRONIAIA — CONTROL HORARIO — TODO BUENO PILOTO` · ID `1ShVF1jKQal-jlErDwY8_ugfpH5d1oX2JUNGvfX5a2hc` — fuente de datos activa del piloto Todo Bueno.
+- Apps Script `TODO_BUENO_CONTROL_HORARIO_v0.1` — backend del piloto.
+- Google Sheet `SINCRONIAIA - Respuestas de negocios` · ID `1MRcROiaKrFQtAr-AJaCNQnET51gIqN4dEoLbRqm4oOo` — núcleo de captación/seguimiento.
+- Apps Script `SINCRONIAIA — CONTROL DE CAPTACIÓN` — backend administrativo de captación.
 
-## DESARROLLO / DEMO
-- `/gestion/` — Núcleo multiempresa v0.4; registros y avisos simulados.
-- `/gestion-app/` — Gestión App multiempresa v0.4; simulación reutilizable.
-- `/gestion/todo-bueno/` — Demo de gestión Todo Bueno; datos locales, sin backend/login real.
-- SINCRONIA Animal — vertical aislada todavía en consolidación. Últimas versiones de laboratorio localizadas por correo: v0.1, v0.2 y v0.3. Existen versiones posteriores trabajadas, pero no hay ruta pública maestra confirmada en esta revisión.
-- Omuro / Yamaha — concepto y propuesta de demo; no se ha localizado entregable final ni ruta pública estable.
-- Simuladores adicionales — conceptos de hipoteca, márgenes, IVA, horas, amortización y presupuestos; no consolidarlos como producto hasta localizar una versión ejecutable actual.
-- `SINCRONIAIA_BACKEND_MULTIEMPRESA` — Google Sheet localizado en Drive. Núcleo de backend multiempresa en desarrollo; no confundir con una implantación final.
-- `TODO BUENO · PEDIDOS` — hoja de pedidos localizada en Drive. Revisar relación con la demo/panel actual antes de declararla fuente de verdad.
+# DOCUMENTACIÓN MAESTRA INTERNA
 
-## HISTÓRICO / LAB
-### Documentación interna
-- `GUIA_UI.md` — versión 1.0.0. Borrador oficial para revisión; sustituida por `GUIA_UI.md V2` / contenido v1.1.0 definitivo.
-- `Manifiesto y Base de Conocimiento - Sincronía IA` — HISTÓRICO / NO REUTILIZAR SIN REVISIÓN. Mezcla la marca actual con mensajes y contexto de compraventa inmobiliaria y una base de conocimiento de una etapa anterior; no debe alimentar demos, agentes ni comunicación comercial vigente.
+- `Arquitectura de Interfaz y Método SINCRONIAIA LABS` — v2.0.
+- `MODELO_DE_NEGOCIO.md v1.2.0` — modelo operativo/comercial estable.
+- `GUIA_UI.md V2` — contenido v1.1.0 definitivo aprobado.
+- `FASE_C_1_1_MODELO_CANONICO_DE_CAPTACION` — fuente única de verdad y reglas antduplicidad para captación.
 
-### Material comercial / marca
-- `Estructura Landing Sincron IA - V1` — duplicado temprano de la landing, con nombre de marca incorrecto/incompleto; sustituido como referencia por `Estructura Landing Sincronía IA - V1`.
-- `IA en Veterinaria` — HISTÓRICO / MATERIAL DE CONTENIDO A REVISAR. Usa marca antigua y contiene afirmaciones clínicas y cifras de impacto sin referencias verificadas dentro del documento. Solo rescatar conceptos operativos tras nueva investigación y validación de fuentes.
+# REVISAR
 
-### Panadería / Todo Bueno · evolución de demo
-- `SINCRONIAIA_DEMO_PANADERIA_PASTELERIA_v0.1` — precursor genérico de Panadería/Pastelería; sustituido como referencia sectorial por Todo Bueno BASE ESTABLE v1.1.
-- Todo Bueno v0.3 — histórico.
-- Todo Bueno v0.6 — histórico.
-- Todo Bueno v0.8 basada en Can Soler — histórico.
-- Todo Bueno v0.9 — histórico.
-- Todo Bueno v0.11 VALIDADA — histórico funcional anterior.
-- Todo Bueno v0.12 — histórico anterior a la consolidación estable.
-- Todo Bueno BASE ESTABLE v1.0 VALIDADA — predecesora directa.
-- Todo Bueno BASE ESTABLE v1.1 — versión ACTUAL y desplegada en `/todo-bueno/`.
+## Gestión Laboral
+- `/gestion-laboral-lab/` — LAB útil para horarios, ausencias, saldo y compensaciones. Se corrigió el horario futuro para que figure como **programado desde 31/08/2026**, no como activo. La capa BOE/convenio continúa sin conexión automática y no sustituye validación laboral profesional.
+- `/calculadora-gestion-laboral/` — calculadora comercial.
+- `/control-horario-comercial/` — presentación comercial separada del motor operativo.
 
-### Control Horario Félix
-- `/control-horario-felix-v064/` — versión anterior.
-- `/control-horario/felix/` — prueba fechada 25/08/2026; no sirve como acceso permanente.
-- `/control-horario-felix/` — base consolidada antigua. IMPORTANTE: se detectó una credencial de backend embebida en HTML público. No usar; requiere saneamiento y rotación de la credencial antes de cualquier reutilización.
-- `/control-horario-prueba/` — laboratorio/pruebas.
-- Google Sheet `SINCRONIAIA — CONTROL HORARIO — FÉLIX DEMO` y Apps Script homónimo — conservar como material de prueba, no como acceso actual recomendado.
-- HTML `SINCRONIAIA_CONTROL_HORARIO_DEMO_v0.3.7_FELIX_20AGO_ENTRADA_0730.html` en Drive — histórico fechado.
-- v0.4.0 / v0.4.1 / v0.4.2 — históricos de evolución personal.
-- v0.6.0 / v0.6.1 / v0.6.2 — históricos de evolución/conexión/GPS.
-- v0.6.4 — histórico publicado anterior.
-- v0.6.5 — acceso público recomendado actual.
-- v0.6.6 — candidata posterior por archivo/email, en REVISAR hasta publicación y verificación.
+## Comercial interno
+- **Copiloto Comercial v1.3.4** — última versión localizada. Incluye historial/Atrás, ficha en vivo, exportación, CLIENTE_ID/INTERACCION_ID y backend. **Uso interno. No publicar en GitHub Pages** mientras no exista acceso protegido.
+- Apps Script `Copiloto Comercial` — backend interno.
+- **Simulador Comercial v2.1** — última versión localizada; no hay ruta pública maestra consolidada.
+- **Gestoría Copiloto v0.1** — prueba sectorial temprana.
 
-### Todo Bueno · Control Horario
-- `/todo-bueno/control-horario/v0.2.1/`
-- `/todo-bueno/control-horario/v0.2.8/`
-- `/todo-bueno/control-horario/v0.3.1/`
-- `/todo-bueno/control-horario/v0.3.2/`
-- `/todo-bueno/control-horario/v0.3.3/`
-Estas versiones se conservan solo para trazabilidad.
-- Google Sheet `SINCRONIAIA — CONTROL HORARIO — TODO BUENO — PILOTO` (ID `1P_lz0RBteHM73CqSqFyPeeO_NFfm1hIs_m6U86E_Ezo`) — predecesora de la hoja activa; no usar como fuente de verdad.
-- Paquete enviado con `index_TODO_BUENO_v0.3.4`, `Code_TODO_BUENO_v0.3.2`, configuración, QR y manual — material de piloto/instalación; conservar para trazabilidad, no presentarlo como sistema definitivo.
+## Bienestar Animal aislado
+- Bienestar Animal v3.0 AISLADO — frontend + backend Apps Script; no confundir con SINCRONIA Animal.
+- Google Sheet `SINCRONIAIA — Respuestas Bienestar Animal` + Apps Script aislado — herramienta de estudio/investigación.
+- `/sincroniaia-bienestar-animal-estudio/` — estudio comercial aislado.
 
-### TPV
-- `TPV.html` — prototipo inicial en Drive.
-- `TPV_Con_Arqueo.html` — evolución con arqueo.
-- `tpv_con monedas.html` — candidata actual de revisión; las dos anteriores quedan históricas.
-- Documento `TPV Mostrador Pro - Control de Caja y Arqueo Completo` — documentación/concepto de apoyo.
+## TPV
+- `tpv_con monedas.html` en Drive — prototipo ejecutable más avanzado localizado. REVISAR; aún no producto final ni ruta pública consolidada.
 
-### Bienestar Animal
-- `/prueba-bienestar-animal/`
-- `/prueba-bienestar-animal-v2/`
-Pruebas paralelas al Portal actual; no presentar como versiones vigentes.
-- Bienestar Animal v2 AISLADO — histórico, sustituido por v3.
-- Bienestar Animal v3 AISLADO — histórico de trabajo respecto a v3.0 para instalar.
-- Prueba de ubicación Bienestar Animal — experimento específico, no versión recomendada.
+## Control Horario personal
+- `SINCRONIAIA_CONTROL_HORARIO_PERSONAL_v0.6.6_MINUTOS_CONSOLIDADOS.html` — candidata posterior a v0.6.5. Revisar seguridad y funcionamiento antes de sustituir la ruta actual.
 
-### Copiloto Comercial
-- v0.9 — histórico.
-- v1.0 — histórico.
-- v1.1 — histórico.
-- v1.2 — histórico.
-- v1.3 / v1.3.1 / v1.3.2 — históricos intermedios.
-- v1.3.4 — conservar como candidata actual de revisión.
+## Legal/comercial
+- Contratos Control Horario Básica / Avanzada / Premium — **BORRADORES**, no listos para firma.
+- Precios provisionales Control Horario — no son tarifa maestra hasta revisión expresa.
+- `Sincronía IA - La Estrategia de la Intriga` — material creativo, no doctrina maestra; usa marca antigua y cifras sin fuente demostrada.
+- `Estructura Landing Sincronía IA - V1` — banco de copy, no landing vigente.
+- Ficha Inteligencia Comercial Mimats — buena plantilla metodológica: separar hechos, desconocidos e hipótesis.
 
-### Simulador Comercial
-- v1.8 — histórico.
-- v2.0 — histórico.
-- v2.1 — candidata actual de revisión.
+# DESARROLLO
 
-### SINCRONIA Animal LAB
-- v0.1 — histórico de laboratorio.
-- v0.2 — histórico de laboratorio.
-- v0.3 — última versión de laboratorio localizada por correo en esta revisión, pero no producto final.
+- `/gestion/` — núcleo multiempresa v0.4 con datos/avisos simulados.
+- `/gestion-app/` — simulación multiempresa reutilizable.
+- `/gestion/todo-bueno/` — demo local sin backend/login real.
+- `SINCRONIAIA_BACKEND_MULTIEMPRESA` — núcleo backend en desarrollo.
+- `TODO BUENO · PEDIDOS` — hoja localizada en Drive; no declararla fuente de verdad del panel actual sin integración real.
+- Omuro / Yamaha — concepto; no se ha localizado entregable canónico validado.
+- Simuladores adicionales de hipoteca, márgenes, IVA, horas, amortización y presupuestos — conceptos/artefactos dispersos; no consolidar como productos aún.
 
-### Captación / formularios antiguos
-- `Copia de SINCRONIAIA - Respuestas de negocios` — copia antigua; histórico.
-- `Cuestionario de Investigación de Negocios Locales - Sincronia IA -` — formulario inicial; conservar como referencia salvo que se reactive.
-- `Formulario sin título` y `Formulario sin título (respuestas)` — pruebas/artefactos iniciales; histórico.
+# HISTÓRICO
 
-### Voz
-- `/prueba-voz/`
-- `/prueba-voz-v2/`
-- `/prueba-voz-v3/`
-Experimentos técnicos de voz; no producto actual.
+## Rutas sustituidas
+- `/prueba-can-soler-v1/` — sustituida por `/can-soler/`.
+- `/control-horario-felix-v064/`, `/control-horario/felix/`, `/control-horario-prueba/` — pruebas/versiones anteriores.
+- `/control-horario-felix/` — **VERSIÓN RETIRADA**. El HTML que contenía una credencial de backend pública fue reemplazado el 25/08/2026 por una pantalla de retirada. La credencial debe seguir considerándose comprometida hasta su rotación en el backend.
+- Todo Bueno Control Horario v0.2.1 / v0.2.8 / v0.3.1 / v0.3.2 / v0.3.3 — trazabilidad solamente.
+- `/prueba-bienestar-animal/` y `/prueba-bienestar-animal-v2/` — pruebas anteriores al Portal actual.
+- `/prueba-voz/`, `/prueba-voz-v2/`, `/prueba-voz-v3/` — experimentos técnicos.
 
-## Seguridad
-- El repositorio y GitHub Pages son públicos.
-- No publicar PIN, contraseñas, tokens, claves API ni credenciales en HTML/JS cliente.
-- Cualquier credencial detectada en una versión histórica debe considerarse comprometida y rotarse, no solo ocultarse.
-- Copiloto Comercial y otras herramientas administrativas no deben exponerse como acceso público hasta separar correctamente front público y administración interna.
-- Google Sheets y Apps Script son infraestructura interna: no deben aparecer en la interfaz que ve el cliente.
+## Todo Bueno / Panadería
+- Panadería & Pastelería v0.1 y Todo Bueno v0.3, v0.6, v0.8, v0.9, v0.11, v0.12 y BASE ESTABLE v1.0 — evolución histórica. Usar v1.1.
 
-## Criterio de navegación interna
-El Centro de Control es interno de trabajo. Las demos públicas no deben mostrar botones tipo «Volver al Centro de Control». Desde el Centro se abrirán las demos en una pestaña/ventana aparte para poder regresar al Maestro sin añadir elementos internos visibles al cliente.
+## Control Horario personal
+- v0.3.7, v0.4.0, v0.4.1, v0.4.2, v0.6.0, v0.6.1, v0.6.2 y v0.6.4 — históricos.
+- v0.6.5 — actual provisional.
+- v0.6.6 — candidata en REVISAR.
 
-## Regla de consolidación
-Antes de desarrollar una nueva versión de cualquier proyecto:
-1. comprobar si existe una candidata ACTUAL o REVISAR;
-2. mantener una sola versión recomendada;
-3. pasar las anteriores a HISTÓRICO;
-4. no inventar ni publicar rutas no verificadas;
-5. no mover a ACTUAL nada que sea solo simulación, laboratorio o concepto;
-6. definir una sola fuente de verdad por producto cuando existan varias hojas/backends;
-7. cuando exista documentación maestra, trabajar sobre la versión estable aprobada y no sobre borradores históricos;
-8. material comercial antiguo con marca obsoleta o cifras no verificadas no se reutiliza directamente: primero se revisa y se adapta al estado actual;
-9. borradores contractuales o precios provisionales nunca se consideran condiciones comerciales vigentes sin revisión expresa.
+## Copiloto
+- v0.9, v1.0, v1.1, v1.2, v1.3, v1.3.1 y v1.3.2 — históricos. v1.3.4 es la candidata vigente interna.
+
+## Simulador Comercial
+- v1.8 y v2.0 — históricos. v2.1 es la candidata vigente.
+
+## SINCRONIA Animal LAB
+- v0.1, v0.2, v0.3, v0.4, v0.4.1 y variantes intermedias de v0.4.2 — históricos de laboratorio. La referencia pública actual es `/sincronia-animal/`, derivada de v0.4.2(2).
+
+## TPV
+- `TPV.html` y `TPV_Con_Arqueo.html` — históricos. `tpv_con monedas.html` es la candidata de revisión.
+
+## Documentación/material antiguo
+- `GUIA_UI.md` v1.0.0 — borrador sustituido por V2/v1.1.0.
+- `Manifiesto y Base de Conocimiento - Sincronía IA` — NO REUTILIZAR SIN REVISIÓN; mezcla contexto inmobiliario antiguo.
+- `Estructura Landing Sincron IA - V1` — duplicado con marca incorrecta.
+- `IA en Veterinaria` — material antiguo con cifras/afirmaciones sin referencias verificadas.
+- Formularios sin título y copia antigua de Respuestas de negocios — históricos.
+
+# SEGURIDAD · REGLAS OBLIGATORIAS
+
+1. GitHub Pages es público. Nunca incluir contraseñas, PIN, tokens, claves API ni secretos en HTML/JS público.
+2. Una credencial que haya estado publicada se considera comprometida incluso después de borrar el texto: debe rotarse.
+3. La ruta antigua `/control-horario-felix/` ya está retirada, pero **la rotación del secreto del backend continúa pendiente**.
+4. No publicar Copiloto Comercial administrativo mientras no exista separación entre frontend público y acceso interno protegido.
+5. Minificación, compresión u ofuscación no cuentan como protección de secretos.
+6. Para cada producto debe existir una sola fuente de verdad y una sola versión recomendada.
+7. No declarar ACTUAL una simulación, un LAB o una función normativa no conectada.
+
+# PRÓXIMOS PENDIENTES REALES
+
+1. Auditar `control-horario-felix-v065` y la candidata v0.6.6; decidir una sola versión personal y retirar la otra.
+2. Rotar la credencial comprometida del backend de Control Horario cuando exista acceso de edición seguro al Apps Script.
+3. Validar Gestión Laboral en móvil, manteniéndola como LAB mientras BOE/convenio no sea una fuente oficial conectada.
+4. Definir acceso interno protegido para Copiloto Comercial v1.3.4.
+5. Decidir si el prototipo TPV merece una ruta pública de prueba o vuelve a desarrollo.
+6. No abrir nuevas versiones de Can Soler, Ascensores, SINCRONIA Animal o Todo Bueno salvo incidencia concreta.
