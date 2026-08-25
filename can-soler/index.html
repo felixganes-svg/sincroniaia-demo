@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#00a884">
+<title>Can Soler · Demo SINCRONIAIA</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#0b141a;color:#111b21}.app{width:100%;max-width:480px;height:100dvh;margin:auto;background:#efeae2;display:flex;flex-direction:column;overflow:hidden}.head{background:#00a884;color:#fff;padding:10px 12px;display:flex;gap:10px;align-items:center}.avatar{width:42px;height:42px;border-radius:50%;background:#fff;color:#136d5e;display:grid;place-items:center;font-weight:800}.head h1{font-size:16px;margin:0}.head p{font-size:11px;margin:2px 0 0;opacity:.95}.tag{margin-left:auto;border:1px solid #ffffffaa;border-radius:999px;padding:5px 7px;font-size:9px;font-weight:800}.chat{flex:1;overflow:auto;padding:12px 10px 18px;display:flex;flex-direction:column;gap:8px;background:radial-gradient(circle at 1px 1px,rgba(96,110,117,.14) 1px,transparent 0) 0 0/25px 25px,#efeae2}.msg{max-width:88%;padding:9px 10px 18px;border-radius:9px;font-size:14px;line-height:1.4;position:relative;box-shadow:0 1px 1px #00000018}.bot{align-self:flex-start;background:#fff}.user{align-self:flex-end;background:#d9fdd3}.time{position:absolute;right:7px;bottom:3px;font-size:9px;color:#718188}.options{display:flex;flex-wrap:wrap;gap:7px;width:100%}.chip{border:1px solid #00a884;background:#fff;color:#087967;border-radius:18px;padding:9px 11px;min-height:38px;font-size:12.5px;font-weight:700;cursor:pointer;flex:1 1 calc(50% - 7px)}.chip.dark{border-color:#738087;color:#49585f}.notice{width:100%;padding:10px 11px;border-radius:10px;font-size:12px;line-height:1.4;background:#edf5ff;border:1px solid #b9d3ff;color:#214c78}.bottom{background:#f0f2f5;border-top:1px solid #d8dddf}.bar{display:flex;gap:7px;align-items:center;padding:8px 9px calc(9px + env(safe-area-inset-bottom))}.input{flex:1;min-width:0;border:0;border-radius:20px;padding:11px 13px;font-size:14px}.send,.reset{border:0;cursor:pointer}.send{width:42px;height:42px;border-radius:50%;background:#00a884;color:#fff;font-size:17px}.reset{background:transparent;font-size:20px;color:#607078}.small{text-align:center;font-size:9px;color:#6f7e84;padding:0 9px 6px}@media(min-width:500px){.app{height:95vh;margin-top:2.5vh;border-radius:18px;box-shadow:0 10px 35px #0008}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="head"><div class="avatar">CS</div><div><h1>Can Soler · Demo SINCRONIAIA</h1><p>Asistente de atención y pedidos</p></div><div class="tag">DEMO</div></header>
+<main id="chat" class="chat" aria-live="polite"></main>
+<div class="bottom"><div class="bar"><button class="reset" onclick="restart()" aria-label="Reiniciar">↻</button><input id="input" class="input" placeholder="Escriba un mensaje…" autocomplete="off"><button class="send" onclick="sendFree()" aria-label="Enviar">➤</button></div><div class="small">Demostración · pedidos simulados · sin stock ni disponibilidad en tiempo real · v1.0 consolidada</div></div>
+</div>
+<script>
+const chat=document.getElementById('chat'), input=document.getElementById('input');
+let s={step:'menu',data:{items:[]}};
+const puntos={layret:'Francesc Layret · C/ Francesc Layret, 98 · Badalona',mar:'Can Soler Mar · Carrer Mar, 97 · Badalona',montgat:'Mercado de Montgat · Plaça de la Mare s/n · Montgat'};
+const catalogo={
+'Helados':['Cucurucho','Tarrina','Helado para llevar 2 L','Pistacho','Turrón de Jijona D.O.','Crema catalana','Stracciatella','Tiramisú','Fresa','Limón','Chocolate belga','Vainilla','Avellana','Dulce de leche','Leche merengada','Yogur natural'],
+'Horchatas y granizados':['Horchata','Leche merengada','Granizado de limón','Granizado de naranja','Granizado de fresa','Granizado de mango y maracuyá','Granizado de café'],
+'Combinados':['Agua de Badalona','Palmera','Lletuga','Canario','Cubano','Blanco y negro','Café con leche de verano'],
+'Crepes y gofres':['Crepe dulce','Crepe salada','Gofre','Chocolate belga','Nocilla','Dulce de leche'],
+'Batidos y smoothies':['Batido normal','Batido con nata','Smoothie de piña','Smoothie de mango y melocotón','Smoothie de yogur'],
+'Cafés y bebidas':['Café solo','Cortado','Café con leche','Café moka','Chocolate a la taza','Cacaolat','Coca Cola','Agua']};
+function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function now(){return new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}
+function add(text,who='bot'){let d=document.createElement('div');d.className='msg '+who;d.innerHTML=text+'<span class="time">'+now()+'</span>';chat.appendChild(d);scroll()}
+function note(text){let d=document.createElement('div');d.className='notice';d.innerHTML=text;chat.appendChild(d);scroll()}
+function buttons(arr){let d=document.createElement('div');d.className='options';arr.forEach(o=>{let b=document.createElement('button');b.className='chip '+(o.dark?'dark':'');b.textContent=o.label;b.onclick=()=>choose(o.value,o.label);d.appendChild(b)});chat.appendChild(d);scroll()}
+function scroll(){setTimeout(()=>chat.scrollTop=chat.scrollHeight,20)}
+function bot(t,opts){add(t);if(opts)buttons(opts)}
+function user(t){add(esc(t),'user')}
+function menu(){s.step='menu';bot('Hola 👋 Soy la demostración del asistente de <strong>Can Soler</strong>.<br><br>¿En qué puedo ayudarle?',[
+{label:'🛍️ Hacer un pedido',value:'pedido'},{label:'📍 Puntos de venta',value:'puntos'},{label:'🍨 Ver productos',value:'catalogo'},{label:'💬 Otra consulta',value:'otra'}])}
+function choose(v,label){user(label);if(s.step==='menu'){
+ if(v==='pedido'){s.step='pedidoPunto';return bot('¿Dónde desea solicitar la recogida?',Object.entries(puntos).map(([k,n])=>({label:n.split(' · ')[0],value:k})))}
+ if(v==='puntos'){s.step='menu';note('<strong>Puntos de venta de esta demo</strong><br>'+Object.values(puntos).join('<br>'));return buttons([{label:'↩️ Volver al inicio',value:'volver'}])}
+ if(v==='catalogo'){s.step='catalogo';return bot('Seleccione una categoría:',Object.keys(catalogo).map(x=>({label:x,value:x})))}
+ if(v==='otra'){s.step='otra';bot('Escriba su consulta y la registraré como demostración.');return}
+ if(v==='volver')return menu();
+ }
+ if(s.step==='pedidoPunto'){s.data.punto=v;s.step='pedidoCategoria';return bot('Perfecto. ¿Qué desea pedir?',Object.keys(catalogo).map(x=>({label:x,value:x})))}
+ if(s.step==='pedidoCategoria'){s.data.categoria=v;s.step='pedidoProducto';return bot('Elija una opción de <strong>'+esc(v)+'</strong>:',catalogo[v].slice(0,12).map(x=>({label:x,value:x})).concat([{label:'↩️ Otra categoría',value:'otra_cat',dark:true}]))}
+ if(s.step==='pedidoProducto'){
+   if(v==='otra_cat'){s.step='pedidoCategoria';return bot('Seleccione otra categoría:',Object.keys(catalogo).map(x=>({label:x,value:x})))}
+   s.data.items.push(v);s.step='pedidoMas';return bot('He añadido <strong>'+esc(v)+'</strong>.<br><br>¿Desea añadir algo más?',[{label:'➕ Añadir otro producto',value:'mas'},{label:'✅ Continuar',value:'seguir'}])}
+ if(s.step==='pedidoMas'){
+   if(v==='mas'){s.step='pedidoCategoria';return bot('Seleccione una categoría:',Object.keys(catalogo).map(x=>({label:x,value:x})))}
+   s.step='pedidoNombre';bot('Indique su <strong>nombre</strong>.');input.focus();return}
+ if(s.step==='pedidoFecha'){
+   s.data.fecha=label;s.step='pedidoHora';return bot('¿En qué franja prefiere recoger?',[{label:'11:00–14:00',value:'11-14'},{label:'14:00–18:00',value:'14-18'},{label:'18:00–23:00',value:'18-23'}])}
+ if(s.step==='pedidoHora'){s.data.hora=label;s.step='resumen';return resumen()}
+ if(s.step==='resumen'){
+   if(v==='finalizar'){s.step='final';bot('✅ <strong>Solicitud de pedido registrada en la demostración.</strong><br><br>En un sistema real quedaría pendiente de confirmación por Can Soler.');note('No se ha enviado ningún pedido real. El canal de recepción y confirmación se configuraría con el negocio.');return buttons([{label:'🏠 Volver al inicio',value:'inicio'}])}
+   if(v==='modificar'){s.step='pedidoCategoria';return bot('Puede añadir otro producto. Después volveremos al resumen.',Object.keys(catalogo).map(x=>({label:x,value:x})))}
+ }
+ if(s.step==='final'&&v==='inicio')return restart();
+ if(s.step==='catalogo'){
+   if(v==='volver')return menu();
+   note('<strong>'+esc(v)+'</strong><br>'+catalogo[v].map(esc).join(' · '));return buttons([{label:'↩️ Otra categoría',value:'volver_cat'},{label:'🏠 Inicio',value:'inicio'}])}
+ if(s.step==='catalogo'&&v==='inicio')return menu();
+ if(v==='volver_cat'){s.step='catalogo';return bot('Seleccione una categoría:',Object.keys(catalogo).map(x=>({label:x,value:x})))}
+}
+function resumen(){bot('<strong>Resumen de la solicitud</strong><br><br>Punto: '+esc(puntos[s.data.punto])+'<br>Productos: '+s.data.items.map(esc).join(', ')+'<br>Nombre: '+esc(s.data.nombre)+'<br>Teléfono: '+esc(s.data.telefono)+'<br>Recogida: '+esc(s.data.fecha)+' · '+esc(s.data.hora),[{label:'✅ Finalizar',value:'finalizar'},{label:'✏️ Modificar',value:'modificar'}])}
+function sendFree(){let t=input.value.trim();if(!t)return;input.value='';user(t);
+ if(s.step==='pedidoNombre'){s.data.nombre=t;s.step='pedidoTelefono';return bot('Gracias. Indique un <strong>teléfono de contacto</strong>.')}
+ if(s.step==='pedidoTelefono'){let digits=t.replace(/\D/g,'');if(digits.length<9)return bot('El teléfono parece incompleto. Escríbalo de nuevo con al menos 9 cifras.');s.data.telefono=t;s.step='pedidoFecha';return bot('¿Para qué día desea solicitar la recogida?',[{label:'Hoy',value:'hoy'},{label:'Mañana',value:'manana'},{label:'Otra fecha',value:'otra'}])}
+ if(s.step==='pedidoFecha'&&t){s.data.fecha=t;s.step='pedidoHora';return bot('¿En qué franja prefiere recoger?',[{label:'11:00–14:00',value:'11-14'},{label:'14:00–18:00',value:'14-18'},{label:'18:00–23:00',value:'18-23'}])}
+ if(s.step==='otra'){note('Consulta registrada en modo demostración: <strong>'+esc(t)+'</strong>');s.step='menu';return buttons([{label:'🏠 Volver al inicio',value:'volver'}])}
+ bot('Puede utilizar los botones de la conversación para continuar.')}
+function restart(){chat.innerHTML='';s={step:'menu',data:{items:[]}};menu()}
+input.addEventListener('keydown',e=>{if(e.key==='Enter')sendFree()});
+restart();
+</script>
+</body>
+</html>
