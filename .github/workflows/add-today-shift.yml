@@ -1,0 +1,35 @@
+name: Add today shift to Control Horario MASTER
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/add-today-shift.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add 25-08-2026 closed session without touching other logic
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('control-horario-personal/index.html')
+          s=p.read_text(encoding='utf-8')
+          target="'2026-08-24':{sessions:[{in:isoLocal(2026,8,24,8,30,37),out:isoLocal(2026,8,24,13,30,0),minutes:300}],source:'salida 13:30 confirmada · pendiente regularización central'}"
+          replacement=target+",\n'2026-08-25':{sessions:[{in:isoLocal(2026,8,25,7,30),out:isoLocal(2026,8,25,13,30),minutes:360}],source:'fichaje real confirmado 07:30–13:30'}"
+          if "'2026-08-25':{sessions:[{in:isoLocal(2026,8,25,7,30),out:isoLocal(2026,8,25,13,30)" not in s:
+              if target not in s:
+                  raise SystemExit('Target seed entry not found')
+              s=s.replace(target,replacement,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit and remove one-shot workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/add-today-shift.yml
+          git add control-horario-personal/index.html
+          git commit -m 'Añadir fichaje confirmado 25-08 07:30-13:30 al MASTER'
+          git push
