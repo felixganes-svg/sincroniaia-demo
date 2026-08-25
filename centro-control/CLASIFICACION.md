@@ -46,6 +46,11 @@ Regla operativa:
 - Gestoría Copiloto v0.1 — demo aislada localizada por correo. Clasificación: REVISAR / prueba sectorial temprana; no producto final.
 - TPV prototipo — `tpv_con monedas.html` localizado en Drive. Es el prototipo ejecutable más avanzado localizado de esta familia. Clasificación: REVISAR / prototipo, no producto final ni ruta pública consolidada.
 
+### MATERIAL COMERCIAL / MARCA · REVISAR
+- `Sincronía IA - La Estrategia de la Intriga` — presentación creativa aprovechable como referencia de tono y marketing de atracción, pero NO doctrina maestra. Usa marca antigua `SINCRONIA.IA` y contiene cifras/afirmaciones sin fuente demostrada; no presentar tal cual.
+- `Estructura Landing Sincronía IA - V1` — referencia de copy emocional centrado en recuperar tiempo y presencia. No sustituye al Portal público actual; conservar como banco de mensajes para una futura landing.
+- `SINCRONIAIA — Ficha Inteligencia Comercial — Mimats Perruqueria Canina` — caso concreto y, sobre todo, buena referencia metodológica de investigación comercial: separar hechos, desconocidos e hipótesis, no inventar necesidades y validar antes de crear demo.
+
 ## DESARROLLO / DEMO
 - `/gestion/` — Núcleo multiempresa v0.4; registros y avisos simulados.
 - `/gestion-app/` — Gestión App multiempresa v0.4; simulación reutilizable.
@@ -60,6 +65,10 @@ Regla operativa:
 ### Documentación interna
 - `GUIA_UI.md` — versión 1.0.0. Borrador oficial para revisión; sustituida por `GUIA_UI.md V2` / contenido v1.1.0 definitivo.
 - `Manifiesto y Base de Conocimiento - Sincronía IA` — HISTÓRICO / NO REUTILIZAR SIN REVISIÓN. Mezcla la marca actual con mensajes y contexto de compraventa inmobiliaria y una base de conocimiento de una etapa anterior; no debe alimentar demos, agentes ni comunicación comercial vigente.
+
+### Material comercial / marca
+- `Estructura Landing Sincron IA - V1` — duplicado temprano de la landing, con nombre de marca incorrecto/incompleto; sustituido como referencia por `Estructura Landing Sincronía IA - V1`.
+- `IA en Veterinaria` — HISTÓRICO / MATERIAL DE CONTENIDO A REVISAR. Usa marca antigua y contiene afirmaciones clínicas y cifras de impacto sin referencias verificadas dentro del documento. Solo rescatar conceptos operativos tras nueva investigación y validación de fuentes.
 
 ### Control Horario Félix
 - `/control-horario-felix-v064/` — versión anterior.
@@ -139,4 +148,5 @@ Antes de desarrollar una nueva versión de cualquier proyecto:
 4. no inventar ni publicar rutas no verificadas;
 5. no mover a ACTUAL nada que sea solo simulación, laboratorio o concepto;
 6. definir una sola fuente de verdad por producto cuando existan varias hojas/backends;
-7. cuando exista documentación maestra, trabajar sobre la versión estable aprobada y no sobre borradores históricos.
+7. cuando exista documentación maestra, trabajar sobre la versión estable aprobada y no sobre borradores históricos;
+8. material comercial antiguo con marca obsoleta o cifras no verificadas no se reutiliza directamente: primero se revisa y se adapta al estado actual.
