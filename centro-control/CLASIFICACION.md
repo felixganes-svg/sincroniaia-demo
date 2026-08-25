@@ -1,146 +1,86 @@
 # SINCRONIAIA · CLASIFICACIÓN MAESTRA
 
-Actualizado: 25/08/2026 · 11:30 Europe/Madrid
+Actualizado: 25/08/2026 · 11:42 Europe/Madrid
 
-## Regla de trabajo
-- **ACTUAL** = referencia recomendada hoy.
-- **REVISAR** = útil y ejecutable, pero aún no debe presentarse como versión definitiva.
-- **DESARROLLO** = laboratorio, simulación o producto incompleto.
-- **HISTÓRICO** = conservar únicamente para trazabilidad.
-- Una sola referencia recomendada por proyecto. Antes de crear una nueva versión se comprueba primero esta clasificación.
+## Regla desde ahora
+- **ACTUAL** = funciona hoy y es la referencia recomendada.
+- **PENDIENTE / LAB / INTERNO** = existe, pero no se presenta como operativo.
+- **HISTÓRICO / RETIRADO** = no usar.
+- Una sola versión operativa por proyecto. No crear cadenas de parches ni nuevas rutas por cada corrección.
 
-# ACTUAL · ACCESOS RECOMENDADOS
+# ACTUAL · OPERATIVO
 
 ## Base
-- `/` — Portal público SINCRONIAIA. Integra Restaurante, Fisioterapia, Reformas y Bienestar Animal.
+- `/` — Portal público SINCRONIAIA.
 - `/investigacion/` — Investigación de Campo.
-- `/centro-control/` — Centro de Control interno para decidir qué versión utilizar.
+- `/centro-control/` — Centro de Control.
 
 ## Demos sectoriales
-- `/can-soler/` — Can Soler consolidada. Pedido simulado, catálogo, puntos de venta, Hoy/Mañana/Otra fecha, modificación y finalización. Sustituye a `prueba-can-soler-v1`.
-- `/prueba-ascensores-v1/` — Ascensores validada. Prioriza personas atrapadas, diferencia emergencia médica/humo/incendio, remite a 112 cuando procede y no inventa precios, técnicos en camino ni tiempos de llegada.
-- `/sincronia-animal/` — SINCRONIA Animal, consolidada desde la última rama v0.4.2(2). Uno/varios/todos los animales, ficha reutilizable, necesidades, servicios, consentimiento e historial. Datos simulados.
+- `/can-soler/` — Can Soler consolidada.
+- `/prueba-ascensores-v1/` — Ascensores validada.
+- `/sincronia-animal/` — SINCRONIA Animal consolidada desde v0.4.2(2).
 
 ## Todo Bueno
-- `/todo-bueno/` — Cliente · BASE ESTABLE v1.1. Referencia actual.
-- `/todo-bueno/conectada/` — Cliente conectado en modo demostración local. Guarda pedidos en el navegador para que puedan verse en el panel de empresa del mismo navegador.
-- `/todo-bueno/empresa/` — Panel empresa/pedidos de demostración. Permite filtrar y cambiar estado Pendiente → Confirmado → Preparando → Listo → Entregado. No es todavía backend central multiusuario.
-- `/todo-bueno/control-horario/` — Control Horario estable del piloto Todo Bueno.
+- `/todo-bueno/` — Cliente · BASE ESTABLE v1.1.
+- `/todo-bueno/control-horario/` — Control Horario estable del piloto.
 
 ## Control Horario
+- `/control-horario-personal/` — **MASTER v0.6.6**. Ruta canónica. Minutos consolidados. No contiene el secreto hardcodeado en el HTML; la clave de acceso se obtiene del almacenamiento local del navegador.
 - `/control-horario-versiones/` — Planes Básica / Intermedia / Premium.
 - `/control-horario-calculadora/` — Calculadora comercial.
-- `/control-horario-felix-v065/` — acceso personal público recomendado por ahora. **Pendiente revisión de seguridad específica antes de declararlo definitivo.** Existe v0.6.6 posterior por archivo/email aún no consolidada.
 
-# ACTUAL INTERNO · NO PRESENTAR COMO FRONTEND DE CLIENTE
-
-- Google Sheet `SINCRONIAIA — CONTROL HORARIO — TODO BUENO PILOTO` · ID `1ShVF1jKQal-jlErDwY8_ugfpH5d1oX2JUNGvfX5a2hc` — fuente de datos activa del piloto Todo Bueno.
-- Apps Script `TODO_BUENO_CONTROL_HORARIO_v0.1` — backend del piloto.
-- Google Sheet `SINCRONIAIA - Respuestas de negocios` · ID `1MRcROiaKrFQtAr-AJaCNQnET51gIqN4dEoLbRqm4oOo` — núcleo de captación/seguimiento.
+# ACTUAL INTERNO
+- Google Sheet `SINCRONIAIA — CONTROL HORARIO — TODO BUENO PILOTO` · ID `1ShVF1jKQal-jlErDwY8_ugfpH5d1oX2JUNGvfX5a2hc` — fuente de datos activa del piloto de fichaje.
+- Apps Script `TODO_BUENO_CONTROL_HORARIO_v0.1` — backend interno del piloto de fichaje.
+- Google Sheet `SINCRONIAIA - Respuestas de negocios` · ID `1MRcROiaKrFQtAr-AJaCNQnET51gIqN4dEoLbRqm4oOo` — captación/seguimiento.
 - Apps Script `SINCRONIAIA — CONTROL DE CAPTACIÓN` — backend administrativo de captación.
 
 # DOCUMENTACIÓN MAESTRA INTERNA
+- `Arquitectura de Interfaz y Método SINCRONIAIA LABS` v2.0.
+- `MODELO_DE_NEGOCIO.md v1.2.0`.
+- `GUIA_UI.md V2` / contenido v1.1.0 aprobado.
+- `FASE_C_1_1_MODELO_CANONICO_DE_CAPTACION`.
 
-- `Arquitectura de Interfaz y Método SINCRONIAIA LABS` — v2.0.
-- `MODELO_DE_NEGOCIO.md v1.2.0` — modelo operativo/comercial estable.
-- `GUIA_UI.md V2` — contenido v1.1.0 definitivo aprobado.
-- `FASE_C_1_1_MODELO_CANONICO_DE_CAPTACION` — fuente única de verdad y reglas antduplicidad para captación.
+# PENDIENTE / NO OPERATIVO AÚN
 
-# REVISAR
+## Todo Bueno · pedidos centralizados
+- `/todo-bueno/conectada/` y `/todo-bueno/empresa/` funcionan como demostración local en el mismo navegador, pero **no se consideran operativas como producto**.
+- La hoja `TODO BUENO · PEDIDOS` · ID `16pjTrjPcgy1oeFUjENA9Qiv9QWcZi_8z1Nx1SCHxSKE` existe, pero no se ha localizado/gestionado un Apps Script central de pedidos que conecte cliente y empresa desde dispositivos distintos.
+- No marcar ACTUAL hasta disponer de backend central probado.
 
 ## Gestión Laboral
-- `/gestion-laboral-lab/` — LAB útil para horarios, ausencias, saldo y compensaciones. Se corrigió el horario futuro para que figure como **programado desde 31/08/2026**, no como activo. La capa BOE/convenio continúa sin conexión automática y no sustituye validación laboral profesional.
+- `/gestion-laboral-lab/` — LAB. Horarios, ausencias, saldo y compensaciones; BOE/convenio no conectado.
 - `/calculadora-gestion-laboral/` — calculadora comercial.
-- `/control-horario-comercial/` — presentación comercial separada del motor operativo.
 
-## Comercial interno
-- **Copiloto Comercial v1.3.4** — última versión localizada. Incluye historial/Atrás, ficha en vivo, exportación, CLIENTE_ID/INTERACCION_ID y backend. **Uso interno. No publicar en GitHub Pages** mientras no exista acceso protegido.
-- Apps Script `Copiloto Comercial` — backend interno.
-- **Simulador Comercial v2.1** — última versión localizada; no hay ruta pública maestra consolidada.
-- **Gestoría Copiloto v0.1** — prueba sectorial temprana.
+## Copiloto Comercial
+- v1.3.4 — herramienta interna conectada. No publicar en GitHub Pages mientras no exista acceso protegido.
 
-## Bienestar Animal aislado
-- Bienestar Animal v3.0 AISLADO — frontend + backend Apps Script; no confundir con SINCRONIA Animal.
-- Google Sheet `SINCRONIAIA — Respuestas Bienestar Animal` + Apps Script aislado — herramienta de estudio/investigación.
-- `/sincroniaia-bienestar-animal-estudio/` — estudio comercial aislado.
+## TPV / Caja
+- `tpv_con monedas.html` — módulo de caja/arqueo útil, pero no TPV completo.
 
-## Caja / Arqueo (parte del futuro TPV)
-- `tpv_con monedas.html` en Drive — prototipo ejecutable de **caja y arqueo**, no TPV completo. Incluye ventas en efectivo/tarjeta, salidas de cajón, efectivo teórico, conteo físico por billetes/monedas y desviación. No publicarlo todavía como `SINCRONIAIA POS` porque faltan catálogo/artículos, ticket, cálculo de cambio al cliente, mesas/comandas y flujo real de venta.
+## Otros
+- Omuro / Yamaha — sin entregable canónico validado.
+- Simulador Comercial v2.1 — sin ruta pública maestra consolidada.
+- Gestoría Copiloto v0.1 — prueba temprana.
 
-## Control Horario personal
-- `SINCRONIAIA_CONTROL_HORARIO_PERSONAL_v0.6.6_MINUTOS_CONSOLIDADOS.html` — candidata posterior a v0.6.5. Auditoría inicial superada: no contiene el secreto hardcodeado y usa una clave guardada localmente. Se ha preparado una variante que elimina la aceptación de claves mediante `?k=` en URL. Falta publicación controlada y prueba contra backend antes de sustituir v0.6.5.
-
-## Legal/comercial
-- Contratos Control Horario Básica / Avanzada / Premium — **BORRADORES**, no listos para firma.
-- Precios provisionales Control Horario — no son tarifa maestra hasta revisión expresa.
-- `Sincronía IA - La Estrategia de la Intriga` — material creativo, no doctrina maestra; usa marca antigua y cifras sin fuente demostrada.
-- `Estructura Landing Sincronía IA - V1` — banco de copy, no landing vigente.
-- Ficha Inteligencia Comercial Mimats — buena plantilla metodológica: separar hechos, desconocidos e hipótesis.
-
-# DESARROLLO
-
-- `/gestion/` — núcleo multiempresa v0.4 con datos/avisos simulados.
-- `/gestion-app/` — simulación multiempresa reutilizable.
-- `/gestion/todo-bueno/` — demo local sin backend/login real.
-- `SINCRONIAIA_BACKEND_MULTIEMPRESA` — núcleo backend en desarrollo.
-- `TODO BUENO · PEDIDOS` — hoja localizada en Drive; no declararla fuente de verdad del panel actual sin integración real.
-- **SINCRONIAIA POS** — producto completo todavía en desarrollo. El módulo Caja/Arqueo existe, pero faltan catálogo/artículos, tickets, cálculo de cambio, mesas/comandas y posteriormente inventario básico.
-- Omuro / Yamaha — concepto; no se ha localizado entregable canónico validado.
-- Simuladores adicionales de hipoteca, márgenes, IVA, horas, amortización y presupuestos — conceptos/artefactos dispersos; no consolidar como productos aún.
-
-# HISTÓRICO
-
-## Rutas sustituidas
+# RETIRADO / HISTÓRICO
+- `/control-horario-felix/` — retirado por haber expuesto una credencial en una versión antigua. La página ya no contiene la aplicación.
+- `/control-horario-felix-v065/` — conserva compatibilidad, pero deja de ser la referencia. La referencia es `/control-horario-personal/` MASTER v0.6.6.
+- `/control-horario-felix-v064/`, `/control-horario/felix/`, `/control-horario-prueba/` y versiones personales anteriores — histórico.
 - `/prueba-can-soler-v1/` — sustituida por `/can-soler/`.
-- `/control-horario-felix-v064/`, `/control-horario/felix/`, `/control-horario-prueba/` — pruebas/versiones anteriores.
-- `/control-horario-felix/` — **VERSIÓN RETIRADA**. El HTML que contenía una credencial de backend pública fue reemplazado el 25/08/2026 por una pantalla de retirada. La credencial debe seguir considerándose comprometida hasta su rotación en el backend.
-- Todo Bueno Control Horario v0.2.1 / v0.2.8 / v0.3.1 / v0.3.2 / v0.3.3 — trazabilidad solamente.
-- `/prueba-bienestar-animal/` y `/prueba-bienestar-animal-v2/` — pruebas anteriores al Portal actual.
-- `/prueba-voz/`, `/prueba-voz-v2/`, `/prueba-voz-v3/` — experimentos técnicos.
+- Versiones anteriores de Todo Bueno, SINCRONIA Animal, Copiloto, Simulador, Bienestar y voz — histórico/trazabilidad.
+- `TPV.html` y `TPV_Con_Arqueo.html` — históricos frente a `tpv_con monedas.html`.
 
-## Todo Bueno / Panadería
-- Panadería & Pastelería v0.1 y Todo Bueno v0.3, v0.6, v0.8, v0.9, v0.11, v0.12 y BASE ESTABLE v1.0 — evolución histórica. Usar v1.1.
+# SEGURIDAD OBLIGATORIA
+1. GitHub Pages es público: nunca incluir claves, tokens, contraseñas o secretos en HTML/JS.
+2. Una credencial publicada se considera comprometida aunque después se retire; debe rotarse.
+3. La credencial del backend antiguo de Control Horario sigue pendiente de rotación porque no hay una acción segura disponible desde las conexiones actuales para modificar ese Apps Script.
+4. No publicar herramientas administrativas internas sin acceso protegido.
+5. ACTUAL nunca significa “demo que parece funcionar”; significa operativo de extremo a extremo para su alcance declarado.
 
-## Control Horario personal
-- v0.3.7, v0.4.0, v0.4.1, v0.4.2, v0.6.0, v0.6.1, v0.6.2 y v0.6.4 — históricos.
-- v0.6.5 — actual provisional.
-- v0.6.6 — candidata en REVISAR.
-
-## Copiloto
-- v0.9, v1.0, v1.1, v1.2, v1.3, v1.3.1 y v1.3.2 — históricos. v1.3.4 es la candidata vigente interna.
-
-## Simulador Comercial
-- v1.8 y v2.0 — históricos. v2.1 es la candidata vigente.
-
-## SINCRONIA Animal LAB
-- v0.1, v0.2, v0.3, v0.4, v0.4.1 y variantes intermedias de v0.4.2 — históricos de laboratorio. La referencia pública actual es `/sincronia-animal/`, derivada de v0.4.2(2).
-
-## Caja / TPV
-- `TPV.html` y `TPV_Con_Arqueo.html` — históricos.
-- `tpv_con monedas.html` — candidato actual del módulo Caja/Arqueo, no del TPV completo.
-
-## Documentación/material antiguo
-- `GUIA_UI.md` v1.0.0 — borrador sustituido por V2/v1.1.0.
-- `Manifiesto y Base de Conocimiento - Sincronía IA` — NO REUTILIZAR SIN REVISIÓN; mezcla contexto inmobiliario antiguo.
-- `Estructura Landing Sincron IA - V1` — duplicado con marca incorrecta.
-- `IA en Veterinaria` — material antiguo con cifras/afirmaciones sin referencias verificadas.
-- Formularios sin título y copia antigua de Respuestas de negocios — históricos.
-
-# SEGURIDAD · REGLAS OBLIGATORIAS
-
-1. GitHub Pages es público. Nunca incluir contraseñas, PIN, tokens, claves API ni secretos en HTML/JS público.
-2. Una credencial que haya estado publicada se considera comprometida incluso después de borrar el texto: debe rotarse.
-3. La ruta antigua `/control-horario-felix/` ya está retirada, pero **la rotación del secreto del backend continúa pendiente**.
-4. No publicar Copiloto Comercial administrativo mientras no exista separación entre frontend público y acceso interno protegido.
-5. No transportar secretos mediante parámetros de URL. Minificación, compresión u ofuscación tampoco cuentan como protección.
-6. Para cada producto debe existir una sola fuente de verdad y una sola versión recomendada.
-7. No declarar ACTUAL una simulación, un LAB o una función normativa no conectada.
-
-# PRÓXIMOS PENDIENTES REALES
-
-1. Publicar y probar de forma controlada la variante saneada de v0.6.6; si pasa, convertirla en única versión personal y retirar v0.6.5.
-2. Rotar la credencial comprometida del backend de Control Horario cuando exista acceso de edición seguro al Apps Script.
-3. Validar Gestión Laboral en móvil, manteniéndola como LAB mientras BOE/convenio no sea una fuente oficial conectada.
-4. Definir acceso interno protegido para Copiloto Comercial v1.3.4.
-5. Mantener Caja/Arqueo separado del producto POS hasta desarrollar el flujo real de venta.
-6. No abrir nuevas versiones de Can Soler, Ascensores, SINCRONIA Animal o Todo Bueno salvo incidencia concreta.
+# SIGUIENTE BLOQUE DE TRABAJO
+1. Crear/conectar backend central real para `TODO BUENO · PEDIDOS` y probar cliente → hoja → panel empresa desde dispositivos distintos.
+2. Dar acceso interno protegido al Copiloto Comercial v1.3.4.
+3. Terminar Gestión Laboral solo cuando la parte normativa esté claramente separada o conectada a fuente oficial.
+4. Consolidar TPV completo antes de publicarlo.
+5. Rotar la credencial antigua de Control Horario cuando exista acceso de edición seguro al Apps Script.
