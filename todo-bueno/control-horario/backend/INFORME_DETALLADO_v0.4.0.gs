@@ -57,10 +57,28 @@ informe_ = function(p) {
       };
     });
 
+    var detalleHtml = '';
+    if (!dias.length) {
+      detalleHtml = '<div class="muted small" style="margin-top:6px">Sin actividad en el periodo seleccionado</div>';
+    } else {
+      detalleHtml = '<div style="margin-top:8px">';
+      dias.forEach(function(d) {
+        var marcas = d.marcajes.map(function(m) {
+          var etiqueta = m.tipo === 'ENTRADA' ? 'Entrada' : (m.tipo === 'SALIDA' ? 'Salida' : m.tipo);
+          return etiqueta + ' ' + m.hora;
+        }).join(' · ');
+        detalleHtml += '<div style="padding:5px 0;border-top:1px solid #ead9c6">' +
+          '<b>' + d.fecha + '</b> · ' + (marcas || 'Sin marcajes') +
+          ' · <b>' + d.total + '</b></div>';
+      });
+      detalleHtml += '</div>';
+    }
+
     salida.push({
       codigo:codigo,
       trabajador_id:t.trabajador_id,
-      nombre:t.nombre,
+      nombre:String(t.nombre || '') + detalleHtml,
+      nombre_texto:String(t.nombre || ''),
       activo:String(t.activo || '').toUpperCase() === 'SI',
       total:formatoMinutos_(totalMinutos_(periodo, desde, hasta)),
       dias:dias
