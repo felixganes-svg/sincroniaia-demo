@@ -1,5 +1,6 @@
 window.addEventListener('load', function () {
   function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+
   function sinDuplicadosConsecutivos(marcajes){
     var salida=[];
     (Array.isArray(marcajes)?marcajes:[]).forEach(function(m){
@@ -34,8 +35,63 @@ window.addEventListener('load', function () {
   }
 
   var botonInforme=document.querySelector('#empresaMenu button[onclick*="abrirFichaEmpresa(\'informe\')"]');
-  if(botonInforme){
-    botonInforme.addEventListener('click',function(){setTimeout(reiniciarInforme,25)});
+  if(botonInforme) botonInforme.addEventListener('click',function(){setTimeout(reiniciarInforme,25)});
+
+  function textoPeriodo(){
+    var desde=document.getElementById('fDesde');
+    var hasta=document.getElementById('fHasta');
+    var d=desde&&desde.value?desde.value:'';
+    var h=hasta&&hasta.value?hasta.value:'';
+    if(!d&&!h) return '';
+    if(d&&h) return 'Periodo: '+d+' a '+h;
+    return d?'Desde: '+d:'Hasta: '+h;
+  }
+
+  function prepararDocumentoPDF(){
+    var informe=document.getElementById('informe');
+    if(!informe || !informe.querySelector('.informe-detallado')) return null;
+    var cont=document.createElement('div');
+    cont.style.cssText='font-family:Arial,sans-serif;color:#392414;background:#fff;padding:0;margin:0;width:100%;';
+    var cab=document.createElement('div');
+    cab.style.cssText='text-align:center;margin:0 0 18px 0;padding:0 0 12px 0;border-bottom:1px solid #ead9c6;';
+    cab.innerHTML='<h1 style="font-size:22px;margin:0 0 5px 0">Panadería Todo Bueno Mataró</h1><div style="font-size:15px;font-weight:700">Informe de fichajes</div>'+(textoPeriodo()?'<div style="font-size:11px;color:#77695f;margin-top:5px">'+esc(textoPeriodo())+'</div>':'');
+    cont.appendChild(cab);
+    var copia=informe.querySelector('.informe-detallado').cloneNode(true);
+    copia.querySelectorAll('.card').forEach(function(card){
+      card.style.cssText='border:1px solid #ead9c6;border-radius:10px;padding:14px;margin:0 0 14px 0;background:#fff;box-shadow:none;page-break-inside:avoid;break-inside:avoid;';
+    });
+    copia.querySelectorAll('.topline').forEach(function(el){el.style.cssText='display:flex;justify-content:space-between;align-items:flex-start;gap:12px;'});
+    copia.querySelectorAll('table').forEach(function(tabla){tabla.style.cssText='width:100%;border-collapse:collapse;margin-top:12px;font-size:10px;page-break-inside:avoid;break-inside:avoid;';});
+    copia.querySelectorAll('th,td').forEach(function(celda){celda.style.cssText='text-align:left;padding:6px;border-bottom:1px solid #ead9c6;vertical-align:top;';});
+    copia.querySelectorAll('tr').forEach(function(fila){fila.style.pageBreakInside='avoid';fila.style.breakInside='avoid';});
+    cont.appendChild(copia);
+    return cont;
+  }
+
+  window.descargarInformePDF=function(){
+    var doc=prepararDocumentoPDF();
+    if(!doc){alert('Primero consulta un informe.');return}
+    if(typeof window.html2pdf!=='function'){
+      alert('No se ha podido cargar el generador de PDF. Vuelve a intentarlo en unos segundos.');
+      return;
+    }
+    var ahora=new Date();
+    var nombre='Todo-Bueno-Control-Horario-'+ahora.getFullYear()+'-'+String(ahora.getMonth()+1).padStart(2,'0')+'-'+String(ahora.getDate()).padStart(2,'0')+'.pdf';
+    var opciones={
+      margin:[10,10,10,10],
+      filename:nombre,
+      image:{type:'jpeg',quality:0.98},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+      pagebreak:{mode:['css','legacy'],avoid:['.card','tr']}
+    };
+    window.html2pdf().set(opciones).from(doc).save();
+  };
+
+  var botonPDF=document.querySelector('#fichaInforme .actions button[onclick*="window.print"]');
+  if(botonPDF){
+    botonPDF.textContent='Descargar PDF';
+    botonPDF.setAttribute('onclick','descargarInformePDF()');
   }
 
   window.cargarInforme=function(){
