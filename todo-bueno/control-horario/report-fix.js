@@ -68,31 +68,36 @@ window.addEventListener('load', function () {
     return cont;
   }
 
+  var cargandoPDF=false;
+  function asegurarMotorPDF(done){
+    if(typeof window.html2pdf==='function'){done(true);return}
+    if(cargandoPDF){setTimeout(function(){asegurarMotorPDF(done)},250);return}
+    cargandoPDF=true;
+    var s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    s.referrerPolicy='no-referrer';
+    s.onload=function(){cargandoPDF=false;done(typeof window.html2pdf==='function')};
+    s.onerror=function(){cargandoPDF=false;done(false)};
+    document.head.appendChild(s);
+  }
+
   window.descargarInformePDF=function(){
     var doc=prepararDocumentoPDF();
     if(!doc){alert('Primero consulta un informe.');return}
-    if(typeof window.html2pdf!=='function'){
-      alert('No se ha podido cargar el generador de PDF. Vuelve a intentarlo en unos segundos.');
-      return;
-    }
-    var ahora=new Date();
-    var nombre='Todo-Bueno-Control-Horario-'+ahora.getFullYear()+'-'+String(ahora.getMonth()+1).padStart(2,'0')+'-'+String(ahora.getDate()).padStart(2,'0')+'.pdf';
-    var opciones={
-      margin:[10,10,10,10],
-      filename:nombre,
-      image:{type:'jpeg',quality:0.98},
-      html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
-      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-      pagebreak:{mode:['css','legacy'],avoid:['.card','tr']}
-    };
-    window.html2pdf().set(opciones).from(doc).save();
+    var boton=document.querySelector('#fichaInforme .actions button[onclick*="descargarInformePDF"]');
+    var textoOriginal=boton?boton.textContent:'';
+    if(boton){boton.disabled=true;boton.textContent='Generando PDF…'}
+    asegurarMotorPDF(function(ok){
+      if(!ok){if(boton){boton.disabled=false;boton.textContent=textoOriginal||'Descargar PDF'}alert('No se ha podido cargar el generador de PDF. Comprueba la conexión y vuelve a intentarlo.');return}
+      var ahora=new Date();
+      var nombre='Todo-Bueno-Control-Horario-'+ahora.getFullYear()+'-'+String(ahora.getMonth()+1).padStart(2,'0')+'-'+String(ahora.getDate()).padStart(2,'0')+'.pdf';
+      var opciones={margin:[10,10,10,10],filename:nombre,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy'],avoid:['.card','tr']}};
+      window.html2pdf().set(opciones).from(doc).save().then(function(){if(boton){boton.disabled=false;boton.textContent=textoOriginal||'Descargar PDF'}}).catch(function(){if(boton){boton.disabled=false;boton.textContent=textoOriginal||'Descargar PDF'}alert('No se ha podido generar el PDF. Vuelve a intentarlo.')});
+    });
   };
 
   var botonPDF=document.querySelector('#fichaInforme .actions button[onclick*="window.print"]');
-  if(botonPDF){
-    botonPDF.textContent='Descargar PDF';
-    botonPDF.setAttribute('onclick','descargarInformePDF()');
-  }
+  if(botonPDF){botonPDF.textContent='Descargar PDF';botonPDF.setAttribute('onclick','descargarInformePDF()')}
 
   window.cargarInforme=function(){
     var codigo=document.getElementById('fTrabajador').value;
