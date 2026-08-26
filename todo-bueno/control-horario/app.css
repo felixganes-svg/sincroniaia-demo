@@ -1,7 +1,7 @@
 :root{--card:#fffdfa;--ink:#392414;--muted:#77695f;--accent:#d76a08;--line:#ead9c6;--ok:#2e8b57}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(#fbf7f1,#f5eee5);font-family:Arial,sans-serif;color:var(--ink)}
 .wrap{max-width:760px;margin:auto;padding:14px}.brand{text-align:center;padding:18px 4px}.brand h1{margin:0;font-size:29px}.brand p{margin:7px 0;color:var(--accent)}
-.brand .small{font-size:0}.brand .small::after{content:"v0.4.0";font-size:13px}
+.brand .small{font-size:13px}.brand .small::after{content:""}
 .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;margin:14px 0;box-shadow:0 7px 20px rgba(67,42,24,.08)}
 h2,h3{margin:0 0 14px}.muted{color:var(--muted)}.hidden{display:none!important}.small{font-size:13px}
 .pin{display:flex;gap:10px;justify-content:center;margin:24px 0}.pin input{width:65px;height:72px;text-align:center;font-size:32px;border:2px solid var(--line);border-radius:14px;background:#fff}
@@ -14,6 +14,6 @@ input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:
 @media(max-width:600px){.grid,.form-grid{grid-template-columns:1fr}.pin input{width:58px}.card{padding:16px}table{display:block;overflow-x:auto}}
 @media(max-width:600px){body{font-size:16px}.wrap{padding:8px}.card{padding:14px;border-radius:18px;margin:10px 0}.brand{padding:10px 4px}.brand h1{font-size:24px;line-height:1.15}.grid,.form-grid{grid-template-columns:1fr}.actions{flex-direction:column;gap:4px}.actions .btn{width:100%}.topline{align-items:flex-start;flex-wrap:wrap}.topline .btn{width:100%!important}.pin{gap:7px;margin:18px 0}.pin input{width:22%;max-width:60px;height:64px;font-size:30px}input,select,textarea{font-size:16px;min-height:48px}.btn{min-height:50px;font-size:16px}table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}th,td{padding:9px 8px}}
 @media print{body{background:#fff}.no-print{display:none!important}.card{box-shadow:none}.wrap{max-width:none}}
-/* BÁSICA v0.4.0: funciones avanzadas conservadas internamente, no visibles al cliente */
+/* BÁSICA v0.4.2: funciones avanzadas conservadas internamente, no visibles al cliente */
 #empresaMenu button[onclick*="seguridad"],#fichaSeguridad,#bloqueAlertas{display:none!important}
 #fichaNuevo>p.muted.small,#fichaQR p.muted.small{display:none!important}
