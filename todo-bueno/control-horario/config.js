@@ -1,19 +1,16 @@
 window.TODO_BUENO_CONFIG = {
-  VERSION: "0.4.1",
+  VERSION: "0.4.2",
   API_URL: "https://script.google.com/macros/s/AKfycbzvN72QIBEiJ6ZJ5coC8BVTvLWYqhYzIUDeGH4oZPNuZ5GdMiAuc6g2dIJ3J067b1dLFg/exec"
 };
 
 window.addEventListener('load', function () {
   var version = document.querySelector('.brand .small');
-  if (version) version.textContent = 'v0.4.1';
+  if (version) version.textContent = 'v0.4.2';
 
-  /* BÁSICA: ocultar funciones que no forman parte de esta versión. */
   var botonSeguridad = document.querySelector('#empresaMenu button[onclick*="seguridad"]');
   if (botonSeguridad) botonSeguridad.style.display = 'none';
-
   var fichaSeguridad = document.getElementById('fichaSeguridad');
   if (fichaSeguridad) fichaSeguridad.style.display = 'none';
-
   var bloqueAlertas = document.getElementById('bloqueAlertas');
   if (bloqueAlertas) bloqueAlertas.style.display = 'none';
 
@@ -23,461 +20,48 @@ window.addEventListener('load', function () {
     if (txt === 'Mostrar trabajadores') b.textContent = 'Trabajadores';
   });
 
-  /* Alta básica: un único código personal por trabajador. */
   var fichaNuevo = document.getElementById('fichaNuevo');
   if (fichaNuevo) {
     var auxAlta = document.getElementById('altaAuxilio');
     if (auxAlta && auxAlta.closest('.field')) auxAlta.closest('.field').remove();
-
     var introAlta = fichaNuevo.querySelector('p.muted.small');
-    if (introAlta) {
-      introAlta.textContent =
-        'Primero introduce un código personal de 4 cifras. El sistema comprobará si está disponible antes de continuar.';
-    }
+    if (introAlta) introAlta.textContent = 'Primero introduce un código personal de 4 cifras. El sistema comprobará si está disponible antes de continuar.';
   }
 
   var qrTexto = document.querySelector('#fichaQR .muted.small');
   if (qrTexto) qrTexto.textContent = 'Este QR abre únicamente la pantalla de fichaje.';
 
-  var altaCodigoAnterior = '';
-  var altaCodigoComprobado = '';
-  var altaCodigoDisponible = false;
-  var altaConsultaSecuencia = 0;
+  var altaCodigoAnterior = '', altaCodigoComprobado = '', altaCodigoDisponible = false, altaConsultaSecuencia = 0;
+  function elemento_(id){return document.getElementById(id)}
+  function botonGuardarAlta_(){return fichaNuevo ? fichaNuevo.querySelector('.actions .btn.primary') : null}
+  function camposDetalleAlta_(){return [elemento_('altaNombre'),elemento_('altaHoras'),elemento_('altaActivo'),elemento_('altaDesde'),elemento_('altaHasta')].filter(Boolean)}
+  function habilitarDetalleAlta_(h){camposDetalleAlta_().forEach(function(el){el.disabled=!h});var b=botonGuardarAlta_();if(b)b.disabled=!h}
+  function limpiarDatosAltaSinCodigo_(){['altaNombre','altaHoras','altaDesde','altaHasta'].forEach(function(id){var el=elemento_(id);if(el)el.value=''});var a=elemento_('altaActivo');if(a)a.value='SI'}
+  function estadoCodigoAlta_(texto,tipo){var e=elemento_('altaCodigoEstado');if(!e)return;e.textContent=texto||'';e.className='small';e.style.color='';if(tipo==='ok')e.className='small ok';else if(tipo==='error')e.style.color='#b91c1c';else e.className='small muted'}
 
-  function elemento_(id) {
-    return document.getElementById(id);
-  }
+  window.limpiarAlta=function(){var c=elemento_('altaCodigo');if(c)c.value='';limpiarDatosAltaSinCodigo_();altaCodigoAnterior='';altaCodigoComprobado='';altaCodigoDisponible=false;altaConsultaSecuencia++;estadoCodigoAlta_('','muted');habilitarDetalleAlta_(false);if(c)c.focus()};
+  window.validarCodigoAlta=function(){var el=elemento_('altaCodigo');if(!el)return false;var codigo=String(el.value||'').replace(/\D/g,'').slice(0,4);el.value=codigo;if(altaCodigoAnterior&&altaCodigoAnterior.length===4&&codigo!==altaCodigoAnterior)limpiarDatosAltaSinCodigo_();altaCodigoAnterior=codigo;altaCodigoComprobado='';altaCodigoDisponible=false;altaConsultaSecuencia++;var sec=altaConsultaSecuencia;habilitarDetalleAlta_(false);if(codigo.length<4){estadoCodigoAlta_(codigo.length?'Introduce las 4 cifras para comprobar el código.':'','muted');return false}estadoCodigoAlta_('Comprobando código…','muted');api('validarCodigoTrabajador',{owner:OWNER,codigo:codigo},function(r){if(sec!==altaConsultaSecuencia)return;var actual=elemento_('altaCodigo');if(!actual||String(actual.value||'')!==codigo)return;if(!r||!r.ok){altaCodigoComprobado='';altaCodigoDisponible=false;habilitarDetalleAlta_(false);estadoCodigoAlta_((r&&r.error)?r.error:'No se pudo comprobar el código.','error');return}altaCodigoComprobado=codigo;altaCodigoDisponible=r.disponible===true;if(altaCodigoDisponible){estadoCodigoAlta_('Código disponible ✓','ok');habilitarDetalleAlta_(true);var n=elemento_('altaNombre');if(n)n.focus()}else{limpiarDatosAltaSinCodigo_();habilitarDetalleAlta_(false);estadoCodigoAlta_(r.mensaje||'Código no disponible. Este código ya está registrado.','error')}});return false};
+  window.guardarTrabajador=function(){var ce=elemento_('altaCodigo');var codigo=ce?String(ce.value||'').replace(/\D/g,'').slice(0,4):'';if(codigo.length!==4||!altaCodigoDisponible||altaCodigoComprobado!==codigo){estadoCodigoAlta_('Primero comprueba que el código esté disponible.','error');if(ce)ce.focus();if(codigo.length===4)validarCodigoAlta();return}var p={owner:OWNER,codigo:codigo,nombre:elemento_('altaNombre')?elemento_('altaNombre').value:'',horas:elemento_('altaHoras')?elemento_('altaHoras').value:'',activo:elemento_('altaActivo')?elemento_('altaActivo').value:'SI'};var b=botonGuardarAlta_();if(b){b.disabled=true;b.textContent='Guardando…'}api('crearTrabajador',p,function(r){if(b)b.textContent='Guardar trabajador';if(!r||!r.ok){altaCodigoDisponible=false;altaCodigoComprobado='';habilitarDetalleAlta_(false);if(r&&String(r.error||'').indexOf('Código no disponible')>=0){limpiarDatosAltaSinCodigo_();estadoCodigoAlta_('Código no disponible. Este código ya está registrado.','error')}else estadoCodigoAlta_((r&&r.error)?r.error:'No se pudo crear el trabajador.','error');return}window.limpiarAlta();if(typeof cargarEmpresa==='function')cargarEmpresa();alert('Trabajador creado correctamente.')})};
 
-  function botonGuardarAlta_() {
-    if (!fichaNuevo) return null;
-    return fichaNuevo.querySelector('.actions .btn.primary');
-  }
-
-  function camposDetalleAlta_() {
-    return [
-      elemento_('altaNombre'),
-      elemento_('altaHoras'),
-      elemento_('altaActivo'),
-      elemento_('altaDesde'),
-      elemento_('altaHasta')
-    ].filter(Boolean);
-  }
-
-  function habilitarDetalleAlta_(habilitar) {
-    camposDetalleAlta_().forEach(function (el) {
-      el.disabled = !habilitar;
-    });
-
-    var boton = botonGuardarAlta_();
-    if (boton) boton.disabled = !habilitar;
-  }
-
-  function limpiarDatosAltaSinCodigo_() {
-    ['altaNombre','altaHoras','altaDesde','altaHasta'].forEach(function (id) {
-      var el = elemento_(id);
-      if (el) el.value = '';
-    });
-
-    var activo = elemento_('altaActivo');
-    if (activo) activo.value = 'SI';
-  }
-
-  function estadoCodigoAlta_(texto, tipo) {
-    var estado = elemento_('altaCodigoEstado');
-    if (!estado) return;
-
-    estado.textContent = texto || '';
-    estado.className = 'small';
-    estado.style.color = '';
-
-    if (tipo === 'ok') {
-      estado.className = 'small ok';
-    } else if (tipo === 'error') {
-      estado.style.color = '#b91c1c';
-    } else {
-      estado.className = 'small muted';
-    }
-  }
-
-  window.limpiarAlta = function () {
-    var codigo = elemento_('altaCodigo');
-    if (codigo) codigo.value = '';
-
-    limpiarDatosAltaSinCodigo_();
-
-    altaCodigoAnterior = '';
-    altaCodigoComprobado = '';
-    altaCodigoDisponible = false;
-    altaConsultaSecuencia++;
-
-    estadoCodigoAlta_('', 'muted');
-    habilitarDetalleAlta_(false);
-
-    if (codigo) codigo.focus();
-  };
-
-  window.validarCodigoAlta = function () {
-    var el = elemento_('altaCodigo');
-    if (!el) return false;
-
-    var codigo = String(el.value || '').replace(/\D/g, '').slice(0, 4);
-    el.value = codigo;
-
-    if (altaCodigoAnterior &&
-        altaCodigoAnterior.length === 4 &&
-        codigo !== altaCodigoAnterior) {
-      limpiarDatosAltaSinCodigo_();
-    }
-
-    altaCodigoAnterior = codigo;
-    altaCodigoComprobado = '';
-    altaCodigoDisponible = false;
-    altaConsultaSecuencia++;
-
-    var miSecuencia = altaConsultaSecuencia;
-
-    habilitarDetalleAlta_(false);
-
-    if (codigo.length < 4) {
-      estadoCodigoAlta_(
-        codigo.length ? 'Introduce las 4 cifras para comprobar el código.' : '',
-        'muted'
-      );
-      return false;
-    }
-
-    estadoCodigoAlta_('Comprobando código…', 'muted');
-
-    api('validarCodigoTrabajador', {
-      owner: OWNER,
-      codigo: codigo
-    }, function (r) {
-      if (miSecuencia !== altaConsultaSecuencia) return;
-
-      var actual = elemento_('altaCodigo');
-      if (!actual || String(actual.value || '') !== codigo) return;
-
-      if (!r || !r.ok) {
-        altaCodigoComprobado = '';
-        altaCodigoDisponible = false;
-        habilitarDetalleAlta_(false);
-        estadoCodigoAlta_(
-          (r && r.error) ? r.error : 'No se pudo comprobar el código.',
-          'error'
-        );
-        return;
-      }
-
-      altaCodigoComprobado = codigo;
-      altaCodigoDisponible = r.disponible === true;
-
-      if (altaCodigoDisponible) {
-        estadoCodigoAlta_('Código disponible ✓', 'ok');
-        habilitarDetalleAlta_(true);
-
-        var nombre = elemento_('altaNombre');
-        if (nombre) nombre.focus();
-      } else {
-        limpiarDatosAltaSinCodigo_();
-        habilitarDetalleAlta_(false);
-        estadoCodigoAlta_(
-          r.mensaje || 'Código no disponible. Este código ya está registrado.',
-          'error'
-        );
-      }
-    });
-
-    return false;
-  };
-
-  window.guardarTrabajador = function () {
-    var codigoEl = elemento_('altaCodigo');
-    var codigo = codigoEl
-      ? String(codigoEl.value || '').replace(/\D/g, '').slice(0, 4)
-      : '';
-
-    if (codigo.length !== 4 ||
-        !altaCodigoDisponible ||
-        altaCodigoComprobado !== codigo) {
-      estadoCodigoAlta_(
-        'Primero comprueba que el código esté disponible.',
-        'error'
-      );
-      if (codigoEl) codigoEl.focus();
-
-      if (codigo.length === 4) validarCodigoAlta();
-      return;
-    }
-
-    var nombre = elemento_('altaNombre');
-    var horas = elemento_('altaHoras');
-    var activo = elemento_('altaActivo');
-
-    var p = {
-      owner: OWNER,
-      codigo: codigo,
-      nombre: nombre ? nombre.value : '',
-      horas: horas ? horas.value : '',
-      activo: activo ? activo.value : 'SI'
-    };
-
-    var boton = botonGuardarAlta_();
-    if (boton) {
-      boton.disabled = true;
-      boton.textContent = 'Guardando…';
-    }
-
-    api('crearTrabajador', p, function (r) {
-      if (boton) boton.textContent = 'Guardar trabajador';
-
-      if (!r || !r.ok) {
-        altaCodigoDisponible = false;
-        altaCodigoComprobado = '';
-        habilitarDetalleAlta_(false);
-
-        if (r && String(r.error || '').indexOf('Código no disponible') >= 0) {
-          limpiarDatosAltaSinCodigo_();
-          estadoCodigoAlta_(
-            'Código no disponible. Este código ya está registrado.',
-            'error'
-          );
-        } else {
-          estadoCodigoAlta_(
-            (r && r.error) ? r.error : 'No se pudo crear el trabajador.',
-            'error'
-          );
-        }
-        return;
-      }
-
-      window.limpiarAlta();
-
-      if (typeof cargarEmpresa === 'function') cargarEmpresa();
-
-      alert('Trabajador creado correctamente.');
-    });
-  };
-
-  var botonNuevo = document.querySelector(
-    '#empresaMenu button[onclick*="abrirFichaEmpresa(\'nuevo\')"]'
-  );
-
-  if (botonNuevo) {
-    botonNuevo.addEventListener('click', function () {
-      setTimeout(function () {
-        window.limpiarAlta();
-      }, 0);
-    });
-  }
-
+  var botonNuevo=document.querySelector('#empresaMenu button[onclick*="abrirFichaEmpresa(\'nuevo\')"]');
+  if(botonNuevo)botonNuevo.addEventListener('click',function(){setTimeout(function(){window.limpiarAlta()},0)});
   habilitarDetalleAlta_(false);
 
-  var panel = document.getElementById('fichaPanel');
-  if (panel && !document.getElementById('trabajandoAhoraBasic')) {
-    var bloque = document.createElement('div');
-    bloque.id = 'trabajandoAhoraBasic';
-    bloque.className = 'notice';
-    bloque.style.marginTop = '14px';
-    bloque.innerHTML =
-      '<h3 style="margin-bottom:8px">Trabajando ahora</h3>' +
-      '<div id="trabajandoAhoraResumen" class="muted">Cargando…</div>' +
-      '<div id="trabajandoAhoraLista" style="margin-top:8px"></div>' +
-      '<div id="fueraAhoraResumen" class="muted small" style="margin-top:10px"></div>';
+  function escapeHtmlBasic(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 
-    var aviso = document.getElementById('empresaAviso');
-    if (aviso && aviso.parentNode === panel) panel.insertBefore(bloque, aviso);
-    else panel.appendChild(bloque);
-  }
+  var miComputoRespuesta=null, miComputoPeriodo='hoy';
+  function asegurarDetalleComputo_(){var s=document.getElementById('miComputo');if(!s)return null;var d=document.getElementById('compDetalleBasic');if(d)return d;d=document.createElement('div');d.id='compDetalleBasic';d.style.marginTop='16px';d.innerHTML='<div class="actions" style="margin-bottom:12px"><button id="compBtnHoy" class="btn primary" type="button">Hoy</button><button id="compBtnSemana" class="btn secondary" type="button">Semana</button><button id="compBtnMes" class="btn secondary" type="button">Mes</button></div><div id="compDetalleContenido"></div>';s.appendChild(d);document.getElementById('compBtnHoy').addEventListener('click',function(){mostrarPeriodoComputo_('hoy')});document.getElementById('compBtnSemana').addEventListener('click',function(){mostrarPeriodoComputo_('semana')});document.getElementById('compBtnMes').addEventListener('click',function(){mostrarPeriodoComputo_('mes')});return d}
+  function actualizarBotonesComputo_(){[['compBtnHoy','hoy'],['compBtnSemana','semana'],['compBtnMes','mes']].forEach(function(x){var b=document.getElementById(x[0]);if(!b)return;b.classList.remove('primary','secondary');b.classList.add(miComputoPeriodo===x[1]?'primary':'secondary')})}
+  function mostrarPeriodoComputo_(periodo){miComputoPeriodo=periodo;actualizarBotonesComputo_();var destino=document.getElementById('compDetalleContenido');if(!destino)return;var detalle=miComputoRespuesta&&miComputoRespuesta.detalle&&miComputoRespuesta.detalle[periodo];if(!detalle){destino.innerHTML='<p class="muted small">El detalle todavía no está disponible en el backend.</p>';return}var dias=Array.isArray(detalle.dias)?detalle.dias:[];if(!dias.length){destino.innerHTML='<div class="notice"><b>Total del periodo: '+escapeHtmlBasic(detalle.total||'0:00')+'</b><p class="muted small" style="margin-bottom:0">Sin fichajes registrados en este periodo.</p></div>';return}var html='<div class="notice" style="margin-bottom:12px"><b>Total del periodo: '+escapeHtmlBasic(detalle.total||'0:00')+'</b></div><div style="overflow-x:auto"><table><tr><th>Fecha</th><th>Marcajes</th><th>Total día</th></tr>';dias.forEach(function(d){var marcajes=Array.isArray(d.marcajes)?d.marcajes:[];var texto=marcajes.map(function(m){var tipo=String(m.tipo||'').toUpperCase();if(tipo==='ENTRADA')tipo='Entrada';else if(tipo==='SALIDA')tipo='Salida';return '<b>'+escapeHtmlBasic(tipo)+'</b> '+escapeHtmlBasic(m.hora||'—')}).join(' &nbsp;·&nbsp; ');html+='<tr><td>'+escapeHtmlBasic(d.fecha||d.fecha_iso||'')+'</td><td>'+(texto||'—')+'</td><td><b>'+escapeHtmlBasic(d.total||'0:00')+'</b></td></tr>'});html+='</table></div>';destino.innerHTML=html}
+  window.verMiComputo=function(){if(countdownId)clearInterval(countdownId);api('resumen',{codigo:currentCode},function(r){if(!r||!r.ok){alert((r&&r.error)?r.error:'No se pudo cargar el cómputo.');return}document.getElementById('confirmacion').classList.add('hidden');document.getElementById('miComputo').classList.remove('hidden');document.getElementById('compNombre').textContent=r.resumen&&r.resumen.nombre?r.resumen.nombre:'';document.getElementById('compHoy').textContent=r.resumen&&r.resumen.hoy?r.resumen.hoy:'0:00';document.getElementById('compSemana').textContent=r.resumen&&r.resumen.semana?r.resumen.semana:'0:00';document.getElementById('compMes').textContent=r.resumen&&r.resumen.mes?r.resumen.mes:'0:00';miComputoRespuesta=r;asegurarDetalleComputo_();mostrarPeriodoComputo_('hoy')})};
 
-  function renderTrabajandoAhoraBasic() {
-    var lista = Array.isArray(window.trabajadoresPanel)
-      ? window.trabajadoresPanel
-      : [];
-
-    var activos = lista.filter(function (t) {
-      return t.activo !== false;
-    });
-
-    var trabajando = activos.filter(function (t) {
-      return String(t.estado || '').toUpperCase() === 'TRABAJANDO';
-    });
-
-    var resumen = document.getElementById('trabajandoAhoraResumen');
-    var detalle = document.getElementById('trabajandoAhoraLista');
-    var fuera = document.getElementById('fueraAhoraResumen');
-
-    if (!resumen || !detalle || !fuera) return;
-
-    resumen.textContent =
-      trabajando.length +
-      (trabajando.length === 1 ? ' trabajador' : ' trabajadores');
-
-    detalle.innerHTML = trabajando.length
-      ? trabajando.map(function (t) {
-          return '<div style="padding:9px 0;border-bottom:1px solid #ead9c6"><b>' +
-            String(t.nombre || t.codigo || 'Trabajador') +
-            '</b> · <span class="ok">Trabajando</span></div>';
-        }).join('')
-      : '<p class="muted small">No hay trabajadores fichados como trabajando en este momento.</p>';
-
-    fuera.textContent = 'Fuera: ' + (activos.length - trabajando.length);
-  }
-
-  if (typeof window.actualizarTotalesEmpresa === 'function') {
-    var actualizarOriginal = window.actualizarTotalesEmpresa;
-
-    window.actualizarTotalesEmpresa = function () {
-      actualizarOriginal.apply(this, arguments);
-      renderTrabajandoAhoraBasic();
-    };
-  }
-
+  var panel=document.getElementById('fichaPanel');
+  if(panel&&!document.getElementById('trabajandoAhoraBasic')){var bloque=document.createElement('div');bloque.id='trabajandoAhoraBasic';bloque.className='notice';bloque.style.marginTop='14px';bloque.innerHTML='<h3 style="margin-bottom:8px">Trabajando ahora</h3><div id="trabajandoAhoraResumen" class="muted">Cargando…</div><div id="trabajandoAhoraLista" style="margin-top:8px"></div><div id="fueraAhoraResumen" class="muted small" style="margin-top:10px"></div>';var aviso=document.getElementById('empresaAviso');if(aviso&&aviso.parentNode===panel)panel.insertBefore(bloque,aviso);else panel.appendChild(bloque)}
+  function renderTrabajandoAhoraBasic(){var lista=Array.isArray(window.trabajadoresPanel)?window.trabajadoresPanel:[];var activos=lista.filter(function(t){return t.activo!==false});var trabajando=activos.filter(function(t){return String(t.estado||'').toUpperCase()==='TRABAJANDO'});var resumen=document.getElementById('trabajandoAhoraResumen'),detalle=document.getElementById('trabajandoAhoraLista'),fuera=document.getElementById('fueraAhoraResumen');if(!resumen||!detalle||!fuera)return;resumen.textContent=trabajando.length+(trabajando.length===1?' trabajador':' trabajadores');detalle.innerHTML=trabajando.length?trabajando.map(function(t){return '<div style="padding:9px 0;border-bottom:1px solid #ead9c6"><b>'+String(t.nombre||t.codigo||'Trabajador')+'</b> · <span class="ok">Trabajando</span></div>'}).join(''):'<p class="muted small">No hay trabajadores fichados como trabajando en este momento.</p>';fuera.textContent='Fuera: '+(activos.length-trabajando.length)}
+  if(typeof window.actualizarTotalesEmpresa==='function'){var actualizarOriginal=window.actualizarTotalesEmpresa;window.actualizarTotalesEmpresa=function(){actualizarOriginal.apply(this,arguments);renderTrabajandoAhoraBasic()}}
   renderTrabajandoAhoraBasic();
 
-  window.darBaja = function (codigo, nombre) {
-    if (!confirm(
-      'Dar de baja a ' + nombre +
-      '?\n\nSe conservarán su código y todos sus fichajes.'
-    )) return;
+  window.darBaja=function(codigo,nombre){if(!confirm('Dar de baja a '+nombre+'?\n\nSe conservarán su código y todos sus fichajes.'))return;var aviso=document.getElementById('empresaAviso');if(aviso){aviso.textContent='Procesando baja…';aviso.classList.remove('hidden')}api('darBaja',{owner:OWNER,codigo:codigo},function(r){if(!r.ok){if(aviso)aviso.classList.add('hidden');alert(r.error||'No se pudo registrar la baja');return}var t=trabajadoresPanel.find(function(x){return String(x.codigo)===String(codigo)});if(t){t.activo=false;t.estado='Baja';if(r.vigente_hasta)t.vigente_hasta=r.vigente_hasta}renderTrabajadores();actualizarTotalesEmpresa();if(aviso){aviso.textContent='Baja registrada correctamente.';aviso.classList.remove('hidden');setTimeout(function(){aviso.classList.add('hidden')},2200)}alert('Baja registrada correctamente.')})};
 
-    var aviso = document.getElementById('empresaAviso');
-
-    if (aviso) {
-      aviso.textContent = 'Procesando baja…';
-      aviso.classList.remove('hidden');
-    }
-
-    api('darBaja', {
-      owner: OWNER,
-      codigo: codigo
-    }, function (r) {
-      if (!r.ok) {
-        if (aviso) aviso.classList.add('hidden');
-        alert(r.error || 'No se pudo registrar la baja');
-        return;
-      }
-
-      var t = trabajadoresPanel.find(function (x) {
-        return String(x.codigo) === String(codigo);
-      });
-
-      if (t) {
-        t.activo = false;
-        t.estado = 'Baja';
-        if (r.vigente_hasta) t.vigente_hasta = r.vigente_hasta;
-      }
-
-      renderTrabajadores();
-      actualizarTotalesEmpresa();
-
-      if (aviso) {
-        aviso.textContent = 'Baja registrada correctamente.';
-        aviso.classList.remove('hidden');
-        setTimeout(function () {
-          aviso.classList.add('hidden');
-        }, 2200);
-      }
-
-      alert('Baja registrada correctamente.');
-    });
-  };
-
-  window.cargarInforme = function () {
-    var codigo = document.getElementById('fTrabajador').value;
-    var desde = document.getElementById('fDesde').value;
-    var hasta = document.getElementById('fHasta').value;
-    var destino = document.getElementById('informe');
-
-    if (destino) destino.innerHTML = '<p class="muted">Cargando informe…</p>';
-
-    api('informe', {
-      owner: OWNER,
-      codigo: codigo,
-      desde: desde,
-      hasta: hasta
-    }, function (r) {
-      if (!r.ok) {
-        if (destino) destino.innerHTML = '';
-        alert(r.error);
-        return;
-      }
-
-      var trabajadores = Array.isArray(r.trabajadores)
-        ? r.trabajadores
-        : [];
-
-      if (!trabajadores.length) {
-        destino.innerHTML =
-          '<p class="muted">No hay trabajadores para el periodo seleccionado.</p>';
-        return;
-      }
-
-      var html = '<div class="informe-detallado">';
-
-      trabajadores.forEach(function (t) {
-        html += '<div class="card" style="margin:14px 0;padding:16px">';
-        html +=
-          '<div class="topline"><div><h3 style="margin:0">' +
-          escapeHtmlBasic(t.nombre || '') +
-          '</h3><p class="muted small" style="margin:5px 0 0">Código ' +
-          escapeHtmlBasic(t.codigo || '') +
-          '</p></div><div style="text-align:right"><span class="muted small">Total periodo</span><br><b style="font-size:22px">' +
-          escapeHtmlBasic(t.total || '0:00') +
-          '</b></div></div>';
-
-        var dias = Array.isArray(t.dias) ? t.dias : [];
-
-        if (!dias.length) {
-          html +=
-            '<p class="muted small" style="margin-top:14px">Sin fichajes en este periodo.</p>';
-        } else {
-          html +=
-            '<table style="margin-top:14px"><tr><th>Fecha</th><th>Horario / marcajes</th><th>Total día</th></tr>';
-
-          dias.forEach(function (d) {
-            var marcajes = Array.isArray(d.marcajes) ? d.marcajes : [];
-
-            var textoMarcajes = marcajes.map(function (m) {
-              var tipo =
-                String(m.tipo || '').toUpperCase() === 'ENTRADA'
-                  ? 'Entrada'
-                  : (String(m.tipo || '').toUpperCase() === 'SALIDA'
-                      ? 'Salida'
-                      : String(m.tipo || ''));
-
-              return '<b>' +
-                escapeHtmlBasic(tipo) +
-                '</b> ' +
-                escapeHtmlBasic(m.hora || '—');
-            }).join(' &nbsp;·&nbsp; ');
-
-            html +=
-              '<tr><td>' +
-              escapeHtmlBasic(d.fecha || d.fecha_iso || '') +
-              '</td><td>' +
-              (textoMarcajes || '—') +
-              '</td><td><b>' +
-              escapeHtmlBasic(d.total || '0:00') +
-              '</b></td></tr>';
-          });
-
-          html += '</table>';
-        }
-
-        html += '</div>';
-      });
-
-      html += '</div>';
-      destino.innerHTML = html;
-    });
-  };
-
-  function escapeHtmlBasic(v) {
-    return String(v == null ? '' : v)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
+  window.cargarInforme=function(){var codigo=document.getElementById('fTrabajador').value,desde=document.getElementById('fDesde').value,hasta=document.getElementById('fHasta').value,destino=document.getElementById('informe');if(destino)destino.innerHTML='<p class="muted">Cargando informe…</p>';api('informe',{owner:OWNER,codigo:codigo,desde:desde,hasta:hasta},function(r){if(!r.ok){if(destino)destino.innerHTML='';alert(r.error);return}var trabajadores=Array.isArray(r.trabajadores)?r.trabajadores:[];if(!trabajadores.length){destino.innerHTML='<p class="muted">No hay trabajadores para el periodo seleccionado.</p>';return}var html='<div class="informe-detallado">';trabajadores.forEach(function(t){html+='<div class="card" style="margin:14px 0;padding:16px"><div class="topline"><div><h3 style="margin:0">'+escapeHtmlBasic(t.nombre||'')+'</h3><p class="muted small" style="margin:5px 0 0">Código '+escapeHtmlBasic(t.codigo||'')+'</p></div><div style="text-align:right"><span class="muted small">Total periodo</span><br><b style="font-size:22px">'+escapeHtmlBasic(t.total||'0:00')+'</b></div></div>';var dias=Array.isArray(t.dias)?t.dias:[];if(!dias.length)html+='<p class="muted small" style="margin-top:14px">Sin fichajes en este periodo.</p>';else{html+='<table style="margin-top:14px"><tr><th>Fecha</th><th>Horario / marcajes</th><th>Total día</th></tr>';dias.forEach(function(d){var marcajes=Array.isArray(d.marcajes)?d.marcajes:[];var textoMarcajes=marcajes.map(function(m){var tipo=String(m.tipo||'').toUpperCase()==='ENTRADA'?'Entrada':(String(m.tipo||'').toUpperCase()==='SALIDA'?'Salida':String(m.tipo||''));return '<b>'+escapeHtmlBasic(tipo)+'</b> '+escapeHtmlBasic(m.hora||'—')}).join(' &nbsp;·&nbsp; ');html+='<tr><td>'+escapeHtmlBasic(d.fecha||d.fecha_iso||'')+'</td><td>'+(textoMarcajes||'—')+'</td><td><b>'+escapeHtmlBasic(d.total||'0:00')+'</b></td></tr>'});html+='</table>'}html+='</div>'});html+='</div>';destino.innerHTML=html})};
 });
