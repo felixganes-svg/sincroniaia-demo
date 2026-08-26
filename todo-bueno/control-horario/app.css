@@ -13,7 +13,21 @@ input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:
 .notice{background:#fff7ed;border:1px solid #fed7aa;padding:12px;border-radius:12px}.menu3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.menu3 .btn{height:100%}.success-note{background:#ecfdf5;border:1px solid #bbf7d0;padding:12px;border-radius:12px;color:#166534;margin:12px 0}@media(max-width:600px){.menu3{grid-template-columns:1fr}}
 @media(max-width:600px){.grid,.form-grid{grid-template-columns:1fr}.pin input{width:58px}.card{padding:16px}table{display:block;overflow-x:auto}}
 @media(max-width:600px){body{font-size:16px}.wrap{padding:8px}.card{padding:14px;border-radius:18px;margin:10px 0}.brand{padding:10px 4px}.brand h1{font-size:24px;line-height:1.15}.grid,.form-grid{grid-template-columns:1fr}.actions{flex-direction:column;gap:4px}.actions .btn{width:100%}.topline{align-items:flex-start;flex-wrap:wrap}.topline .btn{width:100%!important}.pin{gap:7px;margin:18px 0}.pin input{width:22%;max-width:60px;height:64px;font-size:30px}input,select,textarea{font-size:16px;min-height:48px}.btn{min-height:50px;font-size:16px}table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}th,td{padding:9px 8px}}
-@media print{body{background:#fff}.no-print{display:none!important}.card{box-shadow:none}.wrap{max-width:none}}
+@media print{
+  @page{size:A4;margin:12mm 12mm 14mm}
+  body{background:#fff}
+  .no-print{display:none!important}
+  .wrap{max-width:186mm!important;margin:0 auto!important;padding:0!important}
+  .brand{text-align:center;padding:2mm 0 5mm}
+  #fichaInforme{width:100%;max-width:180mm;margin:0 auto!important;padding:7mm!important;box-shadow:none!important}
+  #fichaInforme>.topline .btn{display:none!important}
+  #fichaInforme>.topline{justify-content:center!important;text-align:center}
+  #fichaInforme>.topline h2{text-align:center;width:100%}
+  .card{box-shadow:none}
+  .informe-detallado>.card{break-inside:avoid;page-break-inside:avoid;margin:5mm auto!important}
+  .informe-detallado table{break-inside:avoid;page-break-inside:avoid}
+  .informe-detallado tr{break-inside:avoid;page-break-inside:avoid}
+}
 /* BÁSICA v0.4.2: funciones avanzadas conservadas internamente, no visibles al cliente */
 #empresaMenu button[onclick*="seguridad"],#fichaSeguridad,#bloqueAlertas{display:none!important}
 #fichaNuevo>p.muted.small,#fichaQR p.muted.small{display:none!important}
