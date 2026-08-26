@@ -14,10 +14,10 @@ input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:
 @media(max-width:600px){.grid,.form-grid{grid-template-columns:1fr}.pin input{width:58px}.card{padding:16px}table{display:block;overflow-x:auto}}
 @media(max-width:600px){body{font-size:16px}.wrap{padding:8px}.card{padding:14px;border-radius:18px;margin:10px 0}.brand{padding:10px 4px}.brand h1{font-size:24px;line-height:1.15}.grid,.form-grid{grid-template-columns:1fr}.actions{flex-direction:column;gap:4px}.actions .btn{width:100%}.topline{align-items:flex-start;flex-wrap:wrap}.topline .btn{width:100%!important}.pin{gap:7px;margin:18px 0}.pin input{width:22%;max-width:60px;height:64px;font-size:30px}input,select,textarea{font-size:16px;min-height:48px}.btn{min-height:50px;font-size:16px}table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}th,td{padding:9px 8px}}
 @media print{
-  @page{size:A4;margin:12mm 12mm 14mm}
-  body{background:#fff}
+  @page{size:A4;margin:0}
+  html,body{margin:0!important;padding:0!important;background:#fff}
   .no-print{display:none!important}
-  .wrap{max-width:186mm!important;margin:0 auto!important;padding:0!important}
+  .wrap{max-width:none!important;width:100%!important;margin:0!important;padding:12mm 12mm 14mm!important}
   .brand{text-align:center;padding:2mm 0 5mm}
   #fichaInforme{width:100%;max-width:180mm;margin:0 auto!important;padding:7mm!important;box-shadow:none!important}
   #fichaInforme>.topline .btn{display:none!important}
