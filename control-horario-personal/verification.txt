@@ -1,0 +1,7 @@
+Verificación 26/08/2026
+- Base completa v0.6.6 restaurada.
+- 24/08/2026: 08:30-13:30.
+- 25/08/2026: 07:30-13:30.
+- Una jornada abierta solo cuenta si corresponde a la fecha actual.
+- Una entrada antigua del backend no puede activar FICHAR SALIDA hoy.
+- Se conservan Hoy/Semana/Mes, calendario, histórico, saldo, horario previsto y consultas 1/2/3/6/12 meses.
