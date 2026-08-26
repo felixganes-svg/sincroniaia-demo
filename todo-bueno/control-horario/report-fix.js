@@ -12,6 +12,32 @@ window.addEventListener('load', function () {
     return salida;
   }
 
+  function reiniciarInforme(){
+    var trabajador=document.getElementById('fTrabajador');
+    var desde=document.getElementById('fDesde');
+    var hasta=document.getElementById('fHasta');
+    var destino=document.getElementById('informe');
+    if(trabajador) trabajador.value='';
+    if(desde) desde.value='';
+    if(hasta) hasta.value='';
+    if(destino) destino.innerHTML='';
+  }
+
+  if(typeof window.abrirFichaEmpresa==='function'){
+    var abrirFichaEmpresaOriginal=window.abrirFichaEmpresa;
+    window.abrirFichaEmpresa=function(tipo){
+      if(tipo==='informe') reiniciarInforme();
+      var resultado=abrirFichaEmpresaOriginal.apply(this,arguments);
+      if(tipo==='informe') setTimeout(reiniciarInforme,0);
+      return resultado;
+    };
+  }
+
+  var botonInforme=document.querySelector('#empresaMenu button[onclick*="abrirFichaEmpresa(\'informe\')"]');
+  if(botonInforme){
+    botonInforme.addEventListener('click',function(){setTimeout(reiniciarInforme,25)});
+  }
+
   window.cargarInforme=function(){
     var codigo=document.getElementById('fTrabajador').value;
     var desde=document.getElementById('fDesde').value;
