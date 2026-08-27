@@ -30,16 +30,21 @@ function hideAviso(){document.getElementById('aviso').classList.add('hidden');}
 function pin(){var s='';document.querySelectorAll('.pin input').forEach(function(x){s+=x.value.replace(/\D/g,'');});return s;}
 function limpiarPin(){document.querySelectorAll('.pin input').forEach(function(x){x.value='';});var p=document.querySelector('.pin input');if(p)p.focus();}
 
+function bloquearPin(bloquear){
+  document.querySelectorAll('.pin input').forEach(function(x){x.disabled=bloquear;});
+}
+
 function procesarCodigo(){
   if(fichando)return;
   hideAviso();
   var c=pin();
   if(c.length!==4){showAviso('Introduce un código de 4 cifras');return;}
   fichando=true;
+  bloquearPin(true);
   var requestId='tb_'+Date.now()+'_'+Math.random().toString(36).slice(2);
   var b=document.getElementById('btnFichar');b.disabled=true;b.textContent='Registrando…';
   api('fichar',{codigo:c,request_id:requestId},function(r){
-    fichando=false;b.disabled=false;b.textContent='Fichar';
+    fichando=false;bloquearPin(false);b.disabled=false;b.textContent='Fichar';
     if(!r||!r.ok){showAviso(r&&r.error?r.error:'No se pudo registrar el fichaje');limpiarPin();return;}
     if(r.rol==='EMPRESA'){if(r.owner)OWNER=String(r.owner);abrirEmpresa();return;}
     if(r.requiere_confirmacion_salida){pendingCode=c;document.getElementById('kiosk').classList.add('hidden');document.getElementById('salidaNombre').textContent=r.nombre||'';document.getElementById('confirmarSalida').classList.remove('hidden');return;}
@@ -102,7 +107,7 @@ function volverKiosk(){
   if(countdownId)clearInterval(countdownId);
   ['confirmarSalida','confirmacion','miComputo','empresa'].forEach(function(id){var e=document.getElementById(id);if(e)e.classList.add('hidden');});
   document.getElementById('kiosk').classList.remove('hidden');
-  currentCode='';pendingCode='';limpiarPin();
+  currentCode='';pendingCode='';bloquearPin(false);limpiarPin();
 }
 function abrirEmpresa(){document.getElementById('kiosk').classList.add('hidden');document.getElementById('empresa').classList.remove('hidden');limpiarPin();volverMenuEmpresa();}
 function parseM(v){var p=String(v||'0:00').split(':'),neg=p[0].charAt(0)==='-';if(neg)p[0]=p[0].slice(1);var m=Number(p[0]||0)*60+Number(p[1]||0);return neg?-m:m;}
