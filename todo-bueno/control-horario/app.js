@@ -1,5 +1,5 @@
 var CFG=window.TODO_BUENO_CONFIG||{};
-var OWNER='7826';
+var OWNER='';
 var currentCode='';
 var pendingCode='';
 var countdownId=null;
@@ -188,7 +188,15 @@ function guardarTrabajador(){
 }
 
 document.querySelectorAll('.pin input').forEach(function(el,i,a){
-  el.addEventListener('input',function(){el.value=el.value.replace(/\D/g,'');if(el.value&&a[i+1])a[i+1].focus();});
+  el.addEventListener('input',function(){
+    el.value=el.value.replace(/\D/g,'');
+    if(el.value&&a[i+1]){
+      a[i+1].focus();
+    }else if(el.value&&i===a.length-1){
+      el.blur();
+      procesarCodigo();
+    }
+  });
   el.addEventListener('keydown',function(e){if(e.key==='Backspace'&&!el.value&&a[i-1])a[i-1].focus();});
 });
 
