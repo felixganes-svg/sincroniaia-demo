@@ -2,7 +2,8 @@
 
 Estado actual: **EN CONSOLIDACIÓN PROFESIONAL**
 
-Fecha de revisión: **26/08/2026 · 23:29**
+Punto de control MAESTRO: **26/08/2026 · 23:29**
+Última consolidación técnica: **27/08/2026**
 
 > La versión BÁSICA debe tener menos funciones que Profesional o Avanzada, pero exactamente el mismo nivel de calidad, estabilidad y presentación.
 
@@ -79,26 +80,38 @@ Pueden conservarse en histórico o desarrollos posteriores, pero no deben interf
 - Validación de código en alta de trabajador.
 - Publicación de la ruta oficial y versión visible.
 - Mi cómputo detallado Hoy / Semana / Mes.
+- PDF profesional generado desde la aplicación, sin URL de GitHub ni encabezado/pie del navegador.
 
-### EN PRUEBAS
-- Informe diario detallado.
-- Tratamiento visual de duplicados históricos exactos.
+### REVISADO TÉCNICAMENTE · PENDIENTE DE PRUEBA DE FÉLIX
+- Frontend BÁSICA físicamente limpiado de funciones Profesional/Avanzada.
+- Núcleo `app.js` consolidado: deja de depender de un archivo vacío/código heredado.
+- `config.js` reducido a configuración real, sin capa de parches funcionales.
+- Informe diario detallado integrado con filtro visual de duplicados históricos exactos.
 - Reinicio limpio del informe al volver a entrar.
-- PDF profesional generado desde la aplicación.
 - Maquetación final del documento.
 
 ### PENDIENTE DE CIERRE MAESTRO
+- Desplegar en Apps Script el backend BÁSICA único y limpio preparado para consolidación.
+- Eliminar del proyecto Apps Script activo cualquier `.gs` heredado o paralelo que no pertenezca a BÁSICA.
+- Comparar el Apps Script desplegado con el backend canónico y sincronizar la copia exacta en GitHub.
 - Auditoría completa de regresiones de principio a fin.
-- Consolidación del frontend para eliminar físicamente restos de Profesional/Avanzada.
-- Confirmar que el Apps Script activo contiene solo funciones necesarias para BÁSICA.
-- Sincronizar en GitHub la copia exacta del backend finalmente desplegado.
 - Validación final en móvil y escritorio.
 - Prueba final de alta, fichaje, salida, cómputo, panel, baja, informe, PDF, QR y copia de seguridad.
 
 ## Backend
-No se debe afirmar que GitHub reproduce exactamente el Apps Script desplegado hasta comparar ambos códigos.
+El backend BÁSICA consolidado preparado para el siguiente despliegue contiene únicamente estas acciones públicas:
+- `ping`
+- `fichar`
+- `resumen`
+- `panel`
+- `validarCodigoTrabajador`
+- `crearTrabajador`
+- `darBaja`
+- `informe`
 
-El backend de GitHub queda como **pendiente de sincronización exacta** hasta que el código definitivo desplegado sea consolidado y comprobado.
+No incluye SOS, auxilio, vacaciones, festivos, ausencias ni funciones de Profesional/Avanzada.
+
+Hasta que ese código se sustituya en Apps Script, se despliegue y se pruebe, **no se afirma que el backend activo y GitHub sean idénticos**.
 
 ## Política de sellado
 No utilizar las palabras **MASTER**, **SELLADO**, **APROBADO** o **LISTO PARA CLIENTE** como garantía del estado actual hasta completar todas las pruebas finales.
