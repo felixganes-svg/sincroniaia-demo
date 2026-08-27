@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SINCRONIAIA · Copiloto Comercial v1.3.6</title>
+<style>
+:root{--bg:#08111f;--card:#121b2d;--card2:#0c1423;--line:#2a3952;--txt:#f8fafc;--muted:#9fb0c6;--acc:#38bdf8;--ok:#22c55e;--warn:#f59e0b;--bad:#ef4444}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(#07101d,#0f172a);color:var(--txt);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif}
+.wrap{max-width:960px;margin:auto;padding:14px}.head,.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.head{margin-bottom:14px}
+.brand{font-weight:900;font-size:20px}.muted{color:var(--muted);font-size:13px}.badge{font-size:12px;padding:6px 10px;border:1px solid #0e7490;background:#082f49;color:#bae6fd;border-radius:999px}
+.card{background:rgba(18,27,45,.98);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 14px 35px rgba(0,0,0,.22)}
+h1{font-size:23px;margin:0 0 5px}h2{font-size:18px;margin:0 0 10px}.step{font-size:12px;color:var(--acc);font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.progress{height:8px;background:var(--card2);border-radius:99px;overflow:hidden;margin-top:10px}.progress div{height:100%;width:0;background:var(--acc)}
+.script{background:var(--card2);border-left:4px solid var(--acc);border-radius:10px;padding:14px;margin:12px 0;line-height:1.5;font-size:16px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+button,a.btn{display:block;width:100%;text-decoration:none;background:#1e293b;color:#fff;border:1px solid #334155;border-radius:11px;padding:12px 13px;font-weight:750;font-size:14px;cursor:pointer;text-align:left}
+button:hover,a.btn:hover{border-color:var(--acc)}.primary{background:#075985!important;border-color:#0ea5e9!important}.good{background:#14532d!important;border-color:#22c55e!important}.warn{background:#78350f!important;border-color:#f59e0b!important}.bad{background:#7f1d1d!important;border-color:#ef4444!important}
+label{display:block;color:var(--muted);font-size:12px;margin:0 0 6px}input,select,textarea{width:100%;background:var(--card2);color:#fff;border:1px solid #334155;border-radius:10px;padding:11px 12px;font-size:15px}textarea{min-height:120px}
+.small{width:auto;padding:8px 10px;font-size:12px}.status{font-size:12px;color:#86efac}.live{line-height:1.6}.actions{margin-top:12px}.note{padding:10px 12px;background:#172033;border:1px dashed #40516d;border-radius:10px;margin:10px 0}
+@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}.wrap{padding:10px}.script{font-size:15px}h1{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="head">
+   <div><div class="brand">SINCRONIAIA</div><div class="muted">Copiloto Comercial · cualificación → Investigación de Campo</div></div>
+   <div class="badge">v1.3.6 DEMO</div>
+ </div>
+
+ <div class="card">
+   <div class="top">
+    <div><div id="step" class="step">Preparación</div><h1 id="title">Nueva llamada</h1><div id="saveStatus" class="status">Guardado local automático activado</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+      <button id="backBtn" class="small" onclick="goBack()" style="display:none">← Atrás</button>
+      <button class="small" onclick="resetAll()">Nueva llamada</button>
+    </div>
+   </div>
+   <div class="progress"><div id="bar"></div></div>
+ </div>
+
+ <div id="screen" class="card"></div>
+
+ <div class="card">
+   <div class="top"><h2>Ficha en vivo</h2><button class="small" onclick="copyFicha()">Copiar ficha</button></div>
+   <div id="live" class="live muted">Sin datos.</div>
+   <div class="grid2 actions">
+      <button class="good" onclick="saveInternal()">📧 Guardar ficha + email interno</button>
+      <button onclick="showExport()">Ver / exportar TXT</button>
+      <button onclick="downloadTxt()">Descargar TXT</button>
+   </div>
+   <div id="exportBox" style="display:none;margin-top:12px">
+      <label>Texto exportable</label>
+      <textarea id="exportText" readonly></textarea>
+      <div class="grid2" style="margin-top:10px">
+        <button class="primary" onclick="copyExport()">Copiar texto</button>
+        <button onclick="selectExport()">Seleccionar todo</button>
+      </div>
+   </div>
+ </div>
+</div>
+
+<script>
+const INVEST_URL="https://felixganes-svg.github.io/sincroniaia-demo/investigacion/";
+const BACKEND_URL="https://script.google.com/macros/s/AKfycbw84dXux47cZiSeiTws-kVuzn9NAsw-EOskEZ3tbUSBirkaW_5Fe0KuE2g3EB7mvUqi/exec";
+const KEY="sincroniaia_copiloto_v136";
+
+const sectors={
+ restaurante:{n:"Restaurante",obs:"reservas, cambios, grupos, celebraciones y consultas de clientes",serv:["Reservas","Cambios/cancelaciones","Grupos","Celebraciones","Eventos","Carta/menú","Horarios","Alergias","Terraza","Mascotas","Parking/ubicación"]},
+ veterinaria:{n:"Veterinaria",obs:"citas, consultas, revisiones y atención a propietarios",serv:["Citas","Cambios/cancelaciones","Consultas","Vacunas","Revisiones","Urgencias no vitales","Resultados","Horarios"]},
+ peluqueria:{n:"Peluquería / estética",obs:"citas, cambios y preguntas sobre servicios y disponibilidad",serv:["Citas","Cambios/cancelaciones","Precios","Servicios","Disponibilidad","Recordatorios"]},
+ ascensores:{n:"Ascensores",obs:"averías, mantenimiento, incidencias y solicitudes comerciales",serv:["Averías","Personas atrapadas","Mantenimiento","Cambio de mantenedor","Modernización","Accesibilidad","Presupuestos"]},
+ reformas:{n:"Reformas",obs:"presupuestos, visitas y consultas sobre trabajos",serv:["Presupuestos","Visitas","Cocinas","Baños","Reforma integral","Plazos","Seguimiento"]},
+ motos:{n:"Motos / taller",obs:"taller, ventas, recambios y consultas de clientes",serv:["Cita taller","Revisión","Avería","Neumáticos","Recambios","Venta motos","Cascos/equipación"]},
+ otro:{n:"Otro sector",obs:"consultas y tareas repetitivas de atención al cliente",serv:["Consultas","Citas","Presupuestos","Incidencias","Seguimiento"]}
+};
+
+function initialState(){return{
+ sectorKey:"restaurante",sector:"Restaurante",negocio:"",web:"",clienteId:"",interaccionId:"",estadoInvestigacion:"NO ENVIADA",fechaEnvioInvestigacion:"",
+ servicios:[],q1:[],q2:"",q3:[],q4:[],interes:"",siguiente:"",
+ estadoComercial:"Nuevo",resultadoLlamada:"",dolorPrincipal:"",proximaAccion:"",fechaSeguimiento:"",horaSeguimiento:"",
+ canalEnvio:"",movil:"",email:"",contacto:"",responsableNombre:"",momento:"",notas:"",screen:"start",history:[]
+}}
+let state=initialState();
+
+function esc(s){return String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
+function header(a,b,p){document.getElementById("step").textContent=a;document.getElementById("title").textContent=b;document.getElementById("bar").style.width=p+"%"}
+function say(t){return `<div class="script">${t}</div>`}
+function persist(){
+ try{localStorage.setItem(KEY,JSON.stringify(state));document.getElementById("saveStatus").textContent="Guardado local · "+new Date().toLocaleTimeString()}catch(e){}
+ updateLive();
+ updateBackButton();
+}
+function go(name){
+ if(state.screen && state.screen!==name){
+   if(!Array.isArray(state.history)) state.history=[];
+   state.history.push(state.screen);
+   if(state.history.length>30) state.history.shift();
+ }
+ state.screen=name;
+ persist();
+ renderCurrent();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function renderCurrent(){
+ const fn=window[state.screen];
+ if(typeof fn==="function") fn();
+ updateBackButton();
+}
+function updateBackButton(){
+ const b=document.getElementById("backBtn");
+ if(!b)return;
+ const canBack=Array.isArray(state.history)&&state.history.length>0&&state.screen!=="start";
+ b.style.display=canBack?"block":"none";
+}
+function goBack(){
+ if(!Array.isArray(state.history)||!state.history.length)return;
+ const prev=state.history.pop();
+ state.screen=prev;
+ persist();
+ renderCurrent();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function toggle(arr,val,el){
+ let a=state[arr],i=a.indexOf(val);
+ if(i>=0){a.splice(i,1);el.classList.remove("good");el.textContent=val}
+ else{a.push(val);el.classList.add("good");el.textContent="✓ "+val}
+ persist();
+}
+function updateLive(){
+ let r=[
+  `<b>Negocio:</b> ${esc(state.negocio)}`,
+  `<b>Sector:</b> ${esc(state.sector)}`
+ ];
+ if(state.clienteId)r.unshift(`<b>CLIENTE_ID:</b> ${esc(state.clienteId)}`);
+ if(state.interaccionId)r.unshift(`<b>INTERACCION_ID:</b> ${esc(state.interaccionId)}`);
+ if(state.web)r.push(`<b>Web:</b> ${esc(state.web)}`);
+ if(state.servicios.length)r.push(`<b>Servicios observados:</b> ${state.servicios.map(esc).join(", ")}`);
+ if(state.contacto)r.push(`<b>Persona con la que hablo:</b> ${esc(state.contacto)}`);
+ if(state.responsableNombre)r.push(`<b>Responsable de esta parte:</b> ${esc(state.responsableNombre)}`);
+ if(state.q1.length)r.push(`<b>Quién atiende:</b> ${state.q1.map(esc).join(", ")}`);
+ if(state.q2)r.push(`<b>Volumen:</b> ${esc(state.q2)}`);
+ if(state.q3.length)r.push(`<b>Consume más tiempo:</b> ${state.q3.map(esc).join(", ")}`);
+ if(state.q4.length)r.push(`<b>Cuando no pueden atender:</b> ${state.q4.map(esc).join(", ")}`);
+ if(state.dolorPrincipal)r.push(`<b>Dolor principal:</b> ${esc(state.dolorPrincipal)}`);
+ if(state.resultadoLlamada)r.push(`<b>Resultado llamada:</b> ${esc(state.resultadoLlamada)}`);
+ if(state.estadoComercial)r.push(`<b>Estado comercial:</b> ${esc(state.estadoComercial)}`);
+ if(state.proximaAccion)r.push(`<b>Próxima acción:</b> ${esc(state.proximaAccion)}${state.fechaSeguimiento?' · '+esc(state.fechaSeguimiento):''}${state.horaSeguimiento?' · '+esc(state.horaSeguimiento):''}`);
+ if(state.canalEnvio)r.push(`<b>Canal solicitado:</b> ${esc(state.canalEnvio)}`);
+ if(state.movil)r.push(`<b>WhatsApp:</b> ${esc(state.movil)}`);
+ if(state.email)r.push(`<b>Email:</b> ${esc(state.email)}`);
+ if(state.siguiente)r.push(`<b>Siguiente acción:</b> ${esc(state.siguiente)}`);
+ document.getElementById("live").innerHTML=r.join("<br>");
+}
+function start(){
+ header("Preparación","Nueva llamada",5);
+ document.getElementById("screen").innerHTML=`
+ <div class="grid2">
+  <div><label>Sector</label><select id="sectorSel" onchange="changeSector()">${Object.entries(sectors).map(([k,v])=>`<option value="${k}" ${k===state.sectorKey?"selected":""}>${v.n}</option>`).join("")}</select></div>
+  <div><label>Negocio</label><input id="business" value="${esc(state.negocio)}" oninput="state.negocio=this.value;persist()"></div>
+  <div><label>Web / referencia</label><input value="${esc(state.web)}" oninput="state.web=this.value;persist()" placeholder="Opcional"></div>
+ </div>
+ <div class="note"><b>No pedimos teléfono ni email aquí.</b><br><span class="muted">Si estás llamando a un fijo, solo pediremos móvil o correo si el cliente elige recibir el cuestionario por ese canal.</span></div>
+ <b>Servicios observados</b><p class="muted">Puedes marcar varios.</p>
+ <div id="services" class="grid3"></div>
+ <div class="grid2 actions"><button class="primary" onclick="go('opening')">☎ Iniciar llamada</button></div>`;
+ renderServices();
+}
+function changeSector(){state.sectorKey=document.getElementById("sectorSel").value;state.sector=sectors[state.sectorKey].n;state.servicios=[];persist();renderServices()}
+function renderServices(){let b=document.getElementById("services");if(!b)return;b.innerHTML=sectors[state.sectorKey].serv.map(x=>`<button class="${state.servicios.includes(x)?"good":""}" onclick="toggle('servicios','${x.replace(/'/g,"\\'")}',this)">${state.servicios.includes(x)?"✓ ":""}${x}</button>`).join("")}
+
+function opening(){
+ header("Apertura","Pedir permiso",12);let s=sectors[state.sectorKey];
+ document.getElementById("screen").innerHTML=`${say(`Hola, buenas. Soy Félix, de SINCRONIAIA. Estamos haciendo un pequeño estudio sobre cómo gestionan negocios como el vuestro ${esc(s.obs)} y el tiempo que dedica el equipo a tareas repetitivas. ¿Te puedo hacer unas preguntas muy rápidas?`)}
+ <div class="grid2"><button class="good" onclick="go('askName')">Sí, dime</button><button onclick="go('explain')">¿De qué se trata?</button><button class="warn" onclick="go('later')">Ahora no puedo</button><button class="bad" onclick="go('finish')">No interesa</button></div>`;
+}
+function explain(){header("Apertura","Explicar el estudio",16);document.getElementById("screen").innerHTML=`${say("Estamos analizando cómo gestionan los negocios las consultas y tareas repetitivas, cuánto tiempo consumen y qué ocurre cuando el equipo está ocupado. Son unas preguntas breves y no necesitas preparar nada. ¿Te las puedo hacer?")}<div class="grid2"><button class="good" onclick="go('askName')">Sí</button><button class="warn" onclick="go('later')">Otro momento</button></div>`}
+function later(){header("Seguimiento","Otro momento",18);document.getElementById("screen").innerHTML=`${say((state.contacto?state.contacto+", ":"")+"perfecto, gracias por atenderme. No te entretengo más. ¿Qué momento te iría mejor para hablar?")}<div class="grid2"><div><label>Nombre si lo facilita</label><input oninput="state.contacto=this.value;persist()"></div><div><label>Día / momento</label><input oninput="state.momento=this.value;state.siguiente='Volver a llamar: '+this.value;persist()"></div></div><div class="grid2 actions"><button class="primary" onclick="go('finish')">Guardar seguimiento</button></div>`}
+
+function askName(){
+ header("Antes de empezar","¿Con quién hablo?",22);
+ document.getElementById("screen").innerHTML=`
+ ${say("Perfecto, gracias. Perdona, ¿con quién hablo?")}
+ <div>
+   <label>Nombre de la persona con la que estás hablando</label>
+   <input id="currentName" value="${esc(state.contacto)}" placeholder="Ej. Marta" oninput="state.contacto=this.value;persist()">
+ </div>
+ <div class="grid2 actions">
+   <button class="primary" onclick="state.contacto=document.getElementById('currentName').value.trim();persist();go('q1')">Continuar</button>
+   <button onclick="state.contacto='';persist();go('q1')">No me lo facilita / seguir sin nombre</button>
+ </div>`;
+}
+function q1(){
+ header("Pregunta 1 de 4","Quién lo atiende",32);
+ let s=sectors[state.sectorKey],o=["Propietario/a","Encargado/a","Recepción / administración","Equipo operativo","Varias personas","Otro"];
+ const saludo = state.contacto ? state.contacto+", " : "";
+ document.getElementById("screen").innerHTML=`
+ ${say(`${saludo}¿quién suele encargarse normalmente de ${esc(s.obs)}?`)}
+ <p class="muted">Marca todas las respuestas que diga.</p>
+ <div class="grid2">
+ ${o.map(x=>`<button class="${state.q1.includes(x)?"good":""}" onclick="toggle('q1','${x}',this)">${state.q1.includes(x)?"✓ ":""}${x}</button>`).join("")}
+ </div>
+ <div style="margin-top:12px">
+   <label>Si menciona a una persona concreta, ¿cómo se llama?</label>
+   <input id="responsibleName" value="${esc(state.responsableNombre)}" placeholder="Opcional · Ej. Albert" oninput="state.responsableNombre=this.value;persist()">
+ </div>
+ <div class="grid2 actions">
+   <button class="primary" onclick="state.responsableNombre=document.getElementById('responsibleName').value.trim();persist();state.q1.length?go('q2'):alert('Marca al menos una opción')">Continuar</button>
+ </div>`;
+}
+function q2(){header("Pregunta 2 de 4","Volumen",42);document.getElementById("screen").innerHTML=`${say((state.contacto?state.contacto+", ":"")+"aproximadamente, ¿dirías que os entran pocas, bastantes o muchas consultas de este tipo durante un día normal?")}<div class="grid2">${["Pocas","Bastantes","Muchas","Depende del día"].map(x=>`<button onclick="state.q2='${x}';persist();go('q3')">${x}</button>`).join("")}</div>`}
+function q3(){header("Pregunta 3 de 4","Qué consume más tiempo",56);let o=sectors[state.sectorKey].serv;document.getElementById("screen").innerHTML=`${say("¿Qué tipos de consultas o tareas son las que más tiempo os ocupan normalmente?")}<p class="muted">Puedes marcar varias.</p><div class="grid3">${o.map(x=>`<button class="${state.q3.includes(x)?"good":""}" onclick="toggle('q3','${x.replace(/'/g,"\\'")}',this)">${state.q3.includes(x)?"✓ ":""}${x}</button>`).join("")}<button onclick="addOther()">Otro</button></div><div class="grid2 actions"><button class="primary" onclick="state.q3.length?go('q4'):alert('Marca al menos una opción')">Continuar</button></div>`}
+function addOther(){let v=prompt("Otra tarea o consulta");if(v&&!state.q3.includes(v)){state.q3.push(v);persist();q3()}}
+function q4(){header("Pregunta 4 de 4","Cuando no pueden atender",70);let o=["Devuelven la llamada después","El cliente insiste","Se puede perder","Queda pendiente","Lo atiende otra persona","No lo sabemos"];document.getElementById("screen").innerHTML=`${say("Y cuando estáis ocupados y no podéis atender una llamada, mensaje o consulta, ¿qué suele pasar?")}<p class="muted">Puedes marcar varias consecuencias.</p><div class="grid2">${o.map(x=>`<button class="${state.q4.includes(x)?"good":""}" onclick="toggle('q4','${x}',this)">${state.q4.includes(x)?"✓ ":""}${x}</button>`).join("")}</div><div class="grid2 actions"><button class="primary" onclick="state.q4.length?go('decision'):alert('Marca al menos una opción')">Continuar</button></div>`}
+
+function decision(){header("Cualificación","Siguiente paso",82);state.interes="Cualificado";persist();document.getElementById("screen").innerHTML=`${say("Por lo que me estás contando, creo que merece la pena profundizar un poco más. Tenemos un cuestionario que nos permite entender cómo funciona realmente el negocio y detectar dónde se concentra más carga de trabajo. Si tienes unos minutos, lo podemos ir haciendo juntos ahora.")}<div class="grid2"><button class="good" onclick="state.siguiente='Hacer estudio ahora';persist();go('studyNow')">Hacerlo juntos ahora</button><button onclick="go('sendChoice')">Prefiere que se lo envíe</button><button class="warn" onclick="go('later')">Concertar otro momento</button><button class="bad" onclick="state.siguiente='Cerrar';persist();go('finish')">No continuar</button></div>`}
+
+function studyNow(){header("Investigación","Hacerlo juntos ahora",92);document.getElementById("screen").innerHTML=`${say((state.contacto?state.contacto+", ":"")+"perfecto. Muchas gracias por dedicarme estos minutos. Lo hacemos juntos. Yo te voy haciendo las preguntas y tú me respondes con total normalidad. No hace falta preparar nada.")}<a class="btn good" target="_blank" rel="noopener" href="${INVEST_URL}">Abrir Investigación de Campo ↗</a><div class="grid2 actions"><button onclick="state.siguiente='Investigación iniciada';persist();go('finish')">Registrar inicio del estudio</button></div>`}
+
+function sendChoice(){header("Envío","¿Por dónde se lo enviamos?",88);document.getElementById("screen").innerHTML=`${say((state.contacto?state.contacto+", ":"")+"perfecto. Muchas gracias por tu tiempo. ¿Dónde te va mejor que te envíe el enlace, por WhatsApp o por email?")}<div class="grid2"><button class="good" onclick="state.canalEnvio='WhatsApp';persist();go('sendWhatsapp')">WhatsApp</button><button onclick="state.canalEnvio='Email';persist();go('sendEmail')">Email</button></div>`}
+
+function sendWhatsapp(){header("Envío","WhatsApp",93);document.getElementById("screen").innerHTML=`${say((state.contacto?state.contacto+", ":"")+"gracias por tu tiempo. ¿Me facilitas el móvil donde quieres que te envíe el enlace por WhatsApp?")}<div><label>Móvil con prefijo si procede</label><input id="wa" inputmode="tel" value="${esc(state.movil)}" oninput="state.movil=this.value;persist()" placeholder="Ej. 612 345 678"></div><div class="grid2 actions"><button class="good" onclick="openWhatsapp()">Abrir WhatsApp con mensaje</button><button onclick="copyStudyMessage('wa')">Copiar mensaje</button></div>`}
+function cleanPhone(v){let n=String(v).replace(/\D/g,"");if(n.length===9)n="34"+n;return n}
+
+function markInvestigationPrepared(channel){
+ state.canalEnvio = channel || state.canalEnvio || "";
+ state.estadoInvestigacion = "PREPARADA";
+ state.siguiente = "Investigación preparada por " + (channel || state.canalEnvio || "canal seleccionado");
+ persist();
+}
+async function confirmInvestigationSent(channel){
+ state.canalEnvio = channel || state.canalEnvio || "";
+ state.estadoInvestigacion = "ENVIADA";
+ state.fechaEnvioInvestigacion = new Date().toISOString();
+ state.siguiente = "Investigación enviada por " + (channel || state.canalEnvio || "canal seleccionado");
+ state.estadoComercial = "Estudio enviado";
+ state.resultadoLlamada = "Estudio enviado";
+ state.proximaAccion = "Esperar estudio";
+ persist();
+ go('finish');
+}
+
+function message(){
+ const saludo = state.contacto ? `Hola, ${state.contacto}.` : "Hola.";
+ const negocio = state.negocio ? ` en ${state.negocio}` : "";
+ const foco = state.q3.length ? ` Como comentábamos, una de las áreas que más tiempo os ocupa es: ${state.q3.join(", ")}.` : "";
+ return `${saludo} Soy Félix, de SINCRONIAIA.
+
+Muchas gracias por tu tiempo y por atenderme.
+
+Tal como hemos comentado, te envío el enlace al estudio para entender mejor cómo gestionáis actualmente las consultas, tareas repetitivas y el tiempo que dedica el equipo a ellas${negocio}.${foco}
+
+${INVEST_URL}
+
+Cuando lo completes, podemos revisar juntos el resultado y ver si existe alguna oportunidad real de recuperar tiempo o mejorar algún proceso.
+
+Gracias de nuevo por tu atención.
+
+Félix · SINCRONIAIA`;
+}
+function openWhatsapp(){let n=cleanPhone(state.movil);if(n.length<11){alert("Introduce un móvil válido. Si es español, basta con 9 dígitos.");return}markInvestigationPrepared("WhatsApp");
+ window.open("https://wa.me/"+n+"?text="+encodeURIComponent(message()),"_blank")}
+function sendEmail(){header("Envío","Email",93);document.getElementById("screen").innerHTML=`${say((state.contacto?state.contacto+", ":"")+"muchas gracias por atenderme. ¿Qué correo prefieres que utilice para enviarte el enlace?")}<div><label>Email</label><input id="em" type="email" value="${esc(state.email)}" oninput="state.email=this.value;persist()" placeholder="nombre@empresa.com"></div><div class="grid2 actions"><button class="good" onclick="openEmail()">1. Abrir correo preparado</button><button onclick="copyStudyMessage('mail')">Copiar mensaje</button></div><div class="actions"><button class="primary" onclick="confirmInvestigationSent('Email')">✓ 2. Confirmar enviado + guardar ficha</button></div>`}
+function openEmail(){let e=state.email.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){alert("Introduce un email válido.");return}let sub="Estudio SINCRONIAIA · "+(state.negocio||"tu negocio");markInvestigationPrepared("Email");
+ location.href="mailto:"+encodeURIComponent(e)+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(message())}
+async function copyStudyMessage(){await smartCopy(message(),"Mensaje copiado")}
+
+function buildNextAction(){
+ let a=state.proximaAccion||state.siguiente||"";
+ if(state.fechaSeguimiento)a += (a?" · ":"")+"Fecha: "+state.fechaSeguimiento;
+ if(state.horaSeguimiento)a += (a?" · ":"")+"Hora: "+state.horaSeguimiento;
+ return a;
+}
+function buildInternalNotes(){
+ let parts=[];
+ if(state.resultadoLlamada)parts.push("Resultado llamada: "+state.resultadoLlamada);
+ if(state.dolorPrincipal)parts.push("Dolor principal: "+state.dolorPrincipal);
+ if(state.notas)parts.push("Notas: "+state.notas);
+ return parts.join(" | ");
+}
+
+async function saveInternal(){
+ if(!BACKEND_URL || BACKEND_URL.includes("PEGAR_AQUI")){
+   alert("Falta conectar el backend. Abre INSTALAR.txt y pega la URL /exec del Apps Script en BACKEND_URL.");
+   return;
+ }
+ const payload={
+   action:"guardar_copiloto",
+   clienteId:state.clienteId||"",
+   interaccionId:state.interaccionId||"",
+   negocio:state.negocio||"",
+   sector:state.sector||"",
+   web:state.web||"",
+   contacto:state.contacto||"",
+   responsable:state.responsableNombre||"",
+   servicios:state.servicios.join(" | "),
+   q1:state.q1.join(" | "),
+   q2:state.q2||"",
+   q3:state.q3.join(" | "),
+   q4:state.q4.join(" | "),
+   canalEnvio:state.canalEnvio||"",
+   movil:state.movil||"",
+   email:state.email||"",
+   estadoInvestigacion: state.estadoInvestigacion || "NO ENVIADA",
+   estadoComercial: state.estadoComercial||state.interes||"CUALIFICADO",
+   siguiente:buildNextAction(),
+   notas:buildInternalNotes()
+ };
+ try{
+   const res=await fetch(BACKEND_URL,{
+     method:"POST",
+     mode:"cors",
+     headers:{"Content-Type":"text/plain;charset=utf-8"},
+     body:JSON.stringify(payload)
+   });
+   const data=await res.json();
+   if(data && data.ok){
+     if(data.clienteId)state.clienteId=data.clienteId;
+     if(data.interaccionId)state.interaccionId=data.interaccionId;
+     persist();
+     alert("Ficha guardada. CLIENTE_ID: "+(data.clienteId||"—")+" · INTERACCION_ID: "+(data.interaccionId||"—"));
+     state.siguiente=state.siguiente||"Ficha interna guardada";
+     persist();
+   }else{
+     throw new Error((data&&data.error)||"Respuesta no válida");
+   }
+ }catch(e){
+   alert("No se pudo guardar automáticamente: "+e.message);
+ }
+}
+
+function finish(){
+ header("Control interno","Cerrar oportunidad",96);
+ if(!state.dolorPrincipal && state.q3.length) state.dolorPrincipal=state.q3[0];
+ if(!state.estadoComercial || state.estadoComercial==="Nuevo"){
+   if(state.estadoInvestigacion==="ENVIADA") state.estadoComercial="Estudio enviado";
+   else if(state.interes==="Cualificado") state.estadoComercial="Interesado";
+ }
+ if(!state.proximaAccion) state.proximaAccion=state.siguiente||"";
+ const estados=["Nuevo","Pendiente","Interesado","Estudio enviado","Demo pendiente","Propuesta enviada","Cliente","No interesado"];
+ const resultados=["No contesta","Hablo con empleado","Hablo con responsable","Responsable no está","Volver a llamar","Interesado","No interesado","Estudio aceptado","Estudio enviado"];
+ const dolores=["Interrupciones constantes","Llamadas perdidas","WhatsApp","Reservas / citas","Presupuestos","Seguimiento","Fuera de horario","Tareas administrativas","Otro"];
+ const acciones=["Volver a llamar","Enviar estudio","Esperar estudio","Preparar demo","Enviar demo","Preparar propuesta","Enviar propuesta","Cerrar","Sin seguimiento"];
+ document.getElementById("screen").innerHTML=`
+ <div class="note"><b>Esta parte es interna.</b><br><span class="muted">No son más preguntas para el cliente. Sirve para que sepas exactamente cómo queda la oportunidad y qué toca hacer después.</span></div>
+ <div class="grid2">
+  <div><label>Estado comercial</label><select id="estadoComercial">${estados.map(x=>`<option ${x===state.estadoComercial?'selected':''}>${x}</option>`).join('')}</select></div>
+  <div><label>Resultado de esta llamada</label><select id="resultadoLlamada"><option value="">Seleccionar…</option>${resultados.map(x=>`<option ${x===state.resultadoLlamada?'selected':''}>${x}</option>`).join('')}</select></div>
+  <div><label>Dolor principal detectado</label><select id="dolorPrincipal"><option value="">Seleccionar…</option>${dolores.map(x=>`<option ${x===state.dolorPrincipal?'selected':''}>${x}</option>`).join('')}</select></div>
+  <div><label>Próxima acción</label><select id="proximaAccion"><option value="">Seleccionar…</option>${acciones.map(x=>`<option ${x===state.proximaAccion?'selected':''}>${x}</option>`).join('')}</select></div>
+  <div><label>Fecha seguimiento</label><input id="fechaSeguimiento" type="date" value="${esc(state.fechaSeguimiento)}"></div>
+  <div><label>Hora seguimiento</label><input id="horaSeguimiento" type="time" value="${esc(state.horaSeguimiento)}"></div>
+ </div>
+ <div style="margin-top:12px"><label>Notas internas</label><textarea id="notasInternas">${esc(state.notas)}</textarea></div>
+ <div class="grid2 actions"><button class="primary" onclick="saveCommercialControl()">Revisar antes de guardar →</button><button onclick="goBack()">← Corregir llamada</button></div>`;
+ persist();
+}
+function saveCommercialControl(){
+ state.estadoComercial=document.getElementById('estadoComercial').value;
+ state.resultadoLlamada=document.getElementById('resultadoLlamada').value;
+ state.dolorPrincipal=document.getElementById('dolorPrincipal').value;
+ state.proximaAccion=document.getElementById('proximaAccion').value;
+ state.fechaSeguimiento=document.getElementById('fechaSeguimiento').value;
+ state.horaSeguimiento=document.getElementById('horaSeguimiento').value;
+ state.notas=document.getElementById('notasInternas').value;
+ if(!state.resultadoLlamada){alert('Selecciona el resultado de la llamada.');return}
+ if(!state.dolorPrincipal){alert('Selecciona el dolor principal detectado.');return}
+ if(!state.proximaAccion){alert('Selecciona la próxima acción.');return}
+ if(!['Cerrar','Sin seguimiento'].includes(state.proximaAccion) && !state.fechaSeguimiento){alert('Indica una fecha para el seguimiento.');return}
+ persist();go('reviewFinal');
+}
+function reviewFinal(){
+ header("Revisión final","Comprueba antes de guardar",100);
+ document.getElementById("screen").innerHTML=`
+ <div class="note"><b>Resumen de oportunidad</b><br><span class="muted">Si algo está mal, corrígelo antes de enviarlo al seguimiento interno.</span></div>
+ <div class="live">
+  <b>Negocio:</b> ${esc(state.negocio)||'—'}<br>
+  <b>Sector:</b> ${esc(state.sector)||'—'}<br>
+  <b>Contacto:</b> ${esc(state.contacto)||'—'}<br>
+  <b>Dolor principal:</b> ${esc(state.dolorPrincipal)||'—'}<br>
+  <b>Volumen:</b> ${esc(state.q2)||'—'}<br>
+  <b>Resultado:</b> ${esc(state.resultadoLlamada)||'—'}<br>
+  <b>Estado comercial:</b> ${esc(state.estadoComercial)||'—'}<br>
+  <b>Próxima acción:</b> ${esc(state.proximaAccion)||'—'}<br>
+  <b>Seguimiento:</b> ${esc(state.fechaSeguimiento)||'—'} ${esc(state.horaSeguimiento)||''}
+ </div>
+ <div class="grid2 actions"><button class="good" onclick="saveInternal()">✅ Guardar ficha + email interno</button><button onclick="go('finish')">← Corregir datos</button></div>`;
+}
+
+function exportText(){
+ return `SINCRONIAIA — CUALIFICACIÓN DE LLAMADA
+CLIENTE_ID: ${state.clienteId||"—"}
+INTERACCION_ID: ${state.interaccionId||"—"}
+Negocio: ${state.negocio||"—"}
+Sector: ${state.sector||"—"}
+Web: ${state.web||"—"}
+Servicios observados: ${state.servicios.join(", ")||"—"}
+Persona con la que hablo: ${state.contacto||"—"}
+Responsable de esta parte: ${state.responsableNombre||"—"}
+
+P1 · Quién atiende: ${state.q1.join(", ")||"—"}
+P2 · Volumen: ${state.q2||"—"}
+P3 · Qué consume más tiempo: ${state.q3.join(", ")||"—"}
+P4 · Qué pasa si no pueden atender: ${state.q4.join(", ")||"—"}
+
+Dolor principal: ${state.dolorPrincipal||"—"}
+Resultado de llamada: ${state.resultadoLlamada||"—"}
+Estado comercial: ${state.estadoComercial||"—"}
+Próxima acción: ${state.proximaAccion||state.siguiente||"—"}
+Fecha seguimiento: ${state.fechaSeguimiento||"—"}
+Hora seguimiento: ${state.horaSeguimiento||"—"}
+
+Canal de envío: ${state.canalEnvio||"—"}
+WhatsApp: ${state.movil||"—"}
+Email: ${state.email||"—"}
+Siguiente paso original: ${state.siguiente||"—"}
+Notas: ${state.notas||"—"}
+
+Investigación de Campo:
+${INVEST_URL}`;
+}
+function showExport(){let b=document.getElementById("exportBox");b.style.display="block";document.getElementById("exportText").value=exportText();b.scrollIntoView({behavior:"smooth",block:"center"})}
+function selectExport(){showExport();let e=document.getElementById("exportText");e.focus();e.select()}
+async function smartCopy(text,ok){
+ try{
+   if(navigator.clipboard && window.isSecureContext){await navigator.clipboard.writeText(text);alert(ok);return}
+ }catch(e){}
+ let ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.focus();ta.select();
+ try{document.execCommand("copy");alert(ok)}catch(e){alert("No se pudo copiar automáticamente. Se mostrará el texto para copiarlo manualmente.");showExport()}
+ document.body.removeChild(ta);
+}
+async function copyFicha(){await smartCopy(exportText(),"Ficha copiada")}
+async function copyExport(){await smartCopy(document.getElementById("exportText").value,"Texto copiado")}
+function downloadTxt(){
+ let text="\uFEFF"+exportText();
+ let blob=new Blob([text],{type:"text/plain;charset=utf-8"});
+ let url=URL.createObjectURL(blob);
+ let a=document.createElement("a");
+ a.href=url;
+ let name=(state.negocio||"prospecto").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9_-]+/g,"_");
+ a.download="SINCRONIAIA_"+name+"_cualificacion.txt";
+ document.body.appendChild(a);a.click();
+ setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},2000);
+}
+function resetAll(){
+ if(!confirm("¿Crear una nueva llamada? Se sustituirá la ficha actual guardada en este navegador."))return;
+ state=initialState();
+ localStorage.removeItem(KEY);
+ state.screen="start";
+ state.history=[];
+ persist();
+ renderCurrent();
+}
+(function boot(){
+ try{
+   let saved=localStorage.getItem(KEY);
+   if(saved){
+     let p=JSON.parse(saved);
+     state=Object.assign(initialState(),p);
+     if(!Array.isArray(state.history))state.history=[];
+   }
+ }catch(e){}
+ if(!state.screen || typeof window[state.screen]!=="function") state.screen="start";
+ renderCurrent();
+})();
+</script>
+</body>
+</html>
