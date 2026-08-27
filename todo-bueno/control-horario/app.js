@@ -115,15 +115,16 @@ function fmt(m){var s=m<0?'-':'';m=Math.abs(m);return s+Math.floor(m/60)+':'+('0
 
 function abrirFichaEmpresa(cual){
   document.getElementById('empresaMenu').classList.add('hidden');
-  ['fichaPanel','fichaTrabajadores','fichaInforme','fichaNuevo','fichaQR','fichaBackup'].forEach(function(id){document.getElementById(id).classList.add('hidden');});
+  ['fichaPanel','fichaTrabajadores','fichaInforme','fichaNuevo','fichaEditarEmpresa','fichaEditarTrabajador','fichaQR','fichaBackup'].forEach(function(id){document.getElementById(id).classList.add('hidden');});
   if(cual==='panel'){document.getElementById('fichaPanel').classList.remove('hidden');cargarEmpresa();}
   if(cual==='trabajadores'){document.getElementById('fichaTrabajadores').classList.remove('hidden');setFiltroTrabajadores('ACTIVOS');cargarEmpresa();}
   if(cual==='informe'){document.getElementById('fichaInforme').classList.remove('hidden');cargarEmpresa();}
   if(cual==='nuevo'){document.getElementById('fichaNuevo').classList.remove('hidden');limpiarAlta();}
+  if(cual==='editarempresa'){document.getElementById('fichaEditarEmpresa').classList.remove('hidden');cargarDatosEmpresa();}
   if(cual==='qr')document.getElementById('fichaQR').classList.remove('hidden');
   if(cual==='backup')document.getElementById('fichaBackup').classList.remove('hidden');
 }
-function volverMenuEmpresa(){['fichaPanel','fichaTrabajadores','fichaInforme','fichaNuevo','fichaQR','fichaBackup'].forEach(function(id){document.getElementById(id).classList.add('hidden');});document.getElementById('empresaMenu').classList.remove('hidden');}
+function volverMenuEmpresa(){['fichaPanel','fichaTrabajadores','fichaInforme','fichaNuevo','fichaEditarEmpresa','fichaEditarTrabajador','fichaQR','fichaBackup'].forEach(function(id){document.getElementById(id).classList.add('hidden');});document.getElementById('empresaMenu').classList.remove('hidden');}
 
 function setFiltroTrabajadores(filtro){filtroTrabajadores=filtro;actualizarBotonesFiltro();renderTrabajadores();}
 function actualizarBotonesFiltro(){[['btnActivos','ACTIVOS'],['btnBajas','BAJAS'],['btnTodos','TODOS']].forEach(function(x){var b=document.getElementById(x[0]);b.classList.remove('primary','secondary');b.classList.add(filtroTrabajadores===x[1]?'primary':'secondary');});}
@@ -146,7 +147,11 @@ function renderTrabajandoAhora(){
 function renderTrabajadores(){
   var lista=trabajadoresPanel.filter(function(t){if(filtroTrabajadores==='ACTIVOS')return t.activo!==false;if(filtroTrabajadores==='BAJAS')return t.activo===false;return true;});
   var x='<table><tr><th>Código</th><th>Nombre</th><th>Contrato</th><th>Estado</th><th>Hoy</th><th>Semana</th><th>Mes</th><th></th></tr>';
-  lista.forEach(function(t){x+='<tr><td>'+esc(t.codigo)+'</td><td>'+esc(t.nombre)+'</td><td>'+esc(t.horas_contrato)+' h</td><td>'+esc(t.estado)+'</td><td>'+esc(t.hoy)+'</td><td>'+esc(t.semana)+'</td><td>'+esc(t.mes)+'</td><td>'+(t.activo!==false?'<button class="btn secondary" style="padding:8px 10px;font-size:13px" onclick="darBaja(\''+esc(t.codigo)+'\',\''+esc(String(t.nombre).replace(/'/g,'&#39;'))+'\')">Dar de baja</button>':'<span class="muted">Código conservado</span>')+'</td></tr>';});
+  lista.forEach(function(t){
+    var botones='<button class="btn secondary" style="padding:8px 10px;font-size:13px;margin-right:6px" onclick="abrirEditarTrabajador(\''+esc(t.codigo)+'\')">Editar</button>';
+    botones+=(t.activo!==false?'<button class="btn secondary" style="padding:8px 10px;font-size:13px" onclick="darBaja(\''+esc(t.codigo)+'\',\''+esc(String(t.nombre).replace(/'/g,'&#39;'))+'\')">Dar de baja</button>':'<span class="muted">Código conservado</span>');
+    x+='<tr><td>'+esc(t.codigo)+'</td><td>'+esc(t.nombre)+'</td><td>'+esc(t.horas_contrato)+' h</td><td>'+esc(t.estado)+'</td><td>'+esc(t.hoy)+'</td><td>'+esc(t.semana)+'</td><td>'+esc(t.mes)+'</td><td>'+botones+'</td></tr>';
+  });
   x+='</table>';document.getElementById('tablaTrabajadores').innerHTML=x;
 }
 function cargarSelectorInforme(){var s=document.getElementById('fTrabajador');if(!s)return;var x='<option value="">Todos los trabajadores</option>';trabajadoresPanel.forEach(function(t){x+='<option value="'+esc(t.codigo)+'">'+esc(t.nombre)+' ('+esc(t.codigo)+')</option>';});s.innerHTML=x;}
@@ -189,6 +194,82 @@ function guardarTrabajador(){
     b.textContent='Guardar trabajador';
     if(!r||!r.ok){altaCodigoDisponible=false;altaCodigoComprobado='';habilitarAlta(false);estadoCodigoAlta(r&&r.error?r.error:'No se pudo crear el trabajador.','error');return;}
     limpiarAlta();cargarEmpresa();alert('Trabajador creado correctamente.');
+  });
+}
+
+function abrirEditarTrabajador(codigo){
+  var t=trabajadoresPanel.find(function(x){return String(x.codigo)===String(codigo);});
+  if(!t){alert('Trabajador no encontrado.');return;}
+  document.getElementById('editCodigo').value=t.codigo;
+  document.getElementById('editNombre').value=t.nombre;
+  document.getElementById('editHoras').value=t.horas_contrato;
+  document.getElementById('editActivo').value=t.activo!==false?'SI':'NO';
+  ['fichaPanel','fichaTrabajadores','fichaInforme','fichaNuevo','fichaEditarEmpresa','fichaQR','fichaBackup'].forEach(function(id){document.getElementById(id).classList.add('hidden');});
+  document.getElementById('fichaEditarTrabajador').classList.remove('hidden');
+}
+
+function guardarEdicionTrabajador(){
+  var codigo=document.getElementById('editCodigo').value;
+  var nombre=document.getElementById('editNombre').value.trim();
+  var horas=document.getElementById('editHoras').value;
+  var activo=document.getElementById('editActivo').value;
+  if(!nombre){alert('Indica el nombre y apellidos.');return;}
+  if(!horas){alert('Indica las horas semanales.');return;}
+  var b=document.getElementById('btnGuardarEdicion');b.disabled=true;b.textContent='Guardando…';
+  api('editarTrabajador',{owner:OWNER,codigo:codigo,nombre:nombre,horas:horas,activo:activo},function(r){
+    b.disabled=false;b.textContent='Guardar cambios';
+    if(!r||!r.ok){alert(r&&r.error?r.error:'No se pudo guardar el cambio.');return;}
+    cargarEmpresa();
+    alert('Trabajador actualizado correctamente.');
+    volverMenuEmpresa();
+  });
+}
+
+var empEditCodigoComprobado='';
+var empEditCodigoDisponible=false;
+var empEditConsultaSecuencia=0;
+
+function cargarDatosEmpresa(){
+  document.getElementById('empEditNombre').value=document.querySelector('.brand h1')?document.querySelector('.brand h1').textContent:'';
+  document.getElementById('empEditCodigo').value='';
+  document.getElementById('empEditCodigoEstado').textContent='';
+  empEditCodigoComprobado='';
+  empEditCodigoDisponible=false;
+}
+
+function validarCodigoEmpresaNuevo(){
+  var el=document.getElementById('empEditCodigo');
+  var codigo=String(el.value||'').replace(/\D/g,'').slice(0,4);el.value=codigo;
+  empEditCodigoComprobado='';empEditCodigoDisponible=false;empEditConsultaSecuencia++;var sec=empEditConsultaSecuencia;
+  var estado=document.getElementById('empEditCodigoEstado');
+  if(codigo.length<4){estado.textContent=codigo.length?'Introduce las 4 cifras.':'';estado.className='small muted';return;}
+  estado.textContent='Comprobando código…';estado.className='small muted';
+  api('validarCodigoEmpresa',{owner:OWNER,codigo:codigo},function(r){
+    if(sec!==empEditConsultaSecuencia||document.getElementById('empEditCodigo').value!==codigo)return;
+    if(!r||!r.ok){estado.textContent=r&&r.error?r.error:'No se pudo comprobar el código.';estado.className='small';estado.style.color='#b91c1c';return;}
+    empEditCodigoComprobado=codigo;empEditCodigoDisponible=r.disponible===true;
+    estado.textContent=r.mensaje||'';
+    estado.className=empEditCodigoDisponible?'small ok':'small';
+    if(!empEditCodigoDisponible)estado.style.color='#b91c1c';else estado.style.color='';
+  });
+}
+
+function guardarEmpresa(){
+  var nombre=document.getElementById('empEditNombre').value.trim();
+  var codigo=document.getElementById('empEditCodigo').value;
+  if(!nombre){alert('Indica el nombre de la empresa.');return;}
+  if(codigo.length!==4){alert('El código de acceso debe tener 4 cifras.');return;}
+  if(codigo!==OWNER&&(empEditCodigoComprobado!==codigo||!empEditCodigoDisponible)){
+    alert('Comprueba primero que el código nuevo esté disponible.');return;
+  }
+  var b=document.getElementById('btnGuardarEmpresa');b.disabled=true;b.textContent='Guardando…';
+  api('editarEmpresa',{owner:OWNER,nombre_empresa:nombre,nuevo_codigo:codigo},function(r){
+    b.disabled=false;b.textContent='Guardar';
+    if(!r||!r.ok){alert(r&&r.error?r.error:'No se pudo guardar el cambio.');return;}
+    OWNER=r.empresa.codigo_empresa;
+    var h1=document.querySelector('.brand h1');if(h1)h1.textContent=r.empresa.nombre;
+    alert('Datos de la empresa actualizados. Recuerda el nuevo código de acceso.');
+    volverMenuEmpresa();
   });
 }
 
