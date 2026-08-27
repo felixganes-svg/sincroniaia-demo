@@ -83,6 +83,7 @@
         <button class="btn secondary" onclick="abrirFichaEmpresa('trabajadores')">Trabajadores</button>
         <button class="btn secondary" onclick="abrirFichaEmpresa('informe')">Informe de fichajes</button>
         <button class="btn secondary" onclick="abrirFichaEmpresa('nuevo')">Nuevo trabajador</button>
+        <button class="btn secondary" onclick="abrirFichaEmpresa('editarempresa')">Datos de la empresa</button>
         <button class="btn secondary" onclick="abrirFichaEmpresa('qr')">Código QR de acceso</button>
         <button class="btn secondary" onclick="abrirFichaEmpresa('backup')">Copia de seguridad</button>
       </div>
@@ -155,6 +156,43 @@
       </div>
       <div class="actions">
         <button id="btnGuardarTrabajador" class="btn primary" onclick="guardarTrabajador()">Guardar trabajador</button>
+        <button class="btn secondary" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+    </div>
+
+    <div id="fichaEditarEmpresa" class="card hidden">
+      <div class="topline">
+        <h2>Datos de la empresa</h2>
+        <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Nombre de la empresa</label><input id="empEditNombre"></div>
+        <div class="field">
+          <label>Código de acceso (4 cifras)</label>
+          <input id="empEditCodigo" maxlength="4" inputmode="numeric" oninput="validarCodigoEmpresaNuevo()">
+          <div id="empEditCodigoEstado" class="small muted" style="margin-top:6px"></div>
+        </div>
+      </div>
+      <p class="muted small">Evita códigos fáciles de adivinar, como fechas o iniciales del negocio.</p>
+      <div class="actions">
+        <button id="btnGuardarEmpresa" class="btn primary" onclick="guardarEmpresa()">Guardar</button>
+        <button class="btn secondary" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+    </div>
+
+    <div id="fichaEditarTrabajador" class="card hidden">
+      <div class="topline">
+        <h2>Editar trabajador</h2>
+        <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Código</label><input id="editCodigo" disabled></div>
+        <div class="field"><label>Nombre y apellidos</label><input id="editNombre"></div>
+        <div class="field"><label>Horas semanales</label><input id="editHoras" type="number" min="1" step="0.5"></div>
+        <div class="field"><label>Activo</label><select id="editActivo"><option value="SI">Sí</option><option value="NO">No</option></select></div>
+      </div>
+      <div class="actions">
+        <button id="btnGuardarEdicion" class="btn primary" onclick="guardarEdicionTrabajador()">Guardar cambios</button>
         <button class="btn secondary" onclick="volverMenuEmpresa()">Volver</button>
       </div>
     </div>
