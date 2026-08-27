@@ -28,6 +28,3 @@ input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:
   .informe-detallado table{break-inside:avoid;page-break-inside:avoid}
   .informe-detallado tr{break-inside:avoid;page-break-inside:avoid}
 }
-/* BÁSICA v0.4.2: funciones avanzadas conservadas internamente, no visibles al cliente */
-#empresaMenu button[onclick*="seguridad"],#fichaSeguridad,#bloqueAlertas{display:none!important}
-#fichaNuevo>p.muted.small,#fichaQR p.muted.small{display:none!important}
