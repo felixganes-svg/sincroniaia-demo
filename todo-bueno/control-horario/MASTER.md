@@ -1,38 +1,69 @@
 # TODO BUENO · CONTROL HORARIO · BÁSICA · CRITERIO MAESTRO
 
-Estado actual: **EN CONSOLIDACIÓN PROFESIONAL**
+Estado actual: **EN CONSOLIDACIÓN PROFESIONAL · NO VALIDADA TRAS LOS ÚLTIMOS CAMBIOS**
 
 Punto de control MAESTRO: **26/08/2026 · 23:29**
-Última consolidación técnica: **27/08/2026**
+Última revisión de criterio: **27/08/2026**
 
-> La versión BÁSICA debe tener menos funciones que Profesional o Avanzada, pero exactamente el mismo nivel de calidad, estabilidad y presentación.
+> BÁSICA significa menor alcance, no menor calidad. Ningún bloque puede llamarse validado si después se modifica código que puede afectarlo y no se repite la prueba correspondiente.
 
 ## Ruta oficial
 `https://felixganes-svg.github.io/sincroniaia-demo/todo-bueno/control-horario/`
 
 Esta es la única ruta operativa válida para pruebas y futura entrega al cliente.
 
-## Punto de recuperación histórico
-Se conserva sin modificar:
-- Rama: `todo-bueno-basica-v0.3.9-aprobada`
-- Commit: `de041db94bb34b4cce7a3bebb68949a7be4620d5`
-
-Este punto sirve únicamente como recuperación histórica. **No certifica el estado actual como MASTER ni SELLADO.**
-
-## Regla MAESTRO
-Una función no se considera terminada porque simplemente responda o parezca funcionar.
-
-Para cerrarla debe cumplir:
-1. Funcionar en uso real.
-2. Ser comprensible para un cliente sin conocimientos técnicos.
-3. No depender de trucos del navegador ni pasos innecesarios.
-4. No romper funciones ya validadas.
-5. Mantener datos e histórico correctamente.
-6. Funcionar correctamente en móvil y escritorio cuando corresponda.
-7. Tener presentación profesional.
-8. Pasar prueba real de Félix antes de marcarse con ✅.
+## Regla MAESTRO de validación
+Para marcar un bloque con ✅ deben cumplirse simultáneamente estas condiciones cuando correspondan:
+1. Félix lo ha probado personalmente.
+2. Se ha probado en el dispositivo objetivo; para esta demo, móvil es obligatorio.
+3. Si después se modifica `app.js`, `config.js`, `report-fix.js`, `app.css`, `index.html` o el backend y el cambio puede afectar ese bloque, el ✅ pasa a **VALIDADO HISTÓRICAMENTE · PENDIENTE DE REGRESIÓN**.
+4. No depende de trucos del navegador ni conocimientos técnicos del cliente.
+5. Mantiene datos e histórico correctamente.
+6. No rompe funciones previamente aceptadas.
+7. Tiene presentación profesional.
+8. La versión exacta probada debe poder recuperarse.
 
 **BÁSICA = alcance sencillo, calidad profesional.**
+
+## Estado real después de la limpieza del frontend
+Los siguientes bloques fueron probados correctamente en versiones anteriores, pero los cambios posteriores de frontend obligan a repetir la prueba antes de volver a marcarlos como ✅ actual:
+
+| Bloque | Validación histórica | Móvil registrado | Estado actual |
+|---|---|---|---|
+| Seguridad de acceso | Sí | No consta prueba móvil específica | PENDIENTE DE REGRESIÓN |
+| Validación de código en alta | Sí | No consta prueba móvil específica | PENDIENTE DE REGRESIÓN |
+| Alta de trabajador | Sí | No consta prueba móvil específica | PENDIENTE DE REGRESIÓN |
+| Ruta oficial / versión | Sí | No consta prueba móvil específica | PENDIENTE DE REGRESIÓN VISUAL |
+| Mi cómputo Hoy / Semana / Mes | Sí | No consta prueba móvil específica | PENDIENTE DE REGRESIÓN |
+| Detalle diario de Mi cómputo | Sí | No consta prueba móvil específica | PENDIENTE DE REGRESIÓN |
+| PDF profesional sin URL del navegador | Sí | No consta prueba móvil específica | PENDIENTE DE REGRESIÓN |
+| Limpieza visual BÁSICA | Primera comprobación correcta | No consta prueba móvil específica | EN PRUEBAS |
+| Informe detallado | Parcial | No consta prueba móvil específica | EN PRUEBAS |
+| Duplicados visuales históricos | No cerrado | No | EN PRUEBAS |
+| Reinicio limpio de informe | No cerrado | No | EN PRUEBAS |
+| Copia de seguridad automática | No auditada de extremo a extremo | No aplica | PENDIENTE |
+
+**Conclusión:** actualmente no hay ningún bloque que pueda conservar un ✅ vigente después de la limpieza sin una nueva prueba de regresión. Los ✅ anteriores se conservan únicamente como evidencia histórica.
+
+## Riesgo crítico de backend activo
+El Apps Script que está actualmente desplegado **no está demostrado que coincida con el backend BÁSICA limpio preparado en GitHub**. Por tanto:
+- puede conservar funciones heredadas o paralelas;
+- no se puede asegurar que SOS, auxilio, vacaciones, festivos u otras funciones avanzadas hayan desaparecido realmente del proyecto activo;
+- no se debe desplegar el backend limpio sobre producción sin conservar antes una copia exacta del backend actualmente operativo;
+- GitHub y Apps Script no deben declararse sincronizados hasta compararlos de forma exacta.
+
+Este punto se clasifica como **RIESGO CRÍTICO / BLOQUEANTE PARA CLIENTE**.
+
+## Regla de congelación antes de tocar backend
+Antes de sustituir Apps Script:
+1. Congelar una copia recuperable del frontend actual.
+2. Obtener y conservar una copia completa del `Código.gs` actualmente desplegado y de cualquier otro `.gs` activo.
+3. Identificar qué archivos `.gs` están realmente activos en el proyecto.
+4. Crear un Apps Script paralelo para el backend BÁSICA limpio.
+5. Probar el frontend contra ese backend paralelo.
+6. Solo después de pasar toda la regresión, cambiar la URL oficial del frontend al backend nuevo.
+
+No se sustituirá directamente el backend actual sin esta marcha atrás.
 
 ## Alcance BÁSICA objetivo
 ### Trabajador
@@ -54,12 +85,11 @@ Para cerrarla debe cumplir:
 - Baja conservando código e histórico.
 - Informe por trabajador y rango de fechas.
 - Informe diario detallado.
-- PDF limpio generado desde la aplicación, sin URL del navegador ni encabezados/pies externos.
+- PDF limpio generado desde la aplicación.
 - Código QR de acceso.
 - Copia de seguridad automática.
 
-## Funciones que NO pertenecen a BÁSICA
-Deben permanecer fuera del producto BÁSICA activo:
+## Funciones fuera de BÁSICA activa
 - vacaciones y ausencias
 - bajas médicas
 - festivos gestionados
@@ -72,51 +102,43 @@ Deben permanecer fuera del producto BÁSICA activo:
 - integraciones n8n
 - multi-centro
 
-Pueden conservarse en histórico o desarrollos posteriores, pero no deben interferir con la BÁSICA.
+Pueden conservarse en histórico o futuras versiones, pero no deben permanecer ejecutables en el backend BÁSICA activo.
 
-## Estado de pruebas
-### ✅ Probado por Félix
-- Seguridad de acceso mediante la interfaz.
-- Validación de código en alta de trabajador.
-- Publicación de la ruta oficial y versión visible.
-- Mi cómputo detallado Hoy / Semana / Mes.
-- PDF profesional generado desde la aplicación, sin URL de GitHub ni encabezado/pie del navegador.
+## Duplicados en origen
+El filtro visual no equivale a impedir duplicados en la base de datos. La prevención real debe probarse forzando el caso límite de dos peticiones simultáneas con el mismo `request_id` y verificando que solo exista un registro persistido.
 
-### REVISADO TÉCNICAMENTE · PENDIENTE DE PRUEBA DE FÉLIX
-- Frontend BÁSICA físicamente limpiado de funciones Profesional/Avanzada.
-- Núcleo `app.js` consolidado: deja de depender de un archivo vacío/código heredado.
-- `config.js` reducido a configuración real, sin capa de parches funcionales.
-- Informe diario detallado integrado con filtro visual de duplicados históricos exactos.
-- Reinicio limpio del informe al volver a entrar.
-- Maquetación final del documento.
+Hasta hacer esa prueba: **PENDIENTE DE VALIDACIÓN REAL**.
 
-### PENDIENTE DE CIERRE MAESTRO
-- Desplegar en Apps Script el backend BÁSICA único y limpio preparado para consolidación.
-- Eliminar del proyecto Apps Script activo cualquier `.gs` heredado o paralelo que no pertenezca a BÁSICA.
-- Comparar el Apps Script desplegado con el backend canónico y sincronizar la copia exacta en GitHub.
-- Auditoría completa de regresiones de principio a fin.
-- Validación final en móvil y escritorio.
-- Prueba final de alta, fichaje, salida, cómputo, panel, baja, informe, PDF, QR y copia de seguridad.
+## Validación móvil obligatoria
+La ronda final se realizará desde teléfono, además de escritorio. Cada bloque tendrá columna explícita:
+- Escritorio: Sí / No
+- Móvil: Sí / No
+- Regresión tras último cambio: Sí / No
 
-## Backend
-El backend BÁSICA consolidado preparado para el siguiente despliegue contiene únicamente estas acciones públicas:
-- `ping`
-- `fichar`
-- `resumen`
-- `panel`
-- `validarCodigoTrabajador`
-- `crearTrabajador`
-- `darBaja`
-- `informe`
+Sin `Móvil = Sí` en las funciones de uso móvil, el bloque no se considera cerrado.
 
-No incluye SOS, auxilio, vacaciones, festivos, ausencias ni funciones de Profesional/Avanzada.
+## Legal / comercial
+Antes de comercializar se debe completar una revisión específica de obligaciones aplicables al control horario y protección de datos, incluyendo como mínimo:
+- conservación/custodia de los registros de jornada;
+- acceso y disponibilidad de los registros cuando proceda;
+- información y protección de datos personales;
+- política de copias y recuperación;
+- tratamiento de geolocalización si alguna versión futura la incorpora.
 
-Hasta que ese código se sustituya en Apps Script, se despliegue y se pruebe, **no se afirma que el backend activo y GitHub sean idénticos**.
+La BÁSICA actual no debe incorporar geolocalización activa sin esa revisión específica.
+
+Estado: **PENDIENTE DE REVISIÓN LEGAL ANTES DE CLIENTE**.
 
 ## Política de sellado
-No utilizar las palabras **MASTER**, **SELLADO**, **APROBADO** o **LISTO PARA CLIENTE** como garantía del estado actual hasta completar todas las pruebas finales.
+No utilizar **MASTER**, **SELLADO**, **APROBADO**, **ESTABLE** o **LISTO PARA CLIENTE** como garantía del estado actual hasta completar:
+- copia recuperable de versión conocida;
+- backend paralelo limpio;
+- regresión completa;
+- validación móvil;
+- prueba de duplicados en origen;
+- auditoría de backup;
+- revisión legal previa a comercialización;
+- coincidencia exacta entre código desplegado y código conservado.
 
-Cuando se complete la auditoría final se creará un nuevo punto de recuperación y una nueva documentación de MASTER desde el estado realmente probado.
-
-## Objetivo comercial
-TODO BUENO · CONTROL HORARIO · BÁSICA debe poder entregarse y cobrarse sin explicaciones técnicas, sin referencias a GitHub, Apps Script o ajustes de Chrome y sin errores conocidos.
+## Objetivo inmediato
+No añadir nuevas funciones. El trabajo inmediato es convertir la versión actual en una candidata controlada y recuperable, probarla de extremo a extremo y solo después valorar un piloto real.
