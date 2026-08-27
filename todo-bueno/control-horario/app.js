@@ -231,8 +231,9 @@ var empEditConsultaSecuencia=0;
 
 function cargarDatosEmpresa(){
   document.getElementById('empEditNombre').value=document.querySelector('.brand h1')?document.querySelector('.brand h1').textContent:'';
-  document.getElementById('empEditCodigo').value='';
-  document.getElementById('empEditCodigoEstado').textContent='';
+  document.getElementById('empEditCodigo').value=OWNER;
+  document.getElementById('empEditCodigoEstado').textContent='Código actual. Cámbialo solo si quieres uno nuevo.';
+  document.getElementById('empEditCodigoEstado').className='small muted';
   empEditCodigoComprobado='';
   empEditCodigoDisponible=false;
 }
