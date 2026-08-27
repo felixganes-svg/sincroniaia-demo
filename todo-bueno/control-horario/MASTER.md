@@ -104,6 +104,11 @@ No se sustituirá directamente el backend actual sin esta marcha atrás.
 
 Pueden conservarse en histórico o futuras versiones, pero no deben permanecer ejecutables en el backend BÁSICA activo.
 
+### Decisión histórica cerrada · Auxilio silencioso
+**Auxilio silencioso (código de empresa 7670, ya retirado): probado el 25/08/2026, descartado por Félix. El email como único canal no es fiable para una alerta de emergencia real. No forma parte de BÁSICA ni de futuras versiones sin rediseñar el canal de notificación.**
+
+Si en el futuro se retoma esta idea para Profesional/Avanzada, no se partirá de email como único canal. El diseño deberá contemplar un mecanismo con confirmación real de recepción/lectura, por ejemplo notificación push, WhatsApp o llamada automática, además de la revisión legal y funcional correspondiente.
+
 ## Duplicados en origen
 El filtro visual no equivale a impedir duplicados en la base de datos. La prevención real debe probarse forzando el caso límite de dos peticiones simultáneas con el mismo `request_id` y verificando que solo exista un registro persistido.
 
