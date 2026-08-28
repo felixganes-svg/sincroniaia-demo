@@ -89,6 +89,9 @@ No se sustituirá directamente el backend actual sin esta marcha atrás.
 - Código QR de acceso.
 - Copia de seguridad automática.
 
+## Dependencias críticas del frontend
+**`report-fix.js` no es opcional: contiene la lógica completa de `cargarInforme` y `descargarInformePDF`. Sin él, el Informe de fichajes deja de funcionar. Revisar antes de cualquier limpieza de archivos.**
+
 ## Funciones fuera de BÁSICA activa
 - vacaciones y ausencias
 - bajas médicas
