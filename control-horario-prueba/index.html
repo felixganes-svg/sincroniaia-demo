@@ -1,1 +1,229 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SINCRONIAIA · Control Horario v0.6.2</title><style>body{margin:0;background:#f4f6f8;font-family:system-ui,Arial;color:#17202a}.app{max-width:820px;margin:auto;padding:12px 12px 80px}.hero{background:#111827;color:#fff;padding:17px;border-radius:20px}.hero b{font-size:18px}.hero small{display:block;opacity:.8;margin-top:5px}.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.tab,.btn{border:0;border-radius:14px;padding:13px;font-weight:900}.tab{background:#e5e7eb}.tab.on,.dark{background:#111827;color:#fff}.green{background:#12844a;color:#fff}.outline{background:#fff;border:1px solid #e5e7eb}.card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:15px;margin:11px 0}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.muted{color:#6b7280;font-size:13px}.title{font-size:21px;font-weight:900}.badge{padding:5px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:850}.big{font-size:36px;font-weight:950}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.kpi{padding:12px;border:1px solid #e5e7eb;background:#f8fafc;border-radius:14px}.kpi b{display:block;font-size:18px}.field{margin-top:9px}.field label{display:block;font-size:12px;color:#6b7280;font-weight:800;margin-bottom:4px}.field input{width:100%;box-sizing:border-box;padding:11px;border:1px solid #e5e7eb;border-radius:12px}.loc{padding:12px;border:1px solid #e5e7eb;border-radius:14px;background:#f8fafc;margin-top:10px}.ok{color:#12844a;font-weight:850}.warn{color:#b66b00;font-weight:850}.hidden{display:none}.btn{width:100%;margin-top:9px;font-size:15px}.btn:disabled{opacity:.55}.notice{font-size:12px;line-height:1.45;color:#6b7280;margin-top:8px}table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:9px 5px;border-bottom:1px solid #e5e7eb;text-align:left}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:11px 14px;border-radius:12px;opacity:0;transition:.2s;z-index:30}.toast.show{opacity:1}@media(max-width:520px){.grid2,.grid3{grid-template-columns:1fr 1fr}}</style></head><body><div class="app"><div class="hero"><b>SINCRONIAIA · CONTROL HORARIO</b><small>DEMO AISLADA v0.6.2 · Dirección validada · Centros · Entrada/salida múltiple · GPS · Google Sheets</small></div><div class="tabs"><button id="tw" class="tab on" onclick="show('w')">👤 Trabajador</button><button id="tc" class="tab" onclick="show('c')">🏢 Empresa</button></div><section id="w"><div class="card"><div class="row"><div><div class="muted">Acceso personal</div><div class="title">Adrián Martínez</div><div class="muted">ID: TRB-00001 · <span id="wc">Centro principal</span></div></div><span class="badge">DEMO</span></div><div class="row" style="margin-top:14px"><div><div class="muted">Hora actual</div><div id="clock" class="big">--:--</div></div><div id="status" class="badge">● Fuera de jornada</div></div><div class="loc"><b>📍 Ubicación</b><div id="gps" class="muted">Se comprobará al fichar contra el centro autorizado.</div></div><button id="punch" class="btn green" onclick="fichar()">FICHAR ENTRADA</button><div class="notice">Si el centro no está validado o el trabajador está fuera del radio, el fichaje se registra para revisión.</div></div><div class="card"><div class="row"><b>Hoy</b><span id="tb" class="badge">0:00</span></div><table><thead><tr><th>Entrada</th><th>Salida</th><th>Tiempo</th></tr></thead><tbody id="rows"></tbody></table><div class="grid3" style="margin-top:10px"><div class="kpi"><span class="muted">Hoy</span><b id="today">0:00</b></div><div class="kpi"><span class="muted">Semana</span><b>31:18+</b></div><div class="kpi"><span class="muted">Mes</span><b>112:36+</b></div></div></div></section><section id="c" class="hidden"><div class="card"><div class="row"><div><div class="muted">Vista Empresa</div><div class="title">Carnicería Demo</div></div><span class="badge">v0.6.2</span></div></div><div class="card"><div class="row"><div><b>Centro autorizado</b><div class="muted">Configuración por empresa</div></div><span class="badge">CTR-001</span></div><div class="grid2"><div class="field"><label>Nombre del centro</label><input id="name"></div><div class="field"><label>Dirección</label><input id="addr" oninput="dirty()"></div><div class="field"><label>Población</label><input id="city" oninput="dirty()"></div><div class="field"><label>Provincia</label><input id="prov" oninput="dirty()"></div><div class="field"><label>Código postal</label><input id="cp" oninput="dirty()"></div><div class="field"><label>Radio autorizado (m)</label><input id="radius" type="number" min="20"></div></div><div id="summary" class="loc"></div><button id="valbtn" class="btn dark" onclick="validar()">VALIDAR DIRECCIÓN DEL CENTRO</button><button class="btn outline" onclick="guardar()">GUARDAR DATOS</button><div class="notice">La dirección solo se considera validada cuando el backend la convierte en coordenadas. Si cambias calle, población, provincia o CP, vuelve a quedar pendiente.</div></div><div class="card"><b>Incidencias</b><div id="incs" class="muted" style="margin-top:8px">Sin incidencias locales.</div></div></section></div><div id="toast" class="toast"></div><script>const B='https://script.google.com/macros/s/AKfycby-frFtY_PX-IYUOJ4ob7gxilc7tRyjgse2XSFOzeTfZvA1xloswGnoZyRGzgaONUPi/exec',K='sincronia_control_v062',$=x=>document.getElementById(x),pad=n=>String(n).padStart(2,'0'),hm=d=>pad(d.getHours())+':'+pad(d.getMinutes());let d=JSON.parse(localStorage.getItem(K)||'null')||{open:null,sessions:[],inc:[],center:{id:'CTR-001',name:'Carniceria Cal Abril',address:'Riera de Figuera Major 2',city:'Mataro',province:'Barcelona',postal:'08304',radius:150,lat:null,lon:null,validation:'pending',validatedAddress:''}};function save(){localStorage.setItem(K,JSON.stringify(d))}function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2200)}function show(x){$('w').classList.toggle('hidden',x!=='w');$('c').classList.toggle('hidden',x!=='c');$('tw').classList.toggle('on',x==='w');$('tc').classList.toggle('on',x==='c');render()}function dirty(){d.center.validation='pending';d.center.lat=null;d.center.lon=null;d.center.validatedAddress='';save();sumForm()}function read(){d.center.name=$('name').value.trim()||'Centro principal';d.center.address=$('addr').value.trim();d.center.city=$('city').value.trim();d.center.province=$('prov').value.trim();d.center.postal=$('cp').value.trim();d.center.radius=Math.max(20,Number($('radius').value||150))}function guardar(){read();save();render();toast(d.center.validation==='validated'?'Datos guardados':'Datos guardados · ubicación pendiente de validar')}function sumForm(){$('summary').innerHTML='<b>📌 '+($('name').value||'Centro principal')+'</b><div class="muted">'+[$('addr').value,$('city').value,$('prov').value,$('cp').value].filter(Boolean).join(' · ')+'</div><div class="warn">⚠️ Ubicación pendiente de validar</div>'}async function validar(){read();if(!d.center.address||!d.center.city||!d.center.province||!d.center.postal){toast('Completa dirección, población, provincia y CP');return}let b=$('valbtn');b.disabled=true;b.textContent='VALIDANDO DIRECCIÓN...';try{let r=await fetch(B,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'geocodificar_centro',empresa_id:'EMP-001',centro_id:d.center.id,centro:d.center.name,direccion:d.center.address,poblacion:d.center.city,provincia:d.center.province,codigo_postal:d.center.postal,radio_m:d.center.radius})}),j=await r.json();if(!j.ok)throw Error(j.error||'No se pudo validar');d.center.lat=Number(j.latitud);d.center.lon=Number(j.longitud);d.center.validation='validated';d.center.validatedAddress=j.direccion_validada||'';save();render();toast('✅ Dirección validada')}catch(e){d.center.validation='pending';d.center.lat=d.center.lon=null;save();render();toast('⚠️ '+e.message)}finally{b.disabled=false;b.textContent='VALIDAR DIRECCIÓN DEL CENTRO'}}function gps(){return new Promise(ok=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>ok({ok:true,lat:p.coords.latitude,lon:p.coords.longitude}),e=>ok({ok:false,error:e.code===1?'Permiso denegado':'Ubicación no disponible'}),{enableHighAccuracy:true,timeout:12000,maximumAge:0}):ok({ok:false,error:'GPS no disponible'}))}function dist(a,b){let R=6371000,p=x=>x*Math.PI/180,dl=p(b.lat-a.lat),dn=p(b.lon-a.lon),q=Math.sin(dl/2)**2+Math.cos(p(a.lat))*Math.cos(p(b.lat))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(q))}function evalg(g){if(!g.ok)return{state:'NO_DISPONIBLE',text:g.error};if(d.center.validation!=='validated')return{state:'CENTRO_NO_VALIDADO',text:'Centro pendiente de validar'};let m=Math.round(dist({lat:d.center.lat,lon:d.center.lon},g));return{state:m<=d.center.radius?'OK':'REVISAR',m,text:m<=d.center.radius?'Dentro de zona autorizada':'Fuera de zona autorizada'}}let busy=false;async function fichar(){if(busy)return;busy=true;$('punch').disabled=true;$('punch').textContent='REGISTRANDO...';let g=await gps(),e=evalg(g),tipo=d.open?'SALIDA':'ENTRADA',inc=e.state==='REVISAR'||e.state==='CENTRO_NO_VALIDADO';$('gps').innerHTML=e.state==='OK'?'<span class="ok">✅ Ubicación verificada · Centro autorizado: '+d.center.name+'</span>':'<span class="warn">⚠️ '+e.text+' · se registrará para revisión</span>';try{let r=await fetch(B,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'fichaje',empresa_id:'EMP-001',trabajador_id:'TRB-00001',nombre:'Adrián Martínez',tipo,centro_id:d.center.id,centro:d.center.name,latitud:g.lat??'',longitud:g.lon??'',gps_estado:e.state,incidencia:inc,incidencia_tipo:e.state==='REVISAR'?'GPS_FUERA_ZONA':'CENTRO_NO_VALIDADO',incidencia_detalle:e.m!=null?e.m+' m del centro':e.text})}),j=await r.json();if(!j.ok)throw Error(j.error||'No guardado');let n=new Date();if(!d.open)d.open={in:n.toISOString()};else{d.open.out=n.toISOString();d.sessions.push(d.open);d.open=null}if(inc)d.inc.push({tipo:e.state==='REVISAR'?'Fuera de zona':'Centro no validado'});save();toast(inc?'⚠️ Fichaje registrado · revisar incidencia':'✅ Fichaje registrado')}catch(x){toast('⚠️ '+x.message)}busy=false;$('punch').disabled=false;render()}function mins(ms){return Math.max(0,Math.round(ms/60000))}function dur(m){return Math.floor(m/60)+':'+pad(m%60)}function total(){let t=0;d.sessions.forEach(s=>t+=mins(new Date(s.out)-new Date(s.in)));if(d.open)t+=mins(new Date()-new Date(d.open.in));return t}function render(){$('clock').textContent=hm(new Date());$('wc').textContent=d.center.name;$('status').textContent=d.open?'● Jornada activa':'● Fuera de jornada';$('punch').textContent=d.open?'FICHAR SALIDA':'FICHAR ENTRADA';$('punch').className='btn '+(d.open?'dark':'green');let t=total();$('today').textContent=$('tb').textContent=dur(t);let r=[...d.sessions];if(d.open)r.push(d.open);$('rows').innerHTML=r.length?r.map(s=>'<tr><td>'+hm(new Date(s.in))+'</td><td>'+(s.out?hm(new Date(s.out)):'—')+'</td><td>'+(s.out?dur(mins(new Date(s.out)-new Date(s.in))):'En curso')+'</td></tr>').join(''):'<tr><td colspan="3">Todavía no hay movimientos hoy.</td></tr>';$('name').value=d.center.name;$('addr').value=d.center.address;$('city').value=d.center.city;$('prov').value=d.center.province;$('cp').value=d.center.postal;$('radius').value=d.center.radius;$('summary').innerHTML='<b>📌 '+d.center.name+'</b><div class="muted">'+[d.center.address,d.center.city,d.center.province,d.center.postal].filter(Boolean).join(' · ')+'</div>'+(d.center.validation==='validated'?'<div class="ok">✅ Dirección validada</div><div class="muted">'+(d.center.validatedAddress||'Coordenadas vinculadas')+' · zona '+d.center.radius+' m</div>':'<div class="warn">⚠️ Ubicación pendiente de validar</div>');$('incs').textContent=d.inc.length?d.inc.length+' incidencia(s) local(es) registradas':'Sin incidencias locales.'}setInterval(()=>{ $('clock').textContent=hm(new Date());if(d.open){let t=total();$('today').textContent=$('tb').textContent=dur(t)}},1000);render();</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Todo Bueno · Control horario</title>
+<link rel="stylesheet" href="app.css?v=0.4.2-270826-0700">
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <h1>Panadería Todo Bueno Mataró</h1>
+    <p>Control horario <span class="small">v0.4.2</span></p>
+  </div>
+
+  <section id="kiosk" class="card">
+    <h2>Fichaje de trabajador</h2>
+    <p class="muted">Introduce tu código de 4 cifras</p>
+    <div class="pin">
+      <input maxlength="1" inputmode="numeric" aria-label="Primera cifra">
+      <input maxlength="1" inputmode="numeric" aria-label="Segunda cifra">
+      <input maxlength="1" inputmode="numeric" aria-label="Tercera cifra">
+      <input maxlength="1" inputmode="numeric" aria-label="Cuarta cifra">
+    </div>
+    <button id="btnFichar" class="btn primary" onclick="procesarCodigo()">Fichar</button>
+    <p class="muted small">Después de fichar, la pantalla vuelve aquí automáticamente.</p>
+    <div id="aviso" class="notice small hidden"></div>
+  </section>
+
+  <section id="confirmarSalida" class="card hidden success">
+    <div class="big">?</div>
+    <h2>Acabas de registrar tu entrada</h2>
+    <h3 id="salidaNombre"></h3>
+    <p>Vas a registrar ahora una salida.</p>
+    <p><b>¿Es correcto?</b></p>
+    <div class="actions">
+      <button class="btn primary" onclick="confirmarSalidaAhora()">Sí, registrar salida</button>
+      <button class="btn secondary" onclick="cancelarSalida()">No, volver</button>
+    </div>
+  </section>
+
+  <section id="confirmacion" class="card hidden success">
+    <div class="big">✓</div>
+    <h2 id="confTitulo"></h2>
+    <h3 id="confNombre"></h3>
+    <div id="confDetalle"></div>
+    <button id="btnComputo" class="btn secondary hidden" onclick="verMiComputo()">Ver mi cómputo</button>
+    <p class="muted">Volviendo al código en <span id="contador">3</span> segundos…</p>
+  </section>
+
+  <section id="miComputo" class="card hidden">
+    <div class="topline">
+      <h2>Mi cómputo</h2>
+      <button class="btn secondary" style="width:auto" onclick="volverKiosk()">Volver</button>
+    </div>
+    <h3 id="compNombre"></h3>
+    <div class="grid">
+      <div class="metric">Hoy<br><b id="compHoy">0:00</b></div>
+      <div class="metric">Semana<br><b id="compSemana">0:00</b></div>
+      <div class="metric">Mes<br><b id="compMes">0:00</b></div>
+    </div>
+    <div style="margin-top:16px">
+      <div class="actions" style="margin-bottom:12px">
+        <button id="compBtnHoy" class="btn primary" type="button" onclick="mostrarPeriodoComputo('hoy')">Hoy</button>
+        <button id="compBtnSemana" class="btn secondary" type="button" onclick="mostrarPeriodoComputo('semana')">Semana</button>
+        <button id="compBtnMes" class="btn secondary" type="button" onclick="mostrarPeriodoComputo('mes')">Mes</button>
+      </div>
+      <div id="compDetalleContenido"></div>
+    </div>
+  </section>
+
+  <section id="empresa" class="hidden">
+    <div id="empresaMenu" class="card">
+      <div class="topline">
+        <div><h2>Empresa · Todo Bueno</h2><p class="muted">Control empresa</p></div>
+        <button class="btn secondary" style="width:auto" onclick="volverKiosk()">Salir</button>
+      </div>
+      <div class="no-print">
+        <button class="btn primary" onclick="abrirFichaEmpresa('panel')">Panel del propietario</button>
+        <button class="btn secondary" onclick="abrirFichaEmpresa('trabajadores')">Trabajadores</button>
+        <button class="btn secondary" onclick="abrirFichaEmpresa('informe')">Informe de fichajes</button>
+        <button class="btn secondary" onclick="abrirFichaEmpresa('nuevo')">Nuevo trabajador</button>
+        <button class="btn secondary" onclick="abrirFichaEmpresa('editarempresa')">Datos de la empresa</button>
+        <button class="btn secondary" onclick="abrirFichaEmpresa('qr')">Código QR de acceso</button>
+        <button class="btn secondary" onclick="abrirFichaEmpresa('backup')">Copia de seguridad</button>
+      </div>
+    </div>
+
+    <div id="fichaPanel" class="card hidden">
+      <div class="topline">
+        <div><h2>Panel del propietario</h2><p class="muted">Resumen de la empresa</p></div>
+        <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+      <div class="grid">
+        <div class="metric">Hoy<br><b id="empHoy">0:00</b></div>
+        <div class="metric">Semana<br><b id="empSemana">0:00</b></div>
+        <div class="metric">Mes<br><b id="empMes">0:00</b></div>
+      </div>
+      <div id="trabajandoAhoraBasic" class="notice" style="margin-top:14px">
+        <h3 style="margin-bottom:8px">Trabajando ahora</h3>
+        <div id="trabajandoAhoraResumen" class="muted">Cargando…</div>
+        <div id="trabajandoAhoraLista" style="margin-top:8px"></div>
+        <div id="fueraAhoraResumen" class="muted small" style="margin-top:10px"></div>
+      </div>
+      <div id="empresaAviso" class="success-note hidden"></div>
+    </div>
+
+    <div id="fichaTrabajadores" class="card hidden">
+      <div class="topline">
+        <h2>Trabajadores</h2>
+        <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+      <div class="actions no-print" style="margin-bottom:14px">
+        <button id="btnActivos" class="btn primary" onclick="setFiltroTrabajadores('ACTIVOS')">Activos</button>
+        <button id="btnBajas" class="btn secondary" onclick="setFiltroTrabajadores('BAJAS')">Bajas</button>
+        <button id="btnTodos" class="btn secondary" onclick="setFiltroTrabajadores('TODOS')">Todos</button>
+      </div>
+      <div id="tablaTrabajadores"></div>
+    </div>
+
+    <div id="fichaInforme" class="card hidden">
+      <div class="topline">
+        <h2>Informe de fichajes</h2>
+        <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+      <div class="form-grid no-print">
+        <div class="field"><label>Trabajador</label><select id="fTrabajador"><option value="">Todos los trabajadores</option></select></div>
+        <div class="field"><label>Desde</label><input id="fDesde" type="date"></div>
+        <div class="field"><label>Hasta</label><input id="fHasta" type="date"></div>
+      </div>
+      <div class="actions no-print">
+        <button class="btn primary" onclick="cargarInforme()">Consultar</button>
+        <button class="btn secondary" onclick="descargarInformePDF()">Descargar PDF</button>
+      </div>
+      <div id="informe"></div>
+    </div>
+
+    <div id="fichaNuevo" class="card hidden">
+      <div class="topline">
+        <h2>Nuevo trabajador</h2>
+        <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+      <p class="muted small">Introduce un código personal de 4 cifras. El sistema comprobará que esté disponible antes de continuar.</p>
+      <div class="form-grid">
+        <div class="field">
+          <label>Código</label>
+          <input id="altaCodigo" maxlength="4" inputmode="numeric" placeholder="1004" oninput="validarCodigoAlta()">
+          <div id="altaCodigoEstado" class="small muted" style="margin-top:6px"></div>
+        </div>
+        <div class="field"><label>Nombre y apellidos</label><input id="altaNombre"></div>
+        <div class="field"><label>Horas semanales</label><input id="altaHoras" type="number" min="1" step="0.5"></div>
+        <div class="field"><label>Activo</label><select id="altaActivo"><option value="SI">Sí</option><option value="NO">No</option></select></div>
+      </div>
+      <div class="actions">
+        <button id="btnGuardarTrabajador" class="btn primary" onclick="guardarTrabajador()">Guardar trabajador</button>
+        <button class="btn secondary" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+    </div>
+
+    <div id="fichaEditarEmpresa" class="card hidden">
+      <div class="topline">
+        <h2>Datos de la empresa</h2>
+        <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Nombre de la empresa</label><input id="empEditNombre"></div>
+        <div class="field">
+          <label>Código de acceso (4 cifras)</label>
+          <input id="empEditCodigo" type="password" maxlength="4" inputmode="numeric" oninput="validarCodigoEmpresaNuevo()">
+          <button type="button" class="btn secondary" style="width:auto;padding:6px 10px;font-size:13px;margin-top:6px" onclick="alternarVerCodigoEmpresa()">Mostrar código</button>
+          <div id="empEditCodigoEstado" class="small muted" style="margin-top:6px"></div>
+        </div>
+      </div>
+      <p class="muted small">Evita códigos fáciles de adivinar, como fechas o iniciales del negocio.</p>
+      <div class="actions">
+        <button id="btnGuardarEmpresa" class="btn primary" onclick="guardarEmpresa()">Guardar</button>
+        <button class="btn secondary" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+    </div>
+
+    <div id="fichaEditarTrabajador" class="card hidden">
+      <div class="topline">
+        <h2>Editar trabajador</h2>
+        <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Código</label><input id="editCodigo" disabled></div>
+        <div class="field"><label>Nombre y apellidos</label><input id="editNombre"></div>
+        <div class="field"><label>Horas semanales</label><input id="editHoras" type="number" min="1" step="0.5"></div>
+        <div class="field"><label>Activo</label><select id="editActivo"><option value="SI">Sí</option><option value="NO">No</option></select></div>
+      </div>
+      <div class="actions">
+        <button id="btnGuardarEdicion" class="btn primary" onclick="guardarEdicionTrabajador()">Guardar cambios</button>
+        <button class="btn secondary" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+    </div>
+
+    <div id="fichaQR" class="card hidden">
+      <div class="topline">
+        <div><h2>Código QR de acceso</h2><p class="muted">Abre directamente la pantalla de fichaje</p></div>
+        <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+      <div style="text-align:center;padding:12px">
+        <img src="qr-acceso.svg?v=1" alt="Código QR de acceso al control horario" style="width:min(320px,90%);height:auto">
+        <p><b>Panadería Todo Bueno · Control horario</b></p>
+        <p class="muted small">Este QR abre únicamente la pantalla de fichaje.</p>
+      </div>
+      <button class="btn primary no-print" onclick="window.print()">Imprimir QR</button>
+    </div>
+
+    <div id="fichaBackup" class="card hidden">
+      <div class="topline">
+        <h2>Copia de seguridad</h2>
+        <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+      <p><b>Automática diaria</b></p>
+      <p class="muted">La empresa no necesita hacer nada.</p>
+    </div>
+  </section>
+</div>
+
+<script src="config.js?v=0.4.2-270826-0700"></script>
+<script src="app.js?v=0.4.2-270826-0700"></script>
+<script src="report-fix.js?v=0.4.2-270826-0700"></script>
+</body>
+</html>
