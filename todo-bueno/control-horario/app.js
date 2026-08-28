@@ -232,10 +232,20 @@ var empEditConsultaSecuencia=0;
 function cargarDatosEmpresa(){
   document.getElementById('empEditNombre').value=document.querySelector('.brand h1')?document.querySelector('.brand h1').textContent:'';
   document.getElementById('empEditCodigo').value=OWNER;
+  document.getElementById('empEditCodigo').type='password';
+  var btn=document.querySelector('#fichaEditarEmpresa button[onclick="alternarVerCodigoEmpresa()"]');
+  if(btn)btn.textContent='Mostrar código';
   document.getElementById('empEditCodigoEstado').textContent='Código actual. Cámbialo solo si quieres uno nuevo.';
   document.getElementById('empEditCodigoEstado').className='small muted';
   empEditCodigoComprobado='';
   empEditCodigoDisponible=false;
+}
+
+function alternarVerCodigoEmpresa(){
+  var el=document.getElementById('empEditCodigo');
+  var btn=document.querySelector('#fichaEditarEmpresa button[onclick="alternarVerCodigoEmpresa()"]');
+  if(el.type==='password'){el.type='text';if(btn)btn.textContent='Ocultar código';}
+  else{el.type='password';if(btn)btn.textContent='Mostrar código';}
 }
 
 function validarCodigoEmpresaNuevo(){
