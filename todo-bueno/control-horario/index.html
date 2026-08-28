@@ -160,6 +160,24 @@
       </div>
     </div>
 
+    <div id="fichaQR" class="card hidden">
+      <div class="topline">
+        <div><h2>Código QR de acceso</h2><p class="muted">Abre directamente la pantalla de fichaje</p></div>
+        <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
+      <div style="text-align:center;padding:12px">
+        <img src="qr-acceso.svg?v=1" alt="Código QR de acceso al control horario" style="width:min(320px,90%);height:auto">
+        <p><b>Panadería Todo Bueno · Control horario</b></p>
+        <p class="muted small">Este QR abre únicamente la pantalla de fichaje.</p>
+      </div>
+      <button class="btn primary no-print" onclick="window.print()">Imprimir QR</button>
+    </div>
+
+    <div id="fichaBackup" class="card hidden">
+      <div class="topline">
+        <h2>Copia de seguridad</h2>
+        <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
+      </div>
     <div id="fichaEditarEmpresa" class="card hidden">
       <div class="topline">
         <h2>Datos de la empresa</h2>
@@ -169,7 +187,8 @@
         <div class="field"><label>Nombre de la empresa</label><input id="empEditNombre"></div>
         <div class="field">
           <label>Código de acceso (4 cifras)</label>
-          <input id="empEditCodigo" maxlength="4" inputmode="numeric" oninput="validarCodigoEmpresaNuevo()">
+          <input id="empEditCodigo" type="password" maxlength="4" inputmode="numeric" oninput="validarCodigoEmpresaNuevo()">
+          <button type="button" class="btn secondary" style="width:auto;padding:6px 10px;font-size:13px;margin-top:6px" onclick="alternarVerCodigoEmpresa()">Mostrar código</button>
           <div id="empEditCodigoEstado" class="small muted" style="margin-top:6px"></div>
         </div>
       </div>
@@ -195,28 +214,6 @@
         <button id="btnGuardarEdicion" class="btn primary" onclick="guardarEdicionTrabajador()">Guardar cambios</button>
         <button class="btn secondary" onclick="volverMenuEmpresa()">Volver</button>
       </div>
-    </div>
-
-    <div id="fichaQR" class="card hidden">
-      <div class="topline">
-        <div><h2>Código QR de acceso</h2><p class="muted">Abre directamente la pantalla de fichaje</p></div>
-        <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
-      </div>
-      <div style="text-align:center;padding:12px">
-        <img src="qr-acceso.svg?v=1" alt="Código QR de acceso al control horario" style="width:min(320px,90%);height:auto">
-        <p><b>Panadería Todo Bueno · Control horario</b></p>
-        <p class="muted small">Este QR abre únicamente la pantalla de fichaje.</p>
-      </div>
-      <button class="btn primary no-print" onclick="window.print()">Imprimir QR</button>
-    </div>
-
-    <div id="fichaBackup" class="card hidden">
-      <div class="topline">
-        <h2>Copia de seguridad</h2>
-        <button class="btn secondary" style="width:auto" onclick="volverMenuEmpresa()">Volver</button>
-      </div>
-      <p><b>Automática diaria</b></p>
-      <p class="muted">La empresa no necesita hacer nada.</p>
     </div>
   </section>
 </div>
