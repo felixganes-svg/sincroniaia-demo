@@ -5,6 +5,7 @@ window.addEventListener('load', function () {
     var salida=[];
     (Array.isArray(marcajes)?marcajes:[]).forEach(function(m){
       var tipo=String((m&&m.tipo)||'').toUpperCase();
+      
       var hora=String((m&&m.hora)||'');
       var anterior=salida.length?salida[salida.length-1]:null;
       if(anterior && String(anterior.tipo||'').toUpperCase()===tipo && String(anterior.hora||'')===hora) return;
