@@ -98,7 +98,7 @@ function mostrarPeriodoComputo(periodo){
   var dias=Array.isArray(detalle.dias)?detalle.dias:[];
   var html='<div class="notice" style="margin-bottom:12px"><b>Total del periodo: '+esc(detalle.total||'0:00')+'</b></div>';
   if(!dias.length){destino.innerHTML=html+'<p class="muted small">Sin fichajes registrados en este periodo.</p>';return;}
-  html+='<div style="overflow-x:auto"><table><tr><th>Fecha</th><th>Marcajes</th><th>Total día</th></tr>';
+  html+='<p class="muted small" style="margin-bottom:6px">Desliza hacia los lados para ver todos los datos →</p><div style="overflow-x:auto"><table><tr><th>Fecha</th><th>Marcajes</th><th>Total día</th></tr>';
   dias.forEach(function(d){var marcas=(Array.isArray(d.marcajes)?d.marcajes:[]).map(function(m){var tipo=String(m.tipo||'').toUpperCase()==='ENTRADA'?'Entrada':'Salida';return '<b>'+tipo+'</b> '+esc(m.hora||'—');}).join(' &nbsp;·&nbsp; ');html+='<tr><td>'+esc(d.fecha||d.fecha_iso||'')+'</td><td>'+(marcas||'—')+'</td><td><b>'+esc(d.total||'0:00')+'</b></td></tr>';});
   html+='</table></div>';destino.innerHTML=html;
 }

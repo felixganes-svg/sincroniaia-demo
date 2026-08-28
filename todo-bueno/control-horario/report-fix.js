@@ -57,6 +57,8 @@ window.addEventListener('load', function () {
     cab.innerHTML='<h1 style="font-size:22px;margin:0 0 5px 0">Panadería Todo Bueno Mataró</h1><div style="font-size:15px;font-weight:700">Informe de fichajes</div>'+(textoPeriodo()?'<div style="font-size:11px;color:#77695f;margin-top:5px">'+esc(textoPeriodo())+'</div>':'');
     cont.appendChild(cab);
     var copia=informe.querySelector('.informe-detallado').cloneNode(true);
+    var pistaDeslizar=copia.querySelector('.pista-deslizar');
+    if(pistaDeslizar) pistaDeslizar.remove();
     copia.querySelectorAll('.card').forEach(function(card){
       card.style.cssText='border:1px solid #ead9c6;border-radius:10px;padding:14px;margin:0 0 14px 0;background:#fff;box-shadow:none;page-break-inside:avoid;break-inside:avoid;';
     });
@@ -116,7 +118,7 @@ window.addEventListener('load', function () {
         if(!dias.length){
           html+='<p class="muted small" style="margin-top:14px">Sin fichajes en este periodo.</p>';
         }else{
-          html+='<table style="margin-top:14px"><tr><th>Fecha</th><th>Horario / marcajes</th><th>Total día</th></tr>';
+          html+='<p class="muted small pista-deslizar" style="margin:14px 0 6px">Desliza hacia los lados para ver todos los datos →</p><table style="margin-top:0"><tr><th>Fecha</th><th>Horario / marcajes</th><th>Total día</th></tr>';
           dias.forEach(function(d){
             var marcajes=sinDuplicadosConsecutivos(d.marcajes);
             var textoMarcajes=marcajes.map(function(m){
