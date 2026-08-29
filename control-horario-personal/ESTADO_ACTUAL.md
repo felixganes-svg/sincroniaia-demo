@@ -16,9 +16,12 @@ Aplicación: app.html
 - El usuario ha confirmado visualmente que ahora aparece Trabajando y FICHAR SALIDA.
 - No se debe cambiar de enlace.
 - No se debe crear otra versión paralela para continuar esta validación.
+- PWA preparada sobre el MISMO acceso oficial.
+- Archivos PWA añadidos: manifest.webmanifest, sw.js e icon.svg.
+- index.html conecta la aplicación estable con la PWA sin modificar la lógica interna de fichaje de app.html.
 
-## Próxima acción obligatoria
-Esperar a la salida real de la jornada y realizar la prueba de cierre:
+## Próximas acciones obligatorias
+1. Prueba real de cierre de jornada:
 - Fichar salida.
 - Comprobar hora de salida.
 - Comprobar total del día.
@@ -26,7 +29,14 @@ Esperar a la salida real de la jornada y realizar la prueba de cierre:
 - Cerrar y reabrir el acceso oficial.
 - Confirmar persistencia e histórico.
 
+2. Validación PWA en el móvil:
+- Abrir la URL oficial en Chrome.
+- Confirmar que aparece la opción Instalar aplicación / Añadir a pantalla de inicio.
+- Instalarla.
+- Abrir desde el icono.
+- Confirmar que abre el mismo Control Horario, conserva datos e histórico y permite fichar normalmente.
+
 ## Resultado de validación
 PENDIENTE.
 
-No declarar MASTER SELLADO hasta superar la prueba anterior.
+No declarar MASTER SELLADO hasta superar las pruebas anteriores.
