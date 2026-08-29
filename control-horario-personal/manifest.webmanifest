@@ -3,7 +3,7 @@
   "short_name": "Control Horario",
   "description": "Control horario personal SINCRONIAIA",
   "lang": "es-ES",
-  "start_url": "./app.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
