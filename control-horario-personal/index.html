@@ -19,26 +19,43 @@
   if(!d.pending)d.pending=[];
   if(!d.backups)d.backups=[];
   if(!d.config)d.config={weeklyContractHours:40};
+
+  // Regularización autorizada 29/08/2026: jornada 07:30–13:30.
   const day='2026-08-29';
-  const ss=d.days[day]?.sessions||[];
-  const exists=ss.some(s=>{const x=new Date(s.in);return x.getHours()===7&&x.getMinutes()===30});
-  const openToday=d.open&&(()=>{const x=new Date(d.open.in);return x.getFullYear()===2026&&x.getMonth()===7&&x.getDate()===29})();
-  if(!exists&&!openToday){
-    d.open={in:new Date(2026,7,29,7,30,0).toISOString(),gps:null,source:'regularizacion_manual_2026-08-29_07:30'};
-    localStorage.setItem(K,JSON.stringify(d));
+  const inIso=new Date(2026,7,29,7,30,0).toISOString();
+  const outIso=new Date(2026,7,29,13,30,0).toISOString();
+  if(!d.days[day])d.days[day]={sessions:[],source:'regularizacion_manual_2026-08-29'};
+  if(!Array.isArray(d.days[day].sessions))d.days[day].sessions=[];
+  let target=d.days[day].sessions.find(s=>{
+    const x=new Date(s.in);
+    return Number.isFinite(x.getTime())&&x.getHours()===7&&x.getMinutes()===30;
+  });
+  if(target){
+    target.in=inIso;
+    target.out=outIso;
+    target.minutes=360;
+    target.source='regularizacion_manual_2026-08-29_0730_1330';
+  }else{
+    d.days[day].sessions.push({in:inIso,out:outIso,minutes:360,source:'regularizacion_manual_2026-08-29_0730_1330'});
   }
+  if(d.open){
+    const x=new Date(d.open.in);
+    if(Number.isFinite(x.getTime())&&x.getFullYear()===2026&&x.getMonth()===7&&x.getDate()===29)d.open=null;
+  }
+  localStorage.setItem(K,JSON.stringify(d));
+
   if('serviceWorker' in navigator){
     try{await navigator.serviceWorker.register('./sw.js',{scope:'./'});}catch(e){console.warn('PWA SW',e)}
   }
   try{
-    const r=await fetch('./app.html?v=20260829-pwa1',{cache:'no-store'});
+    const r=await fetch('./app.html?v=20260829-pwa2',{cache:'no-store'});
     if(!r.ok)throw new Error('No se pudo cargar app.html');
     let html=await r.text();
     const pwa='<link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml"><meta name="theme-color" content="#101828"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">';
     html=html.replace('</head>',pwa+'</head>');
     document.open();document.write(html);document.close();
   }catch(e){
-    location.replace('./app.html?v=20260829-pwa1');
+    location.replace('./app.html?v=20260829-pwa2');
   }
 })();
 </script>
