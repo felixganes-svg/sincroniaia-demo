@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>SINCRONIAIA ENCARGOS · LAB</title>
+<title>SINCRONIAIA ENCARGOS · LAB v0.2</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f5f7fa;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:760px;margin:auto;padding:14px}.hero{background:#111827;color:#fff;border-radius:18px;padding:18px}.hero h1{margin:0 0 6px;font-size:22px}.hero p{margin:0;color:#cbd5e1;line-height:1.45}.lab{margin:12px 0;padding:12px;border:1px solid #f59e0b;background:#fff7ed;border-radius:14px;color:#9a3412;font-weight:800}.sec{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:14px;margin:12px 0}.sec h2{margin:0 0 10px;font-size:17px}.btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px}.btn{border:0;border-radius:12px;padding:12px;font-weight:800;font-size:14px;cursor:pointer}.primary{background:#111827;color:#fff}.secondary{background:#e5e7eb;color:#111827}.accept{background:#dcfce7;color:#166534}.change{background:#fef3c7;color:#92400e}.reject{background:#fee2e2;color:#991b1b}.card{border:1px solid #e5e7eb;border-radius:13px;padding:12px;margin-top:10px}.label{font-size:12px;color:#64748b}.value{font-weight:800;margin-top:2px}.status{display:inline-block;font-size:11px;font-weight:900;border-radius:999px;padding:5px 8px;background:#dbeafe;color:#1d4ed8}.flow{font-size:13px;line-height:1.6}.hidden{display:none}.note{font-size:12.5px;color:#56616f;line-height:1.45}.foot{font-size:11px;color:#64748b;padding:8px 2px 20px}
+*{box-sizing:border-box}body{margin:0;background:#f5f7fa;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:760px;margin:auto;padding:14px}.hero{background:#111827;color:#fff;border-radius:18px;padding:18px}.hero h1{margin:0 0 6px;font-size:22px}.hero p{margin:0;color:#cbd5e1;line-height:1.45}.lab{margin:12px 0;padding:12px;border:1px solid #f59e0b;background:#fff7ed;border-radius:14px;color:#9a3412;font-weight:800}.sec{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:14px;margin:12px 0}.sec h2{margin:0 0 10px;font-size:17px}.btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px}.btn{border:0;border-radius:12px;padding:12px;font-weight:800;font-size:14px;cursor:pointer;width:100%}.primary{background:#111827;color:#fff}.secondary{background:#e5e7eb;color:#111827}.accept{background:#dcfce7;color:#166534}.change{background:#fef3c7;color:#92400e}.reject{background:#fee2e2;color:#991b1b}.card{border:1px solid #e5e7eb;border-radius:13px;padding:12px;margin-top:10px}.field{margin:10px 0}.field label{display:block;font-size:12px;color:#64748b;margin-bottom:5px;font-weight:700}.field input,.field select,.field textarea{width:100%;border:1px solid #cbd5e1;border-radius:11px;padding:11px 12px;font-size:16px;background:#fff;color:#111827}.field textarea{min-height:88px;resize:vertical}.label{font-size:12px;color:#64748b}.value{font-weight:800;margin-top:2px;word-break:break-word}.status{display:inline-block;font-size:11px;font-weight:900;border-radius:999px;padding:5px 8px;background:#dbeafe;color:#1d4ed8}.flow{font-size:13px;line-height:1.7}.hidden{display:none}.note{font-size:12.5px;color:#56616f;line-height:1.45}.warn{font-size:12.5px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:11px;padding:10px}.okbox{font-size:12.5px;color:#166534;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:11px;padding:10px}.foot{font-size:11px;color:#64748b;padding:8px 2px 20px}.toplink{border:0;background:none;color:#334155;font-weight:800;padding:0;margin:0 0 8px;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header class="hero">
 <h1>SINCRONIAIA ENCARGOS · LAB</h1>
-<p>Laboratorio aislado para validar el circuito Solicitud → Validación empresa → Pedido confirmado.</p>
+<p>Laboratorio aislado para validar Cliente → Solicitud → Empresa → Validación → Pedido confirmado.</p>
 </header>
 <div class="lab">LAB · NO PRODUCCIÓN · No modifica ninguna demo o sistema existente.</div>
 
@@ -25,54 +25,97 @@
 </section>
 
 <section class="sec hidden" id="cliente">
-<h2>Cliente · Solicitud de encargo</h2>
-<div class="card">
-<div class="label">Producto</div><div class="value">Tarta de cumpleaños · Chocolate</div>
-<div class="label" style="margin-top:8px">Personas</div><div class="value">12</div>
-<div class="label" style="margin-top:8px">Fecha</div><div class="value">Sábado</div>
-<div class="label" style="margin-top:8px">Texto</div><div class="value">“Felicidades Marta”</div>
-</div>
-<p class="note">Esta solicitud requiere validación de la empresa porque es un producto especial.</p>
+<button class="toplink" onclick="volverInicio()">← Volver</button>
+<h2>Cliente · Nueva solicitud</h2>
+<div class="field"><label>Nombre</label><input id="nombre" type="text" placeholder="Ej. Marta"></div>
+<div class="field"><label>Teléfono</label><input id="telefono" type="tel" inputmode="tel" placeholder="Ej. 612 345 678"></div>
+<div class="field"><label>Producto</label><input id="producto" type="text" placeholder="Ej. Tarta de cumpleaños · Chocolate"></div>
+<div class="field"><label>Cantidad / personas</label><input id="cantidad" type="text" placeholder="Ej. 12 personas"></div>
+<div class="field"><label>Fecha de recogida</label><input id="fecha" type="date"></div>
+<div class="field"><label>Tipo de encargo</label><select id="tipo"><option value="normal">Producto normal</option><option value="especial">Producto especial</option><option value="externo">Proveedor externo</option><option value="cantidad">Cantidad elevada</option></select></div>
+<div class="field"><label>Observaciones / texto</label><textarea id="obs" placeholder="Ej. Felicidades Marta"></textarea></div>
+<p class="note">En este LAB, los encargos especiales, de proveedor externo o de cantidad elevada requieren validación de la empresa.</p>
 <button class="btn primary" onclick="crearSolicitud()">Enviar solicitud</button>
 <div id="clienteResultado" class="card hidden"></div>
 </section>
 
 <section class="sec hidden" id="empresa">
+<button class="toplink" onclick="volverInicio()">← Volver</button>
 <h2>Empresa · Solicitudes</h2>
 <div id="sinSolicitudes" class="note">Todavía no hay solicitudes en este laboratorio.</div>
 <div id="solicitudEmpresa" class="card hidden">
 <div class="status" id="estadoSolicitud">PENDIENTE VALIDACIÓN</div>
-<div class="label" style="margin-top:10px">Solicitud</div><div class="value">#E-0001</div>
-<div class="label" style="margin-top:8px">Cliente</div><div class="value">Marta</div>
-<div class="label" style="margin-top:8px">Producto</div><div class="value">Tarta de cumpleaños · Chocolate</div>
-<div class="label" style="margin-top:8px">Personas</div><div class="value">12</div>
-<div class="label" style="margin-top:8px">Fecha</div><div class="value">Sábado</div>
-<div class="label" style="margin-top:8px">Texto</div><div class="value">Felicidades Marta</div>
-<div class="btns" style="margin-top:12px">
+<div class="label" style="margin-top:10px">Solicitud</div><div class="value" id="idSolicitud">#E-0001</div>
+<div class="label" style="margin-top:8px">Cliente</div><div class="value" id="vNombre"></div>
+<div class="label" style="margin-top:8px">Teléfono</div><div class="value" id="vTelefono"></div>
+<div class="label" style="margin-top:8px">Producto</div><div class="value" id="vProducto"></div>
+<div class="label" style="margin-top:8px">Cantidad</div><div class="value" id="vCantidad"></div>
+<div class="label" style="margin-top:8px">Fecha</div><div class="value" id="vFecha"></div>
+<div class="label" style="margin-top:8px">Tipo</div><div class="value" id="vTipo"></div>
+<div class="label" style="margin-top:8px">Observaciones</div><div class="value" id="vObs"></div>
+<div id="requiereValidacion" class="warn" style="margin-top:10px"></div>
+<div class="btns" style="margin-top:12px" id="accionesEmpresa">
 <button class="btn accept" onclick="aceptar()">Aceptar</button>
 <button class="btn change" onclick="cambio()">Proponer cambio</button>
 <button class="btn reject" onclick="rechazar()">Rechazar</button>
 </div>
-<div id="empresaResultado" class="note" style="margin-top:10px"></div>
+<div id="empresaResultado" style="margin-top:10px"></div>
 </div>
 </section>
 
 <section class="sec">
 <h2>Regla del laboratorio</h2>
-<div class="flow">SOLICITUD RECIBIDA → PENDIENTE VALIDACIÓN → ACEPTADA / CAMBIO PROPUESTO / RECHAZADA → PEDIDO CONFIRMADO</div>
+<div class="flow">
+<b>SOLICITUD RECIBIDA</b> → <b>PENDIENTE VALIDACIÓN</b><br><br>
+✅ <b>ACEPTAR</b> → PEDIDO CONFIRMADO<br>
+🔄 <b>PROPONER CAMBIO</b> → PENDIENTE RESPUESTA CLIENTE<br>
+❌ <b>RECHAZAR</b> → SOLICITUD CERRADA
+</div>
 <p class="note"><b>Solo ACEPTAR crea un pedido confirmado.</b> Producción todavía no forma parte de esta prueba.</p>
 </section>
 
-<div class="foot">SINCRONIAIA ENCARGOS · LAB v0.1 · 29/08/2026</div>
+<div class="foot">SINCRONIAIA ENCARGOS · LAB v0.2 · 29/08/2026</div>
 </div>
 <script>
-let creada=false;
+let solicitud=null;
+const tipoTexto={normal:'Producto normal',especial:'Producto especial',externo:'Proveedor externo',cantidad:'Cantidad elevada'};
 function mostrarCliente(){document.getElementById('cliente').classList.remove('hidden');document.getElementById('empresa').classList.add('hidden');window.scrollTo({top:document.getElementById('cliente').offsetTop-10,behavior:'smooth'})}
-function mostrarEmpresa(){document.getElementById('empresa').classList.remove('hidden');document.getElementById('cliente').classList.add('hidden');if(creada){document.getElementById('sinSolicitudes').classList.add('hidden');document.getElementById('solicitudEmpresa').classList.remove('hidden')}window.scrollTo({top:document.getElementById('empresa').offsetTop-10,behavior:'smooth'})}
-function crearSolicitud(){creada=true;const r=document.getElementById('clienteResultado');r.classList.remove('hidden');r.innerHTML='<div class="status">SOLICITUD RECIBIDA</div><p class="note">Hemos recibido tu solicitud. Al tratarse de un producto especial, la empresa debe comprobar disponibilidad y preparación. Te confirmaremos el encargo cuando haya sido validado.</p>';}
-function aceptar(){document.getElementById('estadoSolicitud').textContent='ACEPTADA';document.getElementById('empresaResultado').innerHTML='<b>Pedido #P-0001 · CONFIRMADO</b><br>La solicitud #E-0001 se convierte ahora en pedido. Solo desde este punto podría pasar a Producción en una fase posterior.';}
-function cambio(){document.getElementById('estadoSolicitud').textContent='CAMBIO PROPUESTO';document.getElementById('empresaResultado').innerHTML='<b>No se crea pedido.</b><br>La empresa propone una modificación y la solicitud queda pendiente de respuesta del cliente.';}
-function rechazar(){document.getElementById('estadoSolicitud').textContent='RECHAZADA';document.getElementById('empresaResultado').innerHTML='<b>No se crea pedido.</b><br>La solicitud queda cerrada como rechazada.';}
+function mostrarEmpresa(){document.getElementById('empresa').classList.remove('hidden');document.getElementById('cliente').classList.add('hidden');pintarEmpresa();window.scrollTo({top:document.getElementById('empresa').offsetTop-10,behavior:'smooth'})}
+function volverInicio(){document.getElementById('cliente').classList.add('hidden');document.getElementById('empresa').classList.add('hidden');window.scrollTo({top:0,behavior:'smooth'})}
+function crearSolicitud(){
+ const nombre=document.getElementById('nombre').value.trim();
+ const telefono=document.getElementById('telefono').value.trim();
+ const producto=document.getElementById('producto').value.trim();
+ const cantidad=document.getElementById('cantidad').value.trim();
+ const fecha=document.getElementById('fecha').value;
+ const tipo=document.getElementById('tipo').value;
+ const obs=document.getElementById('obs').value.trim();
+ const r=document.getElementById('clienteResultado');
+ if(!nombre||!telefono||!producto||!cantidad||!fecha){r.classList.remove('hidden');r.innerHTML='<div class="warn"><b>Faltan datos.</b><br>Completa nombre, teléfono, producto, cantidad y fecha.</div>';return;}
+ solicitud={id:'#E-0001',nombre,telefono,producto,cantidad,fecha,tipo,obs,estado:'PENDIENTE VALIDACIÓN'};
+ r.classList.remove('hidden');
+ const especial=tipo!=='normal';
+ r.innerHTML='<div class="status">SOLICITUD RECIBIDA</div><p class="note">Hemos recibido tu solicitud.'+(especial?' La empresa debe comprobar disponibilidad y preparación antes de confirmarla.':' La empresa revisará los datos antes de convertirla en pedido confirmado.')+' Te avisaremos cuando haya sido validada.</p>';
+}
+function pintarEmpresa(){
+ const vacio=document.getElementById('sinSolicitudes'),card=document.getElementById('solicitudEmpresa');
+ if(!solicitud){vacio.classList.remove('hidden');card.classList.add('hidden');return;}
+ vacio.classList.add('hidden');card.classList.remove('hidden');
+ document.getElementById('estadoSolicitud').textContent=solicitud.estado;
+ document.getElementById('vNombre').textContent=solicitud.nombre;
+ document.getElementById('vTelefono').textContent=solicitud.telefono;
+ document.getElementById('vProducto').textContent=solicitud.producto;
+ document.getElementById('vCantidad').textContent=solicitud.cantidad;
+ document.getElementById('vFecha').textContent=solicitud.fecha;
+ document.getElementById('vTipo').textContent=tipoTexto[solicitud.tipo];
+ document.getElementById('vObs').textContent=solicitud.obs||'—';
+ document.getElementById('requiereValidacion').innerHTML=solicitud.tipo==='normal'?'<b>Revisión empresa.</b> Producto normal: comprobar datos antes de confirmar.':'<b>Validación obligatoria.</b> Este tipo de encargo no debe confirmarse automáticamente.';
+ document.getElementById('accionesEmpresa').classList.remove('hidden');
+ document.getElementById('empresaResultado').innerHTML='';
+}
+function aceptar(){if(!solicitud)return;solicitud.estado='ACEPTADA';document.getElementById('estadoSolicitud').textContent='ACEPTADA';document.getElementById('empresaResultado').innerHTML='<div class="okbox"><b>Pedido #P-0001 · CONFIRMADO</b><br>La solicitud '+solicitud.id+' se convierte ahora en pedido. En una fase posterior podrá pasar a Producción.</div>';document.getElementById('accionesEmpresa').classList.add('hidden')}
+function cambio(){if(!solicitud)return;solicitud.estado='PENDIENTE RESPUESTA CLIENTE';document.getElementById('estadoSolicitud').textContent='PENDIENTE RESPUESTA CLIENTE';document.getElementById('empresaResultado').innerHTML='<div class="warn"><b>No se crea pedido.</b><br>La empresa propone una modificación y espera respuesta del cliente.</div>';document.getElementById('accionesEmpresa').classList.add('hidden')}
+function rechazar(){if(!solicitud)return;solicitud.estado='SOLICITUD CERRADA';document.getElementById('estadoSolicitud').textContent='SOLICITUD CERRADA';document.getElementById('empresaResultado').innerHTML='<div class="warn"><b>No se crea pedido.</b><br>La solicitud queda cerrada como rechazada.</div>';document.getElementById('accionesEmpresa').classList.add('hidden')}
 </script>
 </body>
 </html>
