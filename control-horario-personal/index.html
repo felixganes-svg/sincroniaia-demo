@@ -13,31 +13,90 @@
 <script>
 (async()=>{
   const K='sincroniaia_control_personal_master';
-  let d={};
-  try{d=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}
+  const BK='sincroniaia_control_personal_autobackups_v1';
+  const INCIDENTS='sincroniaia_control_personal_integrity_incidents_v1';
+  const nativeSet=Storage.prototype.setItem;
+
+  function parse(v,fallback){try{return JSON.parse(v)}catch(e){return fallback}}
+  function historicalCount(obj){
+    if(!obj||!obj.days)return 0;
+    const today=new Date(); today.setHours(0,0,0,0);
+    let n=0;
+    Object.entries(obj.days).forEach(([k,v])=>{
+      const dt=new Date(k+'T12:00:00');
+      if(dt<today&&Array.isArray(v?.sessions)) n+=v.sessions.filter(s=>s&&s.in&&s.out).length;
+    });
+    return n;
+  }
+  function pushBackup(raw,reason){
+    if(!raw)return;
+    const arr=parse(localStorage.getItem(BK),[]);
+    arr.unshift({at:new Date().toISOString(),reason,data:raw});
+    nativeSet.call(localStorage,BK,JSON.stringify(arr.slice(0,30)));
+  }
+  function logIncident(type,detail){
+    const arr=parse(localStorage.getItem(INCIDENTS),[]);
+    arr.unshift({at:new Date().toISOString(),type,detail});
+    nativeSet.call(localStorage,INCIDENTS,JSON.stringify(arr.slice(0,50)));
+  }
+
+  // Protección transversal: antes de sobrescribir el histórico se conserva una copia.
+  // Si una actualización intenta guardar menos sesiones históricas cerradas, se bloquea.
+  Storage.prototype.setItem=function(key,value){
+    if(this===localStorage&&key===K){
+      const previous=localStorage.getItem(K);
+      if(previous&&previous!==value){
+        pushBackup(previous,'antes_de_guardar');
+        const prevObj=parse(previous,null),nextObj=parse(value,null);
+        const prevCount=historicalCount(prevObj),nextCount=historicalCount(nextObj);
+        if(prevCount>0&&nextObj&&nextCount<prevCount){
+          logIncident('BLOQUEO_PERDIDA_HISTORICO',{prevCount,nextCount});
+          return;
+        }
+      }
+    }
+    return nativeSet.call(this,key,value);
+  };
+
+  let raw=localStorage.getItem(K);
+  let d=parse(raw,null);
+
+  // Recuperación automática si la clave maestra se pierde o queda ilegible.
+  if(!d||typeof d!=='object'){
+    const backups=parse(localStorage.getItem(BK),[]);
+    for(const b of backups){
+      const candidate=parse(b.data,null);
+      if(candidate&&candidate.days){d=candidate;break;}
+    }
+  }
+  if(!d||typeof d!=='object')d={};
   if(!d.days)d.days={};
   if(!d.pending)d.pending=[];
   if(!d.backups)d.backups=[];
   if(!d.config)d.config={weeklyContractHours:40};
 
-  // Regularización autorizada 29/08/2026: jornada 07:30–13:30.
-  const day='2026-08-29';
-  const inIso=new Date(2026,7,29,7,30,0).toISOString();
-  const outIso=new Date(2026,7,29,13,30,0).toISOString();
-  if(!d.days[day])d.days[day]={sessions:[],source:'regularizacion_manual_2026-08-29'};
-  if(!Array.isArray(d.days[day].sessions))d.days[day].sessions=[];
-  let target=d.days[day].sessions.find(s=>{
-    const x=new Date(s.in);
-    return Number.isFinite(x.getTime())&&x.getHours()===7&&x.getMinutes()===30;
-  });
-  if(target){
-    target.in=inIso;
-    target.out=outIso;
-    target.minutes=360;
-    target.source='regularizacion_manual_2026-08-29_0730_1330';
-  }else{
-    d.days[day].sessions.push({in:inIso,out:outIso,minutes:360,source:'regularizacion_manual_2026-08-29_0730_1330'});
+  function ensureConfirmedDay(day,y,m,dd,hh1,mm1,hh2,mm2,source){
+    const inIso=new Date(y,m-1,dd,hh1,mm1,0).toISOString();
+    const outIso=new Date(y,m-1,dd,hh2,mm2,0).toISOString();
+    const minutes=(hh2*60+mm2)-(hh1*60+mm1);
+    if(!d.days[day])d.days[day]={sessions:[],source};
+    if(!Array.isArray(d.days[day].sessions))d.days[day].sessions=[];
+    let target=d.days[day].sessions.find(s=>{
+      const x=new Date(s.in);
+      return Number.isFinite(x.getTime())&&x.getHours()===hh1&&x.getMinutes()===mm1;
+    });
+    if(target){
+      target.in=inIso;target.out=outIso;target.minutes=minutes;target.source=source;
+    }else{
+      d.days[day].sessions.push({in:inIso,out:outIso,minutes,source});
+    }
   }
+
+  // Histórico confirmado por el responsable. Estas jornadas no pueden desaparecer por una actualización.
+  ensureConfirmedDay('2026-08-27',2026,8,27,7,30,13,30,'historico_confirmado_2026-08-27');
+  ensureConfirmedDay('2026-08-28',2026,8,28,7,30,13,30,'historico_confirmado_2026-08-28');
+  ensureConfirmedDay('2026-08-29',2026,8,29,7,30,13,30,'regularizacion_confirmada_2026-08-29');
+
   if(d.open){
     const x=new Date(d.open.in);
     if(Number.isFinite(x.getTime())&&x.getFullYear()===2026&&x.getMonth()===7&&x.getDate()===29)d.open=null;
@@ -48,14 +107,14 @@
     try{await navigator.serviceWorker.register('./sw.js',{scope:'./'});}catch(e){console.warn('PWA SW',e)}
   }
   try{
-    const r=await fetch('./app.html?v=20260829-pwa4',{cache:'no-store'});
+    const r=await fetch('./app.html?v=20260829-integrity1',{cache:'no-store'});
     if(!r.ok)throw new Error('No se pudo cargar app.html');
     let html=await r.text();
     const pwa='<link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml"><meta name="theme-color" content="#101828"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">';
     html=html.replace('</head>',pwa+'</head>');
     document.open();document.write(html);document.close();
   }catch(e){
-    location.replace('./app.html?v=20260829-pwa4');
+    location.replace('./app.html?v=20260829-integrity1');
   }
 })();
 </script>
