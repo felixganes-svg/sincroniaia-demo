@@ -1,0 +1,21 @@
+{
+  "name": "SINCRONIAIA · Control Horario",
+  "short_name": "Control Horario",
+  "description": "Control horario personal SINCRONIAIA",
+  "lang": "es-ES",
+  "start_url": "./app.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#ffffff",
+  "theme_color": "#101828",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
