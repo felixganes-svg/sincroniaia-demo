@@ -52,7 +52,22 @@ No se alteran históricos reales por cambios de interfaz.
 ## 6. Producción y pruebas
 
 Producción debe tener un único acceso oficial.
-Las pruebas pueden existir separadas, pero nunca deben confundirse con producción ni obligar al usuario final a cambiar de enlace.
+
+### Regla obligatoria de desarrollo aislado
+
+Desde el 29/08/2026, todo desarrollo nuevo, ampliación relevante o modificación que pueda afectar a una versión funcional se realizará primero en una DEMO/LAB aislada e independiente de producción.
+
+La DEMO/LAB debe:
+- estar identificada claramente como NO PRODUCCIÓN;
+- no sustituir ni modificar la URL oficial existente;
+- no utilizar datos reales salvo autorización expresa y entorno seguro;
+- poder descartarse sin afectar a producción;
+- permitir pruebas desde cero;
+- mantenerse separada hasta superar validación y sellado.
+
+Una DEMO/LAB no puede promocionarse a producción por el hecho de funcionar parcialmente. Solo puede sustituir o convertirse en versión oficial después de superar el checklist de sellado aplicable y comprobarse desde la URL que vaya a ser oficial.
+
+Si una prueba falla, se corrige o descarta la DEMO/LAB. No se parchea producción como consecuencia automática de un fallo en laboratorio.
 
 ## 7. Definición de HECHO
 
@@ -63,6 +78,8 @@ Solo está hecho cuando:
 - las funciones protegidas siguen funcionando;
 - los datos históricos permanecen intactos;
 - no se han creado regresiones críticas o relevantes.
+
+Para desarrollos nacidos en DEMO/LAB, antes de llegar a este estado deben haber superado validación y sellado en el entorno aislado.
 
 ## 8. Regla de memoria
 
