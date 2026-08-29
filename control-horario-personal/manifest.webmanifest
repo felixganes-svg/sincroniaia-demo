@@ -1,0 +1,19 @@
+{
+  "name": "SINCRONIAIA · Control Horario Félix",
+  "short_name": "Mi Fichaje",
+  "description": "Control horario personal SINCRONIAIA",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#101828",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
