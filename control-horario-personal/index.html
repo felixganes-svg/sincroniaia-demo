@@ -1,1 +1,46 @@
-<!doctype html><meta charset="utf-8"><script>const K='sincroniaia_control_personal_master';let d={};try{d=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}if(!d.days)d.days={};if(!d.pending)d.pending=[];if(!d.backups)d.backups=[];if(!d.config)d.config={weeklyContractHours:40};const day='2026-08-29';const ss=d.days[day]?.sessions||[];const exists=ss.some(s=>{const x=new Date(s.in);return x.getHours()===7&&x.getMinutes()===30});const openToday=d.open&&(()=>{const x=new Date(d.open.in);return x.getFullYear()===2026&&x.getMonth()===7&&x.getDate()===29})();if(!exists&&!openToday){d.open={in:new Date(2026,7,29,7,30,0).toISOString(),gps:null,source:'regularizacion_manual_2026-08-29_07:30'};localStorage.setItem(K,JSON.stringify(d));}location.replace('./app.html?v=202608290900');</script>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101828">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>SINCRONIAIA · Control Horario</title>
+</head>
+<body>
+<div style="font-family:system-ui;padding:24px;text-align:center">Abriendo Control Horario…</div>
+<script>
+(async()=>{
+  const K='sincroniaia_control_personal_master';
+  let d={};
+  try{d=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}
+  if(!d.days)d.days={};
+  if(!d.pending)d.pending=[];
+  if(!d.backups)d.backups=[];
+  if(!d.config)d.config={weeklyContractHours:40};
+  const day='2026-08-29';
+  const ss=d.days[day]?.sessions||[];
+  const exists=ss.some(s=>{const x=new Date(s.in);return x.getHours()===7&&x.getMinutes()===30});
+  const openToday=d.open&&(()=>{const x=new Date(d.open.in);return x.getFullYear()===2026&&x.getMonth()===7&&x.getDate()===29})();
+  if(!exists&&!openToday){
+    d.open={in:new Date(2026,7,29,7,30,0).toISOString(),gps:null,source:'regularizacion_manual_2026-08-29_07:30'};
+    localStorage.setItem(K,JSON.stringify(d));
+  }
+  if('serviceWorker' in navigator){
+    try{await navigator.serviceWorker.register('./sw.js',{scope:'./'});}catch(e){console.warn('PWA SW',e)}
+  }
+  try{
+    const r=await fetch('./app.html?v=20260829-pwa1',{cache:'no-store'});
+    if(!r.ok)throw new Error('No se pudo cargar app.html');
+    let html=await r.text();
+    const pwa='<link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml"><meta name="theme-color" content="#101828"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">';
+    html=html.replace('</head>',pwa+'</head>');
+    document.open();document.write(html);document.close();
+  }catch(e){
+    location.replace('./app.html?v=20260829-pwa1');
+  }
+})();
+</script>
+</body>
+</html>
