@@ -3,82 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#101828">
-<link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<meta http-equiv="refresh" content="0; url=./app-base.html">
 <title>SINCRONIAIA · Control Horario</title>
 </head>
-<body><div style="font-family:system-ui;padding:24px;text-align:center">Abriendo Control Horario…</div>
-<script>
-(async()=>{
-  const KEY='sincroniaia_control_personal_master';
-  const BK='sincroniaia_control_personal_autobackups_v2';
-  const nativeSet=Storage.prototype.setItem;
-  const parse=(v,f)=>{try{return JSON.parse(v)}catch(e){return f}};
-
-  function backup(raw,reason){
-    if(!raw)return;
-    const arr=parse(localStorage.getItem(BK),[]);
-    arr.unshift({at:new Date().toISOString(),reason,data:raw});
-    nativeSet.call(localStorage,BK,JSON.stringify(arr.slice(0,30)));
-  }
-
-  Storage.prototype.setItem=function(k,v){
-    if(this===localStorage&&k===KEY){
-      const prev=localStorage.getItem(KEY);
-      if(prev&&prev!==v)backup(prev,'antes_de_guardar');
-    }
-    return nativeSet.call(this,k,v);
-  };
-
-  let d=parse(localStorage.getItem(KEY),{})||{};
-  if(!d.days)d.days={}; if(!d.pending)d.pending=[]; if(!d.backups)d.backups=[]; if(!d.config)d.config={weeklyContractHours:40}; if(!Array.isArray(d.audit))d.audit=[]; if(!d.meta)d.meta={};
-
-  function addIfMissing(day,y,m,dd,h1,m1,h2,m2,source){
-    if(d.days[day]&&Array.isArray(d.days[day].sessions)&&d.days[day].sessions.length)return;
-    d.days[day]={sessions:[{in:new Date(y,m-1,dd,h1,m1,0).toISOString(),out:new Date(y,m-1,dd,h2,m2,0).toISOString(),minutes:(h2*60+m2)-(h1*60+m1),source}],source};
-  }
-  addIfMissing('2026-08-27',2026,8,27,7,30,13,30,'historico_confirmado');
-  addIfMissing('2026-08-28',2026,8,28,7,30,13,30,'historico_confirmado');
-
-  if(!d.meta.fix_20260829_1330){
-    if(!d.days['2026-08-29'])d.days['2026-08-29']={sessions:[]};
-    if(!Array.isArray(d.days['2026-08-29'].sessions))d.days['2026-08-29'].sessions=[];
-    let s=d.days['2026-08-29'].sessions.find(x=>{const z=new Date(x.in);return Number.isFinite(z.getTime())&&z.getHours()===7&&z.getMinutes()===30});
-    const ni=new Date(2026,7,29,7,30,0).toISOString(), no=new Date(2026,7,29,13,30,0).toISOString();
-    if(s){s.in=ni;s.out=no;s.minutes=360;s.source='regularizacion_confirmada_2026-08-29'}
-    else d.days['2026-08-29'].sessions.push({in:ni,out:no,minutes:360,source:'regularizacion_confirmada_2026-08-29'});
-    d.meta.fix_20260829_1330=true;
-  }
-  if(d.open){const z=new Date(d.open.in);if(Number.isFinite(z.getTime())&&z.getFullYear()===2026&&z.getMonth()===7&&z.getDate()===29)d.open=null;}
-  localStorage.setItem(KEY,JSON.stringify(d));
-
-  try{
-    if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.filter(r=>r.scope.includes('/control-horario-personal/')).map(r=>r.unregister()));}
-    if('caches' in window){const ks=await caches.keys();await Promise.all(ks.filter(k=>k.startsWith('sincroniaia-control-horario')).map(k=>caches.delete(k)));}
-  }catch(e){}
-
-  const r=await fetch('./app-base.html?v=20260829-consolidado1',{cache:'no-store'});
-  if(!r.ok)throw new Error('No se pudo cargar la base estable');
-  let html=await r.text();
-  const pwa='<link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml"><meta name="theme-color" content="#101828">';
-  html=html.replace('</head>',pwa+'</head>');
-
-  const card=`<div class="card" id="correctionCard"><b>Corregir fichaje</b><p class="muted">Modificación manual auditada. El valor anterior queda guardado.</p><label class="muted">Fecha</label><input id="corrDate" type="date" style="width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:12px;margin:5px 0 8px;font-size:16px"><label class="muted">Periodo</label><select id="corrSession" style="width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:12px;margin:5px 0 8px;font-size:16px"></select><div class="row"><div><label class="muted">Entrada</label><input id="corrIn" type="time" style="width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:12px;margin-top:5px;font-size:16px"></div><div><label class="muted">Salida</label><input id="corrOut" type="time" style="width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:12px;margin-top:5px;font-size:16px"></div></div><label class="muted" style="display:block;margin-top:9px">Motivo</label><input id="corrReason" maxlength="180" placeholder="Ej.: salida anotada incorrectamente" style="width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:12px;margin:5px 0;font-size:16px"><button class="btn dark" id="corrSave">GUARDAR CORRECCIÓN</button><div id="corrInfo" class="sync muted"></div><details><summary>Registro de modificaciones</summary><div id="auditList" class="muted" style="margin-top:8px">Sin modificaciones manuales.</div></details></div>`;
-  html=html.replace('<div class="card"><b>Histórico mensual</b>',card+'<div class="card"><b>Histórico mensual</b>');
-
-  const extra=`<script>(function(){
-    const q=id=>document.getElementById(id),p=n=>String(n).padStart(2,'0');
-    const hh=v=>{const x=new Date(v);return Number.isFinite(x.getTime())?p(x.getHours())+':'+p(x.getMinutes()):''};
-    const iso=(day,t)=>{const a=day.split('-').map(Number),b=t.split(':').map(Number);return new Date(a[0],a[1]-1,a[2],b[0],b[1],0).toISOString()};
-    function audit(){if(!Array.isArray(data.audit))data.audit=[];q('auditList').innerHTML=data.audit.length?data.audit.slice(0,15).map(a=>'<div class="backup-item"><b>'+a.day+'</b> · '+a.before.in+'–'+a.before.out+' → <b>'+a.after.in+'–'+a.after.out+'</b><br><span class="tiny">'+a.reason+' · '+new Date(a.at).toLocaleString('es-ES')+'</span></div>').join(''):'Sin modificaciones manuales.'}
-    function load(){const day=q('corrDate').value,ss=data.days[day]&&Array.isArray(data.days[day].sessions)?data.days[day].sessions:[];q('corrSession').innerHTML=ss.length?ss.map((s,i)=>'<option value="'+i+'">Periodo '+(i+1)+' · '+hh(s.in)+'–'+hh(s.out)+'</option>').join(''):'<option value="">No hay fichajes cerrados ese día</option>';if(ss.length){q('corrSession').value='0';loadS()}else{q('corrIn').value='';q('corrOut').value=''}}
-    function loadS(){const day=q('corrDate').value,i=Number(q('corrSession').value),s=data.days[day]&&data.days[day].sessions&&data.days[day].sessions[i];if(!s)return;q('corrIn').value=hh(s.in);q('corrOut').value=hh(s.out)}
-    q('corrDate').addEventListener('change',load);q('corrSession').addEventListener('change',loadS);
-    q('corrSave').addEventListener('click',()=>{const day=q('corrDate').value,idx=q('corrSession').value,ti=q('corrIn').value,to=q('corrOut').value,reason=q('corrReason').value.trim();if(!day||idx===''){toast('⚠️ Selecciona un fichaje');return}const s=data.days[day]&&data.days[day].sessions&&data.days[day].sessions[Number(idx)];if(!s){toast('⚠️ No se encuentra el fichaje');return}if(!ti||!to){toast('⚠️ Indica entrada y salida');return}if(reason.length<4){toast('⚠️ Indica el motivo');return}const ni=iso(day,ti),no=iso(day,to),mins=Math.floor((new Date(no)-new Date(ni))/60000);if(!Number.isFinite(mins)||mins<=0||mins>1440){toast('⚠️ Revisa las horas');return}const before={in:hh(s.in),out:hh(s.out),minutes:s.minutes},after={in:ti,out:to,minutes:mins};if(before.in===after.in&&before.out===after.out){toast('ℹ️ No hay cambios');return}if(!confirm('¿Confirmas '+before.in+'–'+before.out+' → '+after.in+'–'+after.out+'?'))return;if(!Array.isArray(data.audit))data.audit=[];data.audit.unshift({at:new Date().toISOString(),actor:'Empresa',action:'CORRECCION_FICHAJE',day,sessionIndex:Number(idx),before,after,reason});data.audit=data.audit.slice(0,100);s.in=ni;s.out=no;s.minutes=mins;s.source='correccion_empresa_auditada';save();render();q('corrReason').value='';q('corrInfo').innerHTML='<span class="ok">✅ Corrección guardada con copia y auditoría.</span>';load();audit();toast('✅ Fichaje corregido')});
-    const n=new Date();q('corrDate').value=n.getFullYear()+'-'+p(n.getMonth()+1)+'-'+p(n.getDate());load();audit();
-  })();<\/script>`;
-  html=html.replace('</body>',extra+'</body>');
-  document.open();document.write(html);document.close();
-})().catch(e=>{document.body.innerHTML='<div style="font-family:system-ui;padding:24px"><b>No se pudo abrir Control Horario.</b><p>Recarga esta página. Si continúa, no fiches hasta revisar el acceso.</p></div>';console.error(e)});
-</script></body></html>
+<body>
+<p style="font-family:system-ui;padding:24px;text-align:center">Abriendo Control Horario…</p>
+<script>location.replace('./app-base.html');</script>
+</body>
+</html>
