@@ -1,7 +1,7 @@
 # SINCRONIAIA · CONTROL HORARIO PERSONAL · ESTADO ACTUAL
 
 Fecha de estado: 29/08/2026
-Estado: EN VALIDACIÓN FINAL
+Estado: EN VALIDACIÓN · NO LISTO PARA CLIENTE
 
 ## Producción
 URL oficial:
@@ -12,31 +12,34 @@ Entrada pública: index.html
 Aplicación: app.html
 
 ## Situación actual
-- La entrada del 29/08/2026 a las 07:30 ha quedado aplicada correctamente en producción.
-- El usuario ha confirmado visualmente que ahora aparece Trabajando y FICHAR SALIDA.
-- No se debe cambiar de enlace.
-- No se debe crear otra versión paralela para continuar esta validación.
-- PWA preparada sobre el MISMO acceso oficial.
-- Archivos PWA añadidos: manifest.webmanifest, sw.js e icon.svg.
-- index.html conecta la aplicación estable con la PWA sin modificar la lógica interna de fichaje de app.html.
+- PWA sobre el MISMO acceso oficial.
+- Histórico confirmado restaurado y protegido:
+  - 27/08/2026 · 07:30–13:30 · 6:00 h.
+  - 28/08/2026 · 07:30–13:30 · 6:00 h.
+  - 29/08/2026 · 07:30–13:30 · 6:00 h.
+- Se ha añadido respaldo automático previo a cada escritura de la clave maestra.
+- Se conservan hasta 30 estados anteriores en una clave de respaldo independiente.
+- Se ha añadido recuperación automática si la clave maestra queda perdida o ilegible.
+- Se ha añadido bloqueo de integridad: una actualización no puede guardar un estado con menos sesiones históricas cerradas que el estado existente.
+- Los intentos de pérdida de histórico quedan registrados como incidentes de integridad.
+- Service Worker actualizado a v2 para que incluso una PWA instalada con arranque antiguo a app.html pase por el acceso protegido.
+- No se debe cambiar de enlace ni crear una versión paralela.
+
+## Bloqueo para entrega a cliente
+Aunque el histórico local está ahora protegido, el módulo NO puede considerarse listo para cliente hasta verificar y consolidar el backend central como fuente fiable de verdad.
+
+Actualmente se ha detectado que fichajes recientes no constan de forma completa en la hoja central. Esto obliga a bloquear el sellado para cliente.
 
 ## Próximas acciones obligatorias
-1. Prueba real de cierre de jornada:
-- Fichar salida.
-- Comprobar hora de salida.
-- Comprobar total del día.
-- Comprobar calendario.
-- Cerrar y reabrir el acceso oficial.
-- Confirmar persistencia e histórico.
-
-2. Validación PWA en el móvil:
-- Abrir la URL oficial en Chrome.
-- Confirmar que aparece la opción Instalar aplicación / Añadir a pantalla de inicio.
-- Instalarla.
-- Abrir desde el icono.
-- Confirmar que abre el mismo Control Horario, conserva datos e histórico y permite fichar normalmente.
+1. Verificar en móvil/PWA que aparecen 27, 28 y 29 de agosto con sus horarios correctos.
+2. Cerrar y reabrir la PWA y comprobar persistencia.
+3. Verificar que una entrada y una salida nuevas generan respaldo automático.
+4. Resolver la sincronización completa con backend central.
+5. Probar recuperación desde backend en un dispositivo limpio o almacenamiento vacío.
+6. Comprobar que una actualización de interfaz no altera totales ni histórico.
+7. Generar evidencia de validación y solo entonces valorar sellado MASTER.
 
 ## Resultado de validación
-PENDIENTE.
+PENDIENTE / BLOQUEADA PARA CLIENTE.
 
-No declarar MASTER SELLADO hasta superar las pruebas anteriores.
+No declarar MASTER, STABLE, OPERATIVA o LISTA PARA CLIENTE hasta superar las pruebas anteriores.
