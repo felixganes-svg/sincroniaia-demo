@@ -21,14 +21,13 @@
 </main></div><div id="toast" class="toast"></div>
 <script>
 const KEY='sincroniaia_control_personal_master';
-const BK='sincroniaia_control_personal_autobackups_v1';
 const $=id=>document.getElementById(id);const pad=n=>String(n).padStart(2,'0');
 function parse(v,f){try{return JSON.parse(v)}catch(e){return f}}
 function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2400)}
 function hm(v){const d=new Date(v);return Number.isFinite(d.getTime())?pad(d.getHours())+':'+pad(d.getMinutes()):''}
 function localIso(day,time){const [y,m,d]=day.split('-').map(Number),[h,mi]=time.split(':').map(Number);return new Date(y,m-1,d,h,mi,0).toISOString()}
-let data=parse(localStorage.getItem(KEY),{})||{};if(!data.days)data.days={};if(!Array.isArray(data.audit))data.audit=[];
-function backup(reason){const raw=localStorage.getItem(KEY);if(!raw)return;let arr=parse(localStorage.getItem(BK),[]);arr.unshift({at:new Date().toISOString(),reason,data:raw});localStorage.setItem(BK,JSON.stringify(arr.slice(0,30)))}
+let data=parse(localStorage.getItem(KEY),{})||{};if(!data.days)data.days={};if(!Array.isArray(data.audit))data.audit=[];if(!Array.isArray(data.backups))data.backups=[];
+function backup(reason){data.backups.unshift({at:new Date().toISOString(),reason,days:JSON.parse(JSON.stringify(data.days)),open:data.open?JSON.parse(JSON.stringify(data.open)):null});data.backups=data.backups.slice(0,10)}
 function saveData(){localStorage.setItem(KEY,JSON.stringify(data))}
 function loadDay(){const day=$('date').value,ss=(data.days[day]&&Array.isArray(data.days[day].sessions))?data.days[day].sessions:[];$('session').innerHTML=ss.length?ss.map((s,i)=>`<option value="${i}">Periodo ${i+1} · ${hm(s.in)}–${hm(s.out)}</option>`).join(''):'<option value="">No hay fichajes cerrados ese día</option>';if(ss.length){$('session').value='0';loadSession()}else{$('in').value='';$('out').value=''}}
 function loadSession(){const day=$('date').value,i=Number($('session').value),s=data.days[day]?.sessions?.[i];if(!s)return;$('in').value=hm(s.in);$('out').value=hm(s.out)}
