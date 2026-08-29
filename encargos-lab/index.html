@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SINCRONIAIA ENCARGOS · LAB</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f7fa;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:760px;margin:auto;padding:14px}.hero{background:#111827;color:#fff;border-radius:18px;padding:18px}.hero h1{margin:0 0 6px;font-size:22px}.hero p{margin:0;color:#cbd5e1;line-height:1.45}.lab{margin:12px 0;padding:12px;border:1px solid #f59e0b;background:#fff7ed;border-radius:14px;color:#9a3412;font-weight:800}.sec{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:14px;margin:12px 0}.sec h2{margin:0 0 10px;font-size:17px}.btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px}.btn{border:0;border-radius:12px;padding:12px;font-weight:800;font-size:14px;cursor:pointer}.primary{background:#111827;color:#fff}.secondary{background:#e5e7eb;color:#111827}.accept{background:#dcfce7;color:#166534}.change{background:#fef3c7;color:#92400e}.reject{background:#fee2e2;color:#991b1b}.card{border:1px solid #e5e7eb;border-radius:13px;padding:12px;margin-top:10px}.label{font-size:12px;color:#64748b}.value{font-weight:800;margin-top:2px}.status{display:inline-block;font-size:11px;font-weight:900;border-radius:999px;padding:5px 8px;background:#dbeafe;color:#1d4ed8}.flow{font-size:13px;line-height:1.6}.hidden{display:none}.note{font-size:12.5px;color:#56616f;line-height:1.45}.foot{font-size:11px;color:#64748b;padding:8px 2px 20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+<h1>SINCRONIAIA ENCARGOS · LAB</h1>
+<p>Laboratorio aislado para validar el circuito Solicitud → Validación empresa → Pedido confirmado.</p>
+</header>
+<div class="lab">LAB · NO PRODUCCIÓN · No modifica ninguna demo o sistema existente.</div>
+
+<section class="sec" id="inicio">
+<h2>¿Qué quieres probar?</h2>
+<div class="btns">
+<button class="btn primary" onclick="mostrarCliente()">Cliente · Hacer solicitud</button>
+<button class="btn secondary" onclick="mostrarEmpresa()">Empresa · Ver solicitudes</button>
+</div>
+</section>
+
+<section class="sec hidden" id="cliente">
+<h2>Cliente · Solicitud de encargo</h2>
+<div class="card">
+<div class="label">Producto</div><div class="value">Tarta de cumpleaños · Chocolate</div>
+<div class="label" style="margin-top:8px">Personas</div><div class="value">12</div>
+<div class="label" style="margin-top:8px">Fecha</div><div class="value">Sábado</div>
+<div class="label" style="margin-top:8px">Texto</div><div class="value">“Felicidades Marta”</div>
+</div>
+<p class="note">Esta solicitud requiere validación de la empresa porque es un producto especial.</p>
+<button class="btn primary" onclick="crearSolicitud()">Enviar solicitud</button>
+<div id="clienteResultado" class="card hidden"></div>
+</section>
+
+<section class="sec hidden" id="empresa">
+<h2>Empresa · Solicitudes</h2>
+<div id="sinSolicitudes" class="note">Todavía no hay solicitudes en este laboratorio.</div>
+<div id="solicitudEmpresa" class="card hidden">
+<div class="status" id="estadoSolicitud">PENDIENTE VALIDACIÓN</div>
+<div class="label" style="margin-top:10px">Solicitud</div><div class="value">#E-0001</div>
+<div class="label" style="margin-top:8px">Cliente</div><div class="value">Marta</div>
+<div class="label" style="margin-top:8px">Producto</div><div class="value">Tarta de cumpleaños · Chocolate</div>
+<div class="label" style="margin-top:8px">Personas</div><div class="value">12</div>
+<div class="label" style="margin-top:8px">Fecha</div><div class="value">Sábado</div>
+<div class="label" style="margin-top:8px">Texto</div><div class="value">Felicidades Marta</div>
+<div class="btns" style="margin-top:12px">
+<button class="btn accept" onclick="aceptar()">Aceptar</button>
+<button class="btn change" onclick="cambio()">Proponer cambio</button>
+<button class="btn reject" onclick="rechazar()">Rechazar</button>
+</div>
+<div id="empresaResultado" class="note" style="margin-top:10px"></div>
+</div>
+</section>
+
+<section class="sec">
+<h2>Regla del laboratorio</h2>
+<div class="flow">SOLICITUD RECIBIDA → PENDIENTE VALIDACIÓN → ACEPTADA / CAMBIO PROPUESTO / RECHAZADA → PEDIDO CONFIRMADO</div>
+<p class="note"><b>Solo ACEPTAR crea un pedido confirmado.</b> Producción todavía no forma parte de esta prueba.</p>
+</section>
+
+<div class="foot">SINCRONIAIA ENCARGOS · LAB v0.1 · 29/08/2026</div>
+</div>
+<script>
+let creada=false;
+function mostrarCliente(){document.getElementById('cliente').classList.remove('hidden');document.getElementById('empresa').classList.add('hidden');window.scrollTo({top:document.getElementById('cliente').offsetTop-10,behavior:'smooth'})}
+function mostrarEmpresa(){document.getElementById('empresa').classList.remove('hidden');document.getElementById('cliente').classList.add('hidden');if(creada){document.getElementById('sinSolicitudes').classList.add('hidden');document.getElementById('solicitudEmpresa').classList.remove('hidden')}window.scrollTo({top:document.getElementById('empresa').offsetTop-10,behavior:'smooth'})}
+function crearSolicitud(){creada=true;const r=document.getElementById('clienteResultado');r.classList.remove('hidden');r.innerHTML='<div class="status">SOLICITUD RECIBIDA</div><p class="note">Hemos recibido tu solicitud. Al tratarse de un producto especial, la empresa debe comprobar disponibilidad y preparación. Te confirmaremos el encargo cuando haya sido validado.</p>';}
+function aceptar(){document.getElementById('estadoSolicitud').textContent='ACEPTADA';document.getElementById('empresaResultado').innerHTML='<b>Pedido #P-0001 · CONFIRMADO</b><br>La solicitud #E-0001 se convierte ahora en pedido. Solo desde este punto podría pasar a Producción en una fase posterior.';}
+function cambio(){document.getElementById('estadoSolicitud').textContent='CAMBIO PROPUESTO';document.getElementById('empresaResultado').innerHTML='<b>No se crea pedido.</b><br>La empresa propone una modificación y la solicitud queda pendiente de respuesta del cliente.';}
+function rechazar(){document.getElementById('estadoSolicitud').textContent='RECHAZADA';document.getElementById('empresaResultado').innerHTML='<b>No se crea pedido.</b><br>La solicitud queda cerrada como rechazada.';}
+</script>
+</body>
+</html>
