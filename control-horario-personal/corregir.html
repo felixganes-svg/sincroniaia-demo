@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101828">
+<title>Corregir fichaje · SINCRONIAIA</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#172033;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;background:#f4f6f8}.app{max-width:720px;margin:auto;min-height:100vh;background:#fff}.hero{padding:18px;background:#101828;color:#fff}.hero h1{font-size:19px;margin:0 0 4px}.view{padding:14px}.card{border:1px solid #e4e7ec;border-radius:16px;padding:14px;margin-bottom:12px;background:#fff}.muted{color:#667085;font-size:13px}.row{display:flex;gap:8px}.row>*{flex:1}.btn{width:100%;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:800;margin-top:9px}.dark{background:#101828;color:#fff}.light{background:#eef2f6;color:#111827}input,select{width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:12px;margin:5px 0 8px;font-size:16px}.ok{color:#16794a}.warn{color:#b54708}.audit{padding:9px 0;border-bottom:1px solid #eaecf0;font-size:13px}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#101828;color:#fff;padding:11px 14px;border-radius:12px;opacity:0;pointer-events:none;transition:.2s;z-index:20;max-width:90%}.toast.show{opacity:1}</style>
+</head>
+<body><div class="app"><header class="hero"><h1>SINCRONIAIA · CORREGIR FICHAJE</h1><small>Empresa · modificación auditada</small></header><main class="view">
+<div class="card"><b>Seleccionar fichaje</b><p class="muted">La corrección no borra el valor anterior: queda registrada en auditoría.</p>
+<label class="muted">Fecha</label><input id="date" type="date">
+<label class="muted">Periodo</label><select id="session"><option value="">Selecciona una fecha</option></select>
+<div class="row"><div><label class="muted">Entrada</label><input id="in" type="time"></div><div><label class="muted">Salida</label><input id="out" type="time"></div></div>
+<label class="muted">Motivo</label><input id="reason" maxlength="180" placeholder="Ej.: salida anotada incorrectamente">
+<button class="btn dark" id="save">GUARDAR CORRECCIÓN</button><div id="info" class="muted" style="margin-top:8px"></div></div>
+<div class="card"><b>Registro de modificaciones</b><div id="audit" class="muted" style="margin-top:8px">Sin modificaciones manuales.</div></div>
+<button class="btn light" onclick="location.href='./'">VOLVER AL CONTROL HORARIO</button>
+</main></div><div id="toast" class="toast"></div>
+<script>
+const KEY='sincroniaia_control_personal_master';
+const BK='sincroniaia_control_personal_autobackups_v1';
+const $=id=>document.getElementById(id);const pad=n=>String(n).padStart(2,'0');
+function parse(v,f){try{return JSON.parse(v)}catch(e){return f}}
+function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2400)}
+function hm(v){const d=new Date(v);return Number.isFinite(d.getTime())?pad(d.getHours())+':'+pad(d.getMinutes()):''}
+function localIso(day,time){const [y,m,d]=day.split('-').map(Number),[h,mi]=time.split(':').map(Number);return new Date(y,m-1,d,h,mi,0).toISOString()}
+let data=parse(localStorage.getItem(KEY),{})||{};if(!data.days)data.days={};if(!Array.isArray(data.audit))data.audit=[];
+function backup(reason){const raw=localStorage.getItem(KEY);if(!raw)return;let arr=parse(localStorage.getItem(BK),[]);arr.unshift({at:new Date().toISOString(),reason,data:raw});localStorage.setItem(BK,JSON.stringify(arr.slice(0,30)))}
+function saveData(){localStorage.setItem(KEY,JSON.stringify(data))}
+function loadDay(){const day=$('date').value,ss=(data.days[day]&&Array.isArray(data.days[day].sessions))?data.days[day].sessions:[];$('session').innerHTML=ss.length?ss.map((s,i)=>`<option value="${i}">Periodo ${i+1} · ${hm(s.in)}–${hm(s.out)}</option>`).join(''):'<option value="">No hay fichajes cerrados ese día</option>';if(ss.length){$('session').value='0';loadSession()}else{$('in').value='';$('out').value=''}}
+function loadSession(){const day=$('date').value,i=Number($('session').value),s=data.days[day]?.sessions?.[i];if(!s)return;$('in').value=hm(s.in);$('out').value=hm(s.out)}
+function renderAudit(){$('audit').innerHTML=data.audit.length?data.audit.slice(0,15).map(a=>`<div class="audit"><b>${a.day}</b> · ${a.before.in}–${a.before.out} → <b>${a.after.in}–${a.after.out}</b><br>${a.reason} · ${new Date(a.at).toLocaleString('es-ES')}</div>`).join(''):'Sin modificaciones manuales.'}
+$('date').addEventListener('change',loadDay);$('session').addEventListener('change',loadSession);
+$('save').addEventListener('click',()=>{const day=$('date').value,idx=$('session').value,ti=$('in').value,to=$('out').value,reason=$('reason').value.trim();if(!day||idx===''){toast('⚠️ Selecciona un fichaje');return}const s=data.days[day]?.sessions?.[Number(idx)];if(!s){toast('⚠️ No se encuentra el fichaje');return}if(!ti||!to){toast('⚠️ Indica entrada y salida');return}if(reason.length<4){toast('⚠️ Indica el motivo');return}const ni=localIso(day,ti),no=localIso(day,to),mins=Math.floor((new Date(no)-new Date(ni))/60000);if(!Number.isFinite(mins)||mins<=0||mins>1440){toast('⚠️ Revisa las horas');return}const before={in:hm(s.in),out:hm(s.out),minutes:s.minutes},after={in:ti,out:to,minutes:mins};if(before.in===after.in&&before.out===after.out){toast('ℹ️ No hay cambios');return}if(!confirm(`¿Confirmas ${before.in}–${before.out} → ${after.in}–${after.out}?`))return;backup('antes_correccion_empresa');data.audit.unshift({at:new Date().toISOString(),actor:'Empresa',action:'CORRECCION_FICHAJE',day,sessionIndex:Number(idx),before,after,reason});data.audit=data.audit.slice(0,100);s.in=ni;s.out=no;s.minutes=mins;s.source='correccion_empresa_auditada';saveData();$('reason').value='';$('info').innerHTML='<span class="ok">✅ Corrección guardada con copia y auditoría.</span>';loadDay();renderAudit();toast('✅ Fichaje corregido')});
+const now=new Date();$('date').value=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;loadDay();renderAudit();
+</script></body></html>
