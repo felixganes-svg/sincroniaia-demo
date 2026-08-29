@@ -1,0 +1,21 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Regularizando fichaje</title><style>body{font-family:system-ui;background:#f4f6f8;color:#172033;margin:0}.box{max-width:520px;margin:40px auto;background:#fff;padding:22px;border-radius:18px;border:1px solid #e4e7ec}.ok{color:#067647}.warn{color:#b54708}</style></head><body><div class="box"><h2>Mi Fichaje</h2><p id="msg">Regularizando entrada de hoy a las 07:30…</p></div><script>
+(async()=>{
+const MASTER='sincroniaia_control_personal_master';
+const FALLBACKS=['sincroniaia_felix_master_260826','sincroniaia_control_personal_v065','sincroniaia_control_personal_v064','sincroniaia_control_personal_v060','sincroniaia_control_personal_v042','sincroniaia_control_personal_v041','sincroniaia_control_personal_v040'];
+const ACCESS='sincroniaia_felix_backend_key';
+const BACKEND='https://script.google.com/macros/s/AKfycbyLwc8-1Ld3pnOcwF5aIpy9hIF8MpYN-LubyXkm5hPaSdyTI8jzSe02IDSkZDjDw_zr/exec';
+const msg=document.getElementById('msg');
+function load(){for(const k of [MASTER,...FALLBACKS]){try{const v=JSON.parse(localStorage.getItem(k)||'null');if(v&&typeof v==='object')return v}catch(e){}}return {days:{},open:null,pending:[],backups:[],gps:null,config:{weeklyContractHours:40}}}
+const d=load();if(!d.days)d.days={};if(!Array.isArray(d.pending))d.pending=[];if(!Array.isArray(d.backups))d.backups=[];if(!d.config)d.config={weeklyContractHours:40};
+const inIso=new Date(2026,7,29,7,30,0).toISOString();
+const key='2026-08-29';
+const ss=d.days[key]?.sessions||[];
+const alreadyClosed=ss.some(s=>{const x=new Date(s.in);return x.getHours()===7&&x.getMinutes()===30});
+if(!alreadyClosed){d.open={in:inIso,gps:null,source:'regularizacion_manual_2026-08-29_07:30'};}
+localStorage.setItem(MASTER,JSON.stringify(d));
+let backend='';const token=localStorage.getItem(ACCESS)||'';
+if(token&&!alreadyClosed){try{const r=await fetch(BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'registrar_fichaje',empresa_id:'EMP-FELIX-DEMO',trabajador_id:'TRAB-FELIX-001',nombre:'Félix',tipo:'ENTRADA',fecha_iso:key,hora:'07:30:00',timestamp:inIso,gps:null,token}),redirect:'follow'});const j=await r.json();backend=j&&j.ok?' · sincronizada':' · guardada localmente';}catch(e){backend=' · guardada localmente';}}
+msg.className='ok';msg.textContent=alreadyClosed?'La entrada de las 07:30 ya constaba. Abriendo tu ficha…':'Entrada 07:30 regularizada'+backend+'. Abriendo tu ficha…';
+setTimeout(()=>location.replace('./'),1600);
+})();
+</script></body></html>
