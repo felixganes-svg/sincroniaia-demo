@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Actualizar Control Horario</title></head><body style="font-family:system-ui;padding:24px;text-align:center"><b>Actualizando Control Horario…</b><p>No cierres esta pantalla.</p><script>
+(async()=>{
+  const K='sincroniaia_control_personal_master';
+  function parse(v,f){try{return JSON.parse(v)}catch(e){return f}}
+  let d=parse(localStorage.getItem(K),{})||{};
+  if(!d.days)d.days={};
+  function ensureMissing(day,y,m,dd){
+    if(d.days[day]&&Array.isArray(d.days[day].sessions)&&d.days[day].sessions.length)return;
+    d.days[day]={sessions:[{in:new Date(y,m-1,dd,7,30,0).toISOString(),out:new Date(y,m-1,dd,13,30,0).toISOString(),minutes:360,source:'historico_confirmado'}],source:'historico_confirmado'};
+  }
+  ensureMissing('2026-08-27',2026,8,27);
+  ensureMissing('2026-08-28',2026,8,28);
+  // 29/08: corrección confirmada 07:30–13:30. Corrige solo el periodo de las 07:30 si existe.
+  if(!d.days['2026-08-29'])d.days['2026-08-29']={sessions:[]};
+  if(!Array.isArray(d.days['2026-08-29'].sessions))d.days['2026-08-29'].sessions=[];
+  let s=d.days['2026-08-29'].sessions.find(x=>{const z=new Date(x.in);return Number.isFinite(z.getTime())&&z.getHours()===7&&z.getMinutes()===30});
+  const ni=new Date(2026,7,29,7,30,0).toISOString(),no=new Date(2026,7,29,13,30,0).toISOString();
+  if(s){s.in=ni;s.out=no;s.minutes=360;s.source='regularizacion_confirmada_2026-08-29'}else d.days['2026-08-29'].sessions.push({in:ni,out:no,minutes:360,source:'regularizacion_confirmada_2026-08-29'});
+  if(d.open){const z=new Date(d.open.in);if(Number.isFinite(z.getTime())&&z.getFullYear()===2026&&z.getMonth()===7&&z.getDate()===29)d.open=null;}
+  localStorage.setItem(K,JSON.stringify(d));
+  if('serviceWorker' in navigator){
+    const regs=await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(r=>r.unregister()));
+  }
+  if('caches' in window){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)));}
+  if('serviceWorker' in navigator){
+    try{const r=await navigator.serviceWorker.register('./sw.js',{scope:'./',updateViaCache:'none'});await r.update();}catch(e){}
+  }
+  location.replace('./?actualizado='+Date.now());
+})();
+</script></body></html>
