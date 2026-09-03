@@ -12,7 +12,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-f
 </style>
 </head>
 <body>
-<iframe id="app" src="./app-base.html?v=20260903-schedule0709" allow="geolocation"></iframe>
+<iframe id="app" src="./app-base.html?v=20260903-schedule0709-visible" allow="geolocation"></iframe>
 <script>
 const frame=document.getElementById('app');
 frame.addEventListener('load',()=>{
@@ -41,6 +41,15 @@ frame.addEventListener('load',()=>{
       w.__schedule0709Applied=true;
     }
 
+    const summary=d.getElementById('scheduleSummary');
+    if(summary&&!d.getElementById('schedule0709Notice')){
+      const box=d.createElement('div');
+      box.id='schedule0709Notice';
+      box.className='schedule-box';
+      box.innerHTML='<span class="tag next">PRÓXIMO</span> <b>Horario desde 07/09/2026</b><br><span class="muted">40:00 h/semana</span><div style="margin-top:8px;font-size:13px;line-height:1.6"><b>Lunes:</b> 17:00–20:15 · 3:15<br><b>Martes:</b> 07:30–13:30 · 6:00<br><b>Miércoles:</b> 07:30–13:45 · 6:15<br><b>Jueves:</b> 07:30–13:30 / 17:00–20:15 · 9:15<br><b>Viernes:</b> 07:30–13:30 / 17:00–20:15 · 9:15<br><b>Sábado:</b> 07:30–13:30 · 6:00<br><b>Domingo:</b> Descanso</div>';
+      summary.insertAdjacentElement('afterend',box);
+    }
+
     const company=d.getElementById('company');
     if(company&&!d.getElementById('correctionAccess')){
       const cards=[...company.querySelectorAll('.card')];
@@ -50,7 +59,7 @@ frame.addEventListener('load',()=>{
       card.id='correctionAccess';
       card.innerHTML='<b>Corrección de fichajes</b><p class="muted">Modifica una entrada o salida con copia previa y registro de auditoría.</p><button class="btn dark" id="openCorrection">CORREGIR FICHAJE</button>';
       if(history)history.parentNode.insertBefore(card,history);else company.appendChild(card);
-      card.querySelector('#openCorrection').onclick=()=>{location.href='./corregir.html?v=20260903-schedule0709'};
+      card.querySelector('#openCorrection').onclick=()=>{location.href='./corregir.html?v=20260903-schedule0709-visible'};
     }
 
     if(typeof w.doPunch==='function'&&!w.__sincroniaBackupWrapped){
