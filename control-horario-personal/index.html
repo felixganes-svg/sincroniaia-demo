@@ -12,7 +12,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-f
 </style>
 </head>
 <body>
-<iframe id="app" src="./app-base.html?v=20260903-schedule0709-visible" allow="geolocation"></iframe>
+<iframe id="app" src="./app-base.html?v=20260903-day-detail" allow="geolocation"></iframe>
 <script>
 const frame=document.getElementById('app');
 frame.addEventListener('load',()=>{
@@ -50,6 +50,40 @@ frame.addEventListener('load',()=>{
       summary.insertAdjacentElement('afterend',box);
     }
 
+    if(typeof w.selectDay==='function'&&!w.__dayDetailEnhanced){
+      const originalSelectDay=w.selectDay;
+      const pad=n=>String(n).padStart(2,'0');
+      const hm=v=>{const x=new Date(v);return Number.isFinite(x.getTime())?pad(x.getHours())+':'+pad(x.getMinutes()):'—'};
+      const duration=m=>Math.floor(m/60)+':'+pad(m%60);
+      const fmt=k=>{const p=k.split('-');return p[2]+'/'+p[1]+'/'+p[0]};
+      w.selectDay=function(k){
+        originalSelectDay(k);
+        const detail=d.getElementById('dayDetail');
+        if(!detail)return;
+        const sessions=typeof w.sessionsFor==='function'?w.sessionsFor(k):[];
+        const total=typeof w.dayMinutes==='function'?w.dayMinutes(k,false):0;
+        const dt=new Date(k+'T12:00:00');
+        const sch=typeof w.scheduleForDate==='function'?w.scheduleForDate(k):null;
+        const periods=sch&&sch.days?sch.days[dt.getDay()]||[]:[];
+        const plannedText=periods.length?periods.map(p=>p[0]+'–'+p[1]).join(' / '):'Descanso';
+        const plannedMins=typeof w.plannedMinutesForDate==='function'?w.plannedMinutesForDate(dt):0;
+        let html='<div style="font-size:15px"><b>'+fmt(k)+'</b></div>';
+        if(sessions.length){
+          html+='<div style="margin-top:10px;padding:10px;border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0"><b>HORAS REALIZADAS</b>';
+          sessions.forEach((s,i)=>{const mins=Math.max(0,Math.floor((new Date(s.out)-new Date(s.in))/60000));html+='<div style="margin-top:8px"><span class="muted">Tramo '+(i+1)+'</span><br><b>Entrada:</b> '+hm(s.in)+' &nbsp; <b>Salida:</b> '+hm(s.out)+'<br><b>Duración:</b> '+duration(mins)+'</div>'});
+          html+='<div style="margin-top:10px;padding-top:9px;border-top:1px solid #bbf7d0;font-size:17px"><b>Total realizado: '+duration(total)+'</b></div></div>';
+        }else{
+          html+='<div style="margin-top:10px;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid #e4e7ec"><b>HORAS REALIZADAS</b><br><span class="muted">Sin fichajes realizados ese día.</span></div>';
+        }
+        html+='<div style="margin-top:10px;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid #e4e7ec"><b>HORARIO PREVISTO</b><br>'+plannedText+(sch?' · '+duration(plannedMins):'')+'</div>';
+        detail.innerHTML=html;
+        const details=detail.closest('details');
+        if(details)details.open=true;
+        setTimeout(()=>detail.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+      };
+      w.__dayDetailEnhanced=true;
+    }
+
     const company=d.getElementById('company');
     if(company&&!d.getElementById('correctionAccess')){
       const cards=[...company.querySelectorAll('.card')];
@@ -59,7 +93,7 @@ frame.addEventListener('load',()=>{
       card.id='correctionAccess';
       card.innerHTML='<b>Corrección de fichajes</b><p class="muted">Modifica una entrada o salida con copia previa y registro de auditoría.</p><button class="btn dark" id="openCorrection">CORREGIR FICHAJE</button>';
       if(history)history.parentNode.insertBefore(card,history);else company.appendChild(card);
-      card.querySelector('#openCorrection').onclick=()=>{location.href='./corregir.html?v=20260903-schedule0709-visible'};
+      card.querySelector('#openCorrection').onclick=()=>{location.href='./corregir.html?v=20260903-day-detail'};
     }
 
     if(typeof w.doPunch==='function'&&!w.__sincroniaBackupWrapped){
