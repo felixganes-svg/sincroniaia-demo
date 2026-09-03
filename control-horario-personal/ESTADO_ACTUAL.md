@@ -1,6 +1,6 @@
 # SINCRONIAIA · CONTROL HORARIO PERSONAL · ESTADO ACTUAL
 
-Fecha de estado: 29/08/2026
+Fecha de estado: 03/09/2026
 Estado: EN VALIDACIÓN · NO LISTO PARA CLIENTE
 
 ## Producción
@@ -9,44 +9,67 @@ https://felixganes-svg.github.io/sincroniaia-demo/control-horario-personal/
 
 Rama: main
 Entrada pública: index.html
-Aplicación: app.html
+Base estable: app-base.html
+Corrección de fichajes: corregir.html
 
-## Situación actual
-- PWA sobre el MISMO acceso oficial.
-- Histórico confirmado restaurado y protegido:
-  - 27/08/2026 · 07:30–13:30 · 6:00 h.
-  - 28/08/2026 · 07:30–13:30 · 6:00 h.
-  - 29/08/2026 · 07:30–13:30 · 6:00 h.
-- Se ha añadido respaldo automático previo a cada escritura de la clave maestra.
-- Se conservan hasta 30 estados anteriores en una clave de respaldo independiente.
-- Se ha añadido recuperación automática si la clave maestra queda perdida o ilegible.
-- Se ha añadido bloqueo de integridad: una actualización no puede guardar un estado con menos sesiones históricas cerradas que el estado existente.
-- Los intentos de pérdida de histórico quedan registrados como incidentes de integridad.
-- Service Worker actualizado a v2 para que incluso una PWA instalada con arranque antiguo a app.html pase por el acceso protegido.
-- Se ha publicado en Empresa la función CORREGIR FICHAJE para modificar un periodo existente sin depender de soporte técnico.
+## Situación consolidada
+- El acceso móvil oficial funciona.
+- La barra flotante de Corrección de fichajes ha sido eliminada.
+- El acceso CORREGIR FICHAJE aparece dentro de Empresa.
+- La ida y vuelta desde Corregir fichaje al Control Horario ha sido validada por el usuario en móvil.
 - La corrección exige fecha, periodo, entrada, salida y motivo.
 - Cada corrección conserva antes/después, fecha de modificación, actor Empresa y motivo en data.audit.
-- Cada corrección pasa por la misma protección de copia automática e integridad del histórico.
-- Validación técnica de sintaxis de la lógica de corrección: SUPERADA.
-- Validación funcional real en móvil/PWA de la corrección: PENDIENTE.
-- No se debe cambiar de enlace ni crear una versión paralela.
+- Antes de una corrección se crea copia local de seguridad.
+- Después de una entrada o salida se genera copia automática local.
+- Las copias se concentran en el bloque Empresa > Respaldo Control Horario > Copias locales.
+- Se mantienen exportación JSON y CSV, calendario, histórico mensual, consulta de periodos, GPS, totales y saldo semanal.
+- No se debe cambiar de enlace oficial ni crear una versión paralela para resolver incidencias.
 
-## Bloqueo para entrega a cliente
-Aunque el histórico local está ahora protegido, el módulo NO puede considerarse listo para cliente hasta verificar y consolidar el backend central como fuente fiable de verdad.
+## Histórico protegido confirmado
+- 18/08/2026 · 07:30–13:00.
+- 19/08/2026 · 07:30–13:30 y 16:57–20:00.
+- 20/08/2026 · 07:30–13:30.
+- 21/08/2026 · 07:30–13:30.
+- 22/08/2026 · 07:30–13:30.
+- 24/08/2026 · 08:30–13:30.
+- 25/08/2026 · 07:30–13:30.
+- 26/08/2026 · 07:30–13:30, turno de mañana confirmado.
+- 27/08/2026 · 07:30–13:30 · 6:00 h.
+- 28/08/2026 · 07:30–13:30 · 6:00 h.
+- 29/08/2026 · 07:30–13:30 · 6:00 h.
 
-Actualmente se ha detectado que fichajes recientes no constan de forma completa en la hoja central. Esto obliga a bloquear el sellado para cliente.
+Ausencias protegidas:
+- 27/07/2026 · Festivo.
+- 28/07/2026–17/08/2026 · Vacaciones.
 
-## Próximas acciones obligatorias
-1. Verificar en móvil/PWA que aparecen 27, 28 y 29 de agosto con sus horarios correctos.
-2. Probar desde Empresa > Corregir fichaje una modificación controlada y confirmar que actualiza totales y deja auditoría.
-3. Cerrar y reabrir la PWA y comprobar persistencia de la corrección.
-4. Verificar que una entrada y una salida nuevas generan respaldo automático.
-5. Resolver la sincronización completa con backend central.
-6. Probar recuperación desde backend en un dispositivo limpio o almacenamiento vacío.
-7. Comprobar que una actualización de interfaz no altera totales ni histórico.
-8. Generar evidencia de validación y solo entonces valorar sellado MASTER.
+## Planificación horaria
+Horario del periodo 31/08/2026–06/09/2026: se conserva sin alterar fichajes históricos.
 
-## Resultado de validación
-PENDIENTE / BLOQUEADA PARA CLIENTE.
+Nuevo horario desde 07/09/2026:
+- Lunes 17:00–20:15 = 3:15.
+- Martes 07:30–13:30 = 6:00.
+- Miércoles 07:30–13:45 = 6:15.
+- Jueves 07:30–13:30 y 17:00–20:15 = 9:15.
+- Viernes 07:30–13:30 y 17:00–20:15 = 9:15.
+- Sábado 07:30–13:30 = 6:00.
+- Domingo descanso.
+- Total semanal: 40:00.
 
-No declarar MASTER, STABLE, OPERATIVA o LISTA PARA CLIENTE hasta superar las pruebas anteriores.
+## Backend central
+Hoja central localizada:
+SINCRONIAIA — CONTROL HORARIO — FÉLIX DEMO
+ID: 1202SKpx9v8sjCnKo2aUurLGcu8Pk47KESkhz4ODyZ_Y
+
+La aplicación usa Google Apps Script para registrar y consultar fichajes. A fecha 03/09/2026 no se ha consolidado todavía el backend como fuente única y completa de verdad entre dispositivos. El proyecto Apps Script real debe revisarse desde la hoja vinculada antes de añadir correcciones servidor-servidor o recuperación total en dispositivo limpio.
+
+## Bloqueos para entrega a cliente
+1. Confirmar sincronización completa de fichajes recientes en la hoja central.
+2. Hacer que una corrección auditada se refleje también en backend, no solo en local.
+3. Validar recuperación completa del histórico en otro dispositivo o almacenamiento limpio.
+4. Repetir prueba real entrada → salida → copia → cierre → reapertura.
+5. Ejecutar checklist de sellado desde cero y dejar evidencia.
+
+## Resultado
+EN VALIDACIÓN · BLOQUEADO PARA CLIENTE.
+
+No declarar MASTER SELLADO, STABLE, OPERATIVA o LISTA PARA CLIENTE hasta superar los bloqueos anteriores.
