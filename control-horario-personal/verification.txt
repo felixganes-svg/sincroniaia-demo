@@ -1,7 +1,39 @@
-Verificación 26/08/2026
-- Base completa v0.6.6 restaurada.
-- 24/08/2026: 08:30-13:30.
-- 25/08/2026: 07:30-13:30.
-- Una jornada abierta solo cuenta si corresponde a la fecha actual.
-- Una entrada antigua del backend no puede activar FICHAR SALIDA hoy.
-- Se conservan Hoy/Semana/Mes, calendario, histórico, saldo, horario previsto y consultas 1/2/3/6/12 meses.
+Verificación 03/09/2026
+
+ESTADO GENERAL
+- Módulo en validación final.
+- No listo para cliente hasta consolidar backend central.
+- URL oficial única: https://felixganes-svg.github.io/sincroniaia-demo/control-horario-personal/
+
+VALIDADO EN MÓVIL
+- Acceso oficial correcto.
+- Barra flotante de Corrección de fichajes eliminada.
+- Acceso CORREGIR FICHAJE dentro de Empresa.
+- Volver desde Corregir fichaje al Control Horario funciona sin reaparecer la barra antigua.
+
+PROTEGIDO
+- Histórico real anterior.
+- Vacaciones 28/07/2026–17/08/2026.
+- Festivo 27/07/2026.
+- Hoy/Semana/Mes, calendario, histórico, saldo, horario previsto y consultas 1/2/3/6/12 meses.
+- Copias locales.
+- Exportación JSON y CSV.
+
+HORARIO DESDE 07/09/2026
+- Lunes 17:00–20:15 = 3:15
+- Martes 07:30–13:30 = 6:00
+- Miércoles 07:30–13:45 = 6:15
+- Jueves 07:30–13:30 + 17:00–20:15 = 9:15
+- Viernes 07:30–13:30 + 17:00–20:15 = 9:15
+- Sábado 07:30–13:30 = 6:00
+- Domingo descanso
+- Total semanal 40:00
+
+BACKEND PENDIENTE
+- Hoja central localizada: SINCRONIAIA — CONTROL HORARIO — FÉLIX DEMO.
+- Falta verificar sincronización completa entre dispositivos.
+- Falta guardar correcciones auditadas también en servidor.
+- Falta prueba de recuperación completa en dispositivo limpio.
+
+RESULTADO
+EN VALIDACIÓN · NO SELLADO · NO LISTO PARA CLIENTE.
