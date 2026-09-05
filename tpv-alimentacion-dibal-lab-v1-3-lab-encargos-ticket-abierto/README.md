@@ -55,3 +55,16 @@ Estado: LABORATORIO. No MASTER ni aprobado para cliente.
 - Cantidad 0 se resuelve mediante No servido.
 - En tickets de Encargos se muestra: **Encargo nº + cliente**, **PAGADO/PENDIENTE DE PAGO** y **RECOGIDO/PENDIENTE DE RECOGER**.
 - Un encargo pagado puede permanecer Pendiente de recoger para entrega rápida posterior.
+
+
+## Cambio aprobado de flujo · Encargo completado antes del ticket
+- Los artículos pendientes se muestran primero.
+- Al guardar peso/cantidad real, la línea pasa a Preparado y se mueve al final de su lista.
+- Las líneas No servido también se consideran resueltas y quedan en la zona final.
+- Cuando no quedan líneas pendientes, el sistema muestra **ENCARGO COMPLETADO**.
+- ENCARGO COMPLETADO sigue siendo un ticket aparcado editable.
+- Antes de generar el ticket todavía se pueden añadir, eliminar, sustituir o modificar artículos.
+- Si se añade un artículo nuevo a un encargo completado, vuelve automáticamente a **INACABADO** hasta resolver esa nueva línea.
+- El ticket de venta solo se crea mediante acción expresa **GENERAR VENTA + TICKET**.
+- Después de generar el ticket, el encargo queda bloqueado y cualquier cambio posterior pasa por Rectificación.
+- Este diseño permite que, al recoger el pedido, el cliente añada más artículos a la misma venta si todavía no se ha generado el ticket.
