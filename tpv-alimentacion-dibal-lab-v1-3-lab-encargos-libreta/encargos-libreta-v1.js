@@ -2252,16 +2252,37 @@ addProduct=function(){
   adminTab='products';
   render();
 
-  setTimeout(()=>{
-    window.scrollTo({top:0,behavior:'smooth'});
-    let code=document.getElementById('pcode');
-    let name=document.getElementById('pname');
-    if(code){
-      code.value=nextNumericProductCode();
-      code.placeholder=code.value;
-    }
-    if(name)name.focus();
-  },50);
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      let code=document.getElementById('pcode');
+      let name=document.getElementById('pname');
+      let other=document.getElementById('psubcatOther');
+      let createPanel=code?.closest('.panel');
+
+      if(code){
+        code.value=nextNumericProductCode();
+        code.placeholder=code.value;
+      }
+
+      // Alta nueva real: ninguna subsección queda heredada del artículo anterior.
+      document.querySelectorAll('input[name="pSub"]').forEach(el=>{el.checked=false;});
+      document.querySelectorAll('input[id^="pSub"]').forEach(el=>{
+        if(el.type==='checkbox')el.checked=false;
+      });
+      if(other)other.value='';
+
+      // Subir de verdad al inicio del formulario en móvil.
+      if(createPanel&&typeof createPanel.scrollIntoView==='function'){
+        createPanel.scrollIntoView({behavior:'smooth',block:'start'});
+      }else{
+        document.documentElement.scrollTop=0;
+        document.body.scrollTop=0;
+        window.scrollTo(0,0);
+      }
+
+      setTimeout(()=>{ if(name)name.focus({preventScroll:true}); },250);
+    });
+  });
 };
 
 })();
