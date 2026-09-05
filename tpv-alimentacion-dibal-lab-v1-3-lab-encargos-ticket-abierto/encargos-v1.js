@@ -1100,4 +1100,130 @@ openOrder=function(id){
   }
 };
 
+
+
+// ===== TPV COMPARTIDO MIENTRAS SE PREPARA EL ENCARGO =====
+window.parkOrderAndReturnToSale=function(id){
+  let o=orders.find(x=>String(x.id)===String(id));
+  if(!o)return alert('Encargo no encontrado.');
+  if(!o.ticketId){
+    syncParkedOrderStatus(o);
+    save();
+  }
+  parkedOrderContext=null;
+  closeModal();
+  screen='venta';
+  role='venta';
+  atRoot=true;
+  area='Carne';
+  subcat='';
+  azScope=null;
+  render();
+  flash('Encargo '+o.number+' aparcado · TPV libre para vender');
+};
+
+window.prepareOrderLine=function(orderId,lineId){
+  let o=orders.find(x=>String(x.id)===String(orderId)),l=o&&findOrderLine(o,lineId);
+  if(!o||!l||o.ticketId)return alert('Línea no disponible.');
+  let p=effectiveProductForLine(l);
+  if(!p)return alert('El artículo ya no existe en el catálogo.');
+  let active=activeSellers();
+  if(!active.length)return alert('Debe haber al menos un vendedor iniciado para preparar una línea.');
+  let selected=l.preparedBy||active[0].name;
+  modal(
+    '<h2>Preparar · '+esc(lineEffectiveName(l))+'</h2>'+
+    (l.substituteName?'<p class="warn">Solicitado: <b>'+esc(l.name)+'</b><br>Sustituto: <b>'+esc(l.substituteName)+'</b></p>':'')+
+    '<p>'+esc(lineRequestedText(l))+'<br>Precio vigente ahora: <b>'+euro(p.price)+' / '+esc(p.unit)+'</b></p>'+
+    '<label>Vendedor que prepara</label>'+
+    '<select id="linePreparedBy">'+active.map(s=>'<option '+(s.name===selected?'selected':'')+'>'+esc(s.name)+'</option>').join('')+'</select>'+
+    '<label>'+(p.unit==='kg'?'Peso real preparado (kg)':'Unidades reales preparadas')+'</label>'+
+    '<input id="preparedQty" type="number" inputmode="decimal" step="'+(p.unit==='kg'?'0.001':'1')+'" value="'+(l.status==='Preparado'?l.qty:'')+'" autofocus>'+
+    '<p><button class="primary" onclick="savePreparedOrderLine(\''+orderId+'\',\''+lineId+'\',false)">GUARDAR Y SEGUIR ENCARGO</button> '+
+    '<button class="brand" onclick="savePreparedOrderLine(\''+orderId+'\',\''+lineId+'\',true)">GUARDAR Y VOLVER A VENTA</button></p>'+
+    '<p><button onclick="markOrderLineZero(\''+orderId+'\',\''+lineId+'\')">CANTIDAD 0 · NO SERVIR</button> '+
+    '<button onclick="substituteOrderLine(\''+orderId+'\',\''+lineId+'\')">SUSTITUIR ARTÍCULO</button> '+
+    '<button onclick="openOrder(\''+orderId+'\')">Cancelar</button></p>'
+  );
+  setTimeout(()=>document.getElementById('preparedQty')?.focus(),50);
+};
+
+window.savePreparedOrderLine=function(orderId,lineId,returnToSale=false){
+  let o=orders.find(x=>String(x.id)===String(orderId)),l=o&&findOrderLine(o,lineId),p=l&&effectiveProductForLine(l);
+  if(!o||!l||!p||o.ticketId)return alert('Línea no disponible.');
+  let qty=Number(document.getElementById('preparedQty')?.value);
+  let preparedBy=(document.getElementById('linePreparedBy')?.value||'').trim();
+  if(!preparedBy)return alert('Selecciona el vendedor que prepara.');
+  if(!Number.isFinite(qty)||qty<=0)return alert('Introduce un peso/cantidad mayor que 0.');
+  let calc=calcLine(p,qty);
+  l.qty=qty;
+  l.effectiveUnit=p.unit;
+  l.price=p.price;
+  l.normalTotal=calc.normal;
+  l.total=calc.total;
+  l.discount=calc.disc;
+  l.offerLabel=calc.label;
+  l.offerPrice=calc.appliedPrice;
+  l.status='Preparado';
+  l.preparedAt=new Date().toLocaleString('es-ES');
+  l.preparedBy=preparedBy;
+  syncParkedOrderStatus(o);
+  save();
+  if(returnToSale)return parkOrderAndReturnToSale(o.id);
+  openOrder(o.id);
+};
+
+window.markOrderLineZero=function(orderId,lineId){
+  let o=orders.find(x=>String(x.id)===String(orderId)),l=o&&findOrderLine(o,lineId);
+  if(!o||!l||o.ticketId)return;
+  let preparedBy=(document.getElementById('linePreparedBy')?.value||'').trim();
+  if(!preparedBy)return alert('Selecciona el vendedor que resuelve esta línea.');
+  if(!confirm('Esta línea quedará como NO SERVIDA, cantidad 0 e importe 0,00 €. ¿Continuar?'))return;
+  l.qty=0;
+  l.price=0;
+  l.normalTotal=0;
+  l.total=0;
+  l.discount=0;
+  l.status='No servido';
+  l.notServedAt=new Date().toLocaleString('es-ES');
+  l.preparedBy=preparedBy;
+  syncParkedOrderStatus(o);
+  save();
+  openOrder(o.id);
+};
+
+topLineHtml=function(o,l){
+  let buttons='';
+  if(!o.ticketId){
+    buttons=
+      '<button class="'+(l.status==='Pendiente'?'primary':'')+'" onclick="prepareOrderLine(\''+o.id+'\',\''+l.id+'\')">'+
+        (l.status==='Pendiente'?'PESO / CANTIDAD':'CAMBIAR PESO')+
+      '</button> '+
+      '<button onclick="editParkedOrderLine(\''+o.id+'\',\''+l.id+'\')">MODIFICAR</button> '+
+      '<button class="danger" onclick="removeParkedOrderLine(\''+o.id+'\',\''+l.id+'\')">ELIMINAR</button>';
+  }
+  let state=l.status==='Pendiente'?'⏳ PENDIENTE':(l.status==='Preparado'?'✅ PREPARADO':'⊘ NO SERVIDO');
+  let by=l.preparedBy&&l.status!=='Pendiente'?'<br><small><b>Preparado por: '+esc(l.preparedBy)+'</b></small>':'';
+  return '<div class="line"><div><b>'+esc(l.name)+'</b><br><small><b>'+state+'</b></small>'+by+'<br>'+lineStateHtml(l)+'</div>'+
+    '<div>'+(l.status==='Preparado'?'<b>'+euro(l.total)+'</b><br>':'')+buttons+'</div></div>';
+};
+
+const openOrderBeforeSharedTpv=openOrder;
+openOrder=function(id){
+  openOrderBeforeSharedTpv(id);
+  let o=orders.find(x=>String(x.id)===String(id)),box=document.getElementById('modalBox');
+  if(!o||!box||o.ticketId)return;
+  if([...box.querySelectorAll('button')].some(b=>(b.textContent||'').includes('APARCAR Y VOLVER A VENTA')))return;
+  let h2=box.querySelector('h2');
+  if(!h2)return;
+  let btn=document.createElement('button');
+  btn.className='brand';
+  btn.textContent='APARCAR Y VOLVER A VENTA';
+  btn.setAttribute('onclick',"parkOrderAndReturnToSale('"+o.id+"')");
+  h2.insertAdjacentElement('afterend',btn);
+  let note=document.createElement('p');
+  note.className='muted';
+  note.textContent='El encargo queda guardado. El TPV vuelve a Venta para que cualquier vendedor pueda seguir atendiendo.';
+  btn.insertAdjacentElement('afterend',note);
+};
+
 })();
