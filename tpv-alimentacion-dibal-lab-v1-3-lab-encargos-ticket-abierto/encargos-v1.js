@@ -343,7 +343,7 @@ window.confirmFinalizeOrderPreparation=function(id){
   (o.items||[]).forEach(l=>{if(l.status==='Preparado'&&Number(l.qty)>0)saleItems.push(orderLineToTicket(l,null))});
   (o.groups||[]).forEach(g=>(g.items||[]).forEach(l=>{if(l.status==='Preparado'&&Number(l.qty)>0)saleItems.push(orderLineToTicket(l,g))}));
   let total=round(saleItems.reduce((s,l)=>s+Number(l.total||0),0));
-  let number=String(Math.max(0,...tickets.map(x=>Number(x.number)||0)+0)+1).padStart(4,'0');
+  let number=String(Math.max(0,...tickets.map(x=>Number(x.number)||0))+1).padStart(4,'0');
   let now=new Date().toLocaleString('es-ES');
   let t={
     id:Date.now(),number,date:now,seller,method:'Pendiente de cobro',paymentStatus:'Pendiente',
