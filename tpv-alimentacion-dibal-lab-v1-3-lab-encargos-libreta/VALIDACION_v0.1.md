@@ -74,3 +74,63 @@ Validación real de impresión y cuadre: **PENDIENTE**.
 4. Verificar que el ticket pendiente de cobro aparece como pendiente y no como efectivo/tarjeta.
 5. Dejar Efectivo contado vacío y pulsar Calcular diferencia: debe indicar que se usa el valor esperado sin recuento manual.
 6. Introducir un importe distinto y comprobar la diferencia real.
+
+
+## Actualización 3 · Pago mixto real
+
+### Regla cerrada
+**Mixto describe cómo se pagó el ticket; no es una forma económica separada en el Informe X.**
+
+### Implementado
+- Pago MIXTO disponible tanto en:
+  - venta normal,
+  - ticket de encargo.
+- Campos separados:
+  - Efectivo,
+  - Tarjeta,
+  - Bizum.
+- Deben utilizarse al menos dos formas.
+- La suma debe coincidir exactamente con el total del ticket.
+- Si falta dinero, bloquea indicando cuánto falta.
+- Si sobra, bloquea indicando cuánto sobra.
+- El ticket guarda `paymentBreakdown`.
+- El ticket muestra:
+  - Pago: MIXTO,
+  - Efectivo: X,
+  - Tarjeta: Y,
+  - Bizum: Z,
+  mostrando solo las formas con importe > 0.
+- Informe X:
+  - reparte la parte de efectivo en Efectivo,
+  - la parte de tarjeta en Tarjeta,
+  - la parte de Bizum en Bizum,
+  - no muestra una cantidad económica adicional llamada Mixto.
+- El efectivo esperado en caja incluye únicamente la parte real de efectivo.
+- Mi actividad / X personal aplica el mismo reparto.
+- Tickets MIXTOS antiguos sin desglose no se inventan: si existen, se muestran como dato anterior sin repartir.
+
+### Validación técnica
+- JavaScript completo: OK.
+- Función de pago mixto normal: presente.
+- Función de pago mixto de encargos: presente.
+- Validación de suma exacta: presente.
+- Desglose guardado en ticket: presente.
+- Reparto en Informe X: presente.
+- Reparto en X personal: presente.
+
+### Prueba móvil pendiente
+1. Venta normal de 50,00 €:
+   - Efectivo 20,00 €
+   - Tarjeta 30,00 €
+   - confirmar ticket MIXTO con ambos importes.
+2. Abrir Informe X:
+   - Efectivo debe aumentar 20,00 €
+   - Tarjeta debe aumentar 30,00 €
+   - no debe aparecer una cantidad adicional Mixto de 50,00 €.
+3. Ticket de encargo de cualquier importe:
+   - repartir entre Efectivo + Bizum.
+   - confirmar desglose en ticket.
+4. Volver al X:
+   - cada parte debe sumarse a su medio real.
+5. Probar una suma inferior al total: debe bloquear.
+6. Probar una suma superior al total: debe bloquear.
