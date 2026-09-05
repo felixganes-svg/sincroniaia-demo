@@ -2206,4 +2206,38 @@ reportsHtml=function(){
     '</div>';
 };
 
+
+
+// ===== ALTA ARTÍCULO · SIGUIENTE CÓDIGO AUTOMÁTICO =====
+function nextNumericProductCode(){
+  let numeric=products
+    .map(p=>String(p.code||'').trim())
+    .filter(code=>/^\d+$/.test(code))
+    .map(code=>Number(code))
+    .filter(n=>Number.isFinite(n)&&n>=0);
+  let next=(numeric.length?Math.max(...numeric):0)+1;
+  return String(next).padStart(6,'0');
+}
+
+const renderEmpresaBeforeNextCode=renderEmpresa;
+renderEmpresa=function(app){
+  renderEmpresaBeforeNextCode(app);
+  if(adminTab!=='products')return;
+  let input=document.getElementById('pcode');
+  if(!input)return;
+
+  let suggested=nextNumericProductCode();
+  input.value=suggested;
+  input.placeholder=suggested;
+  input.setAttribute('inputmode','numeric');
+
+  let parent=input.parentElement;
+  if(parent&&!parent.querySelector('.next-code-note')){
+    let note=document.createElement('small');
+    note.className='muted next-code-note';
+    note.textContent='Siguiente código disponible · asignado automáticamente';
+    parent.appendChild(note);
+  }
+};
+
 })();
