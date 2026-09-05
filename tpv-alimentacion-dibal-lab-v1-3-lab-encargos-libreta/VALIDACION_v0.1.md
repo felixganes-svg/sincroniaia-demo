@@ -134,3 +134,52 @@ Validación real de impresión y cuadre: **PENDIENTE**.
    - cada parte debe sumarse a su medio real.
 5. Probar una suma inferior al total: debe bloquear.
 6. Probar una suma superior al total: debe bloquear.
+
+
+## Actualización 4 · X/Z maestro e histórico por fechas
+
+### Regla de diseño cerrada
+El Informe X y el Informe Z muestran únicamente:
+1. Resumen general.
+2. Formas de pago.
+3. Ventas por sección.
+4. Ventas por vendedor.
+
+Los listados detallados de tickets quedan fuera de X/Z.
+
+### Implementado
+- X actual con los 4 bloques.
+- Z guardada con los mismos 4 bloques.
+- Pago mixto repartido en Efectivo / Tarjeta / Bizum.
+- Ventas por sección calculadas desde las líneas reales de los tickets y el catálogo.
+- Ventas por vendedor agrupadas por vendedor.
+- Botón **Histórico / Consulta X-Z por fechas**.
+- Consulta X por fecha Desde / Hasta:
+  - se recalcula desde los tickets,
+  - no guarda copias X innecesarias,
+  - se puede imprimir.
+- Histórico Z por fecha Desde / Hasta:
+  - filtra cierres guardados,
+  - permite abrir cada Z,
+  - cada nueva Z guarda periodo de inicio y fin.
+- Las Z anteriores que no tenían periodo explícito siguen visibles con su fecha de cierre.
+
+### Validación técnica
+- JavaScript completo: OK.
+- 4 bloques X/Z: presentes.
+- Consulta X por fechas: presente.
+- Histórico Z por fechas: presente.
+- Periodo Z: presente.
+- Listados de tickets fuera de X/Z: confirmado.
+
+### Prueba móvil pendiente
+1. Empresa → Informes X/Z.
+2. Confirmar que solo aparecen los 4 bloques acordados.
+3. Comprobar Ventas por sección.
+4. Comprobar Ventas por vendedor.
+5. Abrir Histórico / Consulta X-Z por fechas.
+6. Consultar X de hoy.
+7. Cambiar Desde/Hasta y comprobar que cambian los totales.
+8. Abrir histórico Z.
+9. Si hay una Z, abrirla y comprobar los mismos 4 bloques.
+10. Imprimir X por fechas y comprobar que no sale en blanco.
