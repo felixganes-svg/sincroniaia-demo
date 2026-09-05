@@ -31,3 +31,14 @@ Esta LAB usa almacenamiento local propio y empieza sin ventas/encargos previos p
 - Efecto de tickets pendientes de cobro en Informes X/Z (no validado todavía).
 
 Estado: LABORATORIO. No MASTER ni aprobado para cliente.
+
+
+## Cambio de diseño aprobado · Ticket aparcado
+- Para localizar artículos se usa exactamente la misma navegación que Venta: Carnicería, Charcutería, Elaborados, Código y A-Z.
+- Al crear el encargo se abre ese TPV en modo **TICKET APARCADO**.
+- Los artículos seleccionados se guardan en el encargo, no en la venta normal del vendedor.
+- El ticket aparcado es un borrador operativo y se puede modificar libremente mientras no haya generado ticket de venta.
+- Antes de generar la venta se pueden añadir artículos, modificar líneas, cambiar peso/cantidad, sustituir artículos, marcar cantidad 0 y eliminar líneas o bandejas.
+- Puede aparcarse y retomarse más tarde desde Encargos.
+- Al finalizar preparación y generar VENTA + TICKET, queda bloqueado: ya no se añaden, eliminan ni modifican líneas.
+- Cualquier cambio posterior sigue el circuito de Rectificación.
