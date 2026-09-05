@@ -68,3 +68,16 @@ Estado: LABORATORIO. No MASTER ni aprobado para cliente.
 - El ticket de venta solo se crea mediante acción expresa **GENERAR VENTA + TICKET**.
 - Después de generar el ticket, el encargo queda bloqueado y cualquier cambio posterior pasa por Rectificación.
 - Este diseño permite que, al recoger el pedido, el cliente añada más artículos a la misma venta si todavía no se ha generado el ticket.
+
+
+## TPV compartido durante la preparación
+- Abrir o preparar un encargo no debe bloquear el TPV para las ventas normales.
+- Acción **APARCAR Y VOLVER A VENTA**: guarda el estado del encargo y vuelve inmediatamente al menú normal de Venta.
+- Las memorias/ventas abiertas de los vendedores se mantienen independientes y no se modifican al aparcar un encargo.
+- Cada línea preparada registra **preparedBy** y muestra **Preparado por: Vendedor X**.
+- Al introducir peso/cantidad real se selecciona el vendedor que ha preparado esa línea.
+- Existe también **GUARDAR Y VOLVER A VENTA** desde la propia captura de peso/cantidad.
+- El vendedor que recogió inicialmente el encargo, el que prepara cada línea y el que genera/cobra el ticket pueden ser personas distintas.
+
+### Límite actual
+Esta LAB es local en un solo dispositivo. Se valida que varios vendedores puedan alternar el uso del mismo TPV mientras un encargo queda aparcado. La edición simultánea real desde dos terminales físicos requiere la versión de red/sincronización y no queda validada en esta LAB.
