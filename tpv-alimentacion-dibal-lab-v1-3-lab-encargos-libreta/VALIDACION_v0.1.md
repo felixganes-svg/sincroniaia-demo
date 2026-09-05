@@ -237,3 +237,33 @@ Los listados detallados de tickets quedan fuera de X/Z.
 4. Confirmar que aparece el siguiente código.
 5. Confirmar que el formulario está limpio.
 6. Confirmar que se puede empezar a escribir directamente el siguiente nombre.
+
+
+## Actualización 7 · Corrección reinicio móvil y subsecciones
+
+### Error reportado
+- Tras guardar un artículo, la pantalla no subía al inicio del formulario.
+- La subsección quedaba marcada y no se limpiaba.
+
+### Corrección aplicada
+- Tras alta correcta, el sistema localiza el panel real de creación y ejecuta scroll sobre ese panel.
+- Se limpian todas las subsecciones marcadas.
+- Se limpia el campo "Otra subsección nueva".
+- Se conserva el siguiente código automático.
+- Se mantiene el foco en Nombre sin provocar un nuevo desplazamiento.
+- Si el alta falla por validación, no se reinicia el formulario.
+
+### Validación técnica
+- JavaScript completo: OK.
+- Scroll real al panel de alta: presente.
+- Limpieza de subsecciones: presente.
+- Limpieza de subsección manual: presente.
+- Siguiente código automático: presente.
+
+### Prueba móvil pendiente
+1. Crear un artículo con una subsección marcada.
+2. Guardar.
+3. Confirmar que la pantalla sube al panel Crear producto.
+4. Confirmar que ninguna subsección queda marcada.
+5. Confirmar que "Otra subsección nueva" queda vacío.
+6. Confirmar que aparece el siguiente código.
