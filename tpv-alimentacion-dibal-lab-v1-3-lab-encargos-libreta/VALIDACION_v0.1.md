@@ -183,3 +183,31 @@ Los listados detallados de tickets quedan fuera de X/Z.
 8. Abrir histórico Z.
 9. Si hay una Z, abrirla y comprobar los mismos 4 bloques.
 10. Imprimir X por fechas y comprobar que no sale en blanco.
+
+
+## Actualización 5 · Siguiente código automático al crear artículo
+
+### Implementado
+- En **Empresa → Artículos**, el campo Código se rellena automáticamente.
+- Regla: **máximo código numérico existente + 1**.
+- Formato: 6 dígitos con ceros a la izquierda.
+- Ejemplo: si el mayor código es 000148, propone 000149.
+- El código sigue siendo editable manualmente.
+- Se mantiene el bloqueo existente contra códigos duplicados.
+- Tras guardar un artículo y volver a renderizar Artículos, se propone el siguiente código nuevo.
+
+### Validación técnica
+- JavaScript completo: OK.
+- Función de cálculo de siguiente código: presente.
+- Máximo + 1: presente.
+- Formato de 6 dígitos: presente.
+- Aplicación solo en pantalla Artículos: presente.
+
+### Prueba móvil pendiente
+1. Empresa → Artículos.
+2. Comprobar que Código aparece ya rellenado.
+3. Anotar el código sugerido.
+4. Crear un artículo de prueba.
+5. Volver a Artículos.
+6. Confirmar que el código sugerido ha avanzado +1.
+7. Intentar escribir manualmente un código ya existente y guardar: debe bloquear.
