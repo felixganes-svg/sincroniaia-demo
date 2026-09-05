@@ -1447,4 +1447,187 @@ window.notebookAddProduct=function(orderId,code){
   save();openOrder(o.id);
 };
 
+
+
+// ===== INFORME X/Z · DESGLOSE DE PAGOS + IMPRESIÓN REAL =====
+function reportTicketPending(t){
+  return !!t && (t.paymentStatus==='Pendiente' || t.method==='Pendiente de cobro');
+}
+function reportPaymentData(list){
+  let d={cash:0,card:0,bizum:0,mixed:0,pending:0,returns:0,other:0,paidTotal:0};
+  (list||[]).forEach(t=>{
+    let amount=Number(t.total)||0;
+    if(reportTicketPending(t)){
+      d.pending=round(d.pending+amount);
+      return;
+    }
+    d.paidTotal=round(d.paidTotal+amount);
+    if(t.method==='Efectivo')d.cash=round(d.cash+amount);
+    else if(t.method==='Tarjeta')d.card=round(d.card+amount);
+    else if(t.method==='Bizum')d.bizum=round(d.bizum+amount);
+    else if(t.method==='Mixto')d.mixed=round(d.mixed+amount);
+    else if(t.method==='Devolución'||t.method==='Cobro diferencia')d.returns=round(d.returns+amount);
+    else d.other=round(d.other+amount);
+  });
+  return d;
+}
+
+reportData=function(list){
+  let bySeller={},directLines=[];
+  list.forEach(t=>{
+    let n=t.seller||'Sin vendedor';
+    if(!bySeller[n])bySeller[n]={seller:n,count:0,total:0,negativeCount:0,negativeTotal:0,discounts:0};
+    let r=bySeller[n],amount=Number(t.total)||0;
+    r.count++;
+    r.total=round(r.total+amount);
+    if(amount<0){r.negativeCount++;r.negativeTotal=round(r.negativeTotal+amount)}
+    r.discounts=round(r.discounts+Number(t.offerDiscount||0)+Number(t.automaticDiscount||t.dayDiscount||0));
+    (t.items||[]).filter(l=>l.direct).forEach(l=>directLines.push(l));
+  });
+  let rows=Object.values(bySeller),directByArea={};
+  directLines.forEach(l=>{
+    let a=l.area||'Sin sección';
+    directByArea[a]=round((directByArea[a]||0)+Number(l.total||0));
+  });
+  let payments=reportPaymentData(list);
+  return {
+    tickets:list.length,
+    total:round(list.reduce((s,t)=>s+(Number(t.total)||0),0)),
+    paidTotal:payments.paidTotal,
+    pendingTotal:payments.pending,
+    payments,
+    negativeCount:list.filter(t=>Number(t.total)<0).length,
+    negativeTotal:round(list.filter(t=>Number(t.total)<0).reduce((s,t)=>s+Number(t.total),0)),
+    discounts:round(list.reduce((s,t)=>s+Number(t.offerDiscount||0)+Number(t.automaticDiscount||t.dayDiscount||0),0)),
+    directCount:directLines.length,
+    directTotal:round(directLines.reduce((s,l)=>s+Number(l.total||0),0)),
+    directByArea,
+    rows
+  };
+};
+
+reportBlock=function(data,title,dateText){
+  let p=data.payments||{cash:0,card:0,bizum:0,mixed:0,pending:data.pendingTotal||0,returns:0,other:0,paidTotal:data.paidTotal||0};
+  return '<div class="panel">'+
+    '<h2>'+title+'</h2>'+
+    '<p class="muted">'+esc(dateText)+'</p>'+
+    '<div class="totals">'+
+      '<div><span>Tickets generados</span><b>'+data.tickets+'</b></div>'+
+      '<div><span>Total tickets generados</span><b>'+euro(data.total)+'</b></div>'+
+      '<div><span>Total cobrado</span><b>'+euro(data.paidTotal||0)+'</b></div>'+
+      '<div><span>Pendiente de cobro</span><b>'+euro(data.pendingTotal||0)+'</b></div>'+
+    '</div>'+
+    '<h3>Formas de pago</h3>'+
+    '<div class="totals">'+
+      '<div><span>Efectivo</span><b>'+euro(p.cash||0)+'</b></div>'+
+      '<div><span>Tarjeta</span><b>'+euro(p.card||0)+'</b></div>'+
+      '<div><span>Bizum</span><b>'+euro(p.bizum||0)+'</b></div>'+
+      '<div><span>Mixto</span><b>'+euro(p.mixed||0)+'</b></div>'+
+      ((p.returns||0)!==0?'<div><span>Devoluciones / ajustes</span><b>'+euro(p.returns||0)+'</b></div>':'')+
+      ((p.other||0)!==0?'<div><span>Otros movimientos</span><b>'+euro(p.other||0)+'</b></div>':'')+
+      '<div class="final"><span>EFECTIVO ESPERADO EN CAJA</span><b>'+euro((p.cash||0)+((p.returns||0)<0?(p.returns||0):0))+'</b></div>'+
+    '</div>'+
+    (Number(p.mixed||0)!==0?'<p class="warn"><b>Mixto:</b> esta LAB todavía no guarda el desglose interno efectivo/tarjeta; por eso su parte en efectivo no se suma al efectivo esperado.</p>':'')+
+    '<div class="totals">'+
+      '<div><span>Ventas directas</span><b>'+(data.directCount||0)+' · '+euro(data.directTotal||0)+'</b></div>'+
+      Object.entries(data.directByArea||{}).map(([a,v])=>'<div><span>Directa · '+areaLabel(a)+'</span><b>'+euro(v)+'</b></div>').join('')+
+      '<div><span>Ventas negativas</span><b>'+data.negativeCount+' · '+euro(data.negativeTotal)+'</b></div>'+
+      '<div><span>Descuentos realizados</span><b>'+euro(data.discounts)+'</b></div>'+
+      '<div class="final"><span>VENTA TOTAL REGISTRADA</span><b>'+euro(data.total)+'</b></div>'+
+    '</div>'+
+    '<div class="tableWrap"><table><thead><tr><th>Vendedor</th><th>Tickets</th><th>Venta</th><th>Negativas</th><th>Descuentos</th></tr></thead><tbody>'+
+      data.rows.map(r=>'<tr><td>'+esc(r.seller)+'</td><td>'+r.count+'</td><td>'+euro(r.total)+'</td><td>'+r.negativeCount+' · '+euro(r.negativeTotal)+'</td><td>'+euro(r.discounts)+'</td></tr>').join('')+
+      (data.rows.length?'':'<tr><td colspan="5">Sin ventas registradas en este periodo.</td></tr>')+
+    '</tbody></table></div>'+
+  '</div>';
+};
+
+cashExpectedFrom=function(list){
+  let p=reportPaymentData(list);
+  return round((p.cash||0)+((p.returns||0)<0?(p.returns||0):0));
+};
+
+function reportPrintInner(data,title,dateText){
+  let p=data.payments||{};
+  let expected=round((p.cash||0)+((p.returns||0)<0?(p.returns||0):0));
+  return '<h2>'+esc(title)+'</h2>'+
+    '<p>'+esc(company.name)+'<br>'+esc(dateText)+'</p>'+
+    '<div class="totals">'+
+      '<div><span>Tickets</span><b>'+data.tickets+'</b></div>'+
+      '<div><span>Total generado</span><b>'+euro(data.total)+'</b></div>'+
+      '<div><span>Total cobrado</span><b>'+euro(data.paidTotal||0)+'</b></div>'+
+      '<div><span>Pendiente cobro</span><b>'+euro(data.pendingTotal||0)+'</b></div>'+
+    '</div>'+
+    '<p><b>FORMAS DE PAGO</b></p>'+
+    '<div class="totals">'+
+      '<div><span>Efectivo</span><b>'+euro(p.cash||0)+'</b></div>'+
+      '<div><span>Tarjeta</span><b>'+euro(p.card||0)+'</b></div>'+
+      '<div><span>Bizum</span><b>'+euro(p.bizum||0)+'</b></div>'+
+      '<div><span>Mixto</span><b>'+euro(p.mixed||0)+'</b></div>'+
+      ((p.returns||0)!==0?'<div><span>Devol./ajustes</span><b>'+euro(p.returns||0)+'</b></div>':'')+
+      '<div class="final"><span>EFECTIVO ESPERADO</span><b>'+euro(expected)+'</b></div>'+
+    '</div>'+
+    '<p><b>VENDEDORES</b></p>'+
+    (data.rows||[]).map(r=>'<div class="line"><div><b>'+esc(r.seller)+'</b><br><small>'+r.count+' tickets</small></div><b>'+euro(r.total)+'</b></div>').join('')+
+    (Number(p.mixed||0)!==0?'<p><small>Mixto sin desglose interno en esta LAB.</small></p>':'');
+}
+
+window.printXReport=function(){
+  let list=openPeriodTickets();
+  let data=reportData(list);
+  let since=zReports[0]?new Date(zReports[0].closedAt).toLocaleString('es-ES'):'Inicio de registros';
+  modal('<div id="printTicket">'+reportPrintInner(data,'INFORME X','Periodo abierto desde: '+since)+'</div>'+
+    '<button class="primary" onclick="window.print()">IMPRIMIR</button> <button onclick="closeModal()">Cerrar</button>');
+  setTimeout(()=>window.print(),50);
+};
+
+reportsHtml=function(){
+  let list=openPeriodTickets(),data=reportData(list),
+      since=zReports[0]?new Date(zReports[0].closedAt).toLocaleString('es-ES'):'Inicio de registros',
+      expected=cashExpectedFrom(list);
+  return '<div id="cashReport">'+reportBlock(data,'Informe X · Consulta de caja','Periodo abierto desde: '+since)+'</div>'+
+    (company.cashMode==='shared'
+      ?'<div class="panel"><h2>Cuadre de caja compartida</h2>'+
+       '<p>Efectivo esperado por movimientos registrados: <b>'+euro(expected)+'</b></p>'+
+       '<label>Efectivo contado en el cajón</label>'+
+       '<input id="sharedCashCount" type="number" inputmode="decimal" step="0.01">'+
+       '<button onclick="showSharedCashDifference('+expected+')">Calcular diferencia</button>'+
+       '<h3 id="sharedCashDifference"></h3>'+
+       '<p class="notice">Si lo dejas vacío, se tomará el efectivo esperado como valor asumido y se indicará que no hubo recuento manual.</p>'+
+       '<p class="warn">La diferencia corresponde al cajón compartido. No se asigna automáticamente a ningún vendedor.</p></div>'
+      :'')+
+    '<div class="panel"><div class="grid two">'+
+      '<button onclick="printXReport()">Imprimir X</button>'+
+      '<button class="danger" '+(!list.length?'disabled':'')+' onclick="closeZReport()">HACER Z · CERRAR PERIODO</button>'+
+    '</div><p class="warn"><b>X:</b> consulta sin cerrar. <b>Z:</b> guarda el cierre definitivo del periodo; no elimina los tickets.</p></div>'+
+    '<div class="panel"><h2>Histórico de cierres Z</h2>'+
+      zReports.map((z,i)=>'<div class="line"><div><b>Z nº '+z.number+'</b><br><small>'+esc(z.date)+' · '+z.data.tickets+' tickets · '+euro(z.data.total)+'</small></div><button onclick="showZReport('+i+')">Ver Z</button></div>').join('')+
+      (zReports.length?'':'<p>No se ha realizado ningún cierre Z.</p>')+
+    '</div>';
+};
+
+showSharedCashDifference=function(expected){
+  let el=document.getElementById('sharedCashCount'),out=document.getElementById('sharedCashDifference');
+  if(!el||!out)return;
+  let raw=(el.value||'').trim();
+  let assumed=raw==='';
+  let counted=assumed?Number(expected):Number(raw);
+  if(!Number.isFinite(counted))return alert('Introduce un importe válido.');
+  let d=round(counted-Number(expected||0));
+  if(assumed){
+    out.textContent='Sin recuento manual · se toma el efectivo esperado '+euro(counted)+' · diferencia asumida: '+euro(0);
+    out.style.color='#8a5a00';
+  }else{
+    out.textContent='Diferencia de caja compartida: '+euro(d);
+    out.style.color=d===0?'green':'#c62828';
+  }
+};
+
+showZReport=function(i){
+  let z=zReports[i];
+  if(!z)return;
+  modal('<div id="printTicket">'+reportPrintInner(z.data,'INFORME Z Nº '+z.number,'Cierre: '+z.date)+'</div>'+
+    '<button class="primary" onclick="window.print()">Imprimir Z</button> <button onclick="closeModal()">Cerrar</button>');
+};
+
 })();
