@@ -42,3 +42,16 @@ Estado: LABORATORIO. No MASTER ni aprobado para cliente.
 - Puede aparcarse y retomarse más tarde desde Encargos.
 - Al finalizar preparación y generar VENTA + TICKET, queda bloqueado: ya no se añaden, eliminan ni modifican líneas.
 - Cualquier cambio posterior sigue el circuito de Rectificación.
+
+
+## Centro de Encargos · estados operativos
+- **Inacabados**: ticket aparcado sin ticket de venta y con alguna línea sin peso/cantidad real (o todavía sin líneas).
+- **Preparados**: todas las líneas están resueltas (Preparado o No servido) y el encargo está listo para finalizar preparación/generar venta.
+- **Por cobrar**: ya existe ticket de venta y todavía no está pagado.
+- **Por recoger**: ya existe ticket de venta y el género sigue en el establecimiento, esté pagado o pendiente de pago.
+- **Recogidos**: género entregado al cliente.
+- Cada encargo muestra progreso: X de Y artículos preparados y cuántos faltan.
+- Introducir peso/cantidad real valida automáticamente la línea como Preparada.
+- Cantidad 0 se resuelve mediante No servido.
+- En tickets de Encargos se muestra: **Encargo nº + cliente**, **PAGADO/PENDIENTE DE PAGO** y **RECOGIDO/PENDIENTE DE RECOGER**.
+- Un encargo pagado puede permanecer Pendiente de recoger para entrega rápida posterior.
