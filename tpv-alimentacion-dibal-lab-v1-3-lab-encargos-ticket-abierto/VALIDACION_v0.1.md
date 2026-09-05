@@ -54,3 +54,28 @@ Pendiente de validación móvil:
 9. Confirmar PENDIENTE DE PAGO y PENDIENTE DE RECOGER.
 10. Cobrarlo y comprobar PAGADO + PENDIENTE DE RECOGER.
 11. Marcar Entregado y comprobar PAGADO + RECOGIDO.
+
+
+## Validación técnica · actualización 5
+Resultado técnico: **APROBADA PARA PRUEBA FUNCIONAL EN LAB**.
+
+Comprobado:
+- Sintaxis JavaScript completa: OK.
+- La lógica nueva se carga después de las reglas anteriores.
+- Pendientes tienen prioridad de orden sobre preparados/no servidos.
+- Guardar peso/cantidad real marca la línea como Preparada.
+- Al quedar 0 pendientes, estado Encargo completado sin crear ticket.
+- Añadir una nueva línea antes del ticket devuelve el encargo a Inacabado.
+- Generación de venta/ticket requiere acción expresa.
+- Tras generar ticket, el estado pasa a ticket generado y se mantiene el bloqueo de edición.
+
+Pendiente de validación real en móvil:
+1. Crear encargo con 3 artículos sin peso.
+2. Pesar el segundo artículo y comprobar que baja al final.
+3. Pesar otro y comprobar que el pendiente restante queda arriba.
+4. Completar el último y comprobar **ENCARGO COMPLETADO**.
+5. Salir y recuperar el encargo desde PREPARADOS.
+6. Añadir un artículo nuevo y comprobar que vuelve a INACABADOS.
+7. Preparar ese artículo.
+8. Pulsar GENERAR VENTA + TICKET.
+9. Confirmar que después ya no se pueden añadir/eliminar/modificar líneas.
