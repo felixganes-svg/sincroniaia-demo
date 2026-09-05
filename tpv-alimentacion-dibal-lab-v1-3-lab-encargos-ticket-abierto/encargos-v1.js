@@ -429,4 +429,236 @@ window.markOrderDelivered=function(id){
   o.status='Entregado';o.deliveredAt=new Date().toLocaleString('es-ES');save();openOrder(o.id);
 };
 
+
+
+// ===== ENCARGOS COMO TICKET APARCADO · MISMA NAVEGACIÓN QUE VENTA =====
+let parkedOrderContext=null;
+const baseRenderVenta=renderVenta;
+const baseSelectProduct=selectProduct;
+const baseDirectSaleModal=directSaleModal;
+const baseOrdersModal=ordersModal;
+const baseSetArea=setArea;
+
+function parkedOrder(){
+  return parkedOrderContext?orders.find(o=>String(o.id)===String(parkedOrderContext.orderId)):null;
+}
+function parkedGroup(){
+  let o=parkedOrder();
+  return o&&parkedOrderContext&&parkedOrderContext.groupId
+    ?(o.groups||[]).find(g=>String(g.id)===String(parkedOrderContext.groupId))
+    :null;
+}
+function parkedLineCount(){
+  let o=parkedOrder();
+  return o?orderAllLines(o).length:0;
+}
+
+window.startParkedOrderSelection=function(orderId,groupId=null){
+  let o=orders.find(x=>String(x.id)===String(orderId));
+  if(!o||o.ticketId)return alert('Este encargo ya ha generado un ticket de venta y no admite cambios.');
+  parkedOrderContext={orderId:String(orderId),groupId:groupId?String(groupId):null};
+  closeModal();
+  screen='venta';role='venta';area='Carne';subcat='';azScope=null;atRoot=true;
+  render();
+};
+
+window.parkCurrentOrder=function(){
+  parkedOrderContext=null;
+  screen='venta';atRoot=true;area='Carne';subcat='';azScope=null;
+  baseOrdersModal();
+};
+
+window.viewParkedOrder=function(){
+  let o=parkedOrder();
+  if(o)openOrder(o.id);
+};
+
+ordersModal=function(){
+  parkedOrderContext=null;
+  return baseOrdersModal();
+};
+
+setArea=function(a){
+  if(parkedOrderContext&&a==='Encargos')return viewParkedOrder();
+  return baseSetArea(a);
+};
+
+renderVenta=function(app,bar){
+  if(!parkedOrderContext)return baseRenderVenta(app,bar);
+  let o=parkedOrder();
+  if(!o||o.ticketId){
+    parkedOrderContext=null;
+    return baseRenderVenta(app,bar);
+  }
+  let filtered=filteredProducts(),g=parkedGroup();
+  bar.style.display='block';
+  let heading=g?('BANDEJA APARCADA · '+groupTitle(g)):('TICKET APARCADO · '+o.number);
+  app.innerHTML=
+    '<div class="panel">'+
+      '<div class="saleTop"><strong>'+heading+
+      '<br><small>'+esc(o.customer)+' · '+esc(o.pickupDate)+' '+esc(o.pickupTime||'')+'</small></strong>'+
+      '<button onclick="parkCurrentOrder()">APARCAR</button></div>'+
+      '<p class="notice"><b>Mismo recorrido que una venta.</b> Usa Carnicería, Charcutería, Elaborados, Código o A-Z. Los artículos se guardan en este ticket aparcado y todavía pueden añadirse, modificarse o eliminarse.</p>'+
+      salesViewHtml(filtered)+
+    '</div>';
+  bar.innerHTML=
+    '<div class="inner compact">'+
+      '<button onclick="viewParkedOrder()">VER TICKET · '+parkedLineCount()+' LÍNEAS</button>'+
+      '<button class="primary" onclick="parkCurrentOrder()">APARCAR TICKET</button>'+
+    '</div>';
+};
+
+selectProduct=function(code){
+  if(!parkedOrderContext)return baseSelectProduct(code);
+  let o=parkedOrder(),g=parkedGroup();
+  if(!o)return alert('Encargo no encontrado.');
+  return orderSelectProduct(o.id,code,g?g.id:null);
+};
+
+directSaleModal=function(section){
+  if(!parkedOrderContext)return baseDirectSaleModal(section);
+  alert('En un ticket de encargo aparcado selecciona un artículo del catálogo.');
+};
+
+orderAddProduct=function(id,groupId){
+  startParkedOrderSelection(id,groupId||null);
+};
+
+createOrder=function(){
+  let customer=(document.getElementById('orderCustomer')?.value||'').trim();
+  let pickupDate=document.getElementById('orderDate')?.value||'';
+  let seller=document.getElementById('orderSeller')?.value||'';
+  if(!customer||!pickupDate||!seller)return alert('Indica cliente, fecha de recogida y vendedor.');
+  let n=nextOrderNumber();
+  let o={
+    id:Date.now(),number:'E-'+n,customer,
+    phone:(document.getElementById('orderPhone')?.value||'').trim(),
+    pickupDate,pickupTime:document.getElementById('orderTime')?.value||'',
+    notes:(document.getElementById('orderNotes')?.value||'').trim(),
+    createdAt:new Date().toLocaleString('es-ES'),createdBy:seller,
+    status:'Aparcado · pendiente',items:[],groups:[],ticketNumber:null,ticketId:null
+  };
+  orders.unshift(o);
+  save();
+  startParkedOrderSelection(o.id,null);
+};
+
+saveOrderRequestedProduct=function(id,code,groupId){
+  let o=orders.find(x=>String(x.id)===String(id)),p=products.find(x=>x.code===code);
+  if(!o||!p||o.ticketId)return alert('No se puede modificar este encargo.');
+  let raw=(document.getElementById('orderRequestedQty')?.value||'').trim();
+  let requested=raw===''?null:Number(raw);
+  if(requested!==null&&(!Number.isFinite(requested)||requested<0))return alert('Cantidad/peso solicitado no válido.');
+  let l={
+    id:encLineId(),code:p.code,name:p.name,unit:p.unit,
+    requestedQty:requested,
+    prepNotes:(document.getElementById('orderLineNotes')?.value||'').trim(),
+    status:'Pendiente',qty:null,price:null,total:0,normalTotal:0,discount:0
+  };
+  let g=(o.groups||[]).find(x=>String(x.id)===String(groupId));
+  if(g)g.items.push(l);else o.items.push(l);
+  o.status='Aparcado · pendiente';
+  save();
+  parkedOrderContext={orderId:String(o.id),groupId:g?String(g.id):null};
+  closeModal();atRoot=true;area='Carne';subcat='';azScope=null;render();
+  flash(p.name+' añadido al ticket aparcado');
+};
+
+createOrderTray=function(id){
+  let o=orders.find(x=>String(x.id)===String(id));
+  if(!o||o.ticketId)return;
+  let people=Math.max(1,Number(document.getElementById('trayPeople')?.value||1));
+  let custom=(document.getElementById('trayName')?.value||'').trim();
+  let g={
+    id:encGroupId(),type:'tray',people,
+    name:custom||('Bandeja '+people+' personas'),
+    notes:(document.getElementById('trayNotes')?.value||'').trim(),
+    items:[]
+  };
+  o.groups=o.groups||[];
+  o.groups.push(g);
+  o.status='Aparcado · pendiente';
+  save();
+  startParkedOrderSelection(o.id,g.id);
+};
+
+window.removeParkedOrderLine=function(orderId,lineId){
+  let o=orders.find(x=>String(x.id)===String(orderId));
+  if(!o||o.ticketId)return alert('El ticket de venta ya está generado y no se puede modificar.');
+  let line=findOrderLine(o,lineId);
+  if(!line)return alert('Línea no encontrada.');
+  if(!confirm('¿Eliminar '+line.name+' del ticket aparcado?'))return;
+  let i=(o.items||[]).findIndex(x=>String(x.id)===String(lineId));
+  if(i>=0)o.items.splice(i,1);
+  for(const g of (o.groups||[])){
+    let j=(g.items||[]).findIndex(x=>String(x.id)===String(lineId));
+    if(j>=0){g.items.splice(j,1);break}
+  }
+  o.status='Aparcado · pendiente';
+  save();
+  openOrder(o.id);
+};
+
+window.editParkedOrderLine=function(orderId,lineId){
+  let o=orders.find(x=>String(x.id)===String(orderId)),l=o&&findOrderLine(o,lineId);
+  if(!o||!l||o.ticketId)return alert('Esta línea ya pertenece a un ticket de venta cerrado.');
+  modal(
+    '<h2>Modificar línea · '+esc(l.name)+'</h2>'+
+    '<label>Cantidad/peso solicitado (opcional)</label>'+
+    '<input id="editRequestedQty" type="number" inputmode="decimal" step="'+(l.unit==='kg'?'0.001':'1')+'" value="'+(l.requestedQty??'')+'" placeholder="Puede quedar vacío">'+
+    '<label>Preparación / observaciones</label>'+
+    '<input id="editOrderLineNotes" value="'+esc(l.prepNotes||'')+'" placeholder="Ej: cortar fino, 4 filetes, sin hueso">'+
+    '<p><button class="primary" onclick="saveParkedOrderLineEdit(\''+orderId+'\',\''+lineId+'\')">GUARDAR CAMBIOS</button> '+
+    '<button onclick="prepareOrderLine(\''+orderId+'\',\''+lineId+'\')">PESO / PREPARACIÓN</button> '+
+    '<button class="danger" onclick="removeParkedOrderLine(\''+orderId+'\',\''+lineId+'\')">ELIMINAR LÍNEA</button> '+
+    '<button onclick="openOrder(\''+orderId+'\')">Cancelar</button></p>'
+  );
+};
+
+window.saveParkedOrderLineEdit=function(orderId,lineId){
+  let o=orders.find(x=>String(x.id)===String(orderId)),l=o&&findOrderLine(o,lineId);
+  if(!o||!l||o.ticketId)return;
+  let raw=(document.getElementById('editRequestedQty')?.value||'').trim();
+  let q=raw===''?null:Number(raw);
+  if(q!==null&&(!Number.isFinite(q)||q<0))return alert('Cantidad/peso no válido.');
+  l.requestedQty=q;
+  l.prepNotes=(document.getElementById('editOrderLineNotes')?.value||'').trim();
+  o.status='Aparcado · pendiente';
+  save();
+  openOrder(o.id);
+};
+
+window.removeOrderTray=function(orderId,groupId){
+  let o=orders.find(x=>String(x.id)===String(orderId));
+  if(!o||o.ticketId)return alert('El ticket de venta ya está generado y no se puede modificar.');
+  let g=(o.groups||[]).find(x=>String(x.id)===String(groupId));
+  if(!g)return;
+  if(!confirm('¿Eliminar '+groupTitle(g)+' y todas sus líneas del ticket aparcado?'))return;
+  o.groups=o.groups.filter(x=>String(x.id)!==String(groupId));
+  o.status='Aparcado · pendiente';
+  save();
+  openOrder(o.id);
+};
+
+topLineHtml=function(o,l){
+  let buttons='';
+  if(!o.ticketId){
+    buttons=
+      '<button onclick="editParkedOrderLine(\''+o.id+'\',\''+l.id+'\')">MODIFICAR</button> '+
+      '<button class="danger" onclick="removeParkedOrderLine(\''+o.id+'\',\''+l.id+'\')">ELIMINAR</button>';
+  }
+  return '<div class="line"><div><b>'+esc(l.name)+'</b><br>'+lineStateHtml(l)+'</div>'+
+    '<div>'+(l.status==='Preparado'?'<b>'+euro(l.total)+'</b><br>':'')+buttons+'</div></div>';
+};
+
+groupHtml=function(o,g){
+  let rows=(g.items||[]).map(l=>topLineHtml(o,l)).join('')||'<p class="muted">Todavía no hay productos en esta bandeja.</p>';
+  return '<div class="panel"><h3>'+esc(groupTitle(g))+'</h3>'+
+    (g.notes?'<p><small>'+esc(g.notes)+'</small></p>':'')+
+    rows+
+    (!o.ticketId?'<p><button onclick="orderAddProduct(\''+o.id+'\',\''+g.id+'\')">+ AÑADIR PRODUCTO</button> '+
+    '<button class="danger" onclick="removeOrderTray(\''+o.id+'\',\''+g.id+'\')">ELIMINAR BANDEJA</button></p>':'')+
+    '</div>';
+};
+
 })();
