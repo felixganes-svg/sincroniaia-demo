@@ -211,3 +211,29 @@ Los listados detallados de tickets quedan fuera de X/Z.
 5. Volver a Artículos.
 6. Confirmar que el código sugerido ha avanzado +1.
 7. Intentar escribir manualmente un código ya existente y guardar: debe bloquear.
+
+
+## Actualización 6 · Reinicio del alta tras guardar artículo
+
+### Implementado
+- Tras guardar correctamente un artículo:
+  - vuelve al inicio de la pantalla de Artículos,
+  - limpia el formulario al reconstruirse,
+  - propone automáticamente el siguiente código,
+  - coloca el foco en Nombre para seguir dando altas.
+- Si el guardado falla por validación o código duplicado, no fuerza el reinicio.
+
+### Validación técnica
+- JavaScript completo: OK.
+- Reinicio solo tras alta correcta: presente.
+- Scroll al inicio: presente.
+- Nuevo código automático: presente.
+- Foco en Nombre: presente.
+
+### Prueba móvil pendiente
+1. Empresa → Artículos.
+2. Crear un artículo válido.
+3. Confirmar que vuelve arriba automáticamente.
+4. Confirmar que aparece el siguiente código.
+5. Confirmar que el formulario está limpio.
+6. Confirmar que se puede empezar a escribir directamente el siguiente nombre.
