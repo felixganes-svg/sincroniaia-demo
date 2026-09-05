@@ -98,3 +98,31 @@ Prueba móvil pendiente:
 3. Pulsar GUARDAR ENCARGO COMPLETADO.
 4. Confirmar que aparece en PREPARADOS y no en INACABADOS.
 5. Abrirlo de nuevo y verificar que sigue editable y sin ticket generado.
+
+
+## Validación técnica · actualización 7 · TPV compartido
+Resultado técnico: **APROBADA PARA PRUEBA FUNCIONAL EN UN SOLO DISPOSITIVO**.
+
+Comprobado:
+- Sintaxis JavaScript: OK.
+- APARCAR Y VOLVER A VENTA guarda el encargo y retorna a Venta.
+- GUARDAR Y VOLVER A VENTA disponible al registrar peso/cantidad.
+- Cada línea preparada guarda vendedor responsable.
+- La línea muestra Preparado por: Vendedor X.
+- El nuevo bloque no escribe ni vacía sellerMems, por lo que no altera las ventas abiertas de otros vendedores.
+- Cabecera visible identificada como LAB ENCARGOS · TPV COMPARTIDO.
+
+Prueba móvil pendiente:
+1. Iniciar Vendedor 1 y Vendedor 2.
+2. Crear encargo con Vendedor 1.
+3. Añadir 2 o 3 artículos y dejarlo inacabado.
+4. Pulsar APARCAR Y VOLVER A VENTA.
+5. Realizar una venta normal con Vendedor 2.
+6. Volver a Encargos → Inacabados y abrir el mismo encargo.
+7. Preparar una línea seleccionando Vendedor 1 y guardar.
+8. Comprobar que la línea muestra Preparado por: Vendedor 1.
+9. Preparar otra línea seleccionando Vendedor 2.
+10. Comprobar que cada línea conserva su preparador y que la venta normal de Vendedor 2 no se ha perdido.
+11. Probar GUARDAR Y VOLVER A VENTA desde la captura de peso/cantidad.
+
+Fuera de alcance de esta validación: dos dispositivos físicos editando simultáneamente el mismo encargo.
