@@ -1950,4 +1950,260 @@ openMyActivity=function(name){
     '</div><p><button class="primary" onclick="window.print()">Imprimir X personal</button> <button onclick="closeModal()">Cerrar</button></p>');
 };
 
+
+
+// ===== X/Z MAESTRO · 4 BLOQUES + CONSULTA POR FECHAS =====
+function reportAreaForLine(l){
+  if(l?.area)return areaLabel(l.area);
+  let p=products.find(x=>String(x.code)===String(l?.code));
+  return p?areaLabel(p.area||'Sin sección'):'Sin sección';
+}
+function reportSectionRows(list){
+  let map={};
+  (list||[]).forEach(t=>{
+    (t.items||[]).forEach(l=>{
+      let section=reportAreaForLine(l);
+      map[section]=round((map[section]||0)+Number(l.total||0));
+    });
+  });
+  return Object.entries(map)
+    .map(([section,total])=>({section,total}))
+    .sort((a,b)=>b.total-a.total);
+}
+
+reportData=function(list){
+  let bySeller={};
+  (list||[]).forEach(t=>{
+    let n=t.seller||'Sin vendedor';
+    if(!bySeller[n])bySeller[n]={seller:n,count:0,total:0};
+    bySeller[n].count++;
+    bySeller[n].total=round(bySeller[n].total+(Number(t.total)||0));
+  });
+  let payments=reportPaymentData(list);
+  return {
+    tickets:list.length,
+    total:round(list.reduce((s,t)=>s+(Number(t.total)||0),0)),
+    paidTotal:payments.paidTotal,
+    pendingTotal:payments.pending,
+    payments,
+    sections:reportSectionRows(list),
+    rows:Object.values(bySeller).sort((a,b)=>b.total-a.total)
+  };
+};
+
+function reportFourBlocks(data,title,dateText){
+  let p=data.payments||{},
+      expected=round((p.cash||0)+((p.returns||0)<0?(p.returns||0):0));
+  let sections=(data.sections||[]);
+  return '<div class="panel">'+
+    '<h2>'+esc(title)+'</h2><p class="muted">'+esc(dateText)+'</p>'+
+
+    '<h3>1. RESUMEN GENERAL</h3>'+
+    '<div class="totals">'+
+      '<div><span>Venta generada</span><b>'+euro(data.total||0)+'</b></div>'+
+      '<div><span>Cobrado</span><b>'+euro(data.paidTotal||0)+'</b></div>'+
+      '<div><span>Pendiente de cobro</span><b>'+euro(data.pendingTotal||0)+'</b></div>'+
+      '<div><span>Tickets generados</span><b>'+Number(data.tickets||0)+'</b></div>'+
+    '</div>'+
+
+    '<h3>2. FORMAS DE PAGO</h3>'+
+    '<div class="totals">'+
+      '<div><span>Efectivo</span><b>'+euro(p.cash||0)+'</b></div>'+
+      '<div><span>Tarjeta</span><b>'+euro(p.card||0)+'</b></div>'+
+      '<div><span>Bizum</span><b>'+euro(p.bizum||0)+'</b></div>'+
+      '<div class="final"><span>Total cobrado</span><b>'+euro(data.paidTotal||0)+'</b></div>'+
+      '<div><span>Efectivo esperado en caja</span><b>'+euro(expected)+'</b></div>'+
+    '</div>'+
+    (Number(p.legacyMixed||0)>0
+      ?'<p class="warn"><b>Tickets mixtos antiguos sin desglose:</b> '+euro(p.legacyMixed)+'. No se reparten porque no conocemos cómo se cobraron.</p>'
+      :'')+
+
+    '<h3>3. VENTAS POR SECCIÓN</h3>'+
+    '<div class="tableWrap"><table><thead><tr><th>Sección</th><th>Venta</th></tr></thead><tbody>'+
+      sections.map(r=>'<tr><td>'+esc(r.section)+'</td><td><b>'+euro(r.total)+'</b></td></tr>').join('')+
+      (sections.length?'':'<tr><td colspan="2">Sin ventas.</td></tr>')+
+      '<tr><td><b>TOTAL</b></td><td><b>'+euro(data.total||0)+'</b></td></tr>'+
+    '</tbody></table></div>'+
+
+    '<h3>4. VENTAS POR VENDEDOR</h3>'+
+    '<div class="tableWrap"><table><thead><tr><th>Vendedor</th><th>Tickets</th><th>Venta</th></tr></thead><tbody>'+
+      (data.rows||[]).map(r=>'<tr><td>'+esc(r.seller)+'</td><td>'+r.count+'</td><td><b>'+euro(r.total)+'</b></td></tr>').join('')+
+      ((data.rows||[]).length?'':'<tr><td colspan="3">Sin ventas.</td></tr>')+
+      '<tr><td><b>TOTAL</b></td><td><b>'+Number(data.tickets||0)+'</b></td><td><b>'+euro(data.total||0)+'</b></td></tr>'+
+    '</tbody></table></div>'+
+  '</div>';
+}
+
+reportBlock=function(data,title,dateText){
+  return reportFourBlocks(data,title,dateText);
+};
+
+reportPrintInner=function(data,title,dateText){
+  let p=data.payments||{},
+      sections=data.sections||[];
+  return '<h2>'+esc(title)+'</h2>'+
+    '<p>'+esc(company.name)+'<br>'+esc(dateText)+'</p>'+
+    '<p><b>1. RESUMEN GENERAL</b></p>'+
+    '<div class="totals">'+
+      '<div><span>Venta generada</span><b>'+euro(data.total||0)+'</b></div>'+
+      '<div><span>Cobrado</span><b>'+euro(data.paidTotal||0)+'</b></div>'+
+      '<div><span>Pendiente</span><b>'+euro(data.pendingTotal||0)+'</b></div>'+
+      '<div><span>Tickets</span><b>'+Number(data.tickets||0)+'</b></div>'+
+    '</div>'+
+    '<p><b>2. FORMAS DE PAGO</b></p>'+
+    '<div class="totals">'+
+      '<div><span>Efectivo</span><b>'+euro(p.cash||0)+'</b></div>'+
+      '<div><span>Tarjeta</span><b>'+euro(p.card||0)+'</b></div>'+
+      '<div><span>Bizum</span><b>'+euro(p.bizum||0)+'</b></div>'+
+      '<div class="final"><span>Total cobrado</span><b>'+euro(data.paidTotal||0)+'</b></div>'+
+    '</div>'+
+    '<p><b>3. VENTAS POR SECCIÓN</b></p>'+
+    sections.map(r=>'<div class="line"><span>'+esc(r.section)+'</span><b>'+euro(r.total)+'</b></div>').join('')+
+    '<div class="line"><b>TOTAL</b><b>'+euro(data.total||0)+'</b></div>'+
+    '<p><b>4. VENTAS POR VENDEDOR</b></p>'+
+    (data.rows||[]).map(r=>'<div class="line"><div><b>'+esc(r.seller)+'</b><br><small>'+r.count+' tickets</small></div><b>'+euro(r.total)+'</b></div>').join('');
+};
+
+closeZReport=function(){
+  let list=openPeriodTickets();
+  if(!list.length)return alert('No hay ventas nuevas para cerrar.');
+  if(!confirm('La Z cerrará el periodo actual. ¿Continuar?'))return;
+  let now=Date.now(),
+      previousClose=zReports[0]?.closedAt||0,
+      z={
+        number:String(zReports.length+1).padStart(4,'0'),
+        periodStart:previousClose||null,
+        periodEnd:now,
+        closedAt:now,
+        date:new Date(now).toLocaleString('es-ES'),
+        data:reportData(list)
+      };
+  zReports.unshift(z);
+  save();render();
+  alert('Cierre Z guardado. Se ha iniciado un nuevo periodo de caja.');
+};
+
+function dateStartMs(value){
+  if(!value)return null;
+  let d=new Date(value+'T00:00:00');
+  return Number.isFinite(d.getTime())?d.getTime():null;
+}
+function dateEndMs(value){
+  if(!value)return null;
+  let d=new Date(value+'T23:59:59.999');
+  return Number.isFinite(d.getTime())?d.getTime():null;
+}
+function ticketsBetweenDates(from,to){
+  let a=dateStartMs(from),b=dateEndMs(to);
+  return tickets.filter(t=>{
+    let n=Number(t.id)||0;
+    return (a===null||n>=a)&&(b===null||n<=b);
+  });
+}
+function zBetweenDates(from,to){
+  let a=dateStartMs(from),b=dateEndMs(to);
+  return zReports.filter(z=>{
+    let n=Number(z.closedAt)||0;
+    return (a===null||n>=a)&&(b===null||n<=b);
+  });
+}
+function todayInputValue(){
+  let d=new Date(),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+
+window.openXZHistory=function(){
+  let today=todayInputValue();
+  modal('<h2>Histórico / Consulta X-Z</h2>'+
+    '<p class="notice"><b>X por fechas</b> se recalcula desde los tickets. <b>Z</b> muestra cierres guardados y no se modifica.</p>'+
+    '<div class="grid two">'+
+      '<div><label>Desde</label><input id="xzFrom" type="date" value="'+today+'"></div>'+
+      '<div><label>Hasta</label><input id="xzTo" type="date" value="'+today+'"></div>'+
+    '</div>'+
+    '<div class="grid two">'+
+      '<button class="primary" onclick="showXByDates()">CONSULTAR X POR FECHAS</button>'+
+      '<button onclick="showZHistoryByDates()">VER CIERRES Z</button>'+
+    '</div>'+
+    '<p><button onclick="closeModal()">Cerrar</button></p>');
+};
+
+window.showXByDates=function(){
+  let from=document.getElementById('xzFrom')?.value||'',
+      to=document.getElementById('xzTo')?.value||'';
+  if(from&&to&&from>to)return alert('La fecha Desde no puede ser posterior a Hasta.');
+  let list=ticketsBetweenDates(from,to),
+      data=reportData(list),
+      label='Periodo: '+(from||'inicio')+' → '+(to||'hoy');
+  modal(reportFourBlocks(data,'Consulta X por fechas',label)+
+    '<p><button class="primary" onclick="printDynamicXByDates(\''+from+'\',\''+to+'\')">IMPRIMIR</button> '+
+    '<button onclick="openXZHistory()">Volver</button></p>');
+};
+
+window.printDynamicXByDates=function(from,to){
+  let list=ticketsBetweenDates(from,to),data=reportData(list),
+      label='Periodo: '+(from||'inicio')+' → '+(to||'hoy');
+  modal('<div id="printTicket">'+reportPrintInner(data,'CONSULTA X POR FECHAS',label)+'</div>'+
+    '<button class="primary" onclick="window.print()">IMPRIMIR</button> <button onclick="closeModal()">Cerrar</button>');
+  setTimeout(()=>window.print(),50);
+};
+
+window.showZHistoryByDates=function(){
+  let from=document.getElementById('xzFrom')?.value||'',
+      to=document.getElementById('xzTo')?.value||'';
+  if(from&&to&&from>to)return alert('La fecha Desde no puede ser posterior a Hasta.');
+  let list=zBetweenDates(from,to);
+  modal('<h2>Cierres Z</h2><p class="muted">'+esc(from||'Inicio')+' → '+esc(to||'Hoy')+'</p>'+
+    (list.length?list.map(z=>{
+      let idx=zReports.indexOf(z);
+      let period=z.periodStart
+        ?new Date(z.periodStart).toLocaleString('es-ES')+' → '+new Date(z.periodEnd||z.closedAt).toLocaleString('es-ES')
+        :'Cierre: '+esc(z.date);
+      return '<div class="line"><div><b>Z nº '+esc(z.number)+'</b><br><small>'+period+'<br>'+Number(z.data?.tickets||0)+' tickets · '+euro(z.data?.total||0)+'</small></div><button onclick="showZReport('+idx+')">VER</button></div>';
+    }).join(''):'<p class="notice">No hay cierres Z en este periodo.</p>')+
+    '<p><button onclick="openXZHistory()">Volver</button></p>');
+};
+
+showZReport=function(i){
+  let z=zReports[i];
+  if(!z)return;
+  let period=z.periodStart
+    ?'Periodo: '+new Date(z.periodStart).toLocaleString('es-ES')+' → '+new Date(z.periodEnd||z.closedAt).toLocaleString('es-ES')
+    :'Cierre: '+z.date;
+  modal(reportFourBlocks(z.data,'Informe Z nº '+z.number,period)+
+    '<p><button class="primary" onclick="printZFourBlocks('+i+')">IMPRIMIR Z</button> <button onclick="closeModal()">Cerrar</button></p>');
+};
+
+window.printZFourBlocks=function(i){
+  let z=zReports[i];
+  if(!z)return;
+  let period=z.periodStart
+    ?'Periodo: '+new Date(z.periodStart).toLocaleString('es-ES')+' → '+new Date(z.periodEnd||z.closedAt).toLocaleString('es-ES')
+    :'Cierre: '+z.date;
+  modal('<div id="printTicket">'+reportPrintInner(z.data,'INFORME Z Nº '+z.number,period)+'</div>'+
+    '<button class="primary" onclick="window.print()">IMPRIMIR</button> <button onclick="closeModal()">Cerrar</button>');
+  setTimeout(()=>window.print(),50);
+};
+
+reportsHtml=function(){
+  let list=openPeriodTickets(),
+      data=reportData(list),
+      since=zReports[0]?new Date(zReports[0].closedAt).toLocaleString('es-ES'):'Inicio de registros',
+      expected=cashExpectedFrom(list);
+  return reportFourBlocks(data,'Informe X · Consulta de caja','Periodo abierto desde: '+since)+
+    (company.cashMode==='shared'
+      ?'<div class="panel"><h2>Cuadre de caja</h2>'+
+       '<p>Efectivo esperado: <b>'+euro(expected)+'</b></p>'+
+       '<label>Efectivo contado</label><input id="sharedCashCount" type="number" inputmode="decimal" step="0.01">'+
+       '<button onclick="showSharedCashDifference('+expected+')">CALCULAR DIFERENCIA</button>'+
+       '<h3 id="sharedCashDifference"></h3></div>'
+      :'')+
+    '<div class="panel"><div class="grid two">'+
+      '<button onclick="printXReport()">IMPRIMIR X</button>'+
+      '<button class="danger" '+(!list.length?'disabled':'')+' onclick="closeZReport()">HACER Z · CERRAR PERIODO</button>'+
+    '</div>'+
+    '<p><button class="brand" onclick="openXZHistory()">HISTÓRICO / CONSULTA X-Z POR FECHAS</button></p>'+
+    '<p class="notice">X = consulta. Z = cierre definitivo. Los listados detallados de tickets quedan fuera de X/Z.</p>'+
+    '</div>';
+};
+
 })();
