@@ -267,3 +267,26 @@ Los listados detallados de tickets quedan fuera de X/Z.
 4. Confirmar que ninguna subsección queda marcada.
 5. Confirmar que "Otra subsección nueva" queda vacío.
 6. Confirmar que aparece el siguiente código.
+
+
+## Actualización 8 · Sin subsección preseleccionada
+
+### Causa real encontrada
+El formulario base de alta de artículo reconstruía siempre la sección inicial con:
+`subCheckboxes('Carne',['Pollo'],'pSub')`
+
+Eso hacía que **Pollo** reapareciera marcado aunque el reinicio posterior intentara limpiar las subsecciones.
+
+### Corrección aplicada
+- El alta nueva ahora se crea con:
+  `subCheckboxes('Carne',[],'pSub')`
+- Un artículo nuevo empieza con **ninguna subsección seleccionada**.
+- Se mantiene la validación que obliga a seleccionar al menos una antes de guardar.
+- Se mantiene el siguiente código automático.
+- Se mantiene el reinicio y subida al principio tras guardar.
+
+### Prueba móvil pendiente
+1. Entrar en Empresa → Artículos.
+2. Confirmar que al abrir el alta no hay ninguna subsección marcada.
+3. Marcar una subsección y guardar un artículo.
+4. Confirmar que al volver al alta ninguna subsección queda marcada.
