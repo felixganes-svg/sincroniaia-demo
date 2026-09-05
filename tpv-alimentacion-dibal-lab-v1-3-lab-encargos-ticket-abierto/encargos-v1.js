@@ -661,4 +661,185 @@ groupHtml=function(o,g){
     '</div>';
 };
 
+
+
+// ===== CENTRO DE ENCARGOS · INACABADOS / PAGO / RECOGIDA =====
+let orderWorkView='inacabados';
+
+function orderProgress(o){
+  let lines=orderAllLines(o);
+  let completed=lines.filter(l=>l.status==='Preparado'||l.status==='No servido').length;
+  return {total:lines.length,completed,pending:Math.max(0,lines.length-completed)};
+}
+function orderTicket(o){
+  return o&&o.ticketId?tickets.find(t=>String(t.id)===String(o.ticketId)):null;
+}
+function orderForTicket(t){
+  return orders.find(o=>String(o.ticketId)===String(t.id)||(t.orderNumber&&String(o.number)===String(t.orderNumber)))||null;
+}
+function paymentText(t){
+  return t&&t.paymentStatus==='Cobrado'?'✅ PAGADO':'⏳ PENDIENTE DE PAGO';
+}
+function pickupText(o){
+  return o&&o.status==='Entregado'?'✅ RECOGIDO':'⏳ PENDIENTE DE RECOGER';
+}
+function orderMatchesWorkView(o,view){
+  let p=orderProgress(o),t=orderTicket(o);
+  if(view==='inacabados')return !o.ticketId&&(p.total===0||p.pending>0);
+  if(view==='preparados')return !o.ticketId&&p.total>0&&p.pending===0;
+  if(view==='cobrar')return !!o.ticketId&&(!t||t.paymentStatus!=='Cobrado')&&o.status!=='Entregado';
+  if(view==='recoger')return !!o.ticketId&&o.status!=='Entregado';
+  if(view==='recogidos')return o.status==='Entregado';
+  return true;
+}
+function orderWorkCount(view){
+  return orders.filter(o=>orderMatchesWorkView(o,view)).length;
+}
+function orderWorkLabel(view){
+  return ({inacabados:'INACABADOS',preparados:'PREPARADOS',cobrar:'POR COBRAR',recoger:'POR RECOGER',recogidos:'RECOGIDOS',todos:'TODOS'})[view]||'TODOS';
+}
+window.setOrderWorkView=function(view){
+  orderWorkView=view;
+  ordersModal(view);
+};
+
+ordersModal=function(view=orderWorkView){
+  parkedOrderContext=null;
+  orderWorkView=view||'inacabados';
+  let list=orders.filter(o=>orderMatchesWorkView(o,orderWorkView))
+    .sort((a,b)=>(a.pickupDate+' '+(a.pickupTime||'')).localeCompare(b.pickupDate+' '+(b.pickupTime||'')));
+  modal(
+    '<h2>Encargos</h2>'+
+    '<p class="notice"><b>Centro de trabajo.</b> Los inacabados muestran qué queda por preparar. Pago y recogida se controlan por separado.</p>'+
+    '<div class="grid two"><button class="primary" onclick="newOrderModal()">+ NUEVO ENCARGO</button>'+
+    '<input id="orderQuery" placeholder="Buscar cliente, teléfono, fecha o nº" oninput="refreshOrderList()"></div>'+
+    '<div class="bigmenu">'+
+      '<button class="'+(orderWorkView==='inacabados'?'active':'')+'" onclick="setOrderWorkView(\'inacabados\')">INACABADOS · '+orderWorkCount('inacabados')+'</button>'+
+      '<button class="'+(orderWorkView==='preparados'?'active':'')+'" onclick="setOrderWorkView(\'preparados\')">PREPARADOS · '+orderWorkCount('preparados')+'</button>'+
+      '<button class="'+(orderWorkView==='cobrar'?'active':'')+'" onclick="setOrderWorkView(\'cobrar\')">POR COBRAR · '+orderWorkCount('cobrar')+'</button>'+
+      '<button class="'+(orderWorkView==='recoger'?'active':'')+'" onclick="setOrderWorkView(\'recoger\')">POR RECOGER · '+orderWorkCount('recoger')+'</button>'+
+      '<button class="'+(orderWorkView==='recogidos'?'active':'')+'" onclick="setOrderWorkView(\'recogidos\')">RECOGIDOS · '+orderWorkCount('recogidos')+'</button>'+
+      '<button class="'+(orderWorkView==='todos'?'active':'')+'" onclick="setOrderWorkView(\'todos\')">TODOS · '+orders.length+'</button>'+
+    '</div>'+
+    '<h3>'+orderWorkLabel(orderWorkView)+'</h3>'+
+    '<div id="orderList">'+orderRows(list)+'</div>'+
+    '<p><button onclick="closeModal()">Cerrar</button></p>'
+  );
+};
+
+orderRows=function(list){
+  if(!list.length)return '<p class="notice">No hay encargos en este estado.</p>';
+  return list.map(o=>{
+    let p=orderProgress(o),t=orderTicket(o),total=t?Number(t.total||0):orderPreparedTotal(o);
+    let progress=o.ticketId
+      ?'<b>'+paymentText(t)+'</b><br><b>'+pickupText(o)+'</b>'
+      :'<b>Preparación: '+p.completed+' de '+p.total+' artículos</b><br>'+
+       (p.pending>0?'⏳ '+p.pending+' pendientes':'✅ Todos los artículos resueltos');
+    let action='<button onclick="openOrder(\''+o.id+'\')">ABRIR</button>';
+    if(o.ticketId&&t&&t.paymentStatus!=='Cobrado')action='<button class="primary" onclick="chargePreparedOrder(\''+o.id+'\')">COBRAR</button> '+action;
+    if(o.ticketId&&t&&t.paymentStatus==='Cobrado'&&o.status!=='Entregado')action='<button class="green" onclick="markOrderDelivered(\''+o.id+'\')">ENTREGAR</button> '+action;
+    return '<div class="line"><div><b>'+esc(o.number)+' · '+esc(o.customer)+'</b><br><small>'+
+      esc(o.pickupDate)+' '+esc(o.pickupTime||'')+' · '+esc(o.phone||'Sin teléfono')+
+      (o.ticketNumber?'<br>Ticket nº '+esc(o.ticketNumber)+' · '+euro(total):'')+
+      '<br>'+progress+'</small></div><div>'+action+'</div></div>';
+  }).join('');
+};
+
+refreshOrderList=function(){
+  let q=(document.getElementById('orderQuery')?.value||'').trim().toLowerCase();
+  let list=orders.filter(o=>orderMatchesWorkView(o,orderWorkView)).filter(o=>
+    ((o.number||'')+' '+(o.customer||'')+' '+(o.phone||'')+' '+(o.pickupDate||'')+' '+(o.status||'')).toLowerCase().includes(q)
+  ).sort((a,b)=>(a.pickupDate+' '+(a.pickupTime||'')).localeCompare(b.pickupDate+' '+(b.pickupTime||'')));
+  document.getElementById('orderList').innerHTML=orderRows(list);
+};
+
+const openOrderBeforeProgress=openOrder;
+openOrder=function(id){
+  openOrderBeforeProgress(id);
+  let o=orders.find(x=>String(x.id)===String(id));
+  if(!o)return;
+  let p=orderProgress(o),t=orderTicket(o),box=document.getElementById('modalBox');
+  if(!box)return;
+  let h2=box.querySelector('h2');
+  if(!h2)return;
+  let info=document.createElement('div');
+  info.className='notice';
+  if(o.ticketId){
+    info.innerHTML='<b>Encargo nº '+esc(o.number)+' · '+esc(o.customer)+'</b><br>'+
+      paymentText(t)+'<br>'+pickupText(o);
+  }else{
+    info.innerHTML='<b>Preparación: '+p.completed+' de '+p.total+' artículos completados</b><br>'+
+      (p.pending>0?'⏳ Quedan '+p.pending+' artículos por preparar':'✅ No quedan artículos pendientes');
+  }
+  h2.insertAdjacentElement('afterend',info);
+};
+
+topLineHtml=function(o,l){
+  let buttons='';
+  if(!o.ticketId){
+    buttons=
+      '<button class="'+(l.status==='Pendiente'?'primary':'')+'" onclick="prepareOrderLine(\''+o.id+'\',\''+l.id+'\')">'+
+        (l.status==='Pendiente'?'PESO / CANTIDAD':'CAMBIAR PESO')+
+      '</button> '+
+      '<button onclick="editParkedOrderLine(\''+o.id+'\',\''+l.id+'\')">MODIFICAR</button> '+
+      '<button class="danger" onclick="removeParkedOrderLine(\''+o.id+'\',\''+l.id+'\')">ELIMINAR</button>';
+  }
+  return '<div class="line"><div><b>'+esc(l.name)+'</b><br>'+lineStateHtml(l)+'</div>'+
+    '<div>'+(l.status==='Preparado'?'<b>'+euro(l.total)+'</b><br>':'')+buttons+'</div></div>';
+};
+
+groupHtml=function(o,g){
+  let gp=(g.items||[]),done=gp.filter(l=>l.status==='Preparado'||l.status==='No servido').length;
+  let rows=gp.map(l=>topLineHtml(o,l)).join('')||'<p class="muted">Todavía no hay productos en esta bandeja.</p>';
+  return '<div class="panel"><h3>'+esc(groupTitle(g))+' · '+done+'/'+gp.length+' preparados</h3>'+
+    (g.notes?'<p><small>'+esc(g.notes)+'</small></p>':'')+
+    rows+
+    (!o.ticketId?'<p><button onclick="orderAddProduct(\''+o.id+'\',\''+g.id+'\')">+ AÑADIR PRODUCTO</button> '+
+    '<button class="danger" onclick="removeOrderTray(\''+o.id+'\',\''+g.id+'\')">ELIMINAR BANDEJA</button></p>':'')+
+    '</div>';
+};
+
+window.parkCurrentOrder=function(){
+  parkedOrderContext=null;
+  screen='venta';atRoot=true;area='Carne';subcat='';azScope=null;
+  ordersModal('inacabados');
+};
+
+// Tickets: mostrar encargo, pago y recogida
+const receiptHtmlBeforeOrderStatus=receiptHtml;
+receiptHtml=function(t,reprint=false){
+  let html=receiptHtmlBeforeOrderStatus(t,reprint);
+  if(!t||!t.orderNumber)return html;
+  let o=orderForTicket(t);
+  let label='<p><b>Encargo nº '+esc(t.orderNumber)+(o?' · '+esc(o.customer):'')+'</b><br>'+
+    paymentText(t)+'<br>'+pickupText(o)+'</p>';
+  return html.replace(/(<div id="printTicket"><h2>[^<]*<\/h2>)/,'$1'+label);
+};
+
+storedTicketRows=function(list){
+  return list.map(t=>{
+    let o=orderForTicket(t),enc=t.orderNumber?'<br><small><b>Encargo nº '+esc(t.orderNumber)+(o?' · '+esc(o.customer):'')+'</b><br>'+paymentText(t)+' · '+pickupText(o)+'</small>':'';
+    let rectify=t.rectifies?'<span class="tag">Rectificativo</span>':'<button onclick="requestTicketCorrection(\''+t.id+'\')">Rectificar</button>';
+    return '<tr><td><b>'+esc(t.number)+'</b>'+(t.rectifies?'<br><small>Rectifica nº '+esc(t.rectifies)+'</small>':'')+enc+
+      '</td><td>'+esc(t.date)+'</td><td>'+esc(t.seller)+'</td><td>'+esc(t.method)+'</td><td>'+euro(t.total)+'</td>'+
+      '<td><button onclick="openStoredTicket(\''+t.id+'\')">Ver / imprimir</button> '+rectify+'</td></tr>';
+  }).join('')||'<tr><td colspan="6">No se encontraron tickets.</td></tr>';
+};
+
+saleTicketLookupRows=function(q){
+  q=(q||'').trim().toLowerCase();
+  let list=tickets.filter(t=>{
+    let o=orderForTicket(t),items=(t.items||[]).map(i=>i.name).join(' ');
+    let haystack=(t.number+' '+t.date+' '+t.seller+' '+t.method+' '+t.total+' '+Number(t.total).toLocaleString('es-ES')+' '+items+' '+(t.orderNumber||'')+' '+(o?.customer||'')).toLowerCase();
+    return !q||haystack.includes(q);
+  }).slice(0,30);
+  return list.map(t=>{
+    let o=orderForTicket(t);
+    let enc=t.orderNumber?'<br><small><b>Encargo nº '+esc(t.orderNumber)+(o?' · '+esc(o.customer):'')+'</b><br>'+paymentText(t)+' · '+pickupText(o)+'</small>':'';
+    let rectify=t.rectifies?'<span class="tag">Rectificativo</span>':'<button onclick="requestTicketCorrection(\''+t.id+'\')">Rectificar</button>';
+    return '<div class="line"><div><b>Ticket nº '+esc(t.number)+'</b><br><small>'+esc(t.date)+' · '+esc(t.seller)+' · '+esc(t.method)+' · '+euro(t.total)+'</small>'+enc+
+      '</div><div><button onclick="openStoredTicket(\''+t.id+'\')">Ver / copia</button> '+rectify+'</div></div>';
+  }).join('')||'<p>No se encontró ningún ticket con esos datos.</p>';
+};
+
 })();
