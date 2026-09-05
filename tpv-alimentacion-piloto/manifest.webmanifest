@@ -1,0 +1,11 @@
+{
+  "name": "SINCRONIAIA TPV Alimentación · Piloto local",
+  "short_name": "TPV SINCRONIAIA",
+  "description": "Piloto local del TPV de alimentación",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#0f2238",
+  "lang": "es"
+}
