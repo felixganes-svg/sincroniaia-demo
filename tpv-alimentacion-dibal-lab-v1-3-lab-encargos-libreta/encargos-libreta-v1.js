@@ -2240,4 +2240,28 @@ renderEmpresa=function(app){
   }
 };
 
+
+
+// ===== ALTA ARTÍCULO · REINICIO TRAS GUARDAR =====
+const addProductBeforeReset=addProduct;
+addProduct=function(){
+  let beforeCount=products.length;
+  addProductBeforeReset();
+  if(products.length<=beforeCount)return; // si hubo validación/error, no forzar navegación
+
+  adminTab='products';
+  render();
+
+  setTimeout(()=>{
+    window.scrollTo({top:0,behavior:'smooth'});
+    let code=document.getElementById('pcode');
+    let name=document.getElementById('pname');
+    if(code){
+      code.value=nextNumericProductCode();
+      code.placeholder=code.value;
+    }
+    if(name)name.focus();
+  },50);
+};
+
 })();
