@@ -1,0 +1,1334 @@
+[
+  {
+    "code": "000001",
+    "name": "Pernil dolç",
+    "price": 17.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000002",
+    "name": "Pernil barra",
+    "price": 16.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000003",
+    "name": "Mortadela bolo",
+    "price": 19.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000004",
+    "name": "Mortadela oliva",
+    "price": 16.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000005",
+    "name": "Mortadela pavo",
+    "price": 17,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000006",
+    "name": "Mortadela",
+    "price": 16.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000007",
+    "name": "Pitxuga pavo",
+    "price": 18.5,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000008",
+    "name": "Pitxuga pavo natural",
+    "price": 22,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000009",
+    "name": "Pa de fetge",
+    "price": 19.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000010",
+    "name": "Jabali",
+    "price": 19.9,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000011",
+    "name": "Formatge barra",
+    "price": 15.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000013",
+    "name": "Formatge semi",
+    "price": 22,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000014",
+    "name": "Formatge curat",
+    "price": 27,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000016",
+    "name": "Formatge cabra",
+    "price": 17.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000017",
+    "name": "Flor esgueva",
+    "price": 32,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000018",
+    "name": "Formatge cabra",
+    "price": 28,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000019",
+    "name": "Havarti",
+    "price": 18.5,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000020",
+    "name": "Provolone",
+    "price": 17,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000021",
+    "name": "Barra francès",
+    "price": 17.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000022",
+    "name": "Cruier",
+    "price": 24,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000024",
+    "name": "Rulo cabra",
+    "price": 18.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000025",
+    "name": "Formatge blau",
+    "price": 16.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000026",
+    "name": "Roquefort",
+    "price": 32,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000027",
+    "name": "Sobrasada",
+    "price": 18.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000028",
+    "name": "Morcon",
+    "price": 35,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000029",
+    "name": "Xoriço ibèric",
+    "price": 35,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000030",
+    "name": "Llonganissa ibèrica",
+    "price": 35,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000031",
+    "name": "Llonganissa pagès",
+    "price": 25,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000032",
+    "name": "Llonganissa casa",
+    "price": 29,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000033",
+    "name": "Fuet",
+    "price": 17.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000036",
+    "name": "Butifarra blanca",
+    "price": 18.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000037",
+    "name": "Butifarra negra",
+    "price": 18.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000040",
+    "name": "Xoriço guisar",
+    "price": 15.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Elaborados",
+    "active": true
+  },
+  {
+    "code": "000041",
+    "name": "Morcilla",
+    "price": 15.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000047",
+    "name": "Mandonguilles",
+    "price": 15.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Elaborados",
+    "active": true
+  },
+  {
+    "code": "000048",
+    "name": "Bunyols bacallà",
+    "price": 21,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Elaborados",
+    "active": true
+  },
+  {
+    "code": "000050",
+    "name": "Ensaladilla",
+    "price": 13.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000051",
+    "name": "Empanada",
+    "price": 17.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000052",
+    "name": "Rollets pernil",
+    "price": 25,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000053",
+    "name": "Rollets formatge",
+    "price": 25,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000054",
+    "name": "Rollets carn",
+    "price": 25,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000055",
+    "name": "Pollastre",
+    "price": 5.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Pollo",
+    "active": true
+  },
+  {
+    "code": "000056",
+    "name": "Quart pollastre",
+    "price": 6.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Pollo",
+    "active": true
+  },
+  {
+    "code": "000057",
+    "name": "Pit pollastre",
+    "price": 13.25,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Pollo",
+    "active": true
+  },
+  {
+    "code": "000058",
+    "name": "Conill",
+    "price": 11.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Elaborados Frescos",
+    "active": true
+  },
+  {
+    "code": "000059",
+    "name": "Croquetes",
+    "price": 18.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Elaborados",
+    "active": true
+  },
+  {
+    "code": "000060",
+    "name": "Gallina",
+    "price": 7.5,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Pollo",
+    "active": true
+  },
+  {
+    "code": "000061",
+    "name": "Rodo cuixa",
+    "price": 17.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000062",
+    "name": "Rodo espatlla",
+    "price": 18.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000063",
+    "name": "Llana",
+    "price": 25.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000064",
+    "name": "Filet vedella",
+    "price": 59.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000065",
+    "name": "Guisar",
+    "price": 17.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000067",
+    "name": "Xurrasco",
+    "price": 22.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000068",
+    "name": "Ossos vedella",
+    "price": 1.1,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000069",
+    "name": "Ossos tocino",
+    "price": 8.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000070",
+    "name": "Entrecot",
+    "price": 32.5,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000071",
+    "name": "Culata",
+    "price": 23.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000072",
+    "name": "Filet pobre",
+    "price": 19.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000073",
+    "name": "Culatí",
+    "price": 22.5,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000074",
+    "name": "Hamburguesa vedella",
+    "price": 19.5,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Hamburguesas",
+    "active": true
+  },
+  {
+    "code": "000075",
+    "name": "Hamburguesa formatge",
+    "price": 19.5,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Elaborados",
+    "active": true
+  },
+  {
+    "code": "000076",
+    "name": "Hamburguesa foie",
+    "price": 18.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Elaborados",
+    "active": true
+  },
+  {
+    "code": "000077",
+    "name": "Hamburguesa ceba",
+    "price": 18.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Elaborados",
+    "active": true
+  },
+  {
+    "code": "000078",
+    "name": "Hamburguesa pollastre",
+    "price": 18.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Elaborados",
+    "active": true
+  },
+  {
+    "code": "000080",
+    "name": "Llom duroc",
+    "price": 15.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000081",
+    "name": "Cap de llom",
+    "price": 12.1,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000082",
+    "name": "Costella",
+    "price": 12.3,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000083",
+    "name": "Llonza",
+    "price": 12.1,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000084",
+    "name": "Cansalada viada",
+    "price": 11.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000085",
+    "name": "Papada",
+    "price": 10.2,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000086",
+    "name": "Lagarto",
+    "price": 22.5,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000087",
+    "name": "Pressa",
+    "price": 22.5,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000088",
+    "name": "Picada mixta",
+    "price": 16.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Elaborados",
+    "active": true
+  },
+  {
+    "code": "000089",
+    "name": "Callos",
+    "price": 6.5,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000090",
+    "name": "Canelons",
+    "price": 9.1,
+    "unit": "ud",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000091",
+    "name": "Crispelles bacallà",
+    "price": 21,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000092",
+    "name": "Empanada tonyina",
+    "price": 2.5,
+    "unit": "ud",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000093",
+    "name": "Ensaladilla russa",
+    "price": 11.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000094",
+    "name": "Cargols",
+    "price": 13.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000095",
+    "name": "Empanadilles tonyina",
+    "price": 2.5,
+    "unit": "ud",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000097",
+    "name": "Fetge vedella",
+    "price": 13.9,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000098",
+    "name": "Fetge xai",
+    "price": 18.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cordero",
+    "active": true
+  },
+  {
+    "code": "000099",
+    "name": "Costelles xai",
+    "price": 39,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cordero",
+    "active": true
+  },
+  {
+    "code": "000100",
+    "name": "Cuixa xai",
+    "price": 19.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cordero",
+    "active": true
+  },
+  {
+    "code": "000101",
+    "name": "Espatlla xai",
+    "price": 23.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cordero",
+    "active": true
+  },
+  {
+    "code": "000102",
+    "name": "Careta",
+    "price": 8.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000103",
+    "name": "Cua",
+    "price": 8.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000104",
+    "name": "Galtes",
+    "price": 10.5,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000105",
+    "name": "Peus",
+    "price": 8.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000107",
+    "name": "Cigrons",
+    "price": 7.1,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Elaborados Frescos",
+    "active": true
+  },
+  {
+    "code": "000108",
+    "name": "Mongetes",
+    "price": 7.1,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Elaborados Frescos",
+    "active": true
+  },
+  {
+    "code": "000110",
+    "name": "Butifarra",
+    "price": 17.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000111",
+    "name": "Salsitxes",
+    "price": 18.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Elaborados",
+    "active": true
+  },
+  {
+    "code": "000114",
+    "name": "Solomillo",
+    "price": 18.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000115",
+    "name": "Llonza ibèrica",
+    "price": 17.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000116",
+    "name": "Llom ibèric",
+    "price": 19.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000117",
+    "name": "Pernil ibèric cebo",
+    "price": 69,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000118",
+    "name": "Pernil bellota",
+    "price": 99,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000119",
+    "name": "Pernil espatlla",
+    "price": 39,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000120",
+    "name": "Pernil cuixa duroc",
+    "price": 49,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000121",
+    "name": "Llom ibèric",
+    "price": 69.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000122",
+    "name": "Llom país duroc",
+    "price": 33,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000123",
+    "name": "Ossos salats",
+    "price": 8.9,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000124",
+    "name": "Costella salada",
+    "price": 14.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000125",
+    "name": "Ossos pernil",
+    "price": 8.75,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000126",
+    "name": "Cansalada ibèrica",
+    "price": 12.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000128",
+    "name": "Pit gall dindi",
+    "price": 12.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Pollo",
+    "active": true
+  },
+  {
+    "code": "000129",
+    "name": "Ous pages 1/2",
+    "price": 2.69,
+    "unit": "ud",
+    "area": "Carne",
+    "subcat": "Elaborados Frescos",
+    "active": true
+  },
+  {
+    "code": "000130",
+    "name": "Morcilla malaguenya",
+    "price": 15.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000132",
+    "name": "Formatge rallat",
+    "price": 18,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000133",
+    "name": "Secret ibèric",
+    "price": 22.5,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000134",
+    "name": "Ploma ibèrica",
+    "price": 22.5,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cerdo",
+    "active": true
+  },
+  {
+    "code": "000135",
+    "name": "Pizza pernil formatge",
+    "price": 11.95,
+    "unit": "ud",
+    "area": "Charcutería",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000136",
+    "name": "Pizza ibèrica",
+    "price": 13.25,
+    "unit": "ud",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000137",
+    "name": "Pizza 4 formatges",
+    "price": 12.5,
+    "unit": "ud",
+    "area": "Charcutería",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000138",
+    "name": "Pizza tonyina",
+    "price": 14.95,
+    "unit": "ud",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000139",
+    "name": "Cua vedella",
+    "price": 21.5,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000140",
+    "name": "Mini hamburgueses",
+    "price": 19.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Elaborados",
+    "active": true
+  },
+  {
+    "code": "000141",
+    "name": "Callos",
+    "price": 11.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000142",
+    "name": "Cap pota",
+    "price": 11.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000143",
+    "name": "Peus cuits",
+    "price": 9.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000144",
+    "name": "Pollo",
+    "price": 15,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Pollo",
+    "active": true
+  },
+  {
+    "code": "000012",
+    "name": "Formatge barra regi",
+    "price": 18.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000015",
+    "name": "Formatge all negre",
+    "price": 59,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000023",
+    "name": "Formatge tofuna",
+    "price": 35,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000034",
+    "name": "Jalea",
+    "price": 12.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000035",
+    "name": "Membrillo",
+    "price": 15,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000038",
+    "name": "Butifarra trompeta de la mort",
+    "price": 29.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000039",
+    "name": "Butifarra d'ou",
+    "price": 24.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000042",
+    "name": "Paté ceba",
+    "price": 39,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000043",
+    "name": "Paté fines herbes",
+    "price": 35,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000044",
+    "name": "Paté pebre negre",
+    "price": 29,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000045",
+    "name": "Mató",
+    "price": 2.5,
+    "unit": "ud",
+    "area": "Charcutería",
+    "subcat": "Quesos",
+    "active": true
+  },
+  {
+    "code": "000046",
+    "name": "Llardons",
+    "price": 29,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000049",
+    "name": "Fideuà",
+    "price": 19.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000066",
+    "name": "Conill vedella",
+    "price": 17.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000079",
+    "name": "Hamburguesa pollo formatge",
+    "price": 18.95,
+    "unit": "kg",
+    "area": "Elaborados",
+    "subcat": "Hamburguesas",
+    "active": true
+  },
+  {
+    "code": "000096",
+    "name": "Rollets pernil",
+    "price": 25,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Preparados",
+    "active": true
+  },
+  {
+    "code": "000106",
+    "name": "Cordells",
+    "price": 10.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cordero",
+    "active": true
+  },
+  {
+    "code": "000109",
+    "name": "Cervells",
+    "price": 2.5,
+    "unit": "ud",
+    "area": "Carne",
+    "subcat": "Elaborados Frescos",
+    "active": true
+  },
+  {
+    "code": "000112",
+    "name": "Morcilla",
+    "price": 15.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000113",
+    "name": "Xoriço guisar",
+    "price": 15.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000127",
+    "name": "Seguí",
+    "price": 8.75,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000131",
+    "name": "Xoriço guissar",
+    "price": 15.95,
+    "unit": "kg",
+    "area": "Charcutería",
+    "subcat": "Embutidos",
+    "active": true
+  },
+  {
+    "code": "000145",
+    "name": "Chuleta de ternera",
+    "price": 24.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000146",
+    "name": "Bistec de ternera",
+    "price": 19.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000147",
+    "name": "Estofado de ternera",
+    "price": 16.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Ternera",
+    "active": true
+  },
+  {
+    "code": "000148",
+    "name": "Pierna de cabrito",
+    "price": 29.95,
+    "unit": "kg",
+    "area": "Carne",
+    "subcat": "Cabrito",
+    "active": true
+  }
+]

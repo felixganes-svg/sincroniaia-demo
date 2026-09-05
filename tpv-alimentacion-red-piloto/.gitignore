@@ -1,0 +1,5 @@
+tpv_local_red.db
+tpv_local_red.db-shm
+tpv_local_red.db-wal
+copias/
+__pycache__/
