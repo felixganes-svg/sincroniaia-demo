@@ -39,3 +39,18 @@ Tipo: comprobación técnica de implementación; pendiente validación funcional
 
 ## Pendiente aparte
 - Validar cómo deben tratarse los tickets pendientes de cobro dentro de Informes X/Z.
+
+
+## Nueva prueba · Centro de Encargos
+Pendiente de validación móvil:
+1. Crear un encargo con 3 artículos.
+2. Introducir peso/cantidad real en 1 artículo.
+3. Confirmar que aparece 1 de 3 preparado y 2 pendientes.
+4. Aparcarlo y comprobar que aparece en INACABADOS.
+5. Preparar las líneas restantes (una puede ser No servido).
+6. Confirmar que pasa a PREPARADOS.
+7. Finalizar preparación y generar ticket.
+8. Confirmar que el ticket muestra Encargo nº + cliente.
+9. Confirmar PENDIENTE DE PAGO y PENDIENTE DE RECOGER.
+10. Cobrarlo y comprobar PAGADO + PENDIENTE DE RECOGER.
+11. Marcar Entregado y comprobar PAGADO + RECOGIDO.
