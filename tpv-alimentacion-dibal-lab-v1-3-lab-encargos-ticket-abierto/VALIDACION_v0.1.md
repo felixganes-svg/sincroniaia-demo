@@ -79,3 +79,22 @@ Pendiente de validación real en móvil:
 7. Preparar ese artículo.
 8. Pulsar GENERAR VENTA + TICKET.
 9. Confirmar que después ya no se pueden añadir/eliminar/modificar líneas.
+
+
+## Corrección actualización 6 · Aparcado de encargo completado
+Se detectó en prueba real que **Aparcar ticket** enviaba siempre a INACABADOS, incluso con 0 líneas pendientes.
+
+Corregido:
+- Si quedan pendientes: Aparcar → INACABADOS.
+- Si no quedan pendientes: Aparcar → PREPARADOS.
+- Al quedar 0 pendientes aparece botón **GUARDAR ENCARGO COMPLETADO**.
+- Ese botón guarda el encargo en PREPARADOS sin generar ticket de venta.
+- El encargo sigue editable hasta pulsar **GENERAR VENTA + TICKET**.
+- Sintaxis JavaScript tras la corrección: OK.
+
+Prueba móvil pendiente:
+1. Completar todas las líneas.
+2. Comprobar banner ENCARGO COMPLETADO.
+3. Pulsar GUARDAR ENCARGO COMPLETADO.
+4. Confirmar que aparece en PREPARADOS y no en INACABADOS.
+5. Abrirlo de nuevo y verificar que sigue editable y sin ticket generado.
