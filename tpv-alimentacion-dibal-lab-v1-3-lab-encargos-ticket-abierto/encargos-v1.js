@@ -1043,4 +1043,61 @@ confirmFinalizeOrderPreparation=function(id){
 };
 
 
+
+
+// ===== CORRECCIÓN UX · GUARDAR ENCARGO COMPLETADO =====
+window.saveCompletedParkedOrder=function(id){
+  let o=orders.find(x=>String(x.id)===String(id));
+  if(!o||o.ticketId)return alert('Este encargo ya tiene ticket de venta.');
+  syncParkedOrderStatus(o);
+  let p=orderProgress(o);
+  if(!(p.total>0&&p.pending===0))return alert('Todavía quedan artículos pendientes de preparar.');
+  o.status='Encargo completado · ticket pendiente de generar';
+  o.completedAt=o.completedAt||new Date().toLocaleString('es-ES');
+  save();
+  parkedOrderContext=null;
+  screen='venta';atRoot=true;area='Carne';subcat='';azScope=null;
+  ordersModal('preparados');
+};
+
+window.parkCurrentOrder=function(){
+  let o=parkedOrder();
+  if(o&&!o.ticketId){
+    syncParkedOrderStatus(o);
+    save();
+    let p=orderProgress(o);
+    parkedOrderContext=null;
+    screen='venta';atRoot=true;area='Carne';subcat='';azScope=null;
+    return ordersModal(p.total>0&&p.pending===0?'preparados':'inacabados');
+  }
+  parkedOrderContext=null;
+  screen='venta';atRoot=true;area='Carne';subcat='';azScope=null;
+  ordersModal('inacabados');
+};
+
+const openOrderBeforeSaveCompletedButton=openOrder;
+openOrder=function(id){
+  openOrderBeforeSaveCompletedButton(id);
+  let o=orders.find(x=>String(x.id)===String(id));
+  if(!o||o.ticketId)return;
+  let p=orderProgress(o),box=document.getElementById('modalBox');
+  if(!box||!(p.total>0&&p.pending===0))return;
+
+  let existing=[...box.querySelectorAll('button')].find(b=>(b.textContent||'').includes('GUARDAR ENCARGO COMPLETADO'));
+  if(existing)return;
+
+  let controls=[...box.querySelectorAll('button')].find(b=>(b.textContent||'').trim()==='GENERAR VENTA + TICKET');
+  let saveBtn=document.createElement('button');
+  saveBtn.className='green';
+  saveBtn.textContent='GUARDAR ENCARGO COMPLETADO';
+  saveBtn.setAttribute('onclick',"saveCompletedParkedOrder('"+o.id+"')");
+  if(controls){
+    controls.insertAdjacentElement('beforebegin',saveBtn);
+    controls.insertAdjacentText('beforebegin',' ');
+  }else{
+    let target=box.querySelector('.notice')||box;
+    target.insertAdjacentElement('afterend',saveBtn);
+  }
+};
+
 })();
