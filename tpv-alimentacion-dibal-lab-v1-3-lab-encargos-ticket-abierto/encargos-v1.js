@@ -842,4 +842,205 @@ saleTicketLookupRows=function(q){
   }).join('')||'<p>No se encontró ningún ticket con esos datos.</p>';
 };
 
+
+
+// ===== ENCARGO COMPLETADO SIN GENERAR TICKET · PENDIENTES ARRIBA =====
+function isResolvedOrderLine(l){
+  return l&&((l.status==='Preparado')||(l.status==='No servido'));
+}
+function sortPreparationLines(lines){
+  if(!Array.isArray(lines))return;
+  lines.sort((a,b)=>{
+    let ra=isResolvedOrderLine(a)?1:0,rb=isResolvedOrderLine(b)?1:0;
+    if(ra!==rb)return ra-rb;
+    let ta=String(a.preparedAt||a.notServedAt||''),tb=String(b.preparedAt||b.notServedAt||'');
+    return ta.localeCompare(tb);
+  });
+}
+function sortOrderPreparation(o){
+  if(!o)return;
+  sortPreparationLines(o.items||[]);
+  (o.groups||[]).forEach(g=>sortPreparationLines(g.items||[]));
+}
+function syncParkedOrderStatus(o){
+  if(!o||o.ticketId)return;
+  sortOrderPreparation(o);
+  let p=orderProgress(o);
+  if(p.total>0&&p.pending===0){
+    o.status='Encargo completado · ticket pendiente de generar';
+    o.completedAt=o.completedAt||new Date().toLocaleString('es-ES');
+  }else{
+    o.status='Aparcado · inacabado';
+    o.completedAt=null;
+  }
+}
+
+window.savePreparedOrderLine=function(orderId,lineId){
+  let o=orders.find(x=>String(x.id)===String(orderId)),l=o&&findOrderLine(o,lineId),p=l&&effectiveProductForLine(l);
+  if(!o||!l||!p||o.ticketId)return alert('Línea no disponible.');
+  let qty=Number(document.getElementById('preparedQty')?.value);
+  if(!Number.isFinite(qty)||qty<=0)return alert('Introduce un peso/cantidad mayor que 0.');
+  let calc=calcLine(p,qty);
+  l.qty=qty;
+  l.effectiveUnit=p.unit;
+  l.price=p.price;
+  l.normalTotal=calc.normal;
+  l.total=calc.total;
+  l.discount=calc.disc;
+  l.offerLabel=calc.label;
+  l.offerPrice=calc.appliedPrice;
+  l.status='Preparado';
+  l.preparedAt=new Date().toLocaleString('es-ES');
+  syncParkedOrderStatus(o);
+  save();
+  openOrder(o.id);
+};
+
+window.markOrderLineZero=function(orderId,lineId){
+  let o=orders.find(x=>String(x.id)===String(orderId)),l=o&&findOrderLine(o,lineId);
+  if(!o||!l||o.ticketId)return;
+  if(!confirm('Esta línea quedará como NO SERVIDA, cantidad 0 e importe 0,00 €. ¿Continuar?'))return;
+  l.qty=0;
+  l.price=0;
+  l.normalTotal=0;
+  l.total=0;
+  l.discount=0;
+  l.status='No servido';
+  l.notServedAt=new Date().toLocaleString('es-ES');
+  syncParkedOrderStatus(o);
+  save();
+  openOrder(o.id);
+};
+
+const saveOrderRequestedProductBeforeCompletion=saveOrderRequestedProduct;
+saveOrderRequestedProduct=function(id,code,groupId){
+  saveOrderRequestedProductBeforeCompletion(id,code,groupId);
+  let o=orders.find(x=>String(x.id)===String(id));
+  if(o&&!o.ticketId){
+    syncParkedOrderStatus(o);
+    save();
+  }
+};
+
+const createOrderTrayBeforeCompletion=createOrderTray;
+createOrderTray=function(id){
+  let o=orders.find(x=>String(x.id)===String(id));
+  if(o&&!o.ticketId){
+    o.status='Aparcado · inacabado';
+    o.completedAt=null;
+    save();
+  }
+  return createOrderTrayBeforeCompletion(id);
+};
+
+const removeParkedOrderLineBeforeCompletion=removeParkedOrderLine;
+removeParkedOrderLine=function(orderId,lineId){
+  removeParkedOrderLineBeforeCompletion(orderId,lineId);
+  let o=orders.find(x=>String(x.id)===String(orderId));
+  if(o&&!o.ticketId){
+    syncParkedOrderStatus(o);
+    save();
+  }
+};
+
+const removeOrderTrayBeforeCompletion=removeOrderTray;
+removeOrderTray=function(orderId,groupId){
+  removeOrderTrayBeforeCompletion(orderId,groupId);
+  let o=orders.find(x=>String(x.id)===String(orderId));
+  if(o&&!o.ticketId){
+    syncParkedOrderStatus(o);
+    save();
+  }
+};
+
+const selectOrderSubstituteBeforeCompletion=selectOrderSubstitute;
+selectOrderSubstitute=function(orderId,lineId,code){
+  let o=orders.find(x=>String(x.id)===String(orderId));
+  if(o&&!o.ticketId){
+    o.status='Aparcado · inacabado';
+    o.completedAt=null;
+  }
+  return selectOrderSubstituteBeforeCompletion(orderId,lineId,code);
+};
+
+topLineHtml=function(o,l){
+  let buttons='';
+  if(!o.ticketId){
+    buttons=
+      '<button class="'+(l.status==='Pendiente'?'primary':'')+'" onclick="prepareOrderLine(\''+o.id+'\',\''+l.id+'\')">'+
+        (l.status==='Pendiente'?'PESO / CANTIDAD':'CAMBIAR PESO')+
+      '</button> '+
+      '<button onclick="editParkedOrderLine(\''+o.id+'\',\''+l.id+'\')">MODIFICAR</button> '+
+      '<button class="danger" onclick="removeParkedOrderLine(\''+o.id+'\',\''+l.id+'\')">ELIMINAR</button>';
+  }
+  let state=l.status==='Pendiente'?'⏳ PENDIENTE':(l.status==='Preparado'?'✅ PREPARADO':'⊘ NO SERVIDO');
+  return '<div class="line"><div><b>'+esc(l.name)+'</b><br><small><b>'+state+'</b></small><br>'+lineStateHtml(l)+'</div>'+
+    '<div>'+(l.status==='Preparado'?'<b>'+euro(l.total)+'</b><br>':'')+buttons+'</div></div>';
+};
+
+groupHtml=function(o,g){
+  sortPreparationLines(g.items||[]);
+  let gp=(g.items||[]),done=gp.filter(isResolvedOrderLine).length,pending=gp.length-done;
+  let rows=gp.map(l=>topLineHtml(o,l)).join('')||'<p class="muted">Todavía no hay productos en esta bandeja.</p>';
+  return '<div class="panel"><h3>'+esc(groupTitle(g))+' · '+done+'/'+gp.length+' preparados'+(pending?' · '+pending+' pendientes':' · ✅ COMPLETA')+'</h3>'+
+    (g.notes?'<p><small>'+esc(g.notes)+'</small></p>':'')+
+    rows+
+    (!o.ticketId?'<p><button onclick="orderAddProduct(\''+o.id+'\',\''+g.id+'\')">+ AÑADIR PRODUCTO</button> '+
+    '<button class="danger" onclick="removeOrderTray(\''+o.id+'\',\''+g.id+'\')">ELIMINAR BANDEJA</button></p>':'')+
+    '</div>';
+};
+
+const openOrderBeforeCompletedState=openOrder;
+openOrder=function(id){
+  let o=orders.find(x=>String(x.id)===String(id));
+  if(o&&!o.ticketId){
+    syncParkedOrderStatus(o);
+    save();
+  }
+  openOrderBeforeCompletedState(id);
+  o=orders.find(x=>String(x.id)===String(id));
+  if(!o||o.ticketId)return;
+  let p=orderProgress(o),box=document.getElementById('modalBox');
+  if(!box)return;
+  let notices=[...box.querySelectorAll('.notice')];
+  let progressNotice=notices.find(n=>(n.textContent||'').includes('Preparación:'));
+  if(p.total>0&&p.pending===0){
+    if(progressNotice)progressNotice.innerHTML='<b>✅ ENCARGO COMPLETADO</b><br>'+p.completed+' de '+p.total+' artículos preparados.<br><b>El encargo sigue aparcado y editable hasta generar el ticket de venta.</b>';
+    [...box.querySelectorAll('button')].forEach(b=>{
+      if((b.textContent||'').trim()==='FINALIZAR PREPARACIÓN')b.textContent='GENERAR VENTA + TICKET';
+    });
+  }else if(progressNotice){
+    progressNotice.innerHTML='<b>Preparación: '+p.completed+' de '+p.total+' artículos completados</b><br>⏳ Quedan '+p.pending+' artículos por preparar.';
+  }
+};
+
+window.finalizeOrderPreparation=function(id){
+  let o=orders.find(x=>String(x.id)===String(id));
+  if(!o||o.ticketId)return alert('Este encargo ya ha generado una venta.');
+  syncParkedOrderStatus(o);
+  if(!orderLinesReady(o))return alert('Todavía quedan líneas pendientes de preparar.');
+  if(!orderHasServedLines(o))return alert('No hay ningún artículo servido. No se puede generar una venta a 0,00 €.');
+  let active=activeSellers();
+  modal(
+    '<h2>Generar venta + ticket · '+esc(o.number)+'</h2>'+
+    '<p class="warn"><b>El encargo ya está completado.</b> Hasta este momento seguía siendo un ticket aparcado editable. Al generar la venta, artículos, pesos, precios e importe quedarán cerrados y cualquier corrección posterior irá por Rectificación.</p>'+
+    '<h2>Total definitivo: '+euro(orderPreparedTotal(o))+'</h2>'+
+    '<label>Vendedor que genera el ticket</label><select id="preparedBySeller">'+active.map(s=>'<option>'+esc(s.name)+'</option>').join('')+'</select>'+
+    (active.length?'':'<p class="warn">Debe haber un vendedor iniciado.</p>')+
+    '<p><button class="primary" '+(active.length?'':'disabled')+' onclick="confirmFinalizeOrderPreparation(\''+id+'\')">GENERAR VENTA + TICKET</button> '+
+    '<button onclick="openOrder(\''+id+'\')">SEGUIR MODIFICANDO</button></p>'
+  );
+};
+
+const confirmFinalizeBeforeCompletion=confirmFinalizeOrderPreparation;
+confirmFinalizeOrderPreparation=function(id){
+  confirmFinalizeBeforeCompletion(id);
+  let o=orders.find(x=>String(x.id)===String(id));
+  if(o&&o.ticketId){
+    o.status='Ticket generado · pendiente de cobro';
+    save();
+  }
+};
+
+
 })();
