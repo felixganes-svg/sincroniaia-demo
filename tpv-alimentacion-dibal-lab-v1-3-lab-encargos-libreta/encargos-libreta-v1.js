@@ -1630,4 +1630,324 @@ showZReport=function(i){
     '<button class="primary" onclick="window.print()">Imprimir Z</button> <button onclick="closeModal()">Cerrar</button>');
 };
 
+
+
+// ===== PAGO MIXTO REAL · EFECTIVO / TARJETA / BIZUM =====
+function mixedMoneyValue(id){
+  let raw=(document.getElementById(id)?.value||'').trim().replace(',','.');
+  if(raw==='')return 0;
+  let n=Number(raw);
+  return Number.isFinite(n)?round(n):NaN;
+}
+function mixedPartsFrom(prefix){
+  return {
+    cash:mixedMoneyValue(prefix+'Cash'),
+    card:mixedMoneyValue(prefix+'Card'),
+    bizum:mixedMoneyValue(prefix+'Bizum')
+  };
+}
+function mixedPartsTotal(p){
+  return round(Number(p.cash||0)+Number(p.card||0)+Number(p.bizum||0));
+}
+function mixedNonZeroCount(p){
+  return [p.cash,p.card,p.bizum].filter(v=>Number(v)>0).length;
+}
+function mixedBreakdownText(p){
+  let parts=[];
+  if(Number(p?.cash)>0)parts.push('Efectivo '+euro(p.cash));
+  if(Number(p?.card)>0)parts.push('Tarjeta '+euro(p.card));
+  if(Number(p?.bizum)>0)parts.push('Bizum '+euro(p.bizum));
+  return parts.join(' · ');
+}
+function mixedBreakdownReceiptHtml(t){
+  let p=t?.paymentBreakdown||{};
+  if(t?.method!=='Mixto'||mixedPartsTotal(p)<=0)return '';
+  return '<p><b>Pago: MIXTO</b><br>'+
+    (Number(p.cash)>0?'Efectivo: <b>'+euro(p.cash)+'</b><br>':'')+
+    (Number(p.card)>0?'Tarjeta: <b>'+euro(p.card)+'</b><br>':'')+
+    (Number(p.bizum)>0?'Bizum: <b>'+euro(p.bizum)+'</b><br>':'')+
+    '</p>';
+}
+function validateMixedParts(total,p){
+  if([p.cash,p.card,p.bizum].some(v=>!Number.isFinite(v)||v<0)){
+    alert('Introduce importes válidos, iguales o mayores que 0.');
+    return false;
+  }
+  if(mixedNonZeroCount(p)<2){
+    alert('Un pago MIXTO debe utilizar al menos dos formas de pago.');
+    return false;
+  }
+  let sum=mixedPartsTotal(p),target=round(Number(total)||0);
+  if(Math.abs(sum-target)>0.009){
+    let diff=round(target-sum);
+    alert(diff>0?'Faltan '+euro(diff)+' para completar el pago.':'Sobran '+euro(Math.abs(diff))+'. La suma debe coincidir con el total.');
+    return false;
+  }
+  return true;
+}
+function mixedStatusHtml(total,p){
+  let sum=mixedPartsTotal(p),diff=round(Number(total||0)-sum);
+  let msg=Math.abs(diff)<=0.009
+    ?'✅ COMPLETO · '+euro(sum)
+    :(diff>0?'⏳ FALTAN '+euro(diff):'⚠ SOBRAN '+euro(Math.abs(diff)));
+  return '<b>'+msg+'</b><br><small>'+mixedBreakdownText(p)+'</small>';
+}
+
+paymentModal=function(){
+  modal('<h2>Forma de pago · '+esc(selectedCloseSeller)+'</h2>'+
+    totalsHtml(cart)+
+    '<div class="grid two">'+
+      '<button class="primary" onclick="cashModal()">Efectivo</button>'+
+      '<button onclick="finishPay(\'Tarjeta\')">Tarjeta</button>'+
+      '<button onclick="finishPay(\'Bizum\')">Bizum</button>'+
+      '<button onclick="saleMixedPaymentModal()">Mixto</button>'+
+    '</div><p><button onclick="modalSubtotal()">Volver</button></p>');
+};
+
+window.saleMixedPaymentModal=function(){
+  let total=finalTotal(cart);
+  modal('<h2>Pago MIXTO</h2>'+
+    '<h2>Total ticket: '+euro(total)+'</h2>'+
+    '<p class="notice">Reparte el total entre dos o tres formas de pago. La suma debe coincidir exactamente con el ticket.</p>'+
+    '<label>Efectivo</label><input id="saleMixCash" type="number" inputmode="decimal" min="0" step="0.01" oninput="updateSaleMixedStatus()">'+
+    '<label>Tarjeta</label><input id="saleMixCard" type="number" inputmode="decimal" min="0" step="0.01" oninput="updateSaleMixedStatus()">'+
+    '<label>Bizum</label><input id="saleMixBizum" type="number" inputmode="decimal" min="0" step="0.01" oninput="updateSaleMixedStatus()">'+
+    '<div class="notice" id="saleMixStatus"><b>⏳ FALTAN '+euro(total)+'</b></div>'+
+    '<p><button class="primary" onclick="finishSaleMixed()">FINALIZAR PAGO MIXTO</button> '+
+    '<button onclick="paymentModal()">Volver</button></p>');
+};
+window.updateSaleMixedStatus=function(){
+  let p=mixedPartsFrom('saleMix'),el=document.getElementById('saleMixStatus');
+  if(el)el.innerHTML=mixedStatusHtml(finalTotal(cart),p);
+};
+window.finishSaleMixed=function(){
+  let s=findSellerByName(selectedCloseSeller);
+  if(!s||!s.active)return alert('El vendedor debe estar iniciado para finalizar su venta.');
+  let total=finalTotal(cart),p=mixedPartsFrom('saleMix');
+  if(!validateMixedParts(total,p))return;
+  let auto=activeAutoDiscount(cart),
+      number=String(Math.max(0,...tickets.map(x=>Number(x.number)||0))+1).padStart(4,'0');
+  let t={
+    id:Date.now(),number,date:new Date().toLocaleString('es-ES'),
+    seller:selectedCloseSeller,method:'Mixto',paymentBreakdown:p,
+    total,cashGiven:null,change:null,
+    automaticDiscount:auto.amount,automaticDiscountName:auto.rule?.name||'',
+    offerDiscount:offerDiscount(cart),
+    items:JSON.parse(JSON.stringify(cart))
+  };
+  tickets.unshift(t);
+  sellerMems[selectedCloseSeller]=[];
+  cart=[];
+  save();
+  modal(receiptHtml(t));
+  render();
+};
+
+orderPayment=function(id,seller){
+  let o=orders.find(x=>String(x.id)===String(id)),
+      t=o&&tickets.find(x=>String(x.id)===String(o.ticketId));
+  if(!o||!t)return;
+  modal('<h2>Cobrar ticket nº '+esc(t.number)+'</h2><h2>Total: '+euro(t.total)+'</h2>'+
+    '<div class="grid two">'+
+      '<button class="primary" onclick="orderCash(\''+o.id+'\',\''+esc(seller)+'\')">Efectivo</button>'+
+      '<button onclick="finishOrderPay(\''+o.id+'\',\''+esc(seller)+'\',\'Tarjeta\')">Tarjeta</button>'+
+      '<button onclick="finishOrderPay(\''+o.id+'\',\''+esc(seller)+'\',\'Bizum\')">Bizum</button>'+
+      '<button onclick="orderMixedPaymentModal(\''+o.id+'\',\''+esc(seller)+'\')">Mixto</button>'+
+    '</div><p><button onclick="chargePreparedOrder(\''+o.id+'\')">Volver</button></p>');
+};
+
+window.orderMixedPaymentModal=function(id,seller){
+  let o=orders.find(x=>String(x.id)===String(id)),
+      t=o&&tickets.find(x=>String(x.id)===String(o.ticketId));
+  if(!o||!t||t.paymentStatus!=='Pendiente')return alert('Este ticket ya no está pendiente de cobro.');
+  modal('<h2>Pago MIXTO · Ticket '+esc(t.number)+'</h2>'+
+    '<h2>Total: '+euro(t.total)+'</h2>'+
+    '<p class="notice">Indica cuánto se paga realmente por cada medio. Deben utilizarse al menos dos formas.</p>'+
+    '<label>Efectivo</label><input id="orderMixCash" type="number" inputmode="decimal" min="0" step="0.01" oninput="updateOrderMixedStatus(\''+id+'\')">'+
+    '<label>Tarjeta</label><input id="orderMixCard" type="number" inputmode="decimal" min="0" step="0.01" oninput="updateOrderMixedStatus(\''+id+'\')">'+
+    '<label>Bizum</label><input id="orderMixBizum" type="number" inputmode="decimal" min="0" step="0.01" oninput="updateOrderMixedStatus(\''+id+'\')">'+
+    '<div class="notice" id="orderMixStatus"><b>⏳ FALTAN '+euro(t.total)+'</b></div>'+
+    '<p><button class="primary" onclick="finishOrderMixed(\''+id+'\',\''+esc(seller)+'\')">FINALIZAR PAGO MIXTO</button> '+
+    '<button onclick="orderPayment(\''+id+'\',\''+esc(seller)+'\')">Volver</button></p>');
+};
+window.updateOrderMixedStatus=function(id){
+  let o=orders.find(x=>String(x.id)===String(id)),
+      t=o&&tickets.find(x=>String(x.id)===String(o.ticketId)),
+      el=document.getElementById('orderMixStatus');
+  if(t&&el)el.innerHTML=mixedStatusHtml(t.total,mixedPartsFrom('orderMix'));
+};
+window.finishOrderMixed=function(id,seller){
+  let o=orders.find(x=>String(x.id)===String(id)),
+      t=o&&tickets.find(x=>String(x.id)===String(o.ticketId));
+  if(!o||!t||t.paymentStatus!=='Pendiente')return alert('El ticket ya no está pendiente de cobro.');
+  let p=mixedPartsFrom('orderMix');
+  if(!validateMixedParts(t.total,p))return;
+  t.method='Mixto';
+  t.paymentBreakdown=p;
+  t.paymentStatus='Cobrado';
+  t.cashGiven=null;
+  t.change=null;
+  t.paidAt=new Date().toLocaleString('es-ES');
+  t.paidBy=seller;
+  o.status='Cobrado · pendiente de entrega';
+  o.paidAt=t.paidAt;
+  o.paidBy=seller;
+  save();
+  modal(receiptHtml(t));
+};
+
+const receiptHtmlBeforeRealMixed=receiptHtml;
+receiptHtml=function(t,reprint=false){
+  let html=receiptHtmlBeforeRealMixed(t,reprint);
+  if(!t||t.method!=='Mixto'||!t.paymentBreakdown)return html;
+  let mixed=mixedBreakdownReceiptHtml(t);
+  html=html.replace('<p><b>Pago:</b> Mixto</p>',mixed);
+  return html;
+};
+
+reportPaymentData=function(list){
+  let d={cash:0,card:0,bizum:0,pending:0,returns:0,other:0,paidTotal:0,legacyMixed:0};
+  (list||[]).forEach(t=>{
+    let amount=Number(t.total)||0;
+    if(reportTicketPending(t)){
+      d.pending=round(d.pending+amount);
+      return;
+    }
+    d.paidTotal=round(d.paidTotal+amount);
+
+    if(t.method==='Mixto'){
+      let p=t.paymentBreakdown;
+      if(p&&mixedPartsTotal(p)>0){
+        d.cash=round(d.cash+Number(p.cash||0));
+        d.card=round(d.card+Number(p.card||0));
+        d.bizum=round(d.bizum+Number(p.bizum||0));
+      }else{
+        d.legacyMixed=round(d.legacyMixed+amount);
+      }
+      return;
+    }
+
+    if(t.method==='Efectivo')d.cash=round(d.cash+amount);
+    else if(t.method==='Tarjeta')d.card=round(d.card+amount);
+    else if(t.method==='Bizum')d.bizum=round(d.bizum+amount);
+    else if(t.method==='Devolución'||t.method==='Cobro diferencia')d.returns=round(d.returns+amount);
+    else d.other=round(d.other+amount);
+  });
+  return d;
+};
+
+reportBlock=function(data,title,dateText){
+  let p=data.payments||{},
+      expected=round((p.cash||0)+((p.returns||0)<0?(p.returns||0):0));
+  return '<div class="panel">'+
+    '<h2>'+title+'</h2>'+
+    '<p class="muted">'+esc(dateText)+'</p>'+
+    '<div class="totals">'+
+      '<div><span>Tickets generados</span><b>'+data.tickets+'</b></div>'+
+      '<div><span>Total tickets generados</span><b>'+euro(data.total)+'</b></div>'+
+      '<div><span>Total cobrado</span><b>'+euro(data.paidTotal||0)+'</b></div>'+
+      '<div><span>Pendiente de cobro</span><b>'+euro(data.pendingTotal||0)+'</b></div>'+
+    '</div>'+
+    '<h3>Formas de pago</h3>'+
+    '<div class="totals">'+
+      '<div><span>Efectivo</span><b>'+euro(p.cash||0)+'</b></div>'+
+      '<div><span>Tarjeta</span><b>'+euro(p.card||0)+'</b></div>'+
+      '<div><span>Bizum</span><b>'+euro(p.bizum||0)+'</b></div>'+
+      ((p.returns||0)!==0?'<div><span>Devoluciones / ajustes</span><b>'+euro(p.returns||0)+'</b></div>':'')+
+      '<div class="final"><span>EFECTIVO ESPERADO EN CAJA</span><b>'+euro(expected)+'</b></div>'+
+    '</div>'+
+    (Number(p.legacyMixed||0)>0?'<p class="warn"><b>Dato anterior:</b> hay '+euro(p.legacyMixed)+' de tickets MIXTOS antiguos sin desglose. No se reparten porque no conocemos cómo se cobraron.</p>':'')+
+    '<div class="totals">'+
+      '<div><span>Ventas directas</span><b>'+(data.directCount||0)+' · '+euro(data.directTotal||0)+'</b></div>'+
+      Object.entries(data.directByArea||{}).map(([a,v])=>'<div><span>Directa · '+areaLabel(a)+'</span><b>'+euro(v)+'</b></div>').join('')+
+      '<div><span>Ventas negativas</span><b>'+data.negativeCount+' · '+euro(data.negativeTotal)+'</b></div>'+
+      '<div><span>Descuentos realizados</span><b>'+euro(data.discounts)+'</b></div>'+
+      '<div class="final"><span>VENTA TOTAL REGISTRADA</span><b>'+euro(data.total)+'</b></div>'+
+    '</div>'+
+    '<div class="tableWrap"><table><thead><tr><th>Vendedor</th><th>Tickets</th><th>Venta</th><th>Negativas</th><th>Descuentos</th></tr></thead><tbody>'+
+      data.rows.map(r=>'<tr><td>'+esc(r.seller)+'</td><td>'+r.count+'</td><td>'+euro(r.total)+'</td><td>'+r.negativeCount+' · '+euro(r.negativeTotal)+'</td><td>'+euro(r.discounts)+'</td></tr>').join('')+
+      (data.rows.length?'':'<tr><td colspan="5">Sin ventas registradas en este periodo.</td></tr>')+
+    '</tbody></table></div>'+
+  '</div>';
+};
+
+reportPrintInner=function(data,title,dateText){
+  let p=data.payments||{},
+      expected=round((p.cash||0)+((p.returns||0)<0?(p.returns||0):0));
+  return '<h2>'+esc(title)+'</h2>'+
+    '<p>'+esc(company.name)+'<br>'+esc(dateText)+'</p>'+
+    '<div class="totals">'+
+      '<div><span>Tickets</span><b>'+data.tickets+'</b></div>'+
+      '<div><span>Total generado</span><b>'+euro(data.total)+'</b></div>'+
+      '<div><span>Total cobrado</span><b>'+euro(data.paidTotal||0)+'</b></div>'+
+      '<div><span>Pendiente cobro</span><b>'+euro(data.pendingTotal||0)+'</b></div>'+
+    '</div>'+
+    '<p><b>FORMAS DE PAGO</b></p>'+
+    '<div class="totals">'+
+      '<div><span>Efectivo</span><b>'+euro(p.cash||0)+'</b></div>'+
+      '<div><span>Tarjeta</span><b>'+euro(p.card||0)+'</b></div>'+
+      '<div><span>Bizum</span><b>'+euro(p.bizum||0)+'</b></div>'+
+      '<div class="final"><span>EFECTIVO ESPERADO</span><b>'+euro(expected)+'</b></div>'+
+    '</div>'+
+    (Number(p.legacyMixed||0)>0?'<p><small>Mixtos antiguos sin desglose: '+euro(p.legacyMixed)+'</small></p>':'')+
+    '<p><b>VENDEDORES</b></p>'+
+    (data.rows||[]).map(r=>'<div class="line"><div><b>'+esc(r.seller)+'</b><br><small>'+r.count+' tickets</small></div><b>'+euro(r.total)+'</b></div>').join('');
+};
+
+sellerActivityData=function(name){
+  let s=findSellerByName(name),today=new Date();
+  today.setHours(0,0,0,0);
+  let since=Math.max(Number(s?.loginAt)||0,today.getTime()),
+      list=tickets.filter(t=>t.seller===name&&Number(t.id)>=since),
+      cash=0,card=0,bizum=0,pending=0,legacyMixed=0;
+  list.forEach(t=>{
+    let amount=Number(t.total)||0;
+    if(reportTicketPending(t)){pending=round(pending+amount);return;}
+    if(t.method==='Mixto'){
+      let p=t.paymentBreakdown;
+      if(p&&mixedPartsTotal(p)>0){
+        cash=round(cash+Number(p.cash||0));
+        card=round(card+Number(p.card||0));
+        bizum=round(bizum+Number(p.bizum||0));
+      }else legacyMixed=round(legacyMixed+amount);
+    }else if(t.method==='Efectivo')cash=round(cash+amount);
+    else if(t.method==='Tarjeta')card=round(card+amount);
+    else if(t.method==='Bizum')bizum=round(bizum+amount);
+  });
+  return {
+    since,list,count:list.length,
+    total:round(list.reduce((a,t)=>a+Number(t.total||0),0)),
+    cash,card,bizum,pending,legacyMixed,
+    returns:round(list.filter(t=>Number(t.total)<0).reduce((a,t)=>a+Number(t.total||0),0))
+  };
+};
+
+openMyActivity=function(name){
+  let s=findSellerByName(name),pin=document.getElementById('activityPin')?.value;
+  if(!s||!s.active||pin!==s.pin)return alert('PIN incorrecto o sesión no iniciada.');
+  let d=sellerActivityData(name),individual=company.cashMode==='individual',
+      expected=round(d.cash+(d.returns<0?d.returns:0));
+  modal('<div id="printTicket"><h2>Mi actividad · '+esc(name)+'</h2>'+
+    '<p class="muted">Desde '+new Date(d.since).toLocaleString('es-ES')+'</p>'+
+    '<div class="totals">'+
+      '<div><span>Tickets</span><b>'+d.count+'</b></div>'+
+      '<div><span>Efectivo</span><b>'+euro(d.cash)+'</b></div>'+
+      '<div><span>Tarjeta</span><b>'+euro(d.card)+'</b></div>'+
+      '<div><span>Bizum</span><b>'+euro(d.bizum)+'</b></div>'+
+      '<div><span>Pendiente de cobro</span><b>'+euro(d.pending)+'</b></div>'+
+      '<div><span>Devoluciones / rectificaciones</span><b>'+euro(d.returns)+'</b></div>'+
+      '<div class="final"><span>VENTA NETA PERSONAL</span><b>'+euro(d.total)+'</b></div>'+
+    '</div>'+
+    (Number(d.legacyMixed)>0?'<p class="warn">Mixtos antiguos sin desglose: '+euro(d.legacyMixed)+'</p>':'')+
+    (company.cashMode==='shared'
+      ?'<p class="warn"><b>Caja compartida:</b> cualquier diferencia de efectivo pertenece al cajón común.</p>'
+      :individual
+        ?'<div class="panel"><h3>Cuadre individual</h3><p>Efectivo esperado por ventas: <b>'+euro(expected)+'</b></p></div>'
+        :'<p class="notice">Configuración mixta: el responsable debe indicar si este vendedor utiliza cajón propio o compartido.</p>')+
+    '<h3>Tickets del periodo</h3>'+
+    d.list.map(t=>'<div class="line"><div><b>Nº '+esc(t.number)+'</b><br><small>'+esc(t.date)+' · '+esc(t.method)+(t.method==='Mixto'&&t.paymentBreakdown?' · '+esc(mixedBreakdownText(t.paymentBreakdown)):'')+'</small></div><b>'+euro(t.total)+'</b></div>').join('')+
+    (d.list.length?'':'<p>Sin ventas cerradas en esta sesión.</p>')+
+    '</div><p><button class="primary" onclick="window.print()">Imprimir X personal</button> <button onclick="closeModal()">Cerrar</button></p>');
+};
+
 })();
