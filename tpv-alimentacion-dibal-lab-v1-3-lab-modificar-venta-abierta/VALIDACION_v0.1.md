@@ -240,3 +240,54 @@ Con 6 columnas:
 ### Regla consolidada
 **Prioridad: máximo contenido visible sin perder legibilidad ni precisión táctil.**
 No se fuerza “cero scroll” cuando el volumen de artículos convertiría los botones en elementos demasiado pequeños.
+
+
+## Actualización · Cambio rápido de precio
+
+### Objetivo
+Permitir a Empresa cambiar un precio de forma inmediata sin entrar en la ficha completa del artículo.
+
+### Flujo
+**Empresa → Artículos → CAMBIO RÁPIDO DE PRECIO**
+1. Introducir código corto o completo.
+2. El sistema normaliza el código a 6 dígitos.
+3. Localiza el artículo y muestra nombre + precio actual.
+4. Introducir nuevo precio.
+5. Confirmación explícita del cambio.
+6. Guardado del nuevo precio.
+7. Registro en histórico de cambios rápidos.
+
+### Reglas
+- Solo modifica el precio del artículo.
+- No modifica nombre, familia, subsecciones ni estado.
+- El nuevo precio se aplica a ventas nuevas.
+- Tickets cerrados permanecen intactos.
+- Líneas ya guardadas en ventas abiertas permanecen con su precio capturado.
+- Líneas de encargos ya preparadas/guardadas permanecen con su precio capturado.
+- Se conserva trazabilidad con fecha, código, artículo, precio anterior y precio nuevo.
+- El histórico se incluye en copia/restauración JSON de esta LAB.
+
+### Prueba exacta solicitada
+Catálogo real de la LAB:
+- Código: **000083**
+- Artículo: **Llonza**
+- Precio inicial: **12,10 €/kg**
+
+Entrada:
+- Código escrito: **83**
+- Nuevo precio: **15,50**
+
+Resultado simulado con las funciones publicadas:
+- Normalización 83 → 000083: **OK**
+- Artículo encontrado: Llonza: **OK**
+- Precio 12,10 → 15,50 €/kg: **OK**
+- Registro histórico oldPrice=12,10 / newPrice=15,50: **OK**
+- Persistencia ejecutada: **OK**
+- Ticket anterior sin cambios: **OK**
+- Venta abierta existente sin cambios: **OK**
+- Encargo ya guardado sin cambios: **OK**
+- Sintaxis JavaScript: **OK**
+
+Resultado: **PRUEBA TÉCNICA SUPERADA**.
+
+Pendiente únicamente comprobación visual/táctil real en navegador.
