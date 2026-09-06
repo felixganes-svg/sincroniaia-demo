@@ -119,3 +119,47 @@ Verificación:
 - Sintaxis JavaScript: **OK**.
 
 En pantallas pequeñas la cuadrícula se adapta para mantener legibilidad; no altera la lógica del filtro.
+
+
+## Actualización · Conservación de filtros tras editar artículo
+
+### Error reportado
+En **Empresa → Artículos → Listado de artículos**, al trabajar con un filtro como:
+
+**Charcutería → Todas → Altas**
+
+y abrir un artículo, modificarlo y guardar, la pantalla se reconstruía con:
+
+**Todas → Todas → Todas**
+
+### Causa
+El guardado ejecutaba `render()` y reconstruía la vista de Artículos con los valores por defecto de los filtros.
+
+### Corrección
+Se guarda en memoria de sesión el estado de los cuatro filtros:
+- Familia / sección.
+- Subsección.
+- Altas / Bajas / Todas.
+- Código o nombre.
+
+Al volver a renderizar **Empresa → Artículos**, esos valores se restauran y se vuelve a aplicar el filtro.
+
+Los filtros no se guardan permanentemente entre recargas completas del navegador, para evitar que otro día se abra el listado con un filtro antiguo sin que el usuario lo recuerde.
+
+### Evidencia de prueba
+Caso simulado:
+- Familia / sección: **Charcutería**.
+- Subsección: **Todas**.
+- Estado: **Altas**.
+- Código o nombre: vacío.
+- Abrir artículo: estado capturado correctamente.
+- Simular reconstrucción de pantalla a valores por defecto.
+- Restauración posterior:
+  - Charcutería: **OK**.
+  - Todas: **OK**.
+  - Altas: **OK**.
+  - Código o nombre vacío: **OK**.
+
+Resultado: **PRUEBA SUPERADA**.
+
+Pendiente únicamente la comprobación visual/táctil real en navegador del usuario.
