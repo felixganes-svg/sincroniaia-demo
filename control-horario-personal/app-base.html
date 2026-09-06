@@ -121,6 +121,20 @@ if(!Array.isArray(data.pending))data.pending=[];
 if(!Array.isArray(data.backups))data.backups=[];
 if(!data.config)data.config={weeklyContractHours:40};
 if(!Number.isFinite(Number(data.config.weeklyContractHours)))data.config.weeklyContractHours=40;
+
+// Correcciones históricas confirmadas: prevalecen sobre datos locales erróneos.
+const CONFIRMED_CORRECTIONS={
+  '2026-09-04':[
+    {in:isoLocal(2026,9,4,7,30),out:isoLocal(2026,9,4,13,30),minutes:360,source:'corrección confirmada'},
+    {in:isoLocal(2026,9,4,17,0),out:isoLocal(2026,9,4,20,15),minutes:195,source:'corrección confirmada'}
+  ],
+  '2026-09-05':[
+    {in:isoLocal(2026,9,5,7,30),out:isoLocal(2026,9,5,13,30),minutes:360,source:'corrección confirmada'}
+  ]
+};
+Object.entries(CONFIRMED_CORRECTIONS).forEach(([k,sessions])=>{
+  data.days[k]={sessions:JSON.parse(JSON.stringify(sessions)),source:'corrección confirmada'};
+});
 localStorage.setItem(KEY,JSON.stringify(data));
 function save(){localStorage.setItem(KEY,JSON.stringify(data))}
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2400)}
