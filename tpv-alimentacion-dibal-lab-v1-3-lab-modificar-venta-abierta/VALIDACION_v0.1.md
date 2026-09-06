@@ -75,3 +75,23 @@ Prueba ejecutada tras publicar los archivos en `main`:
 **2/2 casos superados.**
 
 Esto no sustituye la prueba táctil real en móvil, que sigue siendo obligatoria antes de sellar una versión.
+
+
+## Actualización visual · 2026-09-06
+
+Cambios aprobados tras revisión visual:
+- Eliminado el botón superior `← MENÚ` en la vista de familia.
+- Eliminado el segundo título repetido de la familia (por ejemplo, `Carnicería`).
+- `ARTÍCULOS A–Z` se mantiene como acceso superior.
+- `Venta directa · peso y precio` conserva su función, pero pasa a un estilo secundario de menor protagonismo.
+- La navegación inferior `MENÚ PRINCIPAL / SUBTOTAL` se mantiene como referencia constante.
+
+Verificación posterior:
+- A-Z presente: **OK**.
+- Subsecciones operativas en código: **OK**.
+- Navegación inferior presente: **OK**.
+- SUBTOTAL presente: **OK**.
+- Script de Modificar venta cargado: **OK**.
+- Sintaxis de los scripts inline: **OK**.
+
+La comprobación de publicación visual en GitHub Pages queda sujeta al refresco/caché del navegador del dispositivo.
