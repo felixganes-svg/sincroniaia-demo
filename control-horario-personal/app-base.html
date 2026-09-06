@@ -89,6 +89,20 @@ const OFFICIAL_HOLIDAYS_2026={
   '2026-12-25':{type:'holiday',category:'oficial',label:'Navidad'},
   '2026-12-26':{type:'holiday',category:'autonómico',label:'Sant Esteve'}
 };
+const OFFICIAL_HOLIDAYS_2027={
+  '2027-01-01':{type:'holiday',category:'oficial',label:'Año Nuevo'},
+  '2027-01-06':{type:'holiday',category:'oficial',label:'Reyes'},
+  '2027-03-26':{type:'holiday',category:'oficial',label:'Viernes Santo'},
+  '2027-03-29':{type:'holiday',category:'autonómico',label:'Lunes de Pascua'},
+  '2027-05-01':{type:'holiday',category:'oficial',label:'Fiesta del Trabajo'},
+  '2027-06-24':{type:'holiday',category:'autonómico',label:'Sant Joan'},
+  '2027-09-11':{type:'holiday',category:'autonómico',label:'Diada Nacional de Catalunya'},
+  '2027-10-12':{type:'holiday',category:'oficial',label:'Fiesta Nacional de España'},
+  '2027-11-01':{type:'holiday',category:'oficial',label:'Todos los Santos'},
+  '2027-12-06':{type:'holiday',category:'oficial',label:'Día de la Constitución'},
+  '2027-12-08':{type:'holiday',category:'oficial',label:'Inmaculada Concepción'},
+  '2027-12-25':{type:'holiday',category:'oficial',label:'Navidad'}
+};
 const SCHEDULES=[
   {id:'VERANO_2026',name:'Horario de verano',from:'2026-08-18',to:'2026-08-30',weeklyMinutes:2340,days:{
     1:[['07:30','13:30']],2:[['07:30','13:30']],3:[['07:30','13:30'],['17:00','20:00']],4:[['07:30','13:30']],5:[['07:30','13:30']],6:[['07:30','13:30']],0:[]
@@ -162,7 +176,7 @@ function save(){localStorage.setItem(KEY,JSON.stringify(data))}
 function holidayFor(k){
   const custom=(data.config.customHolidays||[]).find(x=>x.date===k);
   if(custom)return {type:'holiday',category:custom.type||'local',label:custom.name||'Festivo'};
-  return OFFICIAL_HOLIDAYS_2026[k]||SPECIAL_DAYS[k]||null;
+  return OFFICIAL_HOLIDAYS_2026[k]||OFFICIAL_HOLIDAYS_2027[k]||SPECIAL_DAYS[k]||null;
 }
 function addCustomHoliday(){
   const date=$('holidayDate')?.value||'',type=$('holidayType')?.value||'local',name=($('holidayName')?.value||'').trim();
@@ -177,7 +191,7 @@ function removeCustomHoliday(date){
 }
 function renderHolidays(){
   const info=$('officialHolidayInfo'),list=$('customHolidayList');
-  if(info)info.innerHTML='<span class="ok">✅ Catalunya 2026 · 12 festivos oficiales cargados automáticamente.</span>';
+  if(info)info.innerHTML='<span class="ok">✅ Catalunya 2026 y 2027 · festivos oficiales cargados automáticamente.</span>';
   if(!list)return;
   const xs=(data.config.customHolidays||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));
   list.innerHTML=xs.length?xs.map(x=>'<div class="backup-item"><b>'+fmtDate(x.date)+'</b> · '+x.name+' <span class="tag">'+x.type+'</span><button class="pill" style="float:right;padding:5px 8px" onclick="removeCustomHoliday(\''+x.date+'\')">Eliminar</button></div>').join(''):'No hay festivos locales/comarcales añadidos.';
