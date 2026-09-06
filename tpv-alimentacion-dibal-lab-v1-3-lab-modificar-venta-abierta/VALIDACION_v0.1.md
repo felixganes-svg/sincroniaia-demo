@@ -163,3 +163,37 @@ Caso simulado:
 Resultado: **PRUEBA SUPERADA**.
 
 Pendiente únicamente la comprobación visual/táctil real en navegador del usuario.
+
+
+## Actualización · Depuración de navegación de subsecciones
+
+### Cambios aprobados
+- Eliminado el botón superior de vuelta a familia:
+  - `← Carnicería`
+  - `← Charcutería`
+  - `← Elaborados`
+- Se mantiene arriba únicamente `Menú principal` como salto directo al nivel raíz.
+- Eliminado el segundo título grande repetido de la subsección.
+- La barra inferior conserva:
+  - izquierda: vuelta contextual a la familia;
+  - derecha: `SUBTOTAL`.
+- El encabezado evita repetir familia y subsección cuando son el mismo texto:
+  - `Elaborados · Elaborados` pasa a `Elaborados`.
+  - `Elaborados · Preparados` se mantiene.
+  - `Elaborados · Hamburguesas` se mantiene.
+
+### Verificación
+- Carnicería · Cabrito: **OK**.
+- Carnicería · Cerdo: **OK**.
+- Carnicería · Conejo: **OK**.
+- Carnicería · Cordero: **OK**.
+- Carnicería · Pollo: **OK**.
+- Carnicería · Ternera: **OK**.
+- Charcutería · Embutidos: **OK**.
+- Elaborados sin duplicación: **OK**.
+- Menú principal superior: **OK**.
+- Familia contextual inferior: **OK**.
+- SUBTOTAL inferior: **OK**.
+- Sintaxis JavaScript: **OK**.
+
+Resultado: **APROBADA TÉCNICAMENTE PARA PRUEBA VISUAL/TACTIL**.
