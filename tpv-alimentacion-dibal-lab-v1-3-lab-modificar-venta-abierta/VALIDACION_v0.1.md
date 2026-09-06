@@ -95,3 +95,27 @@ Verificación posterior:
 - Sintaxis de los scripts inline: **OK**.
 
 La comprobación de publicación visual en GitHub Pages queda sujeta al refresco/caché del navegador del dispositivo.
+
+
+## Actualización · Listado de artículos · filtros en una línea
+
+Cambio aprobado:
+- En **Empresa → Artículos → Listado de artículos**, los filtros de escritorio quedan en una sola fila:
+  1. Familia / sección.
+  2. Subsección.
+  3. Altas / Bajas / Todas.
+  4. Código o nombre.
+- El nuevo filtro de estado es funcional:
+  - **Todas**: muestra activos e inactivos.
+  - **Altas**: muestra artículos activos (`active !== false`).
+  - **Bajas**: muestra artículos inactivos (`active === false`).
+
+Verificación:
+- Cuatro columnas en escritorio: **OK**.
+- Filtro Todas: **OK**.
+- Filtro Altas: **OK**.
+- Filtro Bajas: **OK**.
+- Combinación con Familia/Subsección/Código o nombre: implementada en la misma función de filtrado.
+- Sintaxis JavaScript: **OK**.
+
+En pantallas pequeñas la cuadrícula se adapta para mantener legibilidad; no altera la lógica del filtro.
