@@ -29,7 +29,7 @@ label{font-size:13px;color:var(--muted);font-weight:800}.muted{color:var(--muted
 .directSale{width:auto;min-height:44px;margin:4px 0 14px;background:#eef3f8;color:#0f2238;font-size:15px;border:1px solid #cbd5e1;padding:10px 16px}.directSale:hover{background:#e2e8f0}
 .submenu .active,.bigmenu .active{outline:4px solid var(--yellow)}
 .sellerRow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.sellerCard{background:white;border:1px solid var(--line);border-radius:14px;padding:12px}.sellerCard.active{border-color:#16a34a;background:#f0fdf4}.sellerCard b{display:block}
-.products{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.prod{text-align:left;background:white;border:1px solid var(--line);padding:12px;border-radius:14px}.prod b{display:block;font-size:15px}.prod small{color:var(--muted)}
+.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.prod{text-align:left;background:white;border:1px solid var(--line);padding:9px 10px;border-radius:12px;min-height:58px}.prod b{display:block;font-size:15px;line-height:1.15}.prod small{display:block;color:var(--muted);font-size:12.5px;line-height:1.15;margin-top:3px}
 .ticketbar{position:fixed;left:0;right:0;bottom:0;background:#0f2238;color:white;padding:10px max(10px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));z-index:10}.ticketbar .inner{max-width:1320px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center}.ticketbar button{padding:13px;min-height:52px}
 .ticketbar .inner.compact{grid-template-columns:1fr 1fr}
 .saleTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}.saleTop strong{font-size:18px}.saleTop button{padding:9px 13px;font-weight:800}
@@ -41,7 +41,10 @@ label{font-size:13px;color:var(--muted);font-weight:800}.muted{color:var(--muted
 .adminCards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.adminCards button{min-height:72px;font-size:17px;text-align:left}.adminTop{display:flex;align-items:center;gap:12px}.adminTop button{flex:0 0 auto}.adminTop strong{font-size:20px}
 table{width:100%;border-collapse:collapse;font-size:14px}td,th{border-bottom:1px solid var(--line);padding:8px;text-align:left}th{background:#eef3f8}
 .tableWrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-@media(min-width:800px){.products{grid-template-columns:repeat(4,1fr)}.modal{align-items:center}.modal .box{border-radius:20px}}
+@media(min-width:700px){.products{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(min-width:1050px){.products{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(min-width:1250px){.products{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media(min-width:800px){.modal{align-items:center}.modal .box{border-radius:20px}}
 @media(max-width:900px){
  header{padding:9px 10px}header b{font-size:16px}header small{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
  main{padding:7px 8px calc(86px + env(safe-area-inset-bottom))}.panel{padding:10px;margin:7px 0;border-radius:14px}
@@ -313,9 +316,10 @@ function loginSellerModal(){modal(`<h2>Iniciar vendedor</h2><p class="muted">Cad
 function loginSeller(){let s=sellers.find(x=>x.code===sellerCodeLogin.value.trim()&&x.pin===sellerPinLogin.value);if(!s)return alert('Código o PIN incorrecto.');s.active=true;if(!s.loginAt)s.loginAt=Date.now();ensureMems();save();closeModal();render()}
 function logoutSellerModal(){modal(`<h2>Terminar sesión vendedor</h2>${sellers.map(s=>`<div class="line"><div><b>${esc(s.name)}</b><br><small>${s.active?'Activo':'No iniciado'} · memoria: ${(sellerMems[s.name]||[]).length} líneas</small></div><button ${!s.active?'disabled':''} onclick="logoutSeller('${esc(s.name)}')">Terminar sesión</button></div>`).join('')}<p><button onclick="closeModal()">Cerrar</button></p>`)}
 function logoutSeller(name){let s=findSellerByName(name);if(!s)return;if((sellerMems[name]||[]).length>0&&!confirm('Este vendedor tiene una venta pendiente. ¿Terminar sesión igualmente?'))return;s.active=false;s.loginAt=null;save();closeModal();render()}
-function filteredProducts(){if(area==='A–Z')return products.filter(p=>p.active!==false&&(!azScope||p.area===azScope)&&subcat&&productLetters(p).includes(subcat)).sort((a,b)=>a.name.localeCompare(b.name,'es'));return products.filter(p=>p.active!==false&&p.area===area&&(subcat==='Todos'||hasProductSub(p,subcat)))}
-function productButton(p){return `<button class="prod" onclick="selectProduct('${p.code}')"><b>${esc(p.name)}</b><small>${esc(p.code)} · ${productSubs(p).map(esc).join(', ')} · ${euro(p.price)} / ${p.unit}${p.offer&&p.offer.enabled?' · OFERTA':''}</small></button>`}
-function searchProducts(q){q=q.toLowerCase();plist.innerHTML=products.filter(p=>p.active!==false&&p.area===area&&hasProductSub(p,subcat)&&(p.name+' '+p.code).toLowerCase().includes(q)).map(productButton).join('')}
+function sortProductsByName(list){return list.sort((a,b)=>a.name.localeCompare(b.name,'es',{sensitivity:'base',numeric:true})||String(a.code).localeCompare(String(b.code),'es'))}
+function filteredProducts(){if(area==='A–Z')return sortProductsByName(products.filter(p=>p.active!==false&&(!azScope||p.area===azScope)&&subcat&&productLetters(p).includes(subcat)));return sortProductsByName(products.filter(p=>p.active!==false&&p.area===area&&(subcat==='Todos'||hasProductSub(p,subcat))))}
+function productButton(p){return `<button class="prod" onclick="selectProduct('${p.code}')"><b>${esc(p.name)}</b><small>${esc(p.code)} · ${euro(p.price)} / ${p.unit}${p.offer&&p.offer.enabled?' · OFERTA':''}</small></button>`}
+function searchProducts(q){q=q.toLowerCase();plist.innerHTML=sortProductsByName(products.filter(p=>p.active!==false&&p.area===area&&hasProductSub(p,subcat)&&(p.name+' '+p.code).toLowerCase().includes(q))).map(productButton).join('')}
 function priceModal(){modal(`<h2>Consulta de precios</h2><input placeholder="Buscar precio..." oninput="priceList.innerHTML=priceRows(this.value)"><div id="priceList">${priceRows('')}</div><p><button onclick="closeModal()">Cerrar</button></p>`)}
 function priceRows(q){q=(q||'').toLowerCase();return products.filter(p=>p.active!==false&&(p.name+' '+p.code+' '+p.area+' '+productSubs(p).join(' ')).toLowerCase().includes(q)).slice(0,80).map(p=>`<div class="line"><div><b>${esc(p.name)}</b><br><small>${esc(p.area)} · ${productSubs(p).map(esc).join(', ')} · Código ${esc(p.code)}</small></div><b>${euro(p.price)} / ${p.unit}</b></div>`).join('')||'<p>No encontrado.</p>'}
 function nextOrderNumber(){return String(Math.max(0,...orders.map(o=>Number(String(o.number).replace(/\D/g,''))||0))+1).padStart(4,'0')}
