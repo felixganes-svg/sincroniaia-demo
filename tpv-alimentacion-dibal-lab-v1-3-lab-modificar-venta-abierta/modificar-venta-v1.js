@@ -4,6 +4,7 @@
 // con motivo obligatorio y trazabilidad. Tickets cerrados: rectificación autorizada.
 
 var saleAdjustments=[];
+var priceChanges=[];
 
 (function(){
 const MV_PREFIX='tpv_lab_modificar_venta_v1_';
@@ -74,6 +75,77 @@ editProduct=function(code){
   return baseEditProduct(code);
 };
 
+function parseQuickPrice(value){
+  return Number(String(value??'').trim().replace(',','.'));
+}
+function quickPriceChangeModal(){
+  rememberAdminProductListState();
+  modal(
+    '<h2>Cambio rápido de precio</h2>'+
+    '<p class="notice"><b>Solo cambia el precio del artículo.</b> No modifica nombre, familia, subsecciones ni tickets ya cerrados.</p>'+
+    '<label>Código del artículo</label>'+
+    '<input id="quickPriceCode" inputmode="numeric" autofocus placeholder="Ej: 83" onkeydown="if(event.key===\'Enter\'){event.preventDefault();findQuickPriceProduct()}">'+
+    '<p><button class="primary" onclick="findQuickPriceProduct()">BUSCAR ARTÍCULO</button> <button onclick="closeModal()">Cancelar</button></p>'
+  );
+  setTimeout(()=>document.getElementById('quickPriceCode')?.focus(),50);
+}
+function findQuickPriceProduct(){
+  const raw=(document.getElementById('quickPriceCode')?.value||'').trim();
+  const code=normalizeProductCode(raw);
+  const p=products.find(x=>x.code===code);
+  if(!p)return alert('No existe ningún artículo con ese código.');
+  modal(
+    '<h2>Cambio rápido de precio</h2>'+
+    '<div class="locked"><b>'+esc(p.name)+'</b><br><small>Código '+esc(p.code)+' · Precio actual: '+euro(p.price)+' / '+esc(p.unit)+'</small></div>'+
+    '<label>Nuevo precio por '+esc(p.unit)+'</label>'+
+    '<input id="quickPriceNew" type="text" inputmode="decimal" autofocus placeholder="Ej: 15,50" onkeydown="if(event.key===\'Enter\'){event.preventDefault();confirmQuickPriceChange(\''+esc(p.code)+'\')}">'+
+    '<p class="notice">El nuevo precio se aplicará a ventas nuevas. Tickets cerrados y líneas ya guardadas conservan su precio original.</p>'+
+    '<p><button class="primary" onclick="confirmQuickPriceChange(\''+esc(p.code)+'\')">GUARDAR NUEVO PRECIO</button> <button onclick="quickPriceChangeModal()">Volver</button></p>'
+  );
+  setTimeout(()=>document.getElementById('quickPriceNew')?.focus(),50);
+}
+function confirmQuickPriceChange(code){
+  const p=products.find(x=>x.code===code);
+  if(!p)return alert('Artículo no encontrado.');
+  const newPrice=round(parseQuickPrice(document.getElementById('quickPriceNew')?.value));
+  if(!Number.isFinite(newPrice)||newPrice<=0)return alert('Indica un precio válido mayor que 0.');
+  const oldPrice=round(Number(p.price)||0);
+  if(Math.abs(newPrice-oldPrice)<0.000001)return alert('El precio nuevo es igual al precio actual.');
+  if(!confirm(
+    p.name+' · Código '+p.code+'\n'+
+    euro(oldPrice)+' / '+p.unit+' → '+euro(newPrice)+' / '+p.unit+'\n\n¿Confirmar cambio de precio?'
+  ))return;
+  p.price=newPrice;
+  priceChanges.unshift({
+    id:'P'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
+    date:new Date().toLocaleString('es-ES'),
+    code:p.code,
+    name:p.name,
+    unit:p.unit,
+    oldPrice,
+    newPrice,
+    source:'Cambio rápido'
+  });
+  if(priceChanges.length>1000)priceChanges.length=1000;
+  save();
+  closeModal();
+  render();
+  flash('Precio actualizado: '+p.code+' · '+euro(newPrice));
+}
+function priceChangeHistoryModal(){
+  const rows=priceChanges.slice(0,300);
+  modal(
+    '<h2>Histórico de cambios de precio</h2>'+
+    '<p class="notice">Registro de cambios realizados desde CAMBIO RÁPIDO DE PRECIO en esta LAB.</p>'+
+    (rows.length?rows.map(x=>
+      '<div class="line"><div><b>'+esc(x.code)+' · '+esc(x.name)+'</b><br><small>'+
+      esc(x.date)+' · '+euro(x.oldPrice)+' → '+euro(x.newPrice)+' / '+esc(x.unit)+
+      '</small></div><span class="tag">REGISTRADO</span></div>'
+    ).join(''):'<p>No hay cambios rápidos de precio registrados.</p>')+
+    '<p><button onclick="closeModal()">Cerrar</button></p>'
+  );
+}
+
 function cloneLine(l){return JSON.parse(JSON.stringify(l||{}))}
 function adjustmentReason(){
   const sel=document.getElementById('openSaleReason');
@@ -121,7 +193,7 @@ function recalcOpenLine(line,qty){
 }
 
 pilotSnapshot=function(){
-  return {version:3,savedAt:new Date().toISOString(),company,sellers,products,tickets,zReports,sellerMems,customSubsections,orders,saleAdjustments};
+  return {version:4,savedAt:new Date().toISOString(),company,sellers,products,tickets,zReports,sellerMems,customSubsections,orders,saleAdjustments,priceChanges};
 };
 persistPilotState=function(){};
 save=function(){
@@ -134,6 +206,7 @@ save=function(){
   localStorage.setItem(MV_PREFIX+'customSubsections',JSON.stringify(customSubsections));
   localStorage.setItem(MV_PREFIX+'orders',JSON.stringify(orders));
   localStorage.setItem(MV_PREFIX+'saleAdjustments',JSON.stringify(saleAdjustments));
+  localStorage.setItem(MV_PREFIX+'priceChanges',JSON.stringify(priceChanges));
 };
 restorePilotState=function(){
   try{
@@ -148,8 +221,9 @@ restorePilotState=function(){
       customSubsections=JSON.parse(localStorage.getItem(MV_PREFIX+'customSubsections')||'{}');
       orders=JSON.parse(localStorage.getItem(MV_PREFIX+'orders')||'[]');
       saleAdjustments=JSON.parse(localStorage.getItem(MV_PREFIX+'saleAdjustments')||'[]');
+      priceChanges=JSON.parse(localStorage.getItem(MV_PREFIX+'priceChanges')||'[]');
     }else{
-      tickets=[];zReports=[];orders=[];sellerMems={};saleAdjustments=[];
+      tickets=[];zReports=[];orders=[];sellerMems={};saleAdjustments=[];priceChanges=[];
       sellers=sellers.map(s=>({...s,active:false}));
       localStorage.setItem(MV_PREFIX+'initialized','1');
     }
@@ -171,7 +245,7 @@ importPilotBackup=function(input){
       if(!confirm('La copia sustituirá los datos actuales de esta LAB. ¿Continuar?'))return;
       company=d.company;sellers=Array.isArray(d.sellers)?d.sellers:sellers;products=d.products;tickets=d.tickets;
       zReports=Array.isArray(d.zReports)?d.zReports:[];sellerMems=d.sellerMems||{};customSubsections=d.customSubsections||{};
-      orders=Array.isArray(d.orders)?d.orders:[];saleAdjustments=Array.isArray(d.saleAdjustments)?d.saleAdjustments:[];
+      orders=Array.isArray(d.orders)?d.orders:[];saleAdjustments=Array.isArray(d.saleAdjustments)?d.saleAdjustments:[];priceChanges=Array.isArray(d.priceChanges)?d.priceChanges:[];
       ensureMems();ensureEnabledSubsections();save();render();alert('Copia restaurada correctamente.');
     }catch(e){alert('No se ha podido leer esta copia: '+e.message)}
   };
@@ -311,6 +385,10 @@ renderEmpresa=function(app){
   if(adminTab==='products')restoreAdminProductListState();
 };
 
+window.quickPriceChangeModal=quickPriceChangeModal;
+window.findQuickPriceProduct=findQuickPriceProduct;
+window.confirmQuickPriceChange=confirmQuickPriceChange;
+window.priceChangeHistoryModal=priceChangeHistoryModal;
 window.reasonOtherToggle=reasonOtherToggle;
 })();
 
