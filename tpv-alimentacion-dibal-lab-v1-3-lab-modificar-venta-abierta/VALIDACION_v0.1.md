@@ -197,3 +197,46 @@ Pendiente únicamente la comprobación visual/táctil real en navegador del usua
 - Sintaxis JavaScript: **OK**.
 
 Resultado: **APROBADA TÉCNICAMENTE PARA PRUEBA VISUAL/TACTIL**.
+
+
+## Actualización · Venta compacta + orden alfabético
+
+### Objetivo
+Mostrar el máximo número de artículos posible dentro de la pantalla sin reducirlos a botones incómodos para uso táctil.
+
+### Cambios
+- Los artículos de cada subsección se ordenan automáticamente **A → Z por nombre**.
+- La búsqueda dentro de una subsección conserva también el orden A → Z.
+- El código del artículo se mantiene visible.
+- Se elimina de cada tarjeta el nombre de la subsección, porque ya está indicado en la cabecera.
+- Tarjetas más compactas:
+  - altura mínima: 58 px;
+  - menor separación vertical;
+  - nombre + código + precio/unidad.
+- Cuadrícula adaptativa:
+  - móvil: 2 columnas;
+  - tablet / pantalla media: 4 columnas;
+  - escritorio: 5 columnas;
+  - escritorio ancho (≥1250 px): 6 columnas.
+
+### Verificación técnica
+- Orden alfabético normal: **OK**.
+- Orden alfabético en búsqueda: **OK**.
+- Código visible: **OK**.
+- Precio/unidad visible: **OK**.
+- Subsección redundante eliminada de tarjeta: **OK**.
+- 2/4/5/6 columnas según anchura: **OK**.
+- Sintaxis JavaScript: **OK**.
+
+### Capacidad aproximada en pantalla ancha
+Con 6 columnas:
+- Cerdo: alrededor de 4 filas.
+- Ternera: alrededor de 3 filas.
+- Cordero / Pollo: alrededor de 1 fila.
+- Quesos: alrededor de 3 filas.
+- Elaborados / Preparados: aproximadamente 2–3 filas.
+- Embutidos es una subsección mucho más extensa y puede necesitar desplazamiento; no se fuerza una reducción excesiva del tamaño táctil para eliminarlo.
+
+### Regla consolidada
+**Prioridad: máximo contenido visible sin perder legibilidad ni precisión táctil.**
+No se fuerza “cero scroll” cuando el volumen de artículos convertiría los botones en elementos demasiado pequeños.
