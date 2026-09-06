@@ -8,6 +8,72 @@ var saleAdjustments=[];
 (function(){
 const MV_PREFIX='tpv_lab_modificar_venta_v1_';
 
+const adminProductListState={
+  area:'Todos',
+  sub:'Todos',
+  status:'Todos',
+  query:''
+};
+
+function rememberAdminProductListState(){
+  const areaEl=document.getElementById('listArea');
+  const subEl=document.getElementById('listSub');
+  const statusEl=document.getElementById('listStatus');
+  const queryEl=document.getElementById('listQuery');
+  if(!areaEl||!subEl||!statusEl||!queryEl)return;
+  adminProductListState.area=areaEl.value||'Todos';
+  adminProductListState.sub=subEl.value||'Todos';
+  adminProductListState.status=statusEl.value||'Todos';
+  adminProductListState.query=queryEl.value||'';
+}
+
+function restoreAdminProductListState(){
+  const areaEl=document.getElementById('listArea');
+  const subEl=document.getElementById('listSub');
+  const statusEl=document.getElementById('listStatus');
+  const queryEl=document.getElementById('listQuery');
+  if(!areaEl||!subEl||!statusEl||!queryEl)return;
+
+  const areaValues=Array.from(areaEl.options||[]).map(o=>o.value);
+  areaEl.value=areaValues.includes(adminProductListState.area)?adminProductListState.area:'Todos';
+
+  const areaValue=areaEl.value;
+  const subs=areaValue==='Todos'
+    ?[...new Set(products.flatMap(productSubs))].sort()
+    :allSubsForArea(areaValue);
+
+  subEl.innerHTML='<option value="Todos">Todas</option>'+subs.map(s=>'<option>'+esc(s)+'</option>').join('');
+  subEl.value=(adminProductListState.sub==='Todos'||subs.includes(adminProductListState.sub))
+    ?adminProductListState.sub
+    :'Todos';
+
+  statusEl.value=['Todos','Altas','Bajas'].includes(adminProductListState.status)
+    ?adminProductListState.status
+    :'Todos';
+  queryEl.value=adminProductListState.query||'';
+
+  baseFilterAdminProducts();
+}
+
+const baseFilterAdminProducts=filterAdminProducts;
+filterAdminProducts=function(){
+  rememberAdminProductListState();
+  return baseFilterAdminProducts();
+};
+
+const baseRefreshAdminSubFilter=refreshAdminSubFilter;
+refreshAdminSubFilter=function(){
+  const result=baseRefreshAdminSubFilter();
+  rememberAdminProductListState();
+  return result;
+};
+
+const baseEditProduct=editProduct;
+editProduct=function(code){
+  rememberAdminProductListState();
+  return baseEditProduct(code);
+};
+
 function cloneLine(l){return JSON.parse(JSON.stringify(l||{}))}
 function adjustmentReason(){
   const sel=document.getElementById('openSaleReason');
@@ -242,6 +308,7 @@ renderEmpresa=function(app){
   };
   const view=views[adminTab]||views.config;
   app.innerHTML='<div class="panel adminTop"><button onclick="openAdminTab(\'menu\')">← Empresa</button><strong>'+view[0]+'</strong></div>'+view[1]();
+  if(adminTab==='products')restoreAdminProductListState();
 };
 
 window.reasonOtherToggle=reasonOtherToggle;
