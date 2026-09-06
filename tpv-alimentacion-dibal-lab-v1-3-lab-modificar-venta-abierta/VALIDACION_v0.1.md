@@ -48,3 +48,30 @@ Tipo: autovalidación técnica de laboratorio.
 
 - Validación visual y táctil en móvil real.
 - Confirmación del usuario de que el flujo resulta suficientemente rápido en mostrador.
+
+
+## Evidencia de simulación funcional
+
+Prueba ejecutada tras publicar los archivos en `main`:
+
+### Caso 1 · Corrección de peso
+- Artículo: Entrecot.
+- Peso inicial: 1,250 kg.
+- Precio: 32,50 €/kg.
+- Nuevo peso: 0,800 kg.
+- Importe recalculado: 26,00 €.
+- Memoria del vendedor actualizada: **OK**.
+- Registro creado con acción `CAMBIO PESO/CANTIDAD`: **OK**.
+
+### Caso 2 · Cliente no quiere el artículo
+- Motivo: `Cliente no lo quiere`.
+- Acción: `RETIRAR ARTÍCULO`.
+- Línea eliminada de la venta abierta: **OK**.
+- Memoria del vendedor queda sin esa línea: **OK**.
+- Registro creado con acción `LÍNEA RETIRADA`: **OK**.
+- Registro persistido en almacenamiento de la LAB: **OK**.
+
+### Resultado de simulación
+**2/2 casos superados.**
+
+Esto no sustituye la prueba táctil real en móvil, que sigue siendo obligatoria antes de sellar una versión.
