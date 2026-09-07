@@ -374,3 +374,14 @@ Estado: APROBADA PARA PRUEBA FUNCIONAL EN LAB.
 - Los tickets usan la estructura normal de tickets y por tanto participan en Tickets guardados e X/Z.
 - UI Empresa → Ventas dictadas añadida.
 Estado: APROBADA PARA PRUEBA FUNCIONAL EN LAB. PENDIENTE PRIMER TICKET REAL DICTADO.
+
+
+## Validación · Ticket real nº 12
+- Cálculo Picada mixta: 0,410 × 16,95 = 6,9495 → 6,95 €.
+- Cálculo Salchicha de pollo: 0,265 × 17,95 = 4,75675 → 4,76 €.
+- Total líneas: 11,71 €.
+- Total ticket dictado: 11,71 €.
+- Cuadre: OK.
+- Pago: Tarjeta.
+- Vendedor: Vendedor 1.
+- Artículo nuevo 000149: Salchicha de pollo · 17,95 €/kg.
