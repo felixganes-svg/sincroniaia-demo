@@ -72,3 +72,5 @@ Se consolida el catálogo real a partir del listado fotografiado de balanza y co
 ## LAB DESPENSA 6 DÍGITOS · 07/09/2026
 
 Se incorpora la regla de identificación por los 6 últimos dígitos del código de barras para artículos de Despensa y se añaden las referencias confirmadas por el usuario.
+
+- 710782 · Queso Entremont rallado 70 g · 1,70 €/ud.
