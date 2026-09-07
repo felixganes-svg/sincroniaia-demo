@@ -81,3 +81,13 @@ Se incorpora la regla de identificación por los 6 últimos dígitos del código
 - Cada ticket usa una referencia única y se incorpora una sola vez.
 - Los tickets importados entran en Tickets guardados e informes X/Z.
 - No se crea ninguna venta ficticia para la prueba técnica.
+
+
+## VN + Vendedor 5 · 07/09/2026
+- Se crea Vendedor 5 con código 5 y PIN demo 5555.
+- V1–V4 quedan como accesos rápidos al validar una línea.
+- VN permite introducir el código de cualquier vendedor registrado.
+- VN no crea vendedores.
+- Si el vendedor elegido por VN existe pero no está iniciado, solicita su PIN y puede iniciar la sesión antes de guardar la línea.
+- Empresa puede crear más vendedores; los códigos distintos de 1–4 se utilizan mediante VN.
+- Se bloquean códigos de vendedor duplicados.
