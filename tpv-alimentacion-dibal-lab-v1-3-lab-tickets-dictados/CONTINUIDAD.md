@@ -55,3 +55,13 @@ LAB destinada a registrar ventas reales que el usuario dicte sin tener que rehac
 Archivo de datos: tickets-dictados-data.js.
 Regla: cada ticket requiere ref única, fecha/hora, vendedor, forma de pago, líneas y total cuadrado.
 No hay tickets ficticios cargados en la publicación inicial.
+
+
+## Ticket real nº 12 · 07/09/2026
+- Vendedor: Vendedor 1.
+- Pago: Tarjeta.
+- 000088 · Picada mixta · 0,410 kg × 16,95 €/kg = 6,95 €.
+- 000149 · Salchicha de pollo · 0,265 kg × 17,95 €/kg = 4,76 €.
+- Total: 11,71 €.
+- Ref importación: VENTA-20260907-T12.
+- Se crea 000149 como artículo nuevo a 17,95 €/kg.
