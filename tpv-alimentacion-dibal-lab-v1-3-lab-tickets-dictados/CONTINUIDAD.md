@@ -103,3 +103,13 @@ No hay tickets ficticios cargados en la publicación inicial.
 - Total calculado con las líneas recibidas: 28,54 €.
 - Diferencia: 1,08 €.
 - Estado: NO IMPORTADO hasta aclarar el dato que no cuadra.
+
+
+## VN + Vendedor 5 · 07/09/2026
+- Se crea Vendedor 5 con código 5 y PIN demo 5555.
+- V1–V4 quedan como accesos rápidos al validar una línea.
+- VN permite introducir el código de cualquier vendedor registrado.
+- VN no crea vendedores.
+- Si el vendedor elegido por VN existe pero no está iniciado, solicita su PIN y puede iniciar la sesión antes de guardar la línea.
+- Empresa puede crear más vendedores; los códigos distintos de 1–4 se utilizan mediante VN.
+- Se bloquean códigos de vendedor duplicados.
