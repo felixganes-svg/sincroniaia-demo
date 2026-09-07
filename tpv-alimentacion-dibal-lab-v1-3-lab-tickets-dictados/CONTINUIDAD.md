@@ -67,3 +67,14 @@ No hay tickets ficticios cargados en la publicación inicial.
 - Se crea 000149 como artículo nuevo a 17,95 €/kg.
 
 - Corrección clasificación 000149: Salchicha de pollo pasa de Elaborados a **Carnicería → Pollo**. El ticket nº 12 se migra sin duplicarlo.
+
+
+## Ticket real nº 13 · 07/09/2026
+- Vendedor: Vendedor 1.
+- Pago: Efectivo exacto.
+- 000056 · Quart de pollastre · 1,080 kg × 6,95 €/kg = 7,51 €.
+- 000074 · Hamburguesa vedella · 0,410 kg × 19,50 €/kg = 8,00 €.
+- Total: 15,51 €.
+- Efectivo entregado: 15,51 €.
+- Cambio: 0,00 €.
+- Ref importación: VENTA-20260907-T13.
