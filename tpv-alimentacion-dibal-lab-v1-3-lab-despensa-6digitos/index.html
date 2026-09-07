@@ -202,17 +202,18 @@ const pantryItems20260907=[
  {code:'001269',name:'Plumas N.6 de gallo',price:1.50,unit:'ud',area:'Elaborados',subcat:'Despensa'},
  {code:'001139',name:'Pistón mediano de gallo',price:1.50,unit:'ud',area:'Elaborados',subcat:'Despensa'},
  {code:'006143',name:'Galetta huevo de Nadal el pavo',price:1.50,unit:'ud',area:'Elaborados',subcat:'Despensa'},
- {code:'930009',name:'Caldo de pollo brick 1 litro',price:3.95,unit:'ud',area:'Elaborados',subcat:'Despensa'}
+ {code:'930009',name:'Caldo de pollo brick 1 litro',price:3.95,unit:'ud',area:'Elaborados',subcat:'Despensa'},
+ {code:'710782',name:'Queso Entremont rallado 70 g',price:1.70,unit:'ud',area:'Elaborados',subcat:'Despensa'}
 ];
 function applyPantryRevision20260907(){
- if(Number(company.pantryRevision||0)>=20260907)return;
+ if(Number(company.pantryRevision||0)>=2026090702)return;
  let broth=products.find(p=>p.code==='004330'||(p.name||'').toLowerCase()==='caldo de pollo cala abril');
  if(broth){broth.code='584330';broth.name='Caldo de pollo Cala Abril';broth.price=5.50;broth.unit='ud';broth.area='Elaborados';broth.subcat='Despensa';broth.cat='Despensa';broth.subcats=['Despensa'];broth.active=true;broth.source='usuario_20260907';}
  else if(!products.some(p=>p.code==='584330'))products.push({code:'584330',name:'Caldo de pollo Cala Abril',price:5.50,unit:'ud',area:'Elaborados',subcat:'Despensa',cat:'Despensa',subcats:['Despensa'],active:true,offer:{enabled:false,type:'none'},source:'usuario_20260907'});
  pantryItems20260907.forEach(n=>{let p=products.find(x=>x.code===n.code);if(p)Object.assign(p,n,{cat:'Despensa',subcats:['Despensa'],active:true,offer:p.offer||{enabled:false,type:'none'},source:'usuario_20260907'});else products.push({...n,cat:'Despensa',subcats:['Despensa'],active:true,offer:{enabled:false,type:'none'},source:'usuario_20260907'})});
  company.enabledSubsections=company.enabledSubsections||{};company.enabledSubsections.Elaborados=company.enabledSubsections.Elaborados||[];
  if(!company.enabledSubsections.Elaborados.includes('Despensa'))company.enabledSubsections.Elaborados.push('Despensa');
- company.pantryRevision=20260907;
+ company.pantryRevision=2026090702;
  localStorage.setItem('tpv_lab_v13_rect_products',JSON.stringify(products));
  localStorage.setItem('tpv_lab_v13_rect_company',JSON.stringify(company));
 }
