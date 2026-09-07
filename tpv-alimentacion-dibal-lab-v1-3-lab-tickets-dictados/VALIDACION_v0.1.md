@@ -385,3 +385,5 @@ Estado: APROBADA PARA PRUEBA FUNCIONAL EN LAB. PENDIENTE PRIMER TICKET REAL DICT
 - Pago: Tarjeta.
 - Vendedor: Vendedor 1.
 - Artículo nuevo 000149: Salchicha de pollo · 17,95 €/kg.
+
+- Corrección 000149: **Carne → Pollo**. Migración del ticket nº 12 existente añadida. No crea un ticket nuevo.
