@@ -78,3 +78,28 @@ No hay tickets ficticios cargados en la publicación inicial.
 - Efectivo entregado: 15,51 €.
 - Cambio: 0,00 €.
 - Ref importación: VENTA-20260907-T13.
+
+
+## Ticket real nº 1 · 07/09/2026
+- Vendedor: Vendedor 2.
+- Pago: Efectivo exacto.
+- 000078 · Hamburguesa pollastre · 0,245 kg × 18,95 €/kg = 4,64 €.
+- 000074 · Hamburguesa vedella · 0,240 kg × 19,50 €/kg = 4,68 €.
+- 000080 · Llom duroc · 0,545 kg × 15,95 €/kg = 8,69 €.
+- 000057 · Pit pollastre · 0,605 kg × 13,25 €/kg = 8,02 €.
+- 000111 · Salsitxes · 0,305 kg × 18,95 €/kg = 5,78 €.
+- 000001 · Pernil dolç · 0,150 kg × 17,95 €/kg = 2,69 €.
+- 000005 · Mortadela pavo · 0,155 kg × 17,00 €/kg = 2,64 €.
+- 000019 · Havarti · 0,165 kg × 18,50 €/kg = 3,05 €.
+- Total: 40,19 €.
+- Efectivo entregado: 40,19 €.
+- Cambio: 0,00 €.
+- Ref importación: VENTA-20260907-T01.
+
+## Ticket nº 2 · pendiente
+- Vendedor 2.
+- Pago: Efectivo.
+- Total dictado: 29,62 €.
+- Total calculado con las líneas recibidas: 28,54 €.
+- Diferencia: 1,08 €.
+- Estado: NO IMPORTADO hasta aclarar el dato que no cuadra.
