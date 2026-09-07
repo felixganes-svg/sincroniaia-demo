@@ -408,3 +408,23 @@ Estado: APROBADA PARA PRUEBA FUNCIONAL EN LAB. PENDIENTE PRIMER TICKET REAL DICT
 - Vendedor VN inactivo: solicita PIN antes de iniciar y guardar.
 - Códigos de vendedor duplicados: bloqueados en Empresa.
 Estado provisional: IMPLEMENTADO. Pendiente validación de sintaxis y prueba funcional en navegador limpio.
+
+
+## Cierre funcional · VN + Vendedor 5 · 07/09/2026
+Prueba ejecutada sobre las funciones exactas de la versión publicada.
+
+Resultados:
+- Migración desde V1–V4: quedan códigos 1, 2, 3, 4 y 5.
+- Memoria previa de Vendedor 1: conservada.
+- VN → 5: localiza Vendedor 5 y solicita PIN cuando está inactivo.
+- VN → 99: rechazado; no crea un vendedor nuevo.
+- PIN 5555 para Vendedor 5: correcto.
+- Tras validación: Vendedor 5 queda activo.
+- Línea de prueba: guardada una sola vez en la memoria de Vendedor 5.
+- Línea pendiente: limpiada después de guardar.
+- Sintaxis JavaScript inline: OK.
+- Despliegue GitHub Pages: completado correctamente.
+
+**RESULTADO: APROBADA PARA PRUEBA REAL EN LAB.**
+
+No implica aprobación fiscal, legal ni para cliente real.
