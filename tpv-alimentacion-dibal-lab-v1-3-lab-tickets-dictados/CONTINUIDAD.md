@@ -113,3 +113,14 @@ No hay tickets ficticios cargados en la publicación inicial.
 - Si el vendedor elegido por VN existe pero no está iniciado, solicita su PIN y puede iniciar la sesión antes de guardar la línea.
 - Empresa puede crear más vendedores; los códigos distintos de 1–4 se utilizan mediante VN.
 - Se bloquean códigos de vendedor duplicados.
+
+
+## Jornada real completa · 13 tickets · 07/09/2026
+- Total ventas confirmado: 244,11 €.
+- Tarjeta confirmada por cierre terminal: 106,42 €.
+- Efectivo resultante: 137,69 €.
+- Tarjeta: tickets 2, 6, 10, 11 y 12.
+- Efectivo: tickets 1, 3, 4, 5, 7, 8, 9 y 13.
+- Se publican los 13 tickets en el lote de Ventas dictadas.
+- T4, T5 y T11 conservan una línea explícita "Detalle pendiente de identificar · ticket físico" para no inventar el detalle que faltó en el dictado y mantener el total físico confirmado.
+- La X incorpora desglose visible por Efectivo, Tarjeta, Bizum, Mixto/Otros y Venta total.
