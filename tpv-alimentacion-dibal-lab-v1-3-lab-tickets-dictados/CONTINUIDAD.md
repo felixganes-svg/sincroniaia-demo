@@ -65,3 +65,5 @@ No hay tickets ficticios cargados en la publicación inicial.
 - Total: 11,71 €.
 - Ref importación: VENTA-20260907-T12.
 - Se crea 000149 como artículo nuevo a 17,95 €/kg.
+
+- Corrección clasificación 000149: Salchicha de pollo pasa de Elaborados a **Carnicería → Pollo**. El ticket nº 12 se migra sin duplicarlo.
