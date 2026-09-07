@@ -1,0 +1,152 @@
+﻿Código;Artículo;Precio;Unidad;Familia;Subsección;Activo;Fuente
+000001;Pernil dolç;17.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000002;Pernil barra;16.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000003;Mortadela bolo;19.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000004;Mortadela oliva;16.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000005;Mortadela pavo;17.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000006;Mortadela;16.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000007;Pitxuga pavo;18.50;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000008;Pitxuga pavo natural;22.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000009;Pa de fetge;19.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000010;Jabali;19.90;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000011;Formatge barra;15.95;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000012;Formatge barra regi;18.95;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000013;Formatge semi;22.00;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000014;Formatge curat;27.00;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000015;Formatge all negre;59.00;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000016;Formatge cabra fresc;17.95;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000017;Flor esgueva;32.00;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000018;Formatge cabra;28.00;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000019;Havarti;18.50;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000020;Provolone;17.00;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000021;Barra francès;17.95;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000022;Cruier;24.00;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000023;Formatge tofuna;35.00;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000024;Rulo cabra;18.95;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000025;Formatge blau;16.95;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000026;Roquefort;32.00;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000027;Sobrasada;18.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000028;Morcon;35.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000029;Xoriço ibèric;35.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000030;Llonganissa ibèrica;35.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000031;Llonganissa pagès;25.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000032;Llonganissa casa;29.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000033;Fuet;17.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000034;Jalea;12.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000035;Membrillo;15.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000036;Butifarra blanca;18.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000037;Butifarra negra;18.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000038;Butifarra trompeta de la mort;29.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000039;Butifarra d'ou;24.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000040;Xoriço guisar;15.95;kg;Charcutería;Elaborados;Sí;Balanza / catálogo consolidado
+000041;Morcilla;15.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000042;Paté ceba;39.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000043;Paté fines herbes;35.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000044;Paté pebre negre;29.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000045;Mató;2.50;ud;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000046;Llardons;29.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000047;Mandonguilles;15.95;kg;Elaborados;Elaborados;Sí;Balanza / catálogo consolidado
+000048;Bunyols bacallà;21.00;kg;Elaborados;Elaborados;Sí;Balanza / catálogo consolidado
+000049;Fideuà;19.95;kg;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000050;Ensaladilla;13.95;kg;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000051;Empanada;17.95;kg;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000052;Rollets pernil;25.00;kg;Charcutería;Preparados;Sí;Balanza / catálogo consolidado
+000053;Rollets formatge;25.00;kg;Charcutería;Preparados;Sí;Balanza / catálogo consolidado
+000054;Rollets carn;25.00;kg;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000055;Pollastre;5.95;kg;Carne;Pollo;Sí;Balanza / catálogo consolidado
+000056;Quart pollastre;6.95;kg;Carne;Pollo;Sí;Balanza / catálogo consolidado
+000057;Pit pollastre;13.25;kg;Carne;Pollo;Sí;Balanza / catálogo consolidado
+000058;Conill;11.95;kg;Carne;Elaborados Frescos;Sí;Balanza / catálogo consolidado
+000059;Croquetes;18.95;kg;Elaborados;Elaborados;Sí;Balanza / catálogo consolidado
+000060;Gallina;7.50;kg;Carne;Pollo;Sí;Balanza / catálogo consolidado
+000061;Rodo cuixa;17.95;kg;Carne;Ternera;Sí;Balanza / catálogo consolidado
+000062;Rodo espatlla;18.95;kg;Carne;Ternera;Sí;Balanza / catálogo consolidado
+000063;Llana;25.95;kg;Carne;Ternera;Sí;Balanza / catálogo consolidado
+000064;Filet vedella;59.95;kg;Carne;Ternera;Sí;Balanza / catálogo consolidado
+000065;Guisar;17.95;kg;Carne;Ternera;Sí;Balanza / catálogo consolidado
+000066;Conill vedella;17.95;kg;Carne;Ternera;Sí;Balanza / catálogo consolidado
+000067;Xurrasco;22.95;kg;Carne;Ternera;Sí;Balanza / catálogo consolidado
+000068;Ossos vedella;1.10;kg;Carne;Ternera;Sí;Balanza / catálogo consolidado
+000069;Ossos tocino;8.95;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000070;Entrecot;32.50;kg;Carne;Ternera;Sí;Balanza / catálogo consolidado
+000071;Culata;23.95;kg;Carne;Ternera;Sí;Balanza / catálogo consolidado
+000072;Filet pobre;19.95;kg;Carne;Ternera;Sí;Balanza / catálogo consolidado
+000073;Culatí;22.50;kg;Carne;Ternera;Sí;Balanza / catálogo consolidado
+000074;Hamburguesa vedella;19.50;kg;Elaborados;Hamburguesas;Sí;Balanza / catálogo consolidado
+000075;Hamburguesa formatge;19.50;kg;Charcutería;Elaborados;Sí;Balanza / catálogo consolidado
+000076;Hamburguesa foie;18.95;kg;Elaborados;Elaborados;Sí;Balanza / catálogo consolidado
+000077;Hamburguesa ceba;18.95;kg;Elaborados;Elaborados;Sí;Balanza / catálogo consolidado
+000078;Hamburguesa pollastre;18.95;kg;Elaborados;Elaborados;Sí;Balanza / catálogo consolidado
+000079;Hamburguesa pollo formatge;18.95;kg;Elaborados;Hamburguesas;Sí;Balanza / catálogo consolidado
+000080;Llom duroc;15.95;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000081;Cap de llom;12.10;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000082;Costella;12.30;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000083;Llonza;12.10;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000084;Cansalada viada;11.95;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000085;Papada;10.20;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000086;Lagarto;22.50;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000087;Pressa;22.50;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000088;Picada mixta;16.95;kg;Elaborados;Elaborados;Sí;Balanza / catálogo consolidado
+000089;Callos;6.50;kg;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000090;Canelons;9.10;ud;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000091;Crispelles bacallà;21.00;kg;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000092;Empanada tonyina;2.50;ud;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000093;Ensaladilla russa;11.95;kg;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000094;Cargols;13.95;kg;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000095;Empanadilles tonyina;2.50;ud;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000096;Rollets pernil;25.00;kg;Charcutería;Preparados;Sí;Balanza / catálogo consolidado
+000097;Fetge vedella;13.90;kg;Carne;Ternera;Sí;Balanza / catálogo consolidado
+000098;Fetge xai;18.95;kg;Carne;Cordero;Sí;Balanza / catálogo consolidado
+000099;Costelles xai;39.00;kg;Carne;Cordero;Sí;Balanza / catálogo consolidado
+000100;Cuixa xai;19.95;kg;Carne;Cordero;Sí;Balanza / catálogo consolidado
+000101;Espatlla xai;23.95;kg;Carne;Cordero;Sí;Balanza / catálogo consolidado
+000102;Careta;8.95;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000103;Cua;8.95;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000104;Galtes;10.50;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000105;Peus;8.95;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000106;Cordells;10.95;kg;Carne;Cordero;Sí;Balanza / catálogo consolidado
+000107;Cigrons;7.10;kg;Carne;Elaborados Frescos;Sí;Balanza / catálogo consolidado
+000108;Mongetes;7.10;kg;Carne;Elaborados Frescos;Sí;Balanza / catálogo consolidado
+000109;Cervells;2.50;ud;Carne;Elaborados Frescos;Sí;Balanza / catálogo consolidado
+000110;Butifarra;17.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000111;Salsitxes;18.95;kg;Elaborados;Elaborados;Sí;Balanza / catálogo consolidado
+000112;Morcilla;15.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000113;Xoriço guisar;15.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000114;Solomillo;18.95;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000115;Llonza ibèrica;17.95;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000116;Llom ibèric;19.95;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000117;Pernil ibèric cebo;69.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000118;Pernil bellota;99.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000119;Pernil espatlla;39.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000120;Pernil cuixa duroc;49.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000121;Llom ibèric;69.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000122;Llom país duroc;33.00;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000123;Ossos salats;8.90;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000124;Costella salada;14.95;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000125;Ossos pernil;8.75;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000126;Cansalada ibèrica;12.95;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000127;Seguí;8.75;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000128;Pit gall dindi;12.95;kg;Carne;Pollo;Sí;Balanza / catálogo consolidado
+000129;Ous pages 1/2;2.69;ud;Carne;Elaborados Frescos;Sí;Balanza / catálogo consolidado
+000130;Morcilla malaguenya;15.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000131;Xoriço guissar;15.95;kg;Charcutería;Embutidos;Sí;Balanza / catálogo consolidado
+000132;Formatge rallat;18.00;kg;Charcutería;Quesos;Sí;Balanza / catálogo consolidado
+000133;Secret ibèric;22.50;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000134;Ploma ibèrica;22.50;kg;Carne;Cerdo;Sí;Balanza / catálogo consolidado
+000135;Pizza pernil formatge;11.95;ud;Charcutería;Preparados;Sí;Balanza / catálogo consolidado
+000136;Pizza ibèrica;13.25;ud;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000137;Pizza 4 formatges;12.50;ud;Charcutería;Preparados;Sí;Balanza / catálogo consolidado
+000138;Pizza tonyina;14.95;ud;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000139;Cua vedella;21.50;kg;Carne;Ternera;Sí;Balanza / catálogo consolidado
+000140;Mini hamburgueses;19.95;kg;Elaborados;Elaborados;Sí;Balanza / catálogo consolidado
+000141;Callos;11.95;kg;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000142;Cap pota;11.95;kg;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000143;Peus cuits;9.95;kg;Elaborados;Preparados;Sí;Balanza / catálogo consolidado
+000144;Pollo;15.00;kg;Carne;Pollo;Sí;Balanza / catálogo consolidado
+001139;Pistón mediano de gallo;1.50;ud;Elaborados;Despensa;Sí;Usuario 07/09/2026
+001269;Plumas N.6 de gallo;1.50;ud;Elaborados;Despensa;Sí;Usuario 07/09/2026
+006143;Galetta huevo de Nadal el pavo;1.50;ud;Elaborados;Despensa;Sí;Usuario 07/09/2026
+009291;Padre panzas;4.90;ud;Elaborados;Despensa;Sí;Usuario 07/09/2026
+581025;Crostonets de pan fregits;2.90;ud;Elaborados;Despensa;Sí;Usuario 07/09/2026
+584330;Caldo de pollo Cala Abril;5.50;ud;Elaborados;Despensa;Sí;Usuario 07/09/2026
+930009;Caldo de pollo brick 1 litro;3.95;ud;Elaborados;Despensa;Sí;Usuario 07/09/2026
