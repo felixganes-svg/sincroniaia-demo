@@ -396,3 +396,15 @@ Estado: APROBADA PARA PRUEBA FUNCIONAL EN LAB. PENDIENTE PRIMER TICKET REAL DICT
 - Pago: Efectivo exacto.
 - Vendedor: Vendedor 1.
 - Referencia única: VENTA-20260907-T13.
+
+
+## Validación · VN + Vendedor 5 · 07/09/2026
+- Vendedor 5: código 5, PIN demo 5555.
+- Migración no borra vendedores ni memorias existentes.
+- Accesos de validación de línea: V1, V2, V3, V4 + VN.
+- V5 no ocupa una tecla rápida; se accede con VN → 5.
+- VN busca únicamente vendedores registrados.
+- Código inexistente: bloqueado; no crea vendedor.
+- Vendedor VN inactivo: solicita PIN antes de iniciar y guardar.
+- Códigos de vendedor duplicados: bloqueados en Empresa.
+Estado provisional: IMPLEMENTADO. Pendiente validación de sintaxis y prueba funcional en navegador limpio.
