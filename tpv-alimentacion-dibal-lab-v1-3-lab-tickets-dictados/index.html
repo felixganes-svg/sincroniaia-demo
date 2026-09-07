@@ -503,10 +503,17 @@ function closeModal(){document.getElementById('modal').style.display='none'}
 </script>
 <script src="./encargos-libreta-v1.js"></script>
 <script src="./modificar-venta-v1.js"></script>
-<script src="./tickets-dictados-data.js?v=20260907-005"></script>
-<script src="./tickets-dictados-v1.js?v=20260907-005"></script>
+<script src="./tickets-dictados-data.js?v=20260907-006"></script>
+<script src="./tickets-dictados-v1.js?v=20260907-006"></script>
 <script>
-restorePilotState();
+(async function bootTicketsDictados(){
+  await restorePilotState();
+  if(typeof applyDictatedTicketImports==='function'){
+    applyDictatedTicketImports();
+    save();
+    render();
+  }
+})();
 </script>
 </body>
 </html>
