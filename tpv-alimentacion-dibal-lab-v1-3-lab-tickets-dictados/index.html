@@ -170,14 +170,19 @@ let sellerMems=JSON.parse(localStorage.getItem('tpv_lab_v13_rect_sellerMems')||'
 let customSubsections=JSON.parse(localStorage.getItem('tpv_lab_v13_rect_customSubsections')||'{}');
 let orders=JSON.parse(localStorage.getItem('tpv_lab_v13_rect_orders')||'[]');
 function applySellerVNRevision20260907(){
- if(Number(company.sellerVNRevision||0)>=20260907)return;
  let s=sellers.find(x=>String(x.code)==='5');
- if(!s){
+ let named=sellers.find(x=>String(x.name||'').trim().toLocaleLowerCase('es')==='vendedor 5');
+ // Autorreparación: no confiar solo en la marca de revisión.
+ // Si una recuperación local trae V1–V4 pero conserva la marca antigua,
+ // vuelve a sembrar V5 sin tocar vendedores existentes.
+ if(!s&&!named){
    s={name:'Vendedor 5',code:'5',pin:'5555',active:false};
    sellers.push(s);
+ }else if(!s&&named){
+   s=named; // Respeta un cambio manual de código realizado por Empresa.
  }
  sellerMems[s.name]=sellerMems[s.name]||[];
- company.sellerVNRevision=20260907;
+ company.sellerVNRevision=2026090702;
  localStorage.setItem('tpv_lab_v13_rect_sellers',JSON.stringify(sellers));
  localStorage.setItem('tpv_lab_v13_rect_sellerMems',JSON.stringify(sellerMems));
  localStorage.setItem('tpv_lab_v13_rect_company',JSON.stringify(company));
@@ -549,8 +554,8 @@ function closeModal(){document.getElementById('modal').style.display='none'}
 </script>
 <script src="./encargos-libreta-v1.js"></script>
 <script src="./modificar-venta-v1.js"></script>
-<script src="./tickets-dictados-data.js?v=20260907-008"></script>
-<script src="./tickets-dictados-v1.js?v=20260907-008"></script>
+<script src="./tickets-dictados-data.js?v=20260907-009"></script>
+<script src="./tickets-dictados-v1.js?v=20260907-009"></script>
 <script>
 (async function bootTicketsDictados(){
   await restorePilotState();
