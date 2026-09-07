@@ -46,3 +46,5 @@ Regla: solo LAB ACTUAL + LAB ANTERIOR visibles en main.
 - 930009 · Caldo de pollo brick 1 litro · 3,95 €/ud.
 - Pendiente: 180137 Bastoncitos de aceite de oliva, sin precio confirmado.
 - Pendiente: Brou de pollastre 750 grs · 4,50 €, sin código confirmado.
+
+- 710782 · Queso Entremont rallado 70 g · 1,70 €/ud · Despensa.
