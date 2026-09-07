@@ -360,3 +360,5 @@ Estado: **APROBADA PARA PRUEBA FUNCIONAL EN LAB. NO CLIENTE REAL.**
 - Despensa habilitada en navegación.
 - Pendientes incompletos no se incorporan.
 Estado: APROBADA PARA PRUEBA FUNCIONAL EN LAB.
+
+- 710782 · Queso Entremont rallado 70 g · 1,70 €/ud: incorporado con código de 6 dígitos y precio válido.
