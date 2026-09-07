@@ -20,8 +20,8 @@ Eliminar una LAB de la rama principal no borra su historial: Git conserva los co
 Antes de retirar una LAB antigua se comprobará que la cadena actual conserva las funciones que esa LAB aportó y que existe una LAB anterior operativa como retorno.
 
 ## Estado actual
-- ACTUAL: `tpv-alimentacion-dibal-lab-v1-3-lab-precio-contextual`
-- ANTERIOR: `tpv-alimentacion-dibal-lab-v1-3-lab-venta-compacta`
+- ACTUAL: `tpv-alimentacion-dibal-lab-v1-3-lab-catalogo-maestro`
+- ANTERIOR: `tpv-alimentacion-dibal-lab-v1-3-lab-precio-contextual`
 
 ## LAB retiradas de la rama principal al aplicar esta regla
 - `tpv-alimentacion-dibal-lab-v1-3-lab-cobro-exacto`
@@ -32,3 +32,10 @@ Antes de retirar una LAB antigua se comprobará que la cadena actual conserva la
 - `tpv-alimentacion-dibal-lab-v1-3-lab-modificar-venta-abierta`
 
 Estas LAB permanecen recuperables desde el historial de Git.
+
+
+## Actualización 07/09/2026 · Catálogo maestro
+- Nueva ACTUAL: `tpv-alimentacion-dibal-lab-v1-3-lab-catalogo-maestro`.
+- ANTERIOR inmediata: `tpv-alimentacion-dibal-lab-v1-3-lab-precio-contextual`.
+- Se retira de main `tpv-alimentacion-dibal-lab-v1-3-lab-venta-compacta` por quedar dos generaciones atrás.
+- Continúa recuperable desde el historial Git.
