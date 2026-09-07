@@ -387,3 +387,12 @@ Estado: APROBADA PARA PRUEBA FUNCIONAL EN LAB. PENDIENTE PRIMER TICKET REAL DICT
 - Artículo nuevo 000149: Salchicha de pollo · 17,95 €/kg.
 
 - Corrección 000149: **Carne → Pollo**. Migración del ticket nº 12 existente añadida. No crea un ticket nuevo.
+
+
+## Validación · Ticket real nº 13
+- Quart de pollastre: 1,080 × 6,95 = 7,506 → 7,51 €.
+- Hamburguesa vedella: 0,410 × 19,50 = 7,995 → 8,00 €.
+- Total líneas: 15,51 €.
+- Pago: Efectivo exacto.
+- Vendedor: Vendedor 1.
+- Referencia única: VENTA-20260907-T13.
