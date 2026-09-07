@@ -450,3 +450,15 @@ Prueba de regresión ejecutada:
 - Sintaxis JavaScript: OK.
 
 **RESULTADO: CORRECCIÓN APROBADA PARA PRUEBA REAL EN LAB.**
+
+## Ticket PNG 58 mm · Fun Print · 07/09/2026
+- Se añade generación de ticket como imagen PNG optimizada para impresora térmica de 58 mm.
+- Flujo al cerrar venta: **IMPRIMIR TICKET 58 MM** o **Cerrar sin imprimir**.
+- Desde un ticket guardado: **REIMPRIMIR 58 MM · COPIA**.
+- La imagen se genera desde los datos reales del ticket; no crea una venta nueva.
+- Datos de cabecera de prueba: RIERA DE FIGUERA MAJOR Nº2 · 08302 · Tlf. 936 22 70 04.
+- Logo Ca l'Abril en alto contraste térmico.
+- Forma de pago MIXTO muestra su desglose cuando existe paymentBreakdown.
+- Efectivo muestra entregado y cambio cuando están registrados.
+- Rectificaciones 58 mm quedan fuera de esta primera prueba.
+- **Estado: IMPLEMENTADO EN LAB. Sintaxis y sustitución de botones verificadas. Pendiente prueba física real desde móvil + Fun Print antes de sellar.**
