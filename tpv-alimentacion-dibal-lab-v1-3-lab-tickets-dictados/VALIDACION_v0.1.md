@@ -428,3 +428,25 @@ Resultados:
 **RESULTADO: APROBADA PARA PRUEBA REAL EN LAB.**
 
 No implica aprobación fiscal, legal ni para cliente real.
+
+
+## Corrección de regresión · VN → 5 · 07/09/2026
+Incidencia real detectada por el usuario:
+- En un dispositivo con datos locales anteriores, VN → 5 podía indicar que Vendedor 5 no existía.
+
+Causa:
+- La migración podía confiar en la marca `sellerVNRevision` aunque la lista local restaurada siguiera conteniendo únicamente V1–V4.
+
+Corrección:
+- La migración ya no se da por satisfecha solo por la marca de revisión.
+- Comprueba el estado real de la lista de vendedores.
+- Si falta Vendedor 5, lo añade sin borrar ni modificar V1–V4 ni sus memorias.
+- Respeta un Vendedor 5 existente que haya sido editado por Empresa.
+
+Prueba de regresión ejecutada:
+- Estado inicial: revisión antigua presente + solo V1–V4.
+- Resultado: 5 vendedores, códigos 1–5.
+- Memoria previa de V1: conservada.
+- Sintaxis JavaScript: OK.
+
+**RESULTADO: CORRECCIÓN APROBADA PARA PRUEBA REAL EN LAB.**
