@@ -281,12 +281,17 @@ function ensureMems(){sellers.forEach(s=>{if(!sellerMems[s.name])sellerMems[s.na
 function ensureEnabledSubsections(){if(!company.enabledSubsections)company.enabledSubsections={};PRODUCT_AREAS.forEach(a=>{if(!company.enabledSubsections[a])company.enabledSubsections[a]=[]})}
 function ensureCatalogMasterSubsections(){
  if(Number(company.catalogNavigationRevision||0)>=20260907)return;
- const required={'Carne':['Elaborados Frescos'],'Charcutería':['Preparados','Elaborados'],'Elaborados':['Elaborados','Pizzas']};
+ const required={'Carne':['Elaborados Frescos'],'Charcutería':['Preparados','Elaborados'],'Elaborados':['Pizzas']};
  Object.entries(required).forEach(([a,subs])=>{company.enabledSubsections[a]=company.enabledSubsections[a]||[];subs.forEach(s=>{if(!company.enabledSubsections[a].includes(s))company.enabledSubsections[a].push(s)})});
  company.catalogNavigationRevision=20260907;
 }
+function ensureNoRedundantElaboradosSubsection(){
+ company.enabledSubsections=company.enabledSubsections||{};
+ company.enabledSubsections['Elaborados']=(company.enabledSubsections['Elaborados']||[]).filter(s=>s!=='Elaborados');
+ customSubsections['Elaborados']=(customSubsections['Elaborados']||[]).filter(s=>s!=='Elaborados');
+}
 function ensureDiscountRules(){if(!Array.isArray(company.discountRules))company.discountRules=[];if(!company.legacyWednesdayRemoved){company.discountRules=company.discountRules.filter(r=>!(r.name==='Descuento miércoles'&&r.scope==='purchase'&&r.percent===Number(company.wednesdayDiscountPercent||10)&&Array.isArray(r.days)&&r.days.length===1&&r.days[0]===3));company.legacyWednesdayRemoved=true;localStorage.setItem('tpv_lab_v13_rect_company',JSON.stringify(company))}}
-ensureMems();ensureEnabledSubsections();ensureCatalogMasterSubsections();ensureDiscountRules();
+ensureMems();ensureEnabledSubsections();ensureCatalogMasterSubsections();ensureNoRedundantElaboradosSubsection();ensureDiscountRules();
 const PILOT_DB='SINCRONIAIA_TPV_LAB_V13_RECT',PILOT_STORE='state';
 let pilotDb=null,pilotReady=false;
 function pilotSnapshot(){return {version:1,savedAt:new Date().toISOString(),company,sellers,products,tickets,zReports,sellerMems,customSubsections,orders}}
@@ -318,7 +323,7 @@ function firstAccessLetter(name){return String(name||'').normalize('NFD').replac
 function productLetters(p){let a=Array.isArray(p.accessLetters)?p.accessLetters:[];return Array.from(new Set((a.length?a:[firstAccessLetter(p.name)]).filter(x=>ACCESS_LETTERS.includes(x))))}
 function letterChecks(selected=[],prefix='letter'){let chosen=new Set(selected);return ACCESS_LETTERS.map(l=>`<label><input type="checkbox" data-lettergroup="${prefix}" value="${l}" ${chosen.has(l)?'checked':''}>${l}</label>`).join('')}
 function collectLetters(prefix,name){let a=[...document.querySelectorAll(`[data-lettergroup="${prefix}"]:checked`)].map(x=>x.value);return a.length?a:[firstAccessLetter(name)]}
-function allSubsForArea(a){const base=SUB_BY_AREA[a]||['Otros'];const custom=customSubsections[a]||[];const created=products.filter(p=>p.area===a).flatMap(productSubs);return Array.from(new Set([...base,...custom,...created])).sort()}
+function allSubsForArea(a){const base=SUB_BY_AREA[a]||['Otros'];const custom=customSubsections[a]||[];const created=products.filter(p=>p.area===a).flatMap(productSubs);return Array.from(new Set([...base,...custom,...created])).filter(s=>!(a==='Elaborados'&&s==='Elaborados')).sort()}
 function enabledSubsForArea(a){ensureEnabledSubsections();const enabled=company.enabledSubsections[a]||[];return allSubsForArea(a).filter(s=>enabled.includes(s))}
 function isSubEnabled(a,s){return (company.enabledSubsections[a]||[]).includes(s)}
 function setSubEnabled(a,s,on){company.enabledSubsections[a]=company.enabledSubsections[a]||[];if(on&&!company.enabledSubsections[a].includes(s))company.enabledSubsections[a].push(s);if(!on)company.enabledSubsections[a]=company.enabledSubsections[a].filter(x=>x!==s);save();render()}
