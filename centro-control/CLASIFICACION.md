@@ -1,6 +1,6 @@
 # SINCRONIAIA · CLASIFICACIÓN MAESTRA
 
-Actualizado: 25/08/2026 · 14:11 Europe/Madrid
+Actualizado: 08/09/2026
 
 ## Regla desde ahora
 - **ACTUAL / OPERATIVO** = funciona hoy y es la referencia recomendada.
@@ -79,6 +79,35 @@ Actualizado: 25/08/2026 · 14:11 Europe/Madrid
 4. No publicar herramientas administrativas internas sin acceso protegido.
 5. ACTUAL nunca significa “demo que parece funcionar”; significa operativo de extremo a extremo para su alcance declarado.
 6. Un MASTER CONSOLIDADO validado no se modifica por estética ni por crear otra versión: solo por incidencia real o mejora planificada.
+
+# ACTUALIZACIÓN 08/09/2026 · TPV ALIMENTACIÓN
+
+- LAB ACTUAL: `/tpv-alimentacion-dibal-lab-v1-3-lab-xz-jornada-pinchitos/`
+- Acceso validado en móvil: `/tpv-alimentacion-lab-visible-20260908/?v=20260908-1526-masterfix2`
+- LAB ANTERIOR: `/tpv-alimentacion-dibal-lab-v1-3-lab-tickets-dictados/`
+- Piloto separado: `/tpv-alimentacion-piloto/`
+- Red piloto: `/tpv-alimentacion-red-piloto/`
+- Estado: PRUEBA REAL / NO MASTER global.
+- Validado en uso real:
+  - cerrar una jornada anterior mantiene abiertas las ventas posteriores en X;
+  - Pinchitos de pollo 17,95 €/kg · Carne/Pollo;
+  - Pinchitos de ibérico 22,50 €/kg · Carne/Cerdo;
+  - Patata Olot carne 25 €/kg · Elaborados/Preparados;
+  - Flauta carne y salsa mexicana 25 €/kg · Elaborados/Preparados;
+  - restauración de catálogo corregida en los módulos externos.
+- Lección de validación consolidada: no basta revisar `index.html`; hay que comprobar también los módulos que restauran o sobrescriben datos.
+- Regla de cierre de modificación: verificación real + enlace en chat + fichero/enlace por correo.
+
+# ACCESOS DE LAB / DESARROLLO LOCALIZADOS
+- `/encargos-lab/` — Encargos LAB.
+- `/todo-bueno/conectada/` — demo conectada local.
+- `/todo-bueno/empresa/` — panel empresa demo local.
+- `/gestion-laboral-lab/` — Gestión Laboral LAB.
+- `/calculadora-gestion-laboral/` — calculadora.
+- `/control-horario-comercial/` — material comercial.
+- `/prueba-bienestar-animal-v2/` — Bienestar Animal v2.
+- `/sincroniaia-bienestar-animal-estudio/` — estudio sectorial.
+- `/prueba-voz-v3/` — prueba de voz más reciente localizada.
 
 # SIGUIENTE BLOQUE DE TRABAJO
 1. Crear/conectar backend central real para `TODO BUENO · PEDIDOS` y probar cliente → hoja → panel empresa desde dispositivos distintos.
