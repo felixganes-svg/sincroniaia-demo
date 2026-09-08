@@ -227,7 +227,9 @@ restorePilotState=function(){
       sellers=sellers.map(s=>({...s,active:false}));
       localStorage.setItem(MV_PREFIX+'initialized','1');
     }
-    ensureMems();ensureEnabledSubsections();pilotReady=true;save();
+    ensureMems();ensureEnabledSubsections();if(typeof applyCatalogAdditions20260908==='function')applyCatalogAdditions20260908();
+    if(typeof ensureHotfixCatalog20260908==='function')ensureHotfixCatalog20260908();
+    pilotReady=true;save();
   }catch(e){
     console.warn('LAB Modificar venta: no se pudo restaurar el estado',e);
     pilotReady=true;
@@ -246,7 +248,7 @@ importPilotBackup=function(input){
       company=d.company;sellers=Array.isArray(d.sellers)?d.sellers:sellers;products=d.products;tickets=d.tickets;
       zReports=Array.isArray(d.zReports)?d.zReports:[];sellerMems=d.sellerMems||{};customSubsections=d.customSubsections||{};
       orders=Array.isArray(d.orders)?d.orders:[];saleAdjustments=Array.isArray(d.saleAdjustments)?d.saleAdjustments:[];priceChanges=Array.isArray(d.priceChanges)?d.priceChanges:[];
-      ensureMems();ensureEnabledSubsections();save();render();alert('Copia restaurada correctamente.');
+      ensureMems();ensureEnabledSubsections();if(typeof applyCatalogAdditions20260908==='function')applyCatalogAdditions20260908();if(typeof ensureHotfixCatalog20260908==='function')ensureHotfixCatalog20260908();save();render();alert('Copia restaurada correctamente.');
     }catch(e){alert('No se ha podido leer esta copia: '+e.message)}
   };
   reader.readAsText(file);input.value='';
