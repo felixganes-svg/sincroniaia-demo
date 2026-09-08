@@ -227,7 +227,12 @@ restorePilotState=function(){
       sellers=sellers.map(s=>({...s,active:false}));
       localStorage.setItem(MV_PREFIX+'initialized','1');
     }
-    ensureMems();ensureEnabledSubsections();if(typeof applyCatalogAdditions20260908==='function')applyCatalogAdditions20260908();
+    ensureMems();ensureEnabledSubsections();if(typeof applyCatalogMaster20260907==='function')applyCatalogMaster20260907();
+    if(typeof applyPantryRevision20260907==='function')applyPantryRevision20260907();
+    if(typeof applyArticleRevision20260907_149==='function')applyArticleRevision20260907_149();
+    if(typeof applyCatalogAdditions20260908==='function')applyCatalogAdditions20260908();
+    if(typeof ensureCatalogMasterSubsections==='function')ensureCatalogMasterSubsections();
+    if(typeof ensureNoRedundantElaboradosSubsection==='function')ensureNoRedundantElaboradosSubsection();
     if(typeof ensureHotfixCatalog20260908==='function')ensureHotfixCatalog20260908();
     pilotReady=true;save();
   }catch(e){
@@ -248,7 +253,7 @@ importPilotBackup=function(input){
       company=d.company;sellers=Array.isArray(d.sellers)?d.sellers:sellers;products=d.products;tickets=d.tickets;
       zReports=Array.isArray(d.zReports)?d.zReports:[];sellerMems=d.sellerMems||{};customSubsections=d.customSubsections||{};
       orders=Array.isArray(d.orders)?d.orders:[];saleAdjustments=Array.isArray(d.saleAdjustments)?d.saleAdjustments:[];priceChanges=Array.isArray(d.priceChanges)?d.priceChanges:[];
-      ensureMems();ensureEnabledSubsections();if(typeof applyCatalogAdditions20260908==='function')applyCatalogAdditions20260908();if(typeof ensureHotfixCatalog20260908==='function')ensureHotfixCatalog20260908();save();render();alert('Copia restaurada correctamente.');
+      ensureMems();ensureEnabledSubsections();if(typeof applyCatalogMaster20260907==='function')applyCatalogMaster20260907();if(typeof applyPantryRevision20260907==='function')applyPantryRevision20260907();if(typeof applyArticleRevision20260907_149==='function')applyArticleRevision20260907_149();if(typeof applyCatalogAdditions20260908==='function')applyCatalogAdditions20260908();if(typeof ensureCatalogMasterSubsections==='function')ensureCatalogMasterSubsections();if(typeof ensureNoRedundantElaboradosSubsection==='function')ensureNoRedundantElaboradosSubsection();if(typeof ensureHotfixCatalog20260908==='function')ensureHotfixCatalog20260908();save();render();alert('Copia restaurada correctamente.');
     }catch(e){alert('No se ha podido leer esta copia: '+e.message)}
   };
   reader.readAsText(file);input.value='';
