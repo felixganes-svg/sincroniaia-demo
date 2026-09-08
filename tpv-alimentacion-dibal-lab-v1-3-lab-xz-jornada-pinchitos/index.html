@@ -196,7 +196,9 @@ importedCodes20260819.forEach(p=>{if(!products.some(x=>x.code===p.code))products
 function normalizeProductCode(value){let code=String(value??'').trim();return /^\d+$/.test(code)?code.padStart(6,'0'):code}
 const catalogAdditions20260908=[
  {code:'000150',name:'Pinchitos de pollo',price:17.95,unit:'kg',area:'Carne',subcat:'Pollo',source:'usuario_20260908'},
- {code:'000151',name:'Pinchitos de ibérico',price:22.50,unit:'kg',area:'Carne',subcat:'Cerdo',source:'usuario_20260908'}
+ {code:'000151',name:'Pinchitos de ibérico',price:22.50,unit:'kg',area:'Carne',subcat:'Cerdo',source:'usuario_20260908'},
+ {code:'000152',name:'Patata Olot carne',price:25.00,unit:'kg',area:'Elaborados',subcat:'Preparados',source:'usuario_20260908'},
+ {code:'000153',name:'Flauta carne y salsa mexicana',price:25.00,unit:'kg',area:'Elaborados',subcat:'Preparados',source:'usuario_20260908'}
 ];
 function applyCatalogAdditions20260908(){
  catalogAdditions20260908.forEach(p=>{let current=products.find(x=>normalizeProductCode(x.code)===p.code);if(current)Object.assign(current,p,{cat:p.subcat,active:true,offer:{enabled:false,type:'none'}});else products.push({...p,cat:p.subcat,active:true,offer:{enabled:false,type:'none'}})});
