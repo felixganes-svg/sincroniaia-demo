@@ -29,3 +29,13 @@ No declarar MASTER/STABLE con esta autovalidación. Requiere prueba funcional re
 - Simulación: al cerrar la jornada anterior, el ticket del día actual permanece abierto: OK.
 
 Resultado: técnicamente apta para prueba real en móvil/PC. La validación real de uso sigue pendiente y no se declara MASTER/STABLE.
+
+
+## Validación adicional 08/09/2026 · UX MIRAR PRECIO
+- CERRAR arriba en MIRAR PRECIO: OK.
+- Cierre al final se conserva: OK.
+- Cartel “VERSIÓN DE COMPROBACIÓN 08/09 · Debes ver PINCHITOS y MIRAR PRECIO” eliminado de la ruta visible: OK.
+- Encabezado temporal simplificado: OK.
+- Sintaxis JavaScript tras cambio: OK.
+- Tipo de validación: autovalidación técnica.
+- Pendiente: confirmación de uso real en móvil.
