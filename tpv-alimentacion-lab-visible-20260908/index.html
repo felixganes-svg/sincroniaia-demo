@@ -123,11 +123,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}td,th{border-bottom:1px
 </style>
 </head>
 <body>
-<header><b>SINCRONIAIA TPV Alimentación</b><small>LAB VISIBLE 08/09/2026 · X/Z JORNADA · CATÁLOGO 0150-0153</small></header>
-<div style="max-width:1100px;margin:10px auto;padding:10px 14px;border:2px solid #111;border-radius:12px;background:#fff;font-weight:800;text-align:center">
-VERSIÓN DE COMPROBACIÓN 08/09 · Debes ver PINCHITOS y MIRAR PRECIO
-<br><button style="margin-top:8px;padding:10px 18px;font-weight:800" onclick="priceShowAll()">MIRAR PRECIO · TODOS LOS ARTÍCULOS</button>
-</div>
+<header><b>SINCRONIAIA TPV Alimentación</b><small>LAB X/Z JORNADA · CATÁLOGO ACTUAL</small></header>
 <main id="app"></main>
 <div class="ticketbar" id="bar" style="display:none"></div>
 <div class="modal" id="modal"><div class="box" id="modalBox"></div></div>
@@ -465,7 +461,7 @@ function productMatchesPriceContext(p,ctx=priceContext){
 }
 function priceModal(ctx=null){
  priceContext=ctx||currentPriceContext();
- modal(`<h2>MIRAR PRECIO · ${esc(priceContextLabel())}</h2>
+ modal(`<div class="grid two" style="margin-bottom:10px"><h2 style="margin:0">MIRAR PRECIO · ${esc(priceContextLabel())}</h2><button onclick="closeModal()">CERRAR</button></div>
  <p class="notice"><b>Consulta contextual.</b> Se muestran primero los artículos de la sección donde estás. Aquí no se añade ningún artículo a la venta.</p>
  <div class="grid two"><button onclick="priceShowAll()">TODOS LOS PRECIOS</button><button onclick="priceSectionChooser()">CAMBIAR SECCIÓN</button></div>
  <input id="priceQuery" style="margin-top:10px" placeholder="Buscar artículo o código dentro de ${esc(priceContextLabel())}..." oninput="refreshPriceList(this.value)">
