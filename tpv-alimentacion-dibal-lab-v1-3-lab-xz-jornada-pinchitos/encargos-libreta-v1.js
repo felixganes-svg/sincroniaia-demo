@@ -97,6 +97,8 @@ restorePilotState=function(){
     }
     ensureMems();
     ensureEnabledSubsections();
+    if(typeof applyCatalogAdditions20260908==='function')applyCatalogAdditions20260908();
+    if(typeof ensureHotfixCatalog20260908==='function')ensureHotfixCatalog20260908();
     pilotReady=true;
     save();
   }catch(e){
