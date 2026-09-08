@@ -60,3 +60,11 @@ Estas LAB permanecen recuperables desde el historial de Git.
 - X por fecha/rango y cierre de jornada concreta con trazabilidad real.
 - Nuevos artículos: 000150 Pinchitos de pollo · 17,95 €/kg · Pollo; 000151 Pinchitos de ibérico · 22,50 €/kg · Cerdo.
 - Autovalidación técnica aprobada para prueba real; no MASTER/STABLE.
+
+
+## Actualización 08/09/2026 · Mirar precio
+- Se mantiene ACTUAL: `tpv-alimentacion-dibal-lab-v1-3-lab-xz-jornada-pinchitos`.
+- Botón **CERRAR** añadido al principio de MIRAR PRECIO para uso móvil sin bajar al final.
+- Eliminado el cartel temporal de comprobación 08/09 de la ruta visible.
+- Verificación técnica: sintaxis OK, botón superior presente y texto temporal ausente.
+- Estado: aprobada para prueba real; NO MASTER global.
