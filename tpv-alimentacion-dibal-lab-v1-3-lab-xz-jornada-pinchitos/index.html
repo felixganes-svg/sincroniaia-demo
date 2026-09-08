@@ -414,7 +414,26 @@ function loginSeller(){let s=sellers.find(x=>x.code===sellerCodeLogin.value.trim
 function logoutSellerModal(){modal(`<h2>Terminar sesión vendedor</h2>${sellers.map(s=>`<div class="line"><div><b>${esc(s.name)}</b><br><small>${s.active?'Activo':'No iniciado'} · memoria: ${(sellerMems[s.name]||[]).length} líneas</small></div><button ${!s.active?'disabled':''} onclick="logoutSeller('${esc(s.name)}')">Terminar sesión</button></div>`).join('')}<p><button onclick="closeModal()">Cerrar</button></p>`)}
 function logoutSeller(name){let s=findSellerByName(name);if(!s)return;if((sellerMems[name]||[]).length>0&&!confirm('Este vendedor tiene una venta pendiente. ¿Terminar sesión igualmente?'))return;s.active=false;s.loginAt=null;save();closeModal();render()}
 function sortProductsByName(list){return list.sort((a,b)=>a.name.localeCompare(b.name,'es',{sensitivity:'base',numeric:true})||String(a.code).localeCompare(String(b.code),'es'))}
-function filteredProducts(){if(area==='A–Z')return sortProductsByName(products.filter(p=>p.active!==false&&(!azScope||p.area===azScope)&&subcat&&productLetters(p).includes(subcat)));return sortProductsByName(products.filter(p=>p.active!==false&&p.area===area&&(subcat==='Todos'||hasProductSub(p,subcat))))}
+function ensureHotfixCatalog20260908(){
+ const required=[
+  {code:'000150',name:'Pinchitos de pollo',price:17.95,unit:'kg',area:'Carne',subcat:'Pollo'},
+  {code:'000151',name:'Pinchitos de ibérico',price:22.50,unit:'kg',area:'Carne',subcat:'Cerdo'},
+  {code:'000152',name:'Patata Olot carne',price:25.00,unit:'kg',area:'Elaborados',subcat:'Preparados'},
+  {code:'000153',name:'Flauta carne y salsa mexicana',price:25.00,unit:'kg',area:'Elaborados',subcat:'Preparados'}
+ ];
+ let changed=false;
+ required.forEach(n=>{
+   let p=products.find(x=>normalizeProductCode(x.code)===n.code);
+   if(!p){products.push({...n,cat:n.subcat,subcats:[n.subcat],active:true,offer:{enabled:false,type:'none'},source:'hotfix_20260908'});changed=true}
+   else{
+     let wanted={...n,cat:n.subcat,subcats:[n.subcat],active:true,offer:{enabled:false,type:'none'}};
+     for(const [k,v] of Object.entries(wanted)){if(JSON.stringify(p[k])!==JSON.stringify(v)){p[k]=v;changed=true}}
+   }
+ });
+ if(changed){localStorage.setItem('tpv_lab_v13_rect_products',JSON.stringify(products));try{persistPilotState()}catch(e){}}
+}
+
+function filteredProducts(){ensureHotfixCatalog20260908();if(area==='A–Z')return sortProductsByName(products.filter(p=>p.active!==false&&(!azScope||p.area===azScope)&&subcat&&productLetters(p).includes(subcat)));return sortProductsByName(products.filter(p=>p.active!==false&&p.area===area&&(subcat==='Todos'||hasProductSub(p,subcat))))}
 function productButton(p){return `<button class="prod" onclick="selectProduct('${p.code}')"><b>${esc(p.name)}</b></button>`}
 function searchProducts(q){q=q.toLowerCase();plist.innerHTML=sortProductsByName(products.filter(p=>p.active!==false&&p.area===area&&hasProductSub(p,subcat)&&(p.name+' '+p.code).toLowerCase().includes(q))).map(productButton).join('')}
 let priceContext=null;
@@ -452,7 +471,7 @@ function priceModal(ctx=null){
  updatePriceCount('');
 }
 function refreshPriceList(q){if(document.getElementById('priceList'))priceList.innerHTML=priceRows(q);updatePriceCount(q)}
-function filteredPriceProducts(q='',ctx=priceContext){
+function filteredPriceProducts(q='',ctx=priceContext){ensureHotfixCatalog20260908();
  q=(q||'').trim().toLowerCase();
  return sortProductsByName(products.filter(p=>p.active!==false&&productMatchesPriceContext(p,ctx)&&(!q||(p.name+' '+p.code+' '+p.area+' '+productSubs(p).join(' ')).toLowerCase().includes(q))));
 }
@@ -487,7 +506,7 @@ function orderPayment(id,seller){let o=orders.find(x=>String(x.id)===String(id))
 function orderCash(id,seller){let o=orders.find(x=>String(x.id)===String(id)),total=round(o.items.reduce((s,l)=>s+Number(l.total||0),0));modal(`<h2>Pago efectivo · ${esc(o.number)}</h2><h2>Total: ${euro(total)}</h2><label>Entrega cliente</label><input id="orderCashGiven" type="number" inputmode="decimal" step="0.01" oninput="orderChange.textContent=euro((Number(this.value)||0)-${total})"><h2>Devolución: <span id="orderChange">${euro(0)}</span></h2><button class="primary" onclick="finishOrderPay('${o.id}','${esc(seller)}','Efectivo',Number(orderCashGiven.value)||0)">Finalizar venta</button> <button onclick="orderPayment('${o.id}','${esc(seller)}')">Volver</button>`)}
 function finishOrderPay(id,seller,method,cashGiven=0){let o=orders.find(x=>String(x.id)===String(id));if(!o||o.status!=='Preparado')return alert('El encargo ya no está pendiente de cobro.');let total=round(o.items.reduce((s,l)=>s+Number(l.total||0),0));if(method==='Efectivo'&&cashGiven<total)return alert('El importe entregado es insuficiente.');let number=String(Math.max(0,...tickets.map(x=>Number(x.number)||0))+1).padStart(4,'0'),t={id:Date.now(),number,date:new Date().toLocaleString('es-ES'),seller,method,total,cashGiven:cashGiven||null,change:method==='Efectivo'?round(cashGiven-total):null,automaticDiscount:0,automaticDiscountName:'',offerDiscount:offerDiscount(o.items),orderNumber:o.number,preticketNumber:o.preticketNumber,items:JSON.parse(JSON.stringify(o.items))};tickets.unshift(t);o.status='Entregado';o.ticketNumber=number;o.ticketId=t.id;o.deliveredAt=t.date;o.deliveredBy=seller;save();modal(receiptHtml(t));render()}
 function quickCodeModal(){modal(`<h2>Venta rápida por código</h2><p class="muted">Introduce el código del producto y pulsa Enter.</p><label>Código</label><input id="quickCode" inputmode="numeric" autofocus placeholder="000070" onkeydown="if(event.key==='Enter')findQuickCode()"><p><button class="primary" onclick="findQuickCode()">Aceptar</button> <button onclick="closeModal()">Cancelar</button></p>`);setTimeout(()=>document.getElementById('quickCode')?.focus(),50)}
-function findQuickCode(){let raw=normalizeProductCode(document.getElementById('quickCode')?.value||'');let p=products.find(x=>x.active!==false&&x.code===raw);if(!p)return alert('No existe un producto activo con ese código.');selectProduct(p.code)}
+function findQuickCode(){ensureHotfixCatalog20260908();let raw=normalizeProductCode(document.getElementById('quickCode')?.value||'');let p=products.find(x=>x.active!==false&&x.code===raw);if(!p)return alert('No existe un producto activo con ese código.');selectProduct(p.code)}
 function selectProduct(code){if(!hasActiveSeller())return alert('Debe iniciar al menos un vendedor antes de vender.');let p=products.find(x=>x.code===code);if(!p)return;if(!Number.isFinite(Number(p.price))||Number(p.price)<=0)return alert('Este artículo no tiene un precio válido. Empresa debe asignarle un precio antes de venderlo.');p.unit==='kg'?weightModal(p):unitModal(p)}
 function weightModal(p){modal(`<h2>${esc(p.name)}</h2><div class="visor"><div class="visorTop"><span>VENTA POR PESO</span><span>ENTRADA MANUAL</span></div><div class="visorProduct">${esc(p.name)}</div><div class="visorNumbers"><div><small>PESO NETO</small><b id="visorQty">0,000 kg</b></div><div><small>PRECIO</small><b>${euro(p.price)}/kg</b></div><div><small>IMPORTE</small><b id="importPreview">${euro(0)}</b></div></div></div><label>Peso introducido (kg)</label><input id="qmanual" type="number" inputmode="decimal" step="0.001" placeholder="0.780" oninput="previewWeight('${p.code}')" onkeydown="if(event.key==='Enter'){event.preventDefault();prepareLine('${p.code}',netWeight())}"><p><button id="tareButton" onclick="toggleProductTare('${p.code}')"><b>T · TARA</b></button></p><div id="tarePanel" class="notice" hidden><label>Tara del envase (kg)</label><input id="tareManual" type="number" inputmode="decimal" min="0" step="0.001" placeholder="0.000" oninput="previewWeight('${p.code}')"><small>Se descontará únicamente en esta línea.</small></div><p class="notice">El peso se considera neto por defecto. Pulsa T · TARA solo si has introducido un peso con envase.</p><p><button class="primary" onclick="prepareLine('${p.code}',netWeight())">Elegir vendedor</button> <button onclick="closeModal()">Cancelar</button></p>`);setTimeout(()=>document.getElementById('qmanual')?.focus(),50)}
 function unitModal(p){modal(`<h2>${esc(p.name)}</h2><div class="visor"><div class="visorTop"><span>VISOR CLIENTE · LÍNEA ACTUAL</span><span>UNIDADES</span></div><div class="visorProduct">${esc(p.name)}</div><div class="visorNumbers"><div><small>CANTIDAD</small><b id="visorQty">0 ud</b></div><div><small>PRECIO</small><b>${euro(p.price)}/ud</b></div><div><small>IMPORTE</small><b id="importPreview">${euro(0)}</b></div></div></div><label>Unidades</label><input id="qmanual" type="number" inputmode="numeric" step="1" placeholder="2" oninput="previewImport('${p.code}')" onkeydown="if(event.key==='Enter'){event.preventDefault();prepareLine('${p.code}',Number(qmanual.value))}"><p><button class="primary" onclick="prepareLine('${p.code}',Number(qmanual.value))">Elegir vendedor</button> <button onclick="closeModal()">Cancelar</button></p>`);setTimeout(()=>document.getElementById('qmanual')?.focus(),50)}
