@@ -716,7 +716,7 @@ ordersModal=function(view=orderWorkView){
   let list=orders.filter(o=>orderMatchesWorkView(o,orderWorkView))
     .sort((a,b)=>(a.pickupDate+' '+(a.pickupTime||'')).localeCompare(b.pickupDate+' '+(b.pickupTime||'')));
   modal(
-    '<h2>Encargos</h2>'+
+    '<div class="saleTop"><h2 style="margin:0">Encargos</h2><button onclick="closeModal()">CERRAR</button></div>'+
     '<p class="notice"><b>Centro de trabajo.</b> Los inacabados muestran qué queda por preparar. Pago y recogida se controlan por separado.</p>'+
     '<div class="grid two"><button class="primary" onclick="newOrderModal()">+ NUEVO ENCARGO</button>'+
     '<input id="orderQuery" placeholder="Buscar cliente, teléfono, fecha o nº" oninput="refreshOrderList()"></div>'+
