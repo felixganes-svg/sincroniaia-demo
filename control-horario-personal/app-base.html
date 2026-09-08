@@ -197,6 +197,17 @@ const CONFIRMED_CORRECTIONS={
 Object.entries(CONFIRMED_CORRECTIONS).forEach(([k,sessions])=>{
   data.days[k]={sessions:JSON.parse(JSON.stringify(sessions)),source:'corrección confirmada'};
 });
+const CONFIRMED_HISTORY_SESSIONS={
+ '2026-08-18':[{in:isoLocal(2026,8,18,7,30),out:isoLocal(2026,8,18,13,30),minutes:360,source:'histórico confirmado'}],
+ '2026-08-19':[{in:isoLocal(2026,8,19,7,30),out:isoLocal(2026,8,19,13,30),minutes:360,source:'histórico confirmado'},{in:isoLocal(2026,8,19,17,0),out:isoLocal(2026,8,19,20,0),minutes:180,source:'histórico confirmado'}],
+ '2026-08-27':[{in:isoLocal(2026,8,27,7,30),out:isoLocal(2026,8,27,13,30),minutes:360,source:'histórico confirmado'}],
+ '2026-08-28':[{in:isoLocal(2026,8,28,7,30),out:isoLocal(2026,8,28,13,30),minutes:360,source:'histórico confirmado'}],
+ '2026-09-02':[{in:isoLocal(2026,9,2,7,30),out:isoLocal(2026,9,2,13,30),minutes:360,source:'histórico confirmado'},{in:isoLocal(2026,9,2,17,0),out:isoLocal(2026,9,2,20,15),minutes:195,source:'histórico confirmado'}],
+ '2026-09-03':[{in:isoLocal(2026,9,3,7,30),out:isoLocal(2026,9,3,13,45),minutes:375,source:'histórico confirmado'}]
+};
+Object.entries(CONFIRMED_HISTORY_SESSIONS).forEach(([k,sessions])=>{
+ data.days[k]={sessions:JSON.parse(JSON.stringify(sessions)),source:'histórico confirmado'};
+});
 localStorage.setItem(KEY,JSON.stringify(data));
 function save(){localStorage.setItem(KEY,JSON.stringify(data))}
 function holidayFor(k){
@@ -251,12 +262,15 @@ const HISTORICAL_COMPUTE={
  '2026-09-04':555,
  '2026-09-05':360
 };
+const HISTORICAL_PLANNED={'2026-08-17':360};
 const HISTORICAL_NOTES={
  '2026-08-24':'Llegada real 08:30. Cómputo laboral aprobado desde 07:30.',
  '2026-08-26':'Cómputo histórico aprobado: 9:00.',
  '2026-08-17':'Vacaciones computables: 6:00.'
 };
 function basePlannedMinutesForDate(d=new Date()){
+ const k=typeof d==='string'?d:dateKey(d);
+ if(Object.prototype.hasOwnProperty.call(HISTORICAL_PLANNED,k))return HISTORICAL_PLANNED[k];
  const dt=typeof d==='string'?new Date(d+'T12:00:00'):d;
  const s=scheduleForDate(typeof d==='string'?d:dt);
  if(!s)return 0;
@@ -319,18 +333,17 @@ function monthWeekSummaries(y,m){
 }
 function renderMonthlyBalance(){
  const box=$('monthlyBalance');if(!box)return;
- const y=calDate.getFullYear(),m=calDate.getMonth(),rows=monthWeekSummaries(y,m);
+ const y=calDate.getFullYear(),m=calDate.getMonth(),rows=monthWeekSummaries(y,m),ma=new Date(y,m,1),mb=new Date(y,m+1,0,23,59,59,999);
+ const realMonth=sumBetween(ma,mb),compMonth=sumComputableBetween(ma,mb);
  let cumulative=0;
  const firstRelevant=new Date('2026-08-17T00:00:00');
- for(let ws=new Date(firstRelevant);ws<new Date(y,m+1,1);ws.setDate(ws.getDate()+7)){
-   if(ws>new Date())break;
-   cumulative+=sumComputableBetween(ws,weekEnd(ws))-contractMinutesWeek()
- }
+ for(let ws=new Date(firstRelevant);ws<new Date(y,m+1,1);ws.setDate(ws.getDate()+7)){if(ws>new Date())break;cumulative+=sumComputableBetween(ws,weekEnd(ws))-contractMinutesWeek()}
  cumulative+=compensationEffectUntil(new Date(y,m+1,0,23,59,59));
- box.innerHTML=rows.length?rows.map(r=>{
+ let top='<div class="grid3" style="margin:10px 0"><div class="metric"><span class="muted">Real mes</span><b>'+dur(realMonth)+'</b></div><div class="metric"><span class="muted">Computable mes</span><b>'+dur(compMonth)+'</b></div><div class="metric"><span class="muted">Saldo acumulado</span><b style="color:'+(cumulative<0?'#b42318':cumulative>0?'#067647':'#344054')+'">'+signedDur(cumulative)+'</b></div></div>';
+ box.innerHTML=top+(rows.length?rows.map(r=>{
    const label=pad(r.start.getDate())+'/'+pad(r.start.getMonth()+1)+'–'+pad(r.end.getDate())+'/'+pad(r.end.getMonth()+1);
    return '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #eaecf0"><div><b>Semana '+label+'</b><br><span class="muted">Cómputo: '+dur(r.computed)+' / '+dur(contractMinutesWeek())+'</span></div><b style="color:'+(r.diff<0?'#b42318':r.diff>0?'#067647':'#344054')+'">'+signedDur(r.diff)+'</b></div>'
- }).join('')+'<div style="display:flex;justify-content:space-between;padding-top:12px"><b>Saldo acumulado</b><b style="font-size:20px;color:'+(cumulative<0?'#b42318':cumulative>0?'#067647':'#344054')+'">'+signedDur(cumulative)+'</b></div>':'<span class="muted">Sin semanas computables en este mes.</span>'
+ }).join(''):'<span class="muted">Sin semanas computables en este mes.</span>')
 }
 function addCompensation(){
  const date=$('compDate')?.value||'',type=$('compType')?.value||'ajuste',hours=Number($('compHours')?.value),note=($('compNote')?.value||'').trim();
@@ -408,7 +421,7 @@ function selectDay(k){
 }
 function renderCalendar(){
  const y=calDate.getFullYear(),m=calDate.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),names=['L','M','X','J','V','S','D'];$('monthTitle').textContent=first.toLocaleDateString('es-ES',{month:'long',year:'numeric'});let html=names.map(x=>'<div class="dow">'+x+'</div>').join('');const offset=(first.getDay()+6)%7;for(let i=0;i<offset;i++)html+='<div></div>';
- for(let d=1;d<=last.getDate();d++){const k=y+'-'+pad(m+1)+'-'+pad(d),real=dayMinutes(k,false),comp=computableMinutesForDate(k,false),sp=holidayFor(k),planned=basePlannedMinutesForDate(k),diff=comp-planned;let cl='day ';if(comp||real)cl+='work ';else if(sp?.type==='vacation')cl+='vacation ';else if(sp?.type==='holiday')cl+='holiday ';if(k===dateKey(new Date()))cl+='today';let label=comp?dur(comp):(sp?(sp.type==='vacation'?'Vac.':'Festivo'):'');let delta=(comp&&planned&&diff!==0)?'<span style="display:block;font-size:10px;color:'+(diff<0?'#b42318':'#067647')+'">'+signedDur(diff)+'</span>':'';html+='<button class="'+cl+'" onclick="selectDay(\''+k+'\')"><span class="n">'+d+'</span>'+(label?'<span class="h">'+label+'</span>':'')+delta+'</button>'}
+ for(let d=1;d<=last.getDate();d++){const k=y+'-'+pad(m+1)+'-'+pad(d),real=dayMinutes(k,false),comp=computableMinutesForDate(k,false),sp=holidayFor(k),planned=basePlannedMinutesForDate(k),diff=comp-planned;let cl='day ';if(sp?.type==='vacation')cl+='vacation ';else if(sp?.type==='holiday')cl+='holiday ';else if(comp||real)cl+='work ';if(k===dateKey(new Date()))cl+='today';let label=sp?(sp.type==='vacation'?'Vac.':'Festivo'):(comp?dur(comp):'');let sub=(sp&&comp)?'<span style="display:block;font-size:10px">'+dur(comp)+' comp.</span>':((comp&&planned&&diff!==0)?'<span style="display:block;font-size:10px;color:'+(diff<0?'#b42318':'#067647')+'">'+signedDur(diff)+'</span>':'');html+='<button class="'+cl+'" onclick="selectDay(\''+k+'\')"><span class="n">'+d+'</span>'+(label?'<span class="h">'+label+'</span>':'')+sub+'</button>'}
  $('calendar').innerHTML=html;renderMonthlyBalance()
 }
 function setRange(m,el){rangeMonths=m;document.querySelectorAll('.pill[data-m]').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderRange()}
