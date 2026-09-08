@@ -20,8 +20,8 @@ Eliminar una LAB de la rama principal no borra su historial: Git conserva los co
 Antes de retirar una LAB antigua se comprobará que la cadena actual conserva las funciones que esa LAB aportó y que existe una LAB anterior operativa como retorno.
 
 ## Estado actual
-- ACTUAL: `tpv-alimentacion-dibal-lab-v1-3-lab-tickets-dictados`
-- ANTERIOR: `tpv-alimentacion-dibal-lab-v1-3-lab-despensa-6digitos`
+- ACTUAL: `tpv-alimentacion-dibal-lab-v1-3-lab-xz-jornada-pinchitos`
+- ANTERIOR: `tpv-alimentacion-dibal-lab-v1-3-lab-tickets-dictados`
 
 ## LAB retiradas de la rama principal al aplicar esta regla
 - `tpv-alimentacion-dibal-lab-v1-3-lab-cobro-exacto`
@@ -52,3 +52,11 @@ Estas LAB permanecen recuperables desde el historial de Git.
 - ANTERIOR: `tpv-alimentacion-dibal-lab-v1-3-lab-despensa-6digitos`.
 - Importador con referencia única, control de duplicados y validación de cuadre.
 - Se retira de main `tpv-alimentacion-dibal-lab-v1-3-lab-catalogo-maestro` por quedar dos generaciones atrás.
+
+
+## Actualización 08/09/2026 · X/Z por jornada + pinchitos
+- Nueva ACTUAL: `tpv-alimentacion-dibal-lab-v1-3-lab-xz-jornada-pinchitos`.
+- ANTERIOR: `tpv-alimentacion-dibal-lab-v1-3-lab-tickets-dictados`.
+- X por fecha/rango y cierre de jornada concreta con trazabilidad real.
+- Nuevos artículos: 000150 Pinchitos de pollo · 17,95 €/kg · Pollo; 000151 Pinchitos de ibérico · 22,50 €/kg · Cerdo.
+- Autovalidación técnica aprobada para prueba real; no MASTER/STABLE.
