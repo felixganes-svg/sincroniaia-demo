@@ -18,11 +18,21 @@
   <div class="card"><b>Horario previsto</b><p class="muted">Referencia informativa. El cómputo laboral utiliza siempre hora y minuto. El dato técnico del servidor no altera el total laboral.</p><div id="scheduleSummary"></div><div id="scheduleDays" class="schedule-box"></div><details><summary>Ver siguiente horario programado</summary><div id="nextSchedule" class="schedule-box muted"></div></details></div>
   <div class="card"><b>Registro de hoy</b><table class="list"><thead><tr><th>Entrada</th><th>Salida</th><th>Total</th></tr></thead><tbody id="todayRows"></tbody></table></div>
   <div class="card"><div class="absence-summary" style="background:#faf5ff;border:1px solid #ddd6fe;border-radius:14px;padding:12px;margin-bottom:12px;font-size:13px;line-height:1.55"><b>Ausencias justificadas del histórico</b><br>🔴 27/07/2026 · Festivo<br>🟣 28/07/2026–17/08/2026 · Vacaciones<br><span class="muted">Se muestran en el calendario y nunca sustituyen ni borran un fichaje real.</span></div><div class="cal-head"><button class="pill" onclick="moveMonth(-1)">‹</button><b id="monthTitle"></b><button class="pill" onclick="moveMonth(1)">›</button></div><div class="cal" id="calendar"></div><div class="legend"><span><i class="dot worked"></i>Trabajado</span><span><i class="dot vac"></i>Vacaciones</span><span><i class="dot hol"></i>Festivo</span></div><details><summary>Detalle del día seleccionado</summary><div id="dayDetail" class="muted" style="margin-top:8px">Toca un día del calendario.</div></details></div>
+  <div class="card"><b>Resumen mensual y banco de horas</b><p class="muted">El cómputo se verifica semana a semana. El fichaje real se conserva y el saldo acumula únicamente las diferencias laborales aprobadas.</p>
+    <div id="monthlyBalance"></div>
+    <div class="grid3" style="margin-top:10px">
+      <div class="metric"><span class="muted">Saldo anterior</span><b id="bankPrevious">0:00</b></div>
+      <div class="metric"><span class="muted">Diferencia esta semana</span><b id="bankWeekDelta">0:00</b></div>
+      <div class="metric"><span class="muted">Saldo acumulado</span><b id="bankCurrent">0:00</b></div>
+    </div>
+    <div id="bankNote" class="sync muted" style="margin-top:9px"></div>
+    <div class="row"><button class="btn light" onclick="printMonthlyReport()">IMPRIMIR / PDF</button><button class="btn light" onclick="shareMonthlyReport()">COMPARTIR RESUMEN</button></div>
+  </div>
   <div class="card"><b>Consulta de periodos</b><div class="range" style="margin-top:9px"><button class="pill active" data-m="1" onclick="setRange(1,this)">1 mes</button><button class="pill" data-m="2" onclick="setRange(2,this)">2 meses</button><button class="pill" data-m="3" onclick="setRange(3,this)">3 meses</button><button class="pill" data-m="6" onclick="setRange(6,this)">6 meses</button><button class="pill" data-m="12" onclick="setRange(12,this)">12 meses</button></div><div class="grid3" style="margin-top:10px"><div class="metric"><span class="muted">Horas</span><b id="rHours">0:00</b></div><div class="metric"><span class="muted">Días</span><b id="rDays">0</b></div><div class="metric"><span class="muted">Media/día</span><b id="rAvg">0:00</b></div></div></div>
 </section>
 <section id="company" class="view hidden">
   <div class="card"><b>Estado actual</b><div style="margin-top:10px"><span id="cStatus" class="status off">● Fuera de jornada</span></div><div class="grid3" style="margin-top:10px"><div class="metric"><span class="muted">Días trabajados</span><b id="cDays">0</b></div><div class="metric"><span class="muted">Horas mes</span><b id="cMonth">0:00</b></div><div class="metric"><span class="muted">Pendientes sync</span><b id="cPending">0</b></div></div></div>
-  <div class="card"><b>Configuración personal de jornada</b><p class="muted">La jornada contratada sirve como referencia. Las horas fichadas permanecen siempre como registro real.</p><label class="muted" for="weeklyContract">Horas contratadas por semana</label><input id="weeklyContract" type="number" min="1" max="80" step="0.5" value="40" style="width:100%;padding:12px;border:1px solid #d0d5dd;border-radius:12px;margin:6px 0 8px;font-size:16px"><button class="btn dark" onclick="saveContract()">GUARDAR JORNADA</button><div class="grid3" style="margin-top:10px"><div class="metric"><span class="muted">Contrato</span><b id="cContract">40:00</b></div><div class="metric"><span class="muted">Real semana</span><b id="cWorked">0:00</b></div><div class="metric"><span class="muted">Diferencia</span><b id="cBalance">0:00</b></div></div><details><summary>Reglas de cómputo</summary><p class="muted">En tu versión personal están desactivadas. No se aplican pausas automáticas, multiplicadores por festivos ni compensaciones.</p></details></div>
+  <div class="card"><b>Configuración personal de jornada</b><p class="muted">La jornada contratada sirve como referencia. Las horas fichadas permanecen siempre como registro real.</p><label class="muted" for="weeklyContract">Horas contratadas por semana</label><input id="weeklyContract" type="number" min="1" max="80" step="0.5" value="40" style="width:100%;padding:12px;border:1px solid #d0d5dd;border-radius:12px;margin:6px 0 8px;font-size:16px"><button class="btn dark" onclick="saveContract()">GUARDAR JORNADA</button><div class="grid3" style="margin-top:10px"><div class="metric"><span class="muted">Contrato</span><b id="cContract">40:00</b></div><div class="metric"><span class="muted">Real semana</span><b id="cWorked">0:00</b></div><div class="metric"><span class="muted">Diferencia</span><b id="cBalance">0:00</b></div></div><details><summary>Reglas de cómputo</summary><p class="muted">El fichaje real nunca se altera para cuadrar saldos. El cómputo laboral admite festivos, vacaciones, ajustes aprobados y compensaciones registradas en el banco de horas.</p></details></div>
   <div class="card"><b>Planificación / horario previsto</b><p class="muted">El horario previsto puede cambiar por periodos sin alterar los fichajes históricos.</p><div id="companySchedule"></div></div>
   <div class="card"><b>Festivos / calendario laboral</b><p class="muted">Los festivos oficiales de Catalunya 2026 se muestran automáticamente. Añade aquí festivos locales, comarcales, de convenio o cierres de empresa.</p>
     <div id="officialHolidayInfo" class="sync"></div>
@@ -30,6 +40,12 @@
     <input id="holidayName" placeholder="Nombre del festivo" style="width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:12px;margin-top:8px">
     <button class="btn dark" onclick="addCustomHoliday()">AÑADIR FESTIVO</button>
     <div id="customHolidayList" class="muted" style="margin-top:10px"></div>
+  </div>
+  <div class="card"><b>Banco de horas / compensaciones</b><p class="muted">Registra pagos, descansos, vacaciones compensatorias o ajustes autorizados sin modificar el fichaje real. El efecto se introduce con signo: + suma saldo a favor del trabajador; − reduce saldo a favor.</p>
+    <div class="row"><input id="compDate" type="date" style="width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:12px"><select id="compType" style="width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:12px"><option value="pago">Pago de horas</option><option value="descanso">Descanso compensatorio</option><option value="vacaciones">Vacaciones compensatorias</option><option value="ajuste">Ajuste autorizado</option></select></div>
+    <div class="row" style="margin-top:8px"><input id="compHours" type="number" step="0.25" placeholder="Efecto horas, ej. -2 o +2" style="width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:12px"><input id="compNote" placeholder="Observación" style="width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:12px"></div>
+    <button class="btn dark" onclick="addCompensation()">REGISTRAR MOVIMIENTO</button>
+    <div id="compensationList" class="muted" style="margin-top:10px"></div>
   </div>
   <div class="card"><b>Histórico mensual</b><table class="list"><thead><tr><th>Fecha</th><th>Periodos</th><th>Total</th></tr></thead><tbody id="monthRows"></tbody></table></div>
   <div class="card"><b>Respaldo Control Horario</b><p class="muted">Cada fichaje se guarda localmente y, si hay acceso configurado, se intenta enviar al backend. Si no hay conexión, queda pendiente para reintento.</p><div id="syncState" class="sync"></div><div id="backendState" class="sync"><span class="muted">Comprobando conexión con backend…</span></div><div class="row"><button class="btn light" onclick="syncPending()">SINCRONIZAR PENDIENTES</button><button class="btn light" onclick="makeBackup()">CREAR COPIA</button></div><div class="row"><button class="btn light" onclick="downloadJSON()">DESCARGAR JSON</button><button class="btn light" onclick="downloadCSV()">EXPORTAR CSV</button></div><div style="margin-top:12px"><b>Copias locales</b><div id="backupList" class="muted"></div></div></div>
@@ -163,6 +179,7 @@ if(data.open&&!Number.isFinite(new Date(data.open.in).getTime()))data.open=null;
 if(data.open&&dateKey(new Date(data.open.in))!==dateKey(new Date()))data.open=null;
 if(!Array.isArray(data.pending))data.pending=[];
 if(!Array.isArray(data.backups))data.backups=[];
+if(!Array.isArray(data.compensations))data.compensations=[];
 if(!data.config)data.config={weeklyContractHours:40};
 if(!Number.isFinite(Number(data.config.weeklyContractHours)))data.config.weeklyContractHours=40;
 if(!Array.isArray(data.config.customHolidays))data.config.customHolidays=[];
@@ -214,9 +231,140 @@ function sumBetween(a,b){let t=0;Object.keys(data.days).forEach(k=>{const d=new 
 function daysBetween(a,b){return Object.keys(data.days).filter(k=>{const d=new Date(k+'T12:00:00');return d>=a&&d<=b&&dayMinutes(k,false)>0}).length}
 function signedDur(m){const sign=m<0?'-':m>0?'+':'';return sign+dur(Math.abs(m))}
 function contractMinutesWeek(){return Math.round(Number(data.config.weeklyContractHours||40)*60)}
+const HISTORICAL_COMPUTE={
+ '2026-08-17':360,
+ '2026-08-18':360,
+ '2026-08-19':540,
+ '2026-08-20':360,
+ '2026-08-21':360,
+ '2026-08-22':360,
+ '2026-08-24':360,
+ '2026-08-25':360,
+ '2026-08-26':540,
+ '2026-08-27':360,
+ '2026-08-28':360,
+ '2026-08-29':360,
+ '2026-08-31':195,
+ '2026-09-01':360,
+ '2026-09-02':555,
+ '2026-09-03':375,
+ '2026-09-04':555,
+ '2026-09-05':360
+};
+const HISTORICAL_NOTES={
+ '2026-08-24':'Llegada real 08:30. Cómputo laboral aprobado desde 07:30.',
+ '2026-08-26':'Cómputo histórico aprobado: 9:00.',
+ '2026-08-17':'Vacaciones computables: 6:00.'
+};
+function basePlannedMinutesForDate(d=new Date()){
+ const dt=typeof d==='string'?new Date(d+'T12:00:00'):d;
+ const s=scheduleForDate(typeof d==='string'?d:dt);
+ if(!s)return 0;
+ const periods=s.days[dt.getDay()]||[];
+ return periods.reduce((a,p)=>{const [h1,m1]=p[0].split(':').map(Number),[h2,m2]=p[1].split(':').map(Number);return a+(h2*60+m2)-(h1*60+m1)},0)
+}
+function computableMinutesForDate(k,includeOpen=true){
+ if(Object.prototype.hasOwnProperty.call(HISTORICAL_COMPUTE,k))return HISTORICAL_COMPUTE[k];
+ const sp=holidayFor(k),planned=basePlannedMinutesForDate(k),real=dayMinutes(k,includeOpen);
+ if(sp?.type==='holiday'||sp?.type==='vacation')return Math.max(planned,real);
+ if(!real)return 0;
+ if(planned&&Math.abs(real-planned)<=5)return planned;
+ return real
+}
+function weekStart(d=new Date()){const x=new Date(d);x.setHours(0,0,0,0);const wd=(x.getDay()+6)%7;x.setDate(x.getDate()-wd);return x}
+function weekEnd(a){const x=new Date(a);x.setDate(x.getDate()+6);x.setHours(23,59,59,999);return x}
+function sumComputableBetween(a,b){
+ let t=0;for(let d=new Date(a);d<=b;d.setDate(d.getDate()+1)){const k=dateKey(d);t+=computableMinutesForDate(k,false)}
+ return t
+}
+function compensationEffectUntil(endDate=new Date()){
+ const lim=endDate instanceof Date?endDate:new Date(endDate+'T23:59:59');
+ return (data.compensations||[]).reduce((t,x)=>{const d=new Date((x.date||'')+'T12:00:00');return Number.isFinite(d.getTime())&&d<=lim?t+Number(x.minutesEffect||0):t},0)
+}
+function completedWeekBalanceBefore(targetWeekStart){
+ const first=new Date('2026-08-17T00:00:00');let total=0;
+ for(let ws=new Date(first);ws<targetWeekStart;ws.setDate(ws.getDate()+7)){
+   const we=weekEnd(ws),worked=sumComputableBetween(ws,we);
+   total+=worked-contractMinutesWeek()
+ }
+ return total
+}
+function currentWeekProgressDelta(now=new Date()){
+ const ws=weekStart(now);let total=0;
+ for(let d=new Date(ws);d<=now;d.setDate(d.getDate()+1)){
+   const k=dateKey(d),isToday=k===dateKey(now),sp=holidayFor(k),real=dayMinutes(k,isToday);
+   if(!isToday||real>0||sp?.type==='holiday'||sp?.type==='vacation'||Object.prototype.hasOwnProperty.call(HISTORICAL_COMPUTE,k)){
+     total+=computableMinutesForDate(k,isToday)-basePlannedMinutesForDate(k)
+   }
+ }
+ return total
+}
+function bankState(now=new Date()){
+ const ws=weekStart(now),previous=completedWeekBalanceBefore(ws)+compensationEffectUntil(new Date(ws.getTime()-1));
+ const weekDelta=currentWeekProgressDelta(now);
+ const compThisWeek=(data.compensations||[]).reduce((t,x)=>{const d=new Date((x.date||'')+'T12:00:00');return Number.isFinite(d.getTime())&&d>=ws&&d<=now?t+Number(x.minutesEffect||0):t},0);
+ return {previous,weekDelta:weekDelta+compThisWeek,current:previous+weekDelta+compThisWeek}
+}
+function monthWeekSummaries(y,m){
+ const first=new Date(y,m,1),last=new Date(y,m+1,0),start=weekStart(first),today=new Date(),rows=[];
+ for(let ws=new Date(start);ws<=last;ws.setDate(ws.getDate()+7)){
+   const we=weekEnd(ws);if(ws>today)break;
+   const computed=sumComputableBetween(ws,we);
+   if(!computed&&we<new Date('2026-08-17T00:00:00'))continue;
+   if(!computed&&ws>today)continue;
+   const diff=computed-contractMinutesWeek();
+   rows.push({start:new Date(ws),end:new Date(we),computed,diff});
+ }
+ return rows.filter(r=>r.computed>0)
+}
+function renderMonthlyBalance(){
+ const box=$('monthlyBalance');if(!box)return;
+ const y=calDate.getFullYear(),m=calDate.getMonth(),rows=monthWeekSummaries(y,m);
+ let cumulative=0;
+ const firstRelevant=new Date('2026-08-17T00:00:00');
+ for(let ws=new Date(firstRelevant);ws<new Date(y,m+1,1);ws.setDate(ws.getDate()+7)){
+   if(ws>new Date())break;
+   cumulative+=sumComputableBetween(ws,weekEnd(ws))-contractMinutesWeek()
+ }
+ cumulative+=compensationEffectUntil(new Date(y,m+1,0,23,59,59));
+ box.innerHTML=rows.length?rows.map(r=>{
+   const label=pad(r.start.getDate())+'/'+pad(r.start.getMonth()+1)+'–'+pad(r.end.getDate())+'/'+pad(r.end.getMonth()+1);
+   return '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #eaecf0"><div><b>Semana '+label+'</b><br><span class="muted">Cómputo: '+dur(r.computed)+' / '+dur(contractMinutesWeek())+'</span></div><b style="color:'+(r.diff<0?'#b42318':r.diff>0?'#067647':'#344054')+'">'+signedDur(r.diff)+'</b></div>'
+ }).join('')+'<div style="display:flex;justify-content:space-between;padding-top:12px"><b>Saldo acumulado</b><b style="font-size:20px;color:'+(cumulative<0?'#b42318':cumulative>0?'#067647':'#344054')+'">'+signedDur(cumulative)+'</b></div>':'<span class="muted">Sin semanas computables en este mes.</span>'
+}
+function addCompensation(){
+ const date=$('compDate')?.value||'',type=$('compType')?.value||'ajuste',hours=Number($('compHours')?.value),note=($('compNote')?.value||'').trim();
+ if(!date||!Number.isFinite(hours)||hours===0){toast('⚠️ Indica fecha y efecto de horas');return}
+ data.compensations.push({id:'COMP-'+Date.now(),date,type,minutesEffect:Math.round(hours*60),note,created:new Date().toISOString()});
+ data.compensations.sort((a,b)=>String(a.date).localeCompare(String(b.date)));save();render();toast('✅ Movimiento registrado')
+}
+function removeCompensation(id){data.compensations=data.compensations.filter(x=>x.id!==id);save();render();toast('✅ Movimiento eliminado')}
+function renderCompensations(){
+ const box=$('compensationList');if(!box)return;const xs=(data.compensations||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ box.innerHTML=xs.length?xs.map(x=>'<div class="backup-item"><b>'+fmtDate(x.date)+'</b> · '+x.type+' · <b>'+signedDur(Number(x.minutesEffect||0))+'</b>'+(x.note?' · '+x.note:'')+'<button class="pill" style="float:right;padding:5px 8px" onclick="removeCompensation(\''+x.id+'\')">Eliminar</button></div>').join(''):'No hay compensaciones registradas.'
+}
+function monthlyReportData(){
+ const y=calDate.getFullYear(),m=calDate.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),days=[];
+ for(let d=new Date(first);d<=last;d.setDate(d.getDate()+1)){const k=dateKey(d),real=dayMinutes(k,false),comp=computableMinutesForDate(k,false),planned=basePlannedMinutesForDate(k),sp=holidayFor(k);if(real||comp||sp)days.push({k,real,comp,planned,sp})}
+ return {y,m,days,weeks:monthWeekSummaries(y,m)}
+}
+function reportText(){
+ const r=monthlyReportData(),month=new Date(r.y,r.m,1).toLocaleDateString('es-ES',{month:'long',year:'numeric'}),bank=bankState(new Date());
+ let s='SINCRONIAIA · CONTROL HORARIO\nFélix · '+month+'\n\n';
+ r.weeks.forEach(w=>{s+='Semana '+fmtDate(dateKey(w.start))+'–'+fmtDate(dateKey(w.end))+' · '+dur(w.computed)+' / '+dur(contractMinutesWeek())+' · Saldo '+signedDur(w.diff)+'\n'});
+ s+='\nSaldo acumulado actual: '+signedDur(bank.current);return s
+}
+function shareMonthlyReport(){const t=reportText();if(navigator.share){navigator.share({title:'Control Horario · Félix',text:t}).catch(()=>{})}else{navigator.clipboard?.writeText(t);toast('✅ Resumen copiado')}}
+function printMonthlyReport(){
+ const r=monthlyReportData(),month=new Date(r.y,r.m,1).toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+ const dayRows=r.days.map(x=>'<tr><td>'+fmtDate(x.k)+'</td><td>'+dur(x.real)+'</td><td>'+dur(x.comp)+'</td><td>'+dur(x.planned)+'</td><td>'+(x.sp?.label||'Trabajo')+'</td><td>'+(HISTORICAL_NOTES[x.k]||'')+'</td></tr>').join('');
+ let acc=0;const weekRows=r.weeks.map(w=>{acc+=w.diff;return '<tr><td>'+fmtDate(dateKey(w.start))+'–'+fmtDate(dateKey(w.end))+'</td><td>'+dur(w.computed)+'</td><td>'+dur(contractMinutesWeek())+'</td><td>'+signedDur(w.diff)+'</td><td>'+signedDur(acc)+'</td></tr>'}).join('');
+ const html='<!doctype html><html><head><meta charset="utf-8"><title>Informe mensual</title><style>body{font-family:Arial,sans-serif;color:#101828;padding:28px}h1{font-size:22px}table{width:100%;border-collapse:collapse;margin:14px 0 24px}th,td{border:1px solid #d0d5dd;padding:7px;font-size:12px;text-align:left}th{background:#f2f4f7}.meta{padding:12px;background:#f8fafc;border-radius:10px}@media print{button{display:none}}</style></head><body><h1>SINCRONIAIA · CONTROL HORARIO</h1><div class="meta"><b>Trabajador:</b> Félix · <b>Mes:</b> '+month+' · <b>Jornada semanal:</b> '+dur(contractMinutesWeek())+'</div><h2>Detalle mensual</h2><table><thead><tr><th>Fecha</th><th>Real</th><th>Computable</th><th>Previsto</th><th>Tipo</th><th>Observaciones</th></tr></thead><tbody>'+dayRows+'</tbody></table><h2>Cómputo semanal</h2><table><thead><tr><th>Semana</th><th>Computado</th><th>Objetivo</th><th>Saldo semana</th><th>Acumulado</th></tr></thead><tbody>'+weekRows+'</tbody></table><p><b>Nota:</b> el fichaje real se conserva. El cómputo laboral puede incorporar vacaciones, festivos y ajustes aprobados.</p><button onclick="window.print()">Imprimir / Guardar PDF</button></body></html>';
+ const w=window.open('','_blank');if(!w){toast('⚠️ Permite ventanas emergentes para imprimir');return}w.document.open();w.document.write(html);w.document.close();setTimeout(()=>w.print(),300)
+}
 function scheduleForDate(d=new Date()){const k=typeof d==='string'?d:dateKey(d);return SCHEDULES.find(s=>k>=s.from&&(!s.to||k<=s.to))||null}
 function nextScheduleAfter(s){if(!s)return SCHEDULES[0]||null;const i=SCHEDULES.findIndex(x=>x.id===s.id);return i>=0?SCHEDULES[i+1]||null:null}
-function plannedMinutesForDate(d=new Date()){const k=typeof d==='string'?d:dateKey(d);if(holidayFor(k)?.type==='holiday')return 0;const dt=typeof d==='string'?new Date(d+'T12:00:00'):d;const s=scheduleForDate(dt);if(!s)return 0;const periods=s.days[dt.getDay()]||[];return periods.reduce((a,p)=>{const [h1,m1]=p[0].split(':').map(Number),[h2,m2]=p[1].split(':').map(Number);return a+(h2*60+m2)-(h1*60+m1)},0)}
+function plannedMinutesForDate(d=new Date()){return basePlannedMinutesForDate(d)}
 function schedulePeriodsText(periods){return periods&&periods.length?periods.map(p=>p[0]+'–'+p[1]).join(' / '):'Descanso'}
 function renderSchedule(){const now=new Date(),s=scheduleForDate(now),next=nextScheduleAfter(s);if(!s){$('scheduleSummary').innerHTML='<span class="warn">Sin horario previsto configurado para esta fecha.</span>';$('scheduleDays').innerHTML='';$('nextSchedule').innerHTML='';$('companySchedule').innerHTML='Sin horario configurado.';return}
  const from=fmtDate(s.from),to=s.to?fmtDate(s.to):'sin fecha fin';const plannedToday=plannedMinutesForDate(now);$('scheduleSummary').innerHTML=`<span class="tag current">ACTUAL</span> <b>${s.name}</b><br><span class="muted">Vigencia: ${from} → ${to} · Previsto semanal: ${dur(s.weeklyMinutes)} · Hoy: ${dur(plannedToday)}</span>`;
@@ -244,11 +392,28 @@ function downloadText(name,text,type){const b=new Blob([text],{type});const a=do
 function downloadJSON(){downloadText('control-horario-felix.json',JSON.stringify(data,null,2),'application/json')}
 function downloadCSV(){let rows=['fecha,entrada,salida,minutos'];Object.keys(data.days).sort().forEach(k=>sessionsFor(k).forEach(s=>rows.push(`${k},${hm(new Date(s.in))},${hm(new Date(s.out))},${s.minutes??minsBetween(s.in,s.out)}`)));downloadText('control-horario-felix.csv',rows.join('\n'),'text/csv')}
 let calDate=new Date();let rangeMonths=1;function moveMonth(n){calDate=new Date(calDate.getFullYear(),calDate.getMonth()+n,1);renderCalendar()}
-function selectDay(k){const ss=sessionsFor(k),sp=holidayFor(k),total=dayMinutes(k,false),sch=scheduleForDate(k),periods=sch?sch.days[new Date(k+'T12:00:00').getDay()]||[]:[];const head=`<b>${fmtDate(k)}</b>${sp?` · ${sp.label}`:''}${total?` · ${dur(total)}`:''}`;const planned=sch?`<br><span class="muted">Previsto (${sch.name}): ${schedulePeriodsText(periods)} · ${dur(plannedMinutesForDate(new Date(k+'T12:00:00')))}</span>`:'';if(ss.length){$('dayDetail').innerHTML=head+planned+'<br>'+ss.map((s,i)=>`Periodo ${i+1}: ${hm(new Date(s.in))}–${hm(new Date(s.out))} · ${dur(minsBetween(s.in,s.out))}`).join('<br>')}else if(sp){$('dayDetail').innerHTML=head+planned+'<br>Sin fichajes.'}else{$('dayDetail').innerHTML=head+planned+'<br>Sin fichajes'}}
-function renderCalendar(){const y=calDate.getFullYear(),m=calDate.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),names=['L','M','X','J','V','S','D'];$('monthTitle').textContent=first.toLocaleDateString('es-ES',{month:'long',year:'numeric'});let html=names.map(x=>`<div class="dow">${x}</div>`).join('');const offset=(first.getDay()+6)%7;for(let i=0;i<offset;i++)html+='<div></div>';for(let d=1;d<=last.getDate();d++){const k=`${y}-${pad(m+1)}-${pad(d)}`,tm=dayMinutes(k,false),sp=holidayFor(k);let cl='day ';if(tm)cl+='work ';else if(sp?.type==='vacation')cl+='vacation ';else if(sp?.type==='holiday')cl+='holiday ';if(k===dateKey(new Date()))cl+='today';let label=tm?dur(tm):(sp?(sp.type==='vacation'?'Vac.':'Festivo'):'');html+=`<button class="${cl}" onclick="selectDay('${k}')"><span class="n">${d}</span>${label?`<span class="h">${label}</span>`:''}</button>`}$('calendar').innerHTML=html}
+function selectDay(k){
+ const ss=sessionsFor(k),sp=holidayFor(k),real=dayMinutes(k,false),comp=computableMinutesForDate(k,false),planned=basePlannedMinutesForDate(k),diff=comp-planned,sch=scheduleForDate(k),dt=new Date(k+'T12:00:00'),periods=sch?sch.days[dt.getDay()]||[]:[];
+ const [wa,wb]=weekBounds(dt),weekComp=sumComputableBetween(wa,wb),weekDiff=weekComp-contractMinutesWeek();
+ let prev=completedWeekBalanceBefore(wa)+compensationEffectUntil(new Date(wa.getTime()-1));
+ const after=prev+weekDiff;
+ let html='<div style="font-size:16px"><b>'+fmtDate(k)+'</b>'+(sp?' · '+sp.label:'')+'</div>';
+ html+='<div style="margin-top:10px;padding:12px;border-radius:14px;background:#f0fdf4;border:1px solid #bbf7d0"><b>HORAS REALIZADAS</b>';
+ if(ss.length){ss.forEach((s,i)=>{html+='<div style="margin-top:8px"><span class="muted">Tramo '+(i+1)+'</span><br><b>Entrada:</b> '+hm(s.in)+' &nbsp; <b>Salida:</b> '+hm(s.out)+'<br><b>Duración:</b> '+dur(minsBetween(s.in,s.out))+'</div>'})}else html+='<div class="muted" style="margin-top:8px">Sin fichajes reales.</div>';
+ html+='<div style="margin-top:9px;padding-top:8px;border-top:1px solid #bbf7d0;font-size:18px"><b>Total realizado: '+dur(real)+'</b></div></div>';
+ html+='<div style="margin-top:10px;padding:12px;border-radius:14px;background:#f8fafc;border:1px solid #e4e7ec"><b>HORARIO PREVISTO</b><br>'+(periods.length?schedulePeriodsText(periods):'Descanso')+' · '+dur(planned)+(sp?.type==='holiday'?'<br><span class="muted">Festivo computable según jornada habitual.</span>':'')+'</div>';
+ html+='<div style="margin-top:10px;padding:12px;border-radius:14px;background:#fff;border:1px solid #e4e7ec"><b>CÓMPUTO DEL DÍA</b><div style="margin-top:7px">Realizado: <b>'+dur(real)+'</b><br>Computable: <b>'+dur(comp)+'</b><br>Previsto: <b>'+dur(planned)+'</b><br>Diferencia del día: <b style="color:'+(diff<0?'#b42318':diff>0?'#067647':'#344054')+'">'+signedDur(diff)+'</b></div>'+(HISTORICAL_NOTES[k]?'<div class="sync muted" style="margin-top:8px">'+HISTORICAL_NOTES[k]+'</div>':'')+'</div>';
+ html+='<div style="margin-top:10px;padding:12px;border-radius:14px;background:#fff;border:1px solid #e4e7ec"><b>RESUMEN SEMANAL</b><div style="margin-top:7px">Jornada semanal trabajador: <b>'+dur(contractMinutesWeek())+'</b><br>Horas computadas semana: <b>'+dur(weekComp)+'</b><br>Diferencia semana: <b style="color:'+(weekDiff<0?'#b42318':weekDiff>0?'#067647':'#344054')+'">'+signedDur(weekDiff)+'</b><br>Saldo anterior: <b>'+signedDur(prev)+'</b><br>Saldo acumulado tras esta semana: <b>'+signedDur(after)+'</b></div></div>';
+ $('dayDetail').innerHTML=html;const details=$('dayDetail').closest('details');if(details)details.open=true
+}
+function renderCalendar(){
+ const y=calDate.getFullYear(),m=calDate.getMonth(),first=new Date(y,m,1),last=new Date(y,m+1,0),names=['L','M','X','J','V','S','D'];$('monthTitle').textContent=first.toLocaleDateString('es-ES',{month:'long',year:'numeric'});let html=names.map(x=>'<div class="dow">'+x+'</div>').join('');const offset=(first.getDay()+6)%7;for(let i=0;i<offset;i++)html+='<div></div>';
+ for(let d=1;d<=last.getDate();d++){const k=y+'-'+pad(m+1)+'-'+pad(d),real=dayMinutes(k,false),comp=computableMinutesForDate(k,false),sp=holidayFor(k),planned=basePlannedMinutesForDate(k),diff=comp-planned;let cl='day ';if(comp||real)cl+='work ';else if(sp?.type==='vacation')cl+='vacation ';else if(sp?.type==='holiday')cl+='holiday ';if(k===dateKey(new Date()))cl+='today';let label=comp?dur(comp):(sp?(sp.type==='vacation'?'Vac.':'Festivo'):'');let delta=(comp&&planned&&diff!==0)?'<span style="display:block;font-size:10px;color:'+(diff<0?'#b42318':'#067647')+'">'+signedDur(diff)+'</span>':'';html+='<button class="'+cl+'" onclick="selectDay(\''+k+'\')"><span class="n">'+d+'</span>'+(label?'<span class="h">'+label+'</span>':'')+delta+'</button>'}
+ $('calendar').innerHTML=html;renderMonthlyBalance()
+}
 function setRange(m,el){rangeMonths=m;document.querySelectorAll('.pill[data-m]').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderRange()}
 function renderRange(){const end=new Date();end.setHours(23,59,59,999);const start=new Date(end.getFullYear(),end.getMonth()-rangeMonths+1,1);const t=sumBetween(start,end),d=daysBetween(start,end);$('rHours').textContent=dur(t);$('rDays').textContent=d;$('rAvg').textContent=d?dur(Math.round(t/d)):'0:00'}
-function render(){const now=new Date(),k=dateKey(now),active=!!data.open&&dateKey(new Date(data.open.in))===k;$('clock').textContent=hm(now);$('dateLabel').textContent=now.toLocaleDateString('es-ES',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});$('status').textContent=active?'● Trabajando':'● Fuera de jornada';$('status').className='status '+(active?'on':'off');$('punchBtn').textContent=active?'FICHAR SALIDA':'FICHAR ENTRADA';$('punchBtn').className='btn '+(active?'dark':'green');$('gpsText').innerHTML=data.gps?.ok?`<span class="ok">✅ Ubicación obtenida · precisión aprox. ${Math.round(data.gps.accuracy||0)} m</span>`:`<span class="warn">⚠️ ${data.gps?.text||'La ubicación es opcional: se intentará automáticamente al fichar'}</span>`;$('sumToday').textContent=dur(dayMinutes(k,true));const [wa,wb]=weekBounds(now);const weekWorked=sumBetween(wa,wb),weekContract=contractMinutesWeek(),weekBal=weekWorked-weekContract;$('sumWeek').textContent=dur(weekWorked);$('contractWeek').textContent=dur(weekContract);$('workedWeek').textContent=dur(weekWorked);$('weekBalance').textContent=signedDur(weekBal);$('balanceNote').textContent=weekBal===0?'Semana cuadrada con la jornada contratada.':(weekBal<0?'Faltan '+dur(Math.abs(weekBal))+' para alcanzar la referencia semanal.':'Hay '+dur(weekBal)+' por encima de la referencia semanal.');const ma=new Date(now.getFullYear(),now.getMonth(),1),mb=new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59,999);$('sumMonth').textContent=dur(sumBetween(ma,mb));const today=sessionsFor(k),trs=[...today];if(active&&dateKey(new Date(data.open.in))===k)trs.push({in:data.open.in,out:null});$('todayRows').innerHTML=trs.length?trs.map(s=>`<tr><td>${hm(new Date(s.in))}</td><td>${s.out?hm(new Date(s.out)):'—'}</td><td>${s.out?dur(minsBetween(s.in,s.out)):'En curso'}</td></tr>`).join(''):'<tr><td colspan="3">Todavía no hay movimientos hoy.</td></tr>';$('lastIn').textContent=lastEntryTime();$('lastOut').textContent=lastExitTime();$('lastState').textContent=active?'Trabajando':'Fuera';$('cStatus').textContent=active?'● Trabajando':'● Fuera de jornada';$('cStatus').className='status '+(active?'on':'off');$('cDays').textContent=daysBetween(ma,mb);$('cMonth').textContent=dur(sumBetween(ma,mb));$('cPending').textContent=data.pending.length;$('weeklyContract').value=Number(data.config.weeklyContractHours||40);$('cContract').textContent=dur(weekContract);$('cWorked').textContent=dur(weekWorked);$('cBalance').textContent=signedDur(weekBal);$('syncState').innerHTML=data.pending.length?`<span class="warn">⚠️ ${data.pending.length} registro(s) pendientes de enviar a la hoja.</span>`:'<span class="ok">✅ Sin registros pendientes de sincronización.</span>';const monthKeys=Object.keys(data.days).filter(x=>x.startsWith(`${now.getFullYear()}-${pad(now.getMonth()+1)}`)).sort().reverse();$('monthRows').innerHTML=monthKeys.length?monthKeys.map(x=>`<tr><td>${fmtDate(x)}</td><td>${sessionsFor(x).map(s=>`${hm(new Date(s.in))}–${hm(new Date(s.out))}`).join('<br>')}</td><td>${dur(dayMinutes(x,false))}</td></tr>`).join(''):'<tr><td colspan="3">Sin jornadas en este mes.</td></tr>';renderBackups();renderHolidays();renderCalendar();renderRange();renderSchedule()}
+function render(){const now=new Date(),k=dateKey(now),active=!!data.open&&dateKey(new Date(data.open.in))===k;$('clock').textContent=hm(now);$('dateLabel').textContent=now.toLocaleDateString('es-ES',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});$('status').textContent=active?'● Trabajando':'● Fuera de jornada';$('status').className='status '+(active?'on':'off');$('punchBtn').textContent=active?'FICHAR SALIDA':'FICHAR ENTRADA';$('punchBtn').className='btn '+(active?'dark':'green');$('gpsText').innerHTML=data.gps?.ok?`<span class="ok">✅ Ubicación obtenida · precisión aprox. ${Math.round(data.gps.accuracy||0)} m</span>`:`<span class="warn">⚠️ ${data.gps?.text||'La ubicación es opcional: se intentará automáticamente al fichar'}</span>`;$('sumToday').textContent=dur(dayMinutes(k,true));const [wa,wb]=weekBounds(now);const weekWorked=sumBetween(wa,wb),weekContract=contractMinutesWeek(),weekBal=weekWorked-weekContract;$('sumWeek').textContent=dur(weekWorked);$('contractWeek').textContent=dur(weekContract);$('workedWeek').textContent=dur(weekWorked);$('weekBalance').textContent=signedDur(weekBal);$('balanceNote').textContent=weekBal===0?'Semana cuadrada con la jornada contratada.':(weekBal<0?'Faltan '+dur(Math.abs(weekBal))+' para alcanzar la referencia semanal.':'Hay '+dur(weekBal)+' por encima de la referencia semanal.');const ma=new Date(now.getFullYear(),now.getMonth(),1),mb=new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59,999);$('sumMonth').textContent=dur(sumBetween(ma,mb));const today=sessionsFor(k),trs=[...today];if(active&&dateKey(new Date(data.open.in))===k)trs.push({in:data.open.in,out:null});$('todayRows').innerHTML=trs.length?trs.map(s=>`<tr><td>${hm(new Date(s.in))}</td><td>${s.out?hm(new Date(s.out)):'—'}</td><td>${s.out?dur(minsBetween(s.in,s.out)):'En curso'}</td></tr>`).join(''):'<tr><td colspan="3">Todavía no hay movimientos hoy.</td></tr>';$('lastIn').textContent=lastEntryTime();$('lastOut').textContent=lastExitTime();$('lastState').textContent=active?'Trabajando':'Fuera';$('cStatus').textContent=active?'● Trabajando':'● Fuera de jornada';$('cStatus').className='status '+(active?'on':'off');$('cDays').textContent=daysBetween(ma,mb);$('cMonth').textContent=dur(sumBetween(ma,mb));$('cPending').textContent=data.pending.length;$('weeklyContract').value=Number(data.config.weeklyContractHours||40);$('cContract').textContent=dur(weekContract);$('cWorked').textContent=dur(weekWorked);$('cBalance').textContent=signedDur(weekBal);$('syncState').innerHTML=data.pending.length?`<span class="warn">⚠️ ${data.pending.length} registro(s) pendientes de enviar a la hoja.</span>`:'<span class="ok">✅ Sin registros pendientes de sincronización.</span>';const monthKeys=Object.keys(data.days).filter(x=>x.startsWith(`${now.getFullYear()}-${pad(now.getMonth()+1)}`)).sort().reverse();$('monthRows').innerHTML=monthKeys.length?monthKeys.map(x=>`<tr><td>${fmtDate(x)}</td><td>${sessionsFor(x).map(s=>`${hm(new Date(s.in))}–${hm(new Date(s.out))}`).join('<br>')}</td><td>${dur(dayMinutes(x,false))}</td></tr>`).join(''):'<tr><td colspan="3">Sin jornadas en este mes.</td></tr>';renderBackups();renderHolidays();renderCompensations();renderCalendar();renderRange();renderSchedule();const bs=bankState(now);$('bankPrevious').textContent=signedDur(bs.previous);$('bankWeekDelta').textContent=signedDur(bs.weekDelta);$('bankCurrent').textContent=signedDur(bs.current);$('bankNote').textContent=bs.current<0?'Pendiente de recuperar: '+dur(Math.abs(bs.current)):bs.current>0?'Horas a favor del trabajador: '+dur(bs.current):'Banco de horas cuadrado.'}
 setInterval(()=>{if($('clock'))$('clock').textContent=hm(new Date());if(data.open)render()},30000);
 render();hydrateFromBackend();
 </script></body></html>
