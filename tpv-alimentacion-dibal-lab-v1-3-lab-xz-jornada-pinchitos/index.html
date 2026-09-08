@@ -238,8 +238,7 @@ const pantryItems20260907=[
  {code:'710782',name:'Queso Entremont rallado 70 g',price:1.70,unit:'ud',area:'Elaborados',subcat:'Despensa'}
 ];
 function applyPantryRevision20260907(){
- if(Number(company.pantryRevision||0)>=2026090702)return;
- let broth=products.find(p=>p.code==='004330'||(p.name||'').toLowerCase()==='caldo de pollo cala abril');
+ let broth=products.find(p=>p.code==='004330'||p.code==='584330'||(p.name||'').toLowerCase()==='caldo de pollo cala abril');
  if(broth){broth.code='584330';broth.name='Caldo de pollo Cala Abril';broth.price=5.50;broth.unit='ud';broth.area='Elaborados';broth.subcat='Despensa';broth.cat='Despensa';broth.subcats=['Despensa'];broth.active=true;broth.source='usuario_20260907';}
  else if(!products.some(p=>p.code==='584330'))products.push({code:'584330',name:'Caldo de pollo Cala Abril',price:5.50,unit:'ud',area:'Elaborados',subcat:'Despensa',cat:'Despensa',subcats:['Despensa'],active:true,offer:{enabled:false,type:'none'},source:'usuario_20260907'});
  pantryItems20260907.forEach(n=>{let p=products.find(x=>x.code===n.code);if(p)Object.assign(p,n,{cat:'Despensa',subcats:['Despensa'],active:true,offer:p.offer||{enabled:false,type:'none'},source:'usuario_20260907'});else products.push({...n,cat:'Despensa',subcats:['Despensa'],active:true,offer:{enabled:false,type:'none'},source:'usuario_20260907'})});
