@@ -461,7 +461,7 @@ function productMatchesPriceContext(p,ctx=priceContext){
 }
 function priceModal(ctx=null){
  priceContext=ctx||currentPriceContext();
- modal(`<h2>MIRAR PRECIO · ${esc(priceContextLabel())}</h2>
+ modal(`<div class="grid two" style="margin-bottom:10px"><h2 style="margin:0">MIRAR PRECIO · ${esc(priceContextLabel())}</h2><button onclick="closeModal()">CERRAR</button></div>
  <p class="notice"><b>Consulta contextual.</b> Se muestran primero los artículos de la sección donde estás. Aquí no se añade ningún artículo a la venta.</p>
  <div class="grid two"><button onclick="priceShowAll()">TODOS LOS PRECIOS</button><button onclick="priceSectionChooser()">CAMBIAR SECCIÓN</button></div>
  <input id="priceQuery" style="margin-top:10px" placeholder="Buscar artículo o código dentro de ${esc(priceContextLabel())}..." oninput="refreshPriceList(this.value)">
