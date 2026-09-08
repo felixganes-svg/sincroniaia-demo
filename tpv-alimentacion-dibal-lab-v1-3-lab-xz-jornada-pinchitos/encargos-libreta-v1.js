@@ -850,6 +850,19 @@ saleTicketLookupRows=function(q){
 };
 
 
+saleTicketLookup=function(){
+  modal(
+    '<div class="saleTop"><h2 style="margin:0">Consultar ticket</h2><button onclick="closeModal()">CERRAR</button></div>'+
+    '<p class="notice">Si la clienta no conserva el ticket, busca por número, fecha, vendedor, importe, pago o artículo.</p>'+
+    '<label>Buscar venta</label>'+
+    '<input id="saleTicketQuery" autofocus placeholder="Ej: 03/09, Vendedor 1, 27,50 o pechuga" oninput="refreshSaleTicketLookup()" onkeydown="if(event.key===\'Enter\')refreshSaleTicketLookup()">'+
+    '<div id="saleTicketResults">'+saleTicketLookupRows('')+'</div>'+
+    '<p><button onclick="closeModal()">Cerrar</button></p>'
+  );
+  setTimeout(()=>document.getElementById('saleTicketQuery')?.focus(),50);
+};
+
+
 
 // ===== ENCARGO COMPLETADO SIN GENERAR TICKET · PENDIENTES ARRIBA =====
 function isResolvedOrderLine(l){
