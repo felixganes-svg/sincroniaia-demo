@@ -241,13 +241,21 @@ const pantryItems20260907=[
  {code:'710782',name:'Queso Entremont rallado 70 g',price:1.70,unit:'ud',area:'Elaborados',subcat:'Despensa'}
 ];
 function applyPantryRevision20260907(){
- let broth=products.find(p=>p.code==='004330'||p.code==='584330'||(p.name||'').toLowerCase()==='caldo de pollo cala abril');
- if(broth){broth.code='584330';broth.name='Caldo de pollo Cala Abril';broth.price=5.50;broth.unit='ud';broth.area='Elaborados';broth.subcat='Despensa';broth.cat='Despensa';broth.subcats=['Despensa'];broth.active=true;broth.source='usuario_20260907';}
- else if(!products.some(p=>p.code==='584330'))products.push({code:'584330',name:'Caldo de pollo Cala Abril',price:5.50,unit:'ud',area:'Elaborados',subcat:'Despensa',cat:'Despensa',subcats:['Despensa'],active:true,offer:{enabled:false,type:'none'},source:'usuario_20260907'});
- pantryItems20260907.forEach(n=>{let p=products.find(x=>x.code===n.code);if(p)Object.assign(p,n,{cat:'Despensa',subcats:['Despensa'],active:true,offer:p.offer||{enabled:false,type:'none'},source:'usuario_20260907'});else products.push({...n,cat:'Despensa',subcats:['Despensa'],active:true,offer:{enabled:false,type:'none'},source:'usuario_20260907'})});
+ let broth=products.find(p=>p.code==='584330');
+ let legacyBroth=products.find(p=>p.code==='004330'||(p.name||'').toLowerCase()==='caldo de pollo cala abril');
+ if(!broth&&legacyBroth){
+   legacyBroth.code='584330';
+   legacyBroth.alternateCodes=Array.from(new Set([...(legacyBroth.alternateCodes||[]),'004330']));
+   broth=legacyBroth;
+ }else if(!broth){
+   products.push({code:'584330',name:'Caldo de pollo Cala Abril',price:5.50,unit:'ud',area:'Elaborados',subcat:'Despensa',cat:'Despensa',subcats:['Despensa'],alternateCodes:['004330'],active:true,offer:{enabled:false,type:'none'},source:'usuario_20260907'});
+ }else{
+   broth.alternateCodes=Array.from(new Set([...(broth.alternateCodes||[]),'004330']));
+ }
+ pantryItems20260907.forEach(n=>{let p=products.find(x=>x.code===n.code);if(!p)products.push({...n,cat:'Despensa',subcats:['Despensa'],active:true,offer:{enabled:false,type:'none'},source:'usuario_20260907'})});
  company.enabledSubsections=company.enabledSubsections||{};company.enabledSubsections.Elaborados=company.enabledSubsections.Elaborados||[];
  if(!company.enabledSubsections.Elaborados.includes('Despensa'))company.enabledSubsections.Elaborados.push('Despensa');
- company.pantryRevision=2026090702;
+ company.pantryRevision=Math.max(Number(company.pantryRevision||0),2026090703);
  localStorage.setItem('tpv_lab_v13_rect_products',JSON.stringify(products));
  localStorage.setItem('tpv_lab_v13_rect_company',JSON.stringify(company));
 }
@@ -470,8 +478,13 @@ function ensureHotfixCatalog20260908(){
    let p=findProductByAnyCode(n.code)||((n.alternateCodes||[]).map(c=>findProductByAnyCode(c)).find(Boolean));
    if(!p){products.push({...n,cat:n.subcat,subcats:[n.subcat],active:true,offer:{enabled:false,type:'none'},source:'catalogo_usuario_20260908'});changed=true}
    else{
-     let wanted={...n,cat:n.subcat,subcats:[n.subcat],active:true,offer:p.offer||{enabled:false,type:'none'}};
-     for(const [k,v] of Object.entries(wanted)){if(JSON.stringify(p[k])!==JSON.stringify(v)){p[k]=Array.isArray(v)?[...v]:v;changed=true}}
+     if(Array.isArray(n.alternateCodes)){
+       let merged=Array.from(new Set([...(p.alternateCodes||[]),...n.alternateCodes.map(normalizeProductCode)]));
+       if(JSON.stringify(merged)!==JSON.stringify(p.alternateCodes||[])){p.alternateCodes=merged;changed=true}
+     }
+     if(!p.cat&&p.subcat){p.cat=p.subcat;changed=true}
+     if((!Array.isArray(p.subcats)||!p.subcats.length)&&p.subcat){p.subcats=[p.subcat];changed=true}
+     if(!p.offer){p.offer={enabled:false,type:'none'};changed=true}
    }
  });
  // Consolidar duplicados que puedan quedar por códigos antiguos ya migrados.
