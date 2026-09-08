@@ -97,7 +97,12 @@ restorePilotState=function(){
     }
     ensureMems();
     ensureEnabledSubsections();
+    if(typeof applyCatalogMaster20260907==='function')applyCatalogMaster20260907();
+    if(typeof applyPantryRevision20260907==='function')applyPantryRevision20260907();
+    if(typeof applyArticleRevision20260907_149==='function')applyArticleRevision20260907_149();
     if(typeof applyCatalogAdditions20260908==='function')applyCatalogAdditions20260908();
+    if(typeof ensureCatalogMasterSubsections==='function')ensureCatalogMasterSubsections();
+    if(typeof ensureNoRedundantElaboradosSubsection==='function')ensureNoRedundantElaboradosSubsection();
     if(typeof ensureHotfixCatalog20260908==='function')ensureHotfixCatalog20260908();
     pilotReady=true;
     save();
