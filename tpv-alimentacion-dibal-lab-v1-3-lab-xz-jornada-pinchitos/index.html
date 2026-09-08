@@ -290,10 +290,22 @@ const SUB_BY_AREA={
 function ensureMems(){sellers.forEach(s=>{if(!sellerMems[s.name])sellerMems[s.name]=[]})}
 function ensureEnabledSubsections(){if(!company.enabledSubsections)company.enabledSubsections={};PRODUCT_AREAS.forEach(a=>{if(!company.enabledSubsections[a])company.enabledSubsections[a]=[]})}
 function ensureCatalogMasterSubsections(){
- if(Number(company.catalogNavigationRevision||0)>=2026090802)return;
- const required={'Carne':['Elaborados Frescos'],'Charcutería':['Preparados','Elaborados'],'Elaborados':['Elaborados','Croquetas','Despensa','Hamburguesas','Pizzas','Preparados']};
- Object.entries(required).forEach(([a,subs])=>{company.enabledSubsections[a]=company.enabledSubsections[a]||[];subs.forEach(s=>{if(!company.enabledSubsections[a].includes(s))company.enabledSubsections[a].push(s)})});
- company.catalogNavigationRevision=2026090802;
+ const norm=s=>String(s||'').trim().toLocaleLowerCase('es');
+ const required={'Carne':['Elaborados Frescos'],'Charcutería':['Preparados'],'Elaborados':['Elaborados','Croquetas','Despensa','Hamburguesas','Pizzas','Preparados']};
+ if(Number(company.catalogNavigationRevision||0)<2026090803){
+   Object.entries(required).forEach(([a,subs])=>{company.enabledSubsections[a]=company.enabledSubsections[a]||[];subs.forEach(s=>{if(!company.enabledSubsections[a].includes(s))company.enabledSubsections[a].push(s)})});
+   company.catalogNavigationRevision=2026090803;
+ }
+ company.enabledSubsections['Charcutería']=(company.enabledSubsections['Charcutería']||[]).filter(s=>norm(s)!=='elaborados');
+ customSubsections['Charcutería']=(customSubsections['Charcutería']||[]).filter(s=>norm(s)!=='elaborados');
+ products.forEach(p=>{
+   if(p.area==='Charcutería'&&productSubs(p).some(s=>norm(s)==='elaborados')){
+     p.area='Elaborados';
+     p.subcats=['Elaborados'];
+     p.subcat='Elaborados';
+     p.cat='Elaborados';
+   }
+ });
 }
 function ensureDiscountRules(){if(!Array.isArray(company.discountRules))company.discountRules=[];if(!company.legacyWednesdayRemoved){company.discountRules=company.discountRules.filter(r=>!(r.name==='Descuento miércoles'&&r.scope==='purchase'&&r.percent===Number(company.wednesdayDiscountPercent||10)&&Array.isArray(r.days)&&r.days.length===1&&r.days[0]===3));company.legacyWednesdayRemoved=true;localStorage.setItem('tpv_lab_v13_rect_company',JSON.stringify(company))}}
 ensureMems();ensureEnabledSubsections();ensureCatalogMasterSubsections();ensureDiscountRules();
