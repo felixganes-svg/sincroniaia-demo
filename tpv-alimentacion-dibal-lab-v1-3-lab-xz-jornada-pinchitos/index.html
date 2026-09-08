@@ -280,10 +280,10 @@ const SUB_BY_AREA={
 function ensureMems(){sellers.forEach(s=>{if(!sellerMems[s.name])sellerMems[s.name]=[]})}
 function ensureEnabledSubsections(){if(!company.enabledSubsections)company.enabledSubsections={};PRODUCT_AREAS.forEach(a=>{if(!company.enabledSubsections[a])company.enabledSubsections[a]=[]})}
 function ensureCatalogMasterSubsections(){
- if(Number(company.catalogNavigationRevision||0)>=20260907)return;
- const required={'Carne':['Elaborados Frescos'],'Charcutería':['Preparados','Elaborados'],'Elaborados':['Pizzas']};
+ if(Number(company.catalogNavigationRevision||0)>=20260908)return;
+ const required={'Carne':['Elaborados Frescos'],'Charcutería':['Preparados','Elaborados'],'Elaborados':['Croquetas','Despensa','Hamburguesas','Pizzas','Preparados']};
  Object.entries(required).forEach(([a,subs])=>{company.enabledSubsections[a]=company.enabledSubsections[a]||[];subs.forEach(s=>{if(!company.enabledSubsections[a].includes(s))company.enabledSubsections[a].push(s)})});
- company.catalogNavigationRevision=20260907;
+ company.catalogNavigationRevision=20260908;
 }
 function ensureNoRedundantElaboradosSubsection(){
  company.enabledSubsections=company.enabledSubsections||{};
