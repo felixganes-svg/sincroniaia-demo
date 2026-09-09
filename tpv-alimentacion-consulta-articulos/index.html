@@ -42,6 +42,16 @@ main{max-width:760px;margin:0 auto;padding:14px 12px 28px}
 .detailName{font-size:30px;font-weight:1000;line-height:1.05;margin-bottom:12px}.detailPrice{font-size:36px;font-weight:1000;margin:12px 0}.code{display:inline-block;background:#f1f5f9;border-radius:12px;padding:10px 12px;font-size:19px;font-weight:900}
 .close{width:100%;margin-top:18px;border:0;border-radius:16px;background:#0f2238;color:#fff;padding:15px;font-size:18px;font-weight:1000}
 .note{font-size:13px;color:var(--muted);text-align:center;margin-top:18px}
+.adminlink{margin-top:24px;text-align:center}
+.adminlink button{border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px 16px;font-weight:900;color:var(--muted)}
+.formgrid{display:grid;grid-template-columns:1fr;gap:12px}
+.formgrid label{display:block;font-size:13px;font-weight:900;color:var(--muted);margin-bottom:5px}
+.formgrid input,.formgrid select{width:100%;border:1px solid var(--line);border-radius:14px;padding:14px;font-size:17px;background:#fff}
+.action{width:100%;border:0;border-radius:16px;padding:15px;font-size:18px;font-weight:1000;background:var(--blue);color:#fff}
+.adminResult{display:grid;gap:10px;margin-top:12px}.adminItem{background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px}
+.adminItem b{font-size:18px}.adminItem button{margin-top:10px;border:0;border-radius:12px;padding:10px 12px;font-weight:900;background:#e8eef5}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.tabs button{border:0;border-radius:14px;padding:13px;font-weight:1000;background:#e8eef5}.tabs button.active{background:#111827;color:#fff}
+.status{padding:10px 12px;border-radius:12px;background:#ecfdf3;color:#14532d;margin-top:10px;font-weight:800}
 @media(min-width:560px){
  .homegrid{grid-template-columns:repeat(3,1fr)}
  .subgrid{grid-template-columns:1fr 1fr}
@@ -66,7 +76,7 @@ main{max-width:760px;margin:0 auto;padding:14px 12px 28px}
       <button class="bigbtn char" onclick="openDirectSectionAZ('Charcutería')">CHARCUTERÍA<small>Buscar por letra, nombre o código</small></button>
       <button class="bigbtn elab" onclick="openDirectSectionAZ('Elaborados')">ELABORADOS<small>Buscar por letra, nombre o código</small></button>
     </div>
-    <div class="note" id="source"></div>
+    <div class="note" id="source"></div><div class="adminlink"><button onclick="openAdmin()">EMPRESA · gestionar artículos</button></div>
   </section>
 
   <section id="sectionScreen" class="screen">
@@ -109,6 +119,37 @@ main{max-width:760px;margin:0 auto;padding:14px 12px 28px}
     <div class="resultsHead"><b id="azHeading">Todos los artículos</b><span class="count" id="azCount"></span></div>
     <div id="azProducts" class="products"></div>
   </section>
+
+  <section id="adminScreen" class="screen">
+    <div class="topbar">
+      <button class="back" onclick="goHome()">← Inicio</button>
+      <div class="titlebox"><h2>Empresa · Artículos</h2><small>Cambios guardados solo en este dispositivo</small></div>
+    </div>
+    <div class="tabs">
+      <button id="tabEdit" class="active" onclick="showAdminTab('edit')">BUSCAR / CAMBIAR</button>
+      <button id="tabNew" onclick="showAdminTab('new')">ALTA ARTÍCULO</button>
+    </div>
+
+    <div id="adminEdit" class="card">
+      <div class="search">
+        <input id="adminSearch" placeholder="Nombre o código…" oninput="renderAdminSearch()">
+        <button onclick="adminSearch.value='';renderAdminSearch()">Limpiar</button>
+      </div>
+      <div id="adminResults" class="adminResult"></div>
+    </div>
+
+    <div id="adminNew" class="card" style="display:none">
+      <div class="formgrid">
+        <div><label>Código</label><input id="newCode" inputmode="numeric" placeholder="Ej. 000145"></div>
+        <div><label>Nombre</label><input id="newName" placeholder="Nombre del artículo"></div>
+        <div><label>Precio</label><input id="newPrice" type="number" step="0.01" inputmode="decimal" placeholder="0,00"></div>
+        <div><label>Tipo</label><select id="newUnit"><option value="kg">€/kg</option><option value="ud">€/ud</option></select></div>
+        <div><label>Sección</label><select id="newArea"><option value="Carne">Carnicería</option><option value="Charcutería">Charcutería</option><option value="Elaborados">Elaborados</option></select></div>
+        <button class="action" onclick="createArticle()">GUARDAR ALTA</button>
+      </div>
+      <div id="newStatus"></div>
+    </div>
+  </section>
 </main>
 
 <div id="modal" class="modal" onclick="if(event.target===this)closeDetail()">
@@ -117,6 +158,7 @@ main{max-width:760px;margin:0 auto;padding:14px 12px 28px}
 
 <script>
 const STORAGE_KEY='tpv_lab_v13_rect_products';
+const CONSULTA_CUSTOM_KEY='sincroniaia_consulta_articulos_custom_v1';
 const SOURCE='../tpv-alimentacion-lab-verificado-20260908-cerrar/index.html';
 let products=[], currentArea='', currentSub='', currentLetter='', azScope='all';
 
@@ -141,6 +183,19 @@ function applyListadoPrueba(){
   source.textContent='PRUEBA · 146 códigos del listado impreso';
 }
 
+function loadConsultaCustom(){
+ try{
+   const saved=JSON.parse(localStorage.getItem(CONSULTA_CUSTOM_KEY)||'null');
+   if(Array.isArray(saved)&&saved.length){products=saved;source.textContent='PRUEBA · catálogo local modificado en este dispositivo'}
+ }catch(e){}
+}
+function saveConsultaCustom(){
+ localStorage.setItem(CONSULTA_CUSTOM_KEY,JSON.stringify(products));
+ source.textContent='PRUEBA · catálogo local modificado en este dispositivo';
+}
+function sectionDefaultSubcat(area){
+ return area==='Charcutería'?'Embutidos':area==='Elaborados'?'Elaborados':'Carnicería'
+}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es')}
 function euro(n){return Number(n||0).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
@@ -260,6 +315,51 @@ function renderAZ(){
  azHeading.textContent=currentLetter?'Letra '+currentLetter:(azScope==='section'?'Todos los artículos de '+areaLabel(currentArea):'Todos los artículos');
  azCount.textContent=list.length+' artículos';renderProducts(list,'azProducts')
 }
+function openAdmin(){showAdminTab('edit');adminSearch.value='';renderAdminSearch();showScreen('adminScreen')}
+function showAdminTab(tab){
+ const edit=tab==='edit';
+ adminEdit.style.display=edit?'block':'none';
+ adminNew.style.display=edit?'none':'block';
+ tabEdit.classList.toggle('active',edit);
+ tabNew.classList.toggle('active',!edit)
+}
+function renderAdminSearch(){
+ const term=norm(adminSearch.value.trim());
+ if(!term){adminResults.innerHTML='<div class="empty">Escribe un nombre o código para buscar.</div>';return}
+ const list=products.filter(p=>norm(p.name).includes(term)||String(p.code||'').includes(term)).slice(0,30);
+ adminResults.innerHTML=list.length?list.map(p=>'<div class="adminItem"><b>'+esc(p.name||'—')+'</b><div>Código '+esc(p.code)+' · '+euro(p.price)+(p.unit==='kg'?' /kg':' /ud')+'</div><div>Sección: <b>'+esc(areaLabel(normalizeArea(p.area)))+'</b></div><button onclick="editArticleSection('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')">CAMBIAR SECCIÓN</button></div>').join(''):'<div class="empty">No se encontró ningún artículo.</div>'
+}
+function editArticleSection(code){
+ const p=products.find(x=>String(x.code)===String(code));if(!p)return;
+ sheet.innerHTML='<div class="detailName">'+esc(p.name||'—')+'</div><div class="code">Código '+esc(p.code)+'</div><div class="formgrid" style="margin-top:16px"><div><label>Sección</label><select id="editAreaSelect"><option value="Carne" '+(normalizeArea(p.area)==='Carne'?'selected':'')+'>Carnicería</option><option value="Charcutería" '+(normalizeArea(p.area)==='Charcutería'?'selected':'')+'>Charcutería</option><option value="Elaborados" '+(normalizeArea(p.area)==='Elaborados'?'selected':'')+'>Elaborados</option></select></div><button class="action" onclick="saveArticleSection('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')">GUARDAR CAMBIO</button></div><button class="close" onclick="closeDetail()">CANCELAR</button>';
+ modal.classList.add('show')
+}
+function saveArticleSection(code){
+ const p=products.find(x=>String(x.code)===String(code));if(!p)return;
+ const newArea=editAreaSelect.value;
+ p.area=newArea;
+ p.subcat=sectionDefaultSubcat(newArea);
+ p.cat=p.subcat;
+ p.subcats=[p.subcat];
+ saveConsultaCustom();
+ closeDetail();
+ renderAdminSearch()
+}
+function createArticle(){
+ const raw=String(newCode.value||'').trim();
+ if(!/^\d{1,6}$/.test(raw))return alert('El código debe tener entre 1 y 6 números.');
+ const code=raw.padStart(6,'0');
+ if(products.some(p=>String(p.code)===code))return alert('Ese código ya existe.');
+ const name=String(newName.value||'').trim();
+ const price=Number(newPrice.value);
+ if(!name)return alert('Falta el nombre del artículo.');
+ if(!Number.isFinite(price))return alert('Introduce un precio válido.');
+ const area=newArea.value,sub=sectionDefaultSubcat(area);
+ products.push({code,name,price,unit:newUnit.value,area,subcat:sub,cat:sub,subcats:[sub],active:true});
+ saveConsultaCustom();
+ newStatus.innerHTML='<div class="status">Artículo '+esc(code)+' guardado en '+esc(areaLabel(area))+'. Ya aparece en su A-Z.</div>';
+ newCode.value='';newName.value='';newPrice.value='';newUnit.value='kg'
+}
 function detail(code){
  const p=products.find(x=>String(x.code)===String(code));if(!p)return;
  const loc=[areaLabel(normalizeArea(p.area)),...subcats(p)].filter(Boolean).join(' · ');
@@ -267,7 +367,7 @@ function detail(code){
  modal.classList.add('show')
 }
 function closeDetail(){modal.classList.remove('show')}
-(async()=>{if(!loadLocal())await loadFallback();applyListadoPrueba();})();
+(async()=>{if(!loadLocal())await loadFallback();applyListadoPrueba();loadConsultaCustom();})();
 </script>
 </body>
 </html>
