@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SINCRONIAIA · Consulta de artículos</title>
+<meta name="theme-color" content="#0f2238">
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--ink:#102033;--muted:#667085;--line:#d9e2ec;--brand:#0f766e;--purple:#7c3aed;--orange:#ea580c;--dark:#111827;--blue:#155eef}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
+header{position:sticky;top:0;z-index:5;background:#0f2238;color:white;padding:12px 14px;box-shadow:0 2px 12px #0002}header b{display:block;font-size:18px}header small{color:#cfe5e2}
+main{max-width:1150px;margin:auto;padding:12px 10px 60px}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;margin:10px 0;box-shadow:0 8px 24px #1020330d}
+.menu{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.menu button{min-height:76px;font-size:18px}
+button,input{font:inherit}button{border:0;border-radius:14px;padding:12px;font-weight:900;cursor:pointer;background:#e8eef5;color:var(--ink)}
+.carn{background:var(--brand);color:#fff}.char{background:var(--purple);color:#fff}.elab{background:var(--orange);color:#fff}.az{background:var(--dark);color:#fff}
+.search{display:grid;grid-template-columns:1fr auto;gap:8px}.search input{width:100%;border:1px solid var(--line);border-radius:12px;padding:13px;font-size:17px}
+.subs{display:flex;gap:8px;overflow:auto;padding:4px 0 9px}.subs button{white-space:nowrap;border:1px solid var(--line);background:#fff}.subs button.active{outline:3px solid #facc15}
+.letters{display:grid;grid-template-columns:repeat(9,1fr);gap:6px}.letters button{min-height:48px;background:#fff;border:1px solid var(--line);font-size:18px}.letters button.active{background:#111827;color:#fff}
+.products{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.prod{background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px;min-height:92px;text-align:left}.prod b{display:block;font-size:17px;line-height:1.15}.prod small{display:block;color:var(--muted);margin-top:5px}.price{font-size:20px;font-weight:1000;margin-top:5px}
+.toprow{display:flex;justify-content:space-between;align-items:center;gap:10px}.count{font-weight:900}.muted{color:var(--muted)}.notice{background:#ecfdf3;border:1px solid #b7ebc6;border-radius:12px;padding:10px;color:#14532d}
+.modal{position:fixed;inset:0;background:#0008;display:none;align-items:end;z-index:20}.box{background:#fff;width:100%;max-width:720px;margin:auto;border-radius:20px 20px 0 0;padding:18px}.detailName{font-size:28px;font-weight:1000;margin:0 0 8px}.detailPrice{font-size:34px;font-weight:1000}.code{font-size:20px;font-weight:900;background:#f1f5f9;border-radius:10px;padding:10px;display:inline-block}.close{width:100%;margin-top:14px;background:#0f2238;color:#fff}
+@media(max-width:760px){.menu{grid-template-columns:1fr 1fr}.menu button{min-height:68px;font-size:17px}.products{grid-template-columns:1fr 1fr}.letters{grid-template-columns:repeat(6,1fr)}header{padding:10px}.prod{min-height:88px;padding:9px}.prod b{font-size:16px}}
+@media(max-width:390px){.products{grid-template-columns:1fr}.letters{grid-template-columns:repeat(5,1fr)}}
+</style>
+</head>
+<body>
+<header><b>SINCRONIAIA · Consulta de artículos</b><small>SOLO BÚSQUEDA · no vende, no cobra y no modifica</small></header>
+<main>
+<section class="panel">
+ <div class="menu">
+  <button class="carn" onclick="setArea('Carne')">CARNICERÍA</button>
+  <button class="char" onclick="setArea('Charcutería')">CHARCUTERÍA</button>
+  <button class="elab" onclick="setArea('Elaborados')">ELABORADOS</button>
+  <button class="az" onclick="setAZ()">ARTÍCULOS A-Z</button>
+ </div>
+</section>
+<section class="panel">
+ <div class="search"><input id="q" placeholder="Buscar por nombre o código…" oninput="render()"><button onclick="q.value='';render()">Limpiar</button></div>
+ <div id="subs"></div><div id="letters"></div>
+</section>
+<section class="panel">
+ <div class="toprow"><div><b id="title">Artículos A-Z</b><div class="muted" id="source"></div></div><div class="count" id="count"></div></div>
+</section>
+<div id="products" class="products"></div>
+</main>
+<div class="modal" id="modal" onclick="if(event.target===this)closeDetail()"><div class="box" id="box"></div></div>
+<script>
+const STORAGE_KEY='tpv_lab_v13_rect_products';
+const SOURCE='../tpv-alimentacion-lab-verificado-20260908-cerrar/index.html';
+let products=[], mode='az', area='', sub='', letter='';
+
+function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es')}
+function euro(n){return Number(n||0).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function subcats(p){return Array.from(new Set([...(Array.isArray(p.subcats)?p.subcats:[]),p.subcat,p.cat].filter(Boolean)))}
+function normalizeArea(a){return a==='Carnicería'?'Carne':a}
+
+function loadLocal(){
+ try{
+  const x=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+  if(Array.isArray(x)&&x.length){products=x;source.textContent='Catálogo actual de este dispositivo';return true}
+ }catch(e){}
+ return false;
+}
+function extractArray(src,name){
+ const marker='const '+name+' ='; let i=src.indexOf(marker); if(i<0) i=src.indexOf('const '+name+'=');
+ if(i<0)return null;i=src.indexOf('[',i);if(i<0)return null;
+ let depth=0,quote='',escp=false;
+ for(let j=i;j<src.length;j++){const c=src[j];if(quote){if(escp){escp=false;continue}if(c==='\\'){escp=true;continue}if(c===quote)quote='';continue}
+  if(c==="'"||c==='"'||c==='\x60'){quote=c;continue}if(c==='[')depth++;else if(c===']'){depth--;if(depth===0){const literal=src.slice(i,j+1);try{return Function('"use strict";return ('+literal+')')()}catch(e){return null}}}}
+ return null
+}
+function mergeByCode(base,arr,overwrite=true){
+ if(!Array.isArray(arr))return;arr.forEach(n=>{if(!n||!n.code)return;let p=base.find(x=>String(x.code)===String(n.code));if(p&&overwrite)Object.assign(p,n,{cat:n.subcat||n.cat||p.cat});else if(!p)base.push({...n,cat:n.subcat||n.cat||'Otros',active:n.active!==false,offer:n.offer||{enabled:false,type:'none'}})})
+}
+async function loadFallback(){
+ try{
+  const src=await fetch(SOURCE+'?catalog='+Date.now(),{cache:'no-store'}).then(r=>r.text());
+  let base=extractArray(src,'seedProducts')||[];
+  ['importedCodes20260819','catalogCorrections20260905','catalogAdditions20260908','catalogCorrections20260907','pantryItems20260907'].forEach(n=>mergeByCode(base,extractArray(src,n),true));
+  products=base;source.textContent='Catálogo base leído del TPV original';
+ }catch(e){products=[];source.textContent='No se pudo leer el catálogo';}
+}
+function setArea(a){mode='area';area=a;sub='';letter='';render()}
+function setAZ(){mode='az';area='';sub='';letter='';render()}
+function filtered(){
+ let list=products.filter(p=>p&&p.active!==false);
+ if(mode==='area') list=list.filter(p=>normalizeArea(p.area)===area);
+ if(sub)list=list.filter(p=>subcats(p).includes(sub));
+ if(letter)list=list.filter(p=>norm(p.name).startsWith(norm(letter)));
+ const term=norm(document.getElementById('q').value.trim());
+ if(term)list=list.filter(p=>norm(p.name).includes(term)||String(p.code||'').includes(term)||(p.alternateCodes||[]).some(c=>String(c).includes(term)));
+ return list.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es',{sensitivity:'base'}));
+}
+function renderSubs(){
+ const el=document.getElementById('subs');if(mode!=='area'){el.innerHTML='';return}
+ const ss=Array.from(new Set(products.filter(p=>p.active!==false&&normalizeArea(p.area)===area).flatMap(subcats))).sort((a,b)=>a.localeCompare(b,'es'));
+ el.innerHTML='<div class="subs"><button class="'+(!sub?'active':'')+'" onclick="sub=\'\';render()">TODOS</button>'+ss.map(s=>'<button class="'+(sub===s?'active':'')+'" onclick="sub='+JSON.stringify(s).replace(/"/g,'&quot;')+';render()">'+esc(s)+'</button>').join('')+'</div>';
+}
+function renderLetters(){
+ const el=document.getElementById('letters');if(mode!=='az'){el.innerHTML='';return}
+ const letters='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('');
+ el.innerHTML='<div class="letters">'+letters.map(l=>'<button class="'+(letter===l?'active':'')+'" onclick="letter=letter===\''+l+'\'?\'\':\''+l+'\';render()">'+l+'</button>').join('')+'</div>';
+}
+function render(){
+ renderSubs();renderLetters();
+ title.textContent=mode==='az'?'Artículos A-Z':(area==='Carne'?'Carnicería':area)+(sub?' · '+sub:'');
+ const list=filtered();count.textContent=list.length+' artículos';
+ document.getElementById('products').innerHTML=list.length?list.map(p=>'<button class="prod" onclick="detail('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')"><b>'+esc(p.name)+'</b><small>Código '+esc(p.code)+' · '+esc(p.unit==='kg'?'€/kg':'unidad')+'</small><div class="price">'+euro(p.price)+(p.unit==='kg'?' /kg':'')+'</div></button>').join(''):'<div class="panel">No hay artículos con este filtro.</div>';
+}
+function detail(code){
+ const p=products.find(x=>String(x.code)===String(code));if(!p)return;
+ const loc=[normalizeArea(p.area)==='Carne'?'Carnicería':p.area,...subcats(p)].filter(Boolean).join(' · ');
+ box.innerHTML='<div class="detailName">'+esc(p.name)+'</div><div class="code">Código '+esc(p.code)+'</div><p>'+esc(loc)+'</p><div class="detailPrice">'+euro(p.price)+(p.unit==='kg'?' /kg':' /ud')+'</div>'+(p.alternateCodes?.length?'<p><b>Otros códigos:</b> '+p.alternateCodes.map(esc).join(', ')+'</p>':'')+'<button class="close" onclick="closeDetail()">CERRAR</button>';
+ modal.style.display='flex';
+}
+function closeDetail(){modal.style.display='none'}
+(async()=>{if(!loadLocal())await loadFallback();setAZ()})();
+</script>
+</body></html>
