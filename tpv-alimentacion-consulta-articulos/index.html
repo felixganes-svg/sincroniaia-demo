@@ -181,11 +181,22 @@ function openArea(a){
  currentArea=a;currentSub='';
  sectionTitle.textContent=areaLabel(a);
  const all=products.filter(p=>p.active!==false&&normalizeArea(p.area)===a);
- const subs=Array.from(new Set(all.flatMap(subcats))).sort((x,y)=>x.localeCompare(y,'es'));
- subgrid.innerHTML=subs.map(s=>{
-   const n=all.filter(p=>subcats(p).includes(s)).length;
-   return '<button class="subbtn" onclick="openSub('+JSON.stringify(s).replace(/"/g,'&quot;')+')">'+esc(s)+'<small>'+n+' artículos</small></button>';
- }).join('') || '<div class="empty">No hay subsecciones disponibles.</div>';
+ let subs=Array.from(new Set(all.flatMap(subcats))).sort((x,y)=>x.localeCompare(y,'es'));
+ if(a==='Charcutería'){
+   const merged=['Embutidos','Quesos','Preparados'];
+   const rest=subs.filter(s=>!merged.includes(s));
+   const mergedCount=all.filter(p=>subcats(p).some(s=>merged.includes(s))).length;
+   subgrid.innerHTML='<button class="subbtn" onclick="openSub(\'Embutidos + Quesos + Preparados\')">Embutidos + Quesos + Preparados<small>'+mergedCount+' artículos</small></button>'+
+     rest.map(s=>{
+       const n=all.filter(p=>subcats(p).includes(s)).length;
+       return '<button class="subbtn" onclick="openSub('+JSON.stringify(s).replace(/"/g,'&quot;')+')">'+esc(s)+'<small>'+n+' artículos</small></button>';
+     }).join('');
+ }else{
+   subgrid.innerHTML=subs.map(s=>{
+     const n=all.filter(p=>subcats(p).includes(s)).length;
+     return '<button class="subbtn" onclick="openSub('+JSON.stringify(s).replace(/"/g,'&quot;')+')">'+esc(s)+'<small>'+n+' artículos</small></button>';
+   }).join('') || '<div class="empty">No hay subsecciones disponibles.</div>';
+ }
  showScreen('sectionScreen')
 }
 function openSub(s){
@@ -199,7 +210,13 @@ function renderProducts(list,target){
  document.getElementById(target).innerHTML=list.length?list.map(p=>'<button class="prod" onclick="detail('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')"><b>'+esc(p.name||'—')+'</b><small>Código '+esc(p.code)+'</small><div class="price">'+euro(p.price)+(p.unit==='kg'?' /kg':' /ud')+'</div></button>').join(''):'<div class="empty">No hay artículos con esta búsqueda.</div>'
 }
 function renderList(){
- let list=products.filter(p=>p.active!==false&&normalizeArea(p.area)===currentArea&&subcats(p).includes(currentSub));
+ let list=products.filter(p=>p.active!==false&&normalizeArea(p.area)===currentArea);
+ if(currentArea==='Charcutería'&&currentSub==='Embutidos + Quesos + Preparados'){
+   const merged=['Embutidos','Quesos','Preparados'];
+   list=list.filter(p=>subcats(p).some(s=>merged.includes(s)));
+ }else{
+   list=list.filter(p=>subcats(p).includes(currentSub));
+ }
  const term=norm(sectionSearch.value.trim());
  if(term)list=list.filter(p=>norm(p.name).includes(term)||String(p.code||'').includes(term)||(p.alternateCodes||[]).some(c=>String(c).includes(term)));
  list.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es',{sensitivity:'base'}));
