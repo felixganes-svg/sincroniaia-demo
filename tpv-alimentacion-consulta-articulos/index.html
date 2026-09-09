@@ -121,6 +121,27 @@ const STORAGE_KEY='tpv_lab_v13_rect_products';
 const SOURCE='../tpv-alimentacion-lab-verificado-20260908-cerrar/index.html';
 let products=[], currentArea='', currentSub='', currentLetter='';
 
+function applyListadoPrueba(){
+  const wanted=new Set();
+  for(let n=0;n<=144;n++)wanted.add(String(n).padStart(6,'0'));
+  wanted.add('000795');
+  products=products.filter(p=>wanted.has(String(p.code||'').padStart(6,'0')));
+  products.forEach(p=>p.code=String(p.code||'').padStart(6,'0'));
+
+  if(!products.some(p=>p.code==='000000')){
+    products.push({code:'000000',name:'',price:0,unit:'kg',area:'Carne',subcat:'Otros',cat:'Otros',active:true});
+  }
+  if(!products.some(p=>p.code==='000795')){
+    products.push({code:'000795',name:'',price:0,unit:'kg',area:'Carne',subcat:'Otros',cat:'Otros',active:true});
+  }
+
+  const fideua=products.find(p=>p.code==='000049');
+  if(fideua)fideua.price=8778.88;
+
+  products.sort((a,b)=>Number(a.code)-Number(b.code));
+  source.textContent='PRUEBA · 146 códigos del listado impreso';
+}
+
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es')}
 function euro(n){return Number(n||0).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'}
@@ -175,7 +196,7 @@ function openSub(s){
 }
 function backFromList(){openArea(currentArea)}
 function renderProducts(list,target){
- document.getElementById(target).innerHTML=list.length?list.map(p=>'<button class="prod" onclick="detail('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')"><b>'+esc(p.name)+'</b><small>Código '+esc(p.code)+'</small><div class="price">'+euro(p.price)+(p.unit==='kg'?' /kg':' /ud')+'</div></button>').join(''):'<div class="empty">No hay artículos con esta búsqueda.</div>'
+ document.getElementById(target).innerHTML=list.length?list.map(p=>'<button class="prod" onclick="detail('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')"><b>'+esc(p.name||'—')+'</b><small>Código '+esc(p.code)+'</small><div class="price">'+euro(p.price)+(p.unit==='kg'?' /kg':' /ud')+'</div></button>').join(''):'<div class="empty">No hay artículos con esta búsqueda.</div>'
 }
 function renderList(){
  let list=products.filter(p=>p.active!==false&&normalizeArea(p.area)===currentArea&&subcats(p).includes(currentSub));
@@ -205,7 +226,7 @@ function detail(code){
  modal.classList.add('show')
 }
 function closeDetail(){modal.classList.remove('show')}
-(async()=>{if(!loadLocal())await loadFallback();})();
+(async()=>{if(!loadLocal())await loadFallback();applyListadoPrueba();})();
 </script>
 </body>
 </html>
