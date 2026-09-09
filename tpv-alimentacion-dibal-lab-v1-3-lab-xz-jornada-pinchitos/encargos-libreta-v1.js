@@ -2687,4 +2687,43 @@ window.finishOrderExtraPay=function(orderId,ticketId,seller,method,cashGiven=0){
 finishOrderExtraPay=window.finishOrderExtraPay;
 // ===== FIN REVISION CIERRE TICKET ENCARGO =====
 
+
+// ===== REVISION 09/09/2026 · ESTADO RECOGIDA AUTORITATIVO =====
+finishOrderPay=function(id,seller,method,cashGiven=0,collectionMode){
+  let o=orders.find(x=>String(x.id)===String(id)),t=orderMainTicket(o);
+  if(!o||!t||t.paymentStatus!=='Pendiente')return alert('El ticket ya no está pendiente de cobro.');
+  if(method==='Efectivo'&&cashGiven<t.total)return alert('El importe entregado es insuficiente.');
+
+  // La elección hecha al pulsar COBRAR manda sobre cualquier valor posterior.
+  let persistedMode=o.pendingCollectionMode;
+  let mode=(persistedMode==='pending_pickup'||persistedMode==='deliver')
+    ?persistedMode
+    :(collectionMode==='pending_pickup'?'pending_pickup':'deliver');
+
+  t.method=method;
+  t.paymentStatus='Cobrado';
+  t.cashGiven=method==='Efectivo'?cashGiven:null;
+  t.change=method==='Efectivo'?round(cashGiven-t.total):null;
+  t.paidAt=new Date().toLocaleString('es-ES');
+  t.paidBy=seller;
+  o.paidAt=t.paidAt;
+  o.paidBy=seller;
+
+  if(mode==='pending_pickup'){
+    o.collectionStatus='Pendiente';
+    o.status='Cobrado · pendiente de recoger';
+    delete o.deliveredAt;
+  }else{
+    o.collectionStatus='Recogido';
+    o.status='Entregado';
+    o.deliveredAt=t.paidAt;
+  }
+
+  o.pendingCollectionMode=null;
+  save();
+  modal(receiptHtml(t));
+  wireOrderReceiptClose(o.id);
+};
+// ===== FIN REVISION ESTADO RECOGIDA AUTORITATIVO =====
+
 })();
