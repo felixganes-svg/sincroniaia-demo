@@ -152,7 +152,7 @@ const importedCodes20260819=[
  {code:'000112',name:'Morcilla',price:15.95,unit:'kg',area:'Charcutería',subcat:'Embutidos'},
  {code:'000113',name:'Xoriço guisar',price:15.95,unit:'kg',area:'Charcutería',subcat:'Embutidos'},
  {code:'000127',name:'Seguí',price:8.75,unit:'kg',area:'Charcutería',subcat:'Embutidos'},
- {code:'000131',name:'Xoriço guissar',price:15.95,unit:'kg',area:'Charcutería',subcat:'Embutidos'}
+ {code:'000131',name:'Chorizo de León',price:21.95,unit:'kg',area:'Charcutería',subcat:'Embutidos'}
 ];
 const catalogCorrections20260905=[
  {code:'000074',name:'Hamburguesa vedella',price:19.50,unit:'kg',area:'Elaborados',subcat:'Hamburguesas',offer:{enabled:false,type:'none'}},
@@ -525,13 +525,22 @@ function ensureHotfixCatalog20260908(){
  company.enabledSubsections.Elaborados=company.enabledSubsections.Elaborados||[];
  if(!company.enabledSubsections.Elaborados.includes('Despensa')){company.enabledSubsections.Elaborados.push('Despensa');changed=true}
  company.catalogUserBatchRevision=20260908;
+ if(Number(company.catalogCorrectionRevision||0)<2026090901){
+   let p131=findProductByAnyCode('000131');
+   if(p131){
+     if(p131.name!=='Chorizo de León'){p131.name='Chorizo de León';changed=true}
+     if(Number(p131.price)!==21.95){p131.price=21.95;changed=true}
+     if(p131.unit!=='kg'){p131.unit='kg';changed=true}
+   }
+   company.catalogCorrectionRevision=2026090901;changed=true;
+ }
  if(changed){localStorage.setItem('tpv_lab_v13_rect_products',JSON.stringify(products));localStorage.setItem('tpv_lab_v13_rect_company',JSON.stringify(company));try{persistPilotState()}catch(e){}}
 }
 
 function filteredProducts(){ensureHotfixCatalog20260908();if(area==='A–Z')return sortProductsByName(products.filter(p=>p.active!==false&&(!azScope||p.area===azScope)&&subcat&&productLetters(p).includes(subcat)));return sortProductsByName(products.filter(p=>p.active!==false&&p.area===area&&(subcat==='Todos'||hasProductSub(p,subcat))))}
 let showInlinePrices=false;
 let productLongPressTimer=null,productLongPressCode=null,suppressProductClickUntil=0,pendingQuickEditCode=null;
-function productButton(p){return `<button class="prod" onpointerdown="startProductLongPress('${p.code}',event)" onpointerup="endProductLongPress()" onpointercancel="endProductLongPress()" onpointerleave="endProductLongPress()" onclick="productPrimaryTap('${p.code}',event)"><b>${esc(p.name)}</b>${showInlinePrices?`<br><small style="display:block;margin-top:5px;font-size:.92em;color:#1769e0;font-weight:800">${euro(p.price)} / ${p.unit} · Código ${esc(p.code)}</small>`:''}</button>`}
+function productButton(p){return `<button class="prod" onpointerdown="startProductLongPress('${p.code}',event)" onpointerup="endProductLongPress()" onpointercancel="endProductLongPress()" onpointerleave="endProductLongPress()" onclick="productPrimaryTap('${p.code}',event)"><b>${esc(p.name)}</b>${showInlinePrices?`<br><small style="display:block;margin-top:5px;font-size:.92em;color:#1769e0;font-weight:800">${euro(p.price)} / ${p.unit}<br><span style="font-size:1.05em">CÓDIGO: ${esc(p.code)}</span></small>`:''}</button>`}
 function productPrimaryTap(code,event){if(Date.now()<suppressProductClickUntil){event?.preventDefault();return}selectProduct(code)}
 function startProductLongPress(code,event){endProductLongPress();productLongPressCode=code;productLongPressTimer=setTimeout(()=>{suppressProductClickUntil=Date.now()+700;productLongPressTimer=null;requestQuickEdit(code)},700)}
 function endProductLongPress(){if(productLongPressTimer){clearTimeout(productLongPressTimer);productLongPressTimer=null}productLongPressCode=null}
