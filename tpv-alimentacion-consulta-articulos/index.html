@@ -43,7 +43,7 @@ main{max-width:760px;margin:0 auto;padding:14px 12px 28px}
 .close{width:100%;margin-top:18px;border:0;border-radius:16px;background:#0f2238;color:#fff;padding:15px;font-size:18px;font-weight:1000}
 .note{font-size:13px;color:var(--muted);text-align:center;margin-top:18px}
 @media(min-width:560px){
- .homegrid{grid-template-columns:1fr 1fr}
+ .homegrid{grid-template-columns:repeat(3,1fr)}
  .subgrid{grid-template-columns:1fr 1fr}
  .products{grid-template-columns:1fr 1fr}
  .letters{grid-template-columns:repeat(7,1fr)}
@@ -62,10 +62,9 @@ main{max-width:760px;margin:0 auto;padding:14px 12px 28px}
       <p>Una opción por pantalla para que sea cómodo desde el móvil.</p>
     </div>
     <div class="homegrid">
-      <button class="bigbtn carn" onclick="openArea('Carne')">CARNICERÍA<small>Ternera, cerdo, pollo, cordero…</small></button>
-      <button class="bigbtn char" onclick="openArea('Charcutería')">CHARCUTERÍA<small>Embutidos, jamones, quesos…</small></button>
-      <button class="bigbtn elab" onclick="openArea('Elaborados')">ELABORADOS<small>Preparados, hamburguesas, croquetas…</small></button>
-      <button class="bigbtn az" onclick="openAZ()">ARTÍCULOS A-Z<small>Buscar cualquier artículo por letra, nombre o código.</small></button>
+      <button class="bigbtn carn" onclick="openDirectSectionAZ('Carne')">CARNICERÍA<small>Buscar por letra, nombre o código</small></button>
+      <button class="bigbtn char" onclick="openDirectSectionAZ('Charcutería')">CHARCUTERÍA<small>Buscar por letra, nombre o código</small></button>
+      <button class="bigbtn elab" onclick="openDirectSectionAZ('Elaborados')">ELABORADOS<small>Buscar por letra, nombre o código</small></button>
     </div>
     <div class="note" id="source"></div>
   </section>
@@ -227,6 +226,11 @@ function azBaseList(){
  let list=products.filter(p=>p.active!==false);
  if(azScope==='section')list=list.filter(p=>normalizeArea(p.area)===currentArea);
  return list
+}
+function openDirectSectionAZ(a){
+ currentArea=a;azScope='section';currentLetter='';azSearch.value='';
+ azTitle.textContent=areaLabel(currentArea)+' · Artículos A-Z';
+ renderLetters();renderAZ();showScreen('azScreen')
 }
 function openAZ(){
  azScope='all';currentArea='';currentLetter='';azSearch.value='';
