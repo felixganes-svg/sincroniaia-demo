@@ -2557,6 +2557,7 @@ function returnToExtraOrder(){
   if(o)return openOrder(o.id);
   screen='venta';atRoot=true;area='Carne';subcat='';azScope=null;render();
 }
+window.returnToExtraOrder=returnToExtraOrder;
 window.startOrderExtraSale=function(orderId){
   let o=orders.find(x=>String(x.id)===String(orderId)),t=orderMainTicket(o);
   if(!o||!t)return alert('Encargo no disponible.');
