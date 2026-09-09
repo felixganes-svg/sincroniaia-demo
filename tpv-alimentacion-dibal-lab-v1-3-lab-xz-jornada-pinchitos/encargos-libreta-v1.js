@@ -2305,4 +2305,238 @@ addProduct=function(){
   });
 };
 
+
+
+// ===== REVISION 09/09/2026 · COBRO/RECOGIDA + COMPRAS ADICIONALES =====
+function orderCollectionLabel(o){
+  if(o.collectionStatus==='Recogido'||o.status==='Entregado')return 'Recogido';
+  return 'Pendiente de recoger';
+}
+function orderMainTicket(o){
+  return o&&tickets.find(x=>String(x.id)===String(o.ticketId));
+}
+function orderPendingExtraTicket(o){
+  if(!o)return null;
+  let ids=Array.isArray(o.extraTicketIds)?o.extraTicketIds:[];
+  return ids.map(id=>tickets.find(t=>String(t.id)===String(id))).find(t=>t&&t.paymentStatus==='Pendiente')||null;
+}
+function orderExtraTickets(o){
+  let ids=Array.isArray(o?.extraTicketIds)?o.extraTicketIds:[];
+  return ids.map(id=>tickets.find(t=>String(t.id)===String(id))).filter(Boolean);
+}
+function orderRecalcTicket(t){
+  t.total=round((t.items||[]).reduce((s,l)=>s+Number(l.total||0),0));
+  t.offerDiscount=offerDiscount(t.items||[]);
+}
+function orderExtraLineFromProduct(p,qty){
+  let calc=calcLine(p,qty);
+  return {
+    code:p.code,name:p.name,qty,unit:p.unit,price:p.price,
+    normalTotal:calc.normal,total:calc.total,discount:calc.disc,
+    offerLabel:calc.label||'',offerPrice:calc.appliedPrice||null,
+    orderExtra:true,time:new Date().toLocaleTimeString('es-ES')
+  };
+}
+function orderAddPurchaseModal(id){
+  let o=orders.find(x=>String(x.id)===String(id)),t=orderMainTicket(o);
+  if(!o||!t)return alert('Encargo no disponible.');
+  modal('<h2>Añadir compra · '+esc(o.number)+'</h2>'+
+    '<p class="notice">'+(t.paymentStatus==='Pendiente'
+      ?'<b>Antes de cobrar:</b> la compra adicional se añadirá al mismo cobro. Los artículos preparados del encargo mantienen su precio cerrado; lo nuevo usa el precio actual.'
+      :'<b>Encargo ya cobrado:</b> la compra adicional generará un ticket nuevo relacionado con este encargo. El ticket original no se modifica.')+'</p>'+
+    '<label>Buscar artículo por nombre o código</label>'+
+    '<input id="orderExtraSearch" autofocus placeholder="Ej: queso, salsa, 000157" oninput="refreshOrderExtraSearch(\''+id+'\')">'+
+    '<div id="orderExtraResults">'+orderExtraSearchRows(id,'')+'</div>'+
+    '<p><button onclick="openOrder(\''+id+'\')">Cancelar</button></p>');
+  setTimeout(()=>document.getElementById('orderExtraSearch')?.focus(),50);
+}
+window.orderAddPurchaseModal=orderAddPurchaseModal;
+function orderExtraSearchRows(id,q){
+  q=String(q||'').trim().toLowerCase();
+  let list=products.filter(p=>p.active!==false&&(!q||(p.name+' '+p.code).toLowerCase().includes(q))).slice(0,30);
+  return list.map(p=>'<div class="line"><div><b>'+esc(p.name)+'</b><br><small>'+esc(p.code)+' · '+euro(p.price)+'/'+esc(p.unit)+'</small></div><button onclick="selectOrderExtraProduct(\''+id+'\',\''+p.code+'\')">Añadir</button></div>').join('')||'<p>No encontrado.</p>';
+}
+window.orderExtraSearchRows=orderExtraSearchRows;
+window.refreshOrderExtraSearch=function(id){
+  let q=document.getElementById('orderExtraSearch')?.value||'';
+  document.getElementById('orderExtraResults').innerHTML=orderExtraSearchRows(id,q);
+};
+window.selectOrderExtraProduct=function(id,code){
+  let o=orders.find(x=>String(x.id)===String(id)),p=products.find(x=>x.code===code);
+  if(!o||!p)return alert('Artículo no encontrado.');
+  modal('<h2>'+esc(p.name)+'</h2><p>Precio actual: <b>'+euro(p.price)+' / '+esc(p.unit)+'</b></p>'+
+    '<label>'+(p.unit==='kg'?'Peso (kg)':'Unidades')+'</label>'+
+    '<input id="orderExtraQty" type="number" inputmode="decimal" step="'+(p.unit==='kg'?'0.001':'1')+'" autofocus>'+
+    '<p><button class="primary" onclick="saveOrderExtraProduct(\''+id+'\',\''+code+'\')">AÑADIR COMPRA</button> <button onclick="orderAddPurchaseModal(\''+id+'\')">Cancelar</button></p>');
+  setTimeout(()=>document.getElementById('orderExtraQty')?.focus(),50);
+};
+window.saveOrderExtraProduct=function(id,code){
+  let o=orders.find(x=>String(x.id)===String(id)),main=orderMainTicket(o),p=products.find(x=>x.code===code);
+  if(!o||!main||!p)return alert('No se puede añadir la compra.');
+  let qty=Number(document.getElementById('orderExtraQty')?.value);
+  if(!Number.isFinite(qty)||qty<=0)return alert('Introduce una cantidad válida.');
+  let line=orderExtraLineFromProduct(p,qty);
+  if(main.paymentStatus==='Pendiente'){
+    main.items=main.items||[];main.items.push(line);orderRecalcTicket(main);
+    o.extraBeforePayment=o.extraBeforePayment||[];o.extraBeforePayment.push({code:p.code,qty,addedAt:new Date().toLocaleString('es-ES')});
+    save();
+    openOrder(o.id);
+    return;
+  }
+  let extra=orderPendingExtraTicket(o);
+  if(!extra){
+    let number=String(Math.max(0,...tickets.map(x=>Number(x.number)||0))+1).padStart(4,'0');
+    extra={
+      id:Date.now(),number,date:new Date().toLocaleString('es-ES'),
+      seller:'Pendiente',method:'Pendiente de cobro',paymentStatus:'Pendiente',
+      total:0,cashGiven:null,change:null,automaticDiscount:0,automaticDiscountName:'',offerDiscount:0,
+      orderNumber:o.number,orderExtraPurchase:true,parentTicketNumber:o.ticketNumber,items:[]
+    };
+    tickets.unshift(extra);
+    o.extraTicketIds=Array.isArray(o.extraTicketIds)?o.extraTicketIds:[];
+    o.extraTicketIds.push(extra.id);
+  }
+  extra.items.push(line);orderRecalcTicket(extra);save();openOrder(o.id);
+};
+window.chargeOrderExtraTicket=function(id){
+  let o=orders.find(x=>String(x.id)===String(id)),t=orderPendingExtraTicket(o);
+  if(!o||!t)return alert('No hay compra adicional pendiente.');
+  let active=activeSellers();
+  modal('<h2>Cobrar compra adicional · Ticket '+esc(t.number)+'</h2><h2>Total: '+euro(t.total)+'</h2>'+
+    '<p>Selecciona vendedor que cobra.</p><div class="sellerKeys">'+active.map(s=>'<button class="brand" onclick="orderExtraPayment(\''+o.id+'\',\''+t.id+'\',\''+esc(s.name)+'\')">'+esc(s.name)+'</button>').join('')+'</div>'+
+    (active.length?'':'<p class="warn">No hay vendedores iniciados.</p>')+
+    '<p><button onclick="openOrder(\''+o.id+'\')">Cancelar</button></p>');
+};
+window.orderExtraPayment=function(orderId,ticketId,seller){
+  let o=orders.find(x=>String(x.id)===String(orderId)),t=tickets.find(x=>String(x.id)===String(ticketId));
+  if(!o||!t||t.paymentStatus!=='Pendiente')return;
+  modal('<h2>Compra adicional · Ticket '+esc(t.number)+'</h2><h2>Total: '+euro(t.total)+'</h2>'+
+    '<div class="grid two"><button class="primary" onclick="orderExtraCash(\''+orderId+'\',\''+ticketId+'\',\''+esc(seller)+'\')">Efectivo</button>'+
+    '<button onclick="finishOrderExtraPay(\''+orderId+'\',\''+ticketId+'\',\''+esc(seller)+'\',\'Tarjeta\')">Tarjeta</button>'+
+    '<button onclick="finishOrderExtraPay(\''+orderId+'\',\''+ticketId+'\',\''+esc(seller)+'\',\'Bizum\')">Bizum</button>'+
+    '<button onclick="finishOrderExtraPay(\''+orderId+'\',\''+ticketId+'\',\''+esc(seller)+'\',\'Mixto\')">Mixto</button></div>'+
+    '<p><button onclick="chargeOrderExtraTicket(\''+orderId+'\')">Volver</button></p>');
+};
+window.orderExtraCash=function(orderId,ticketId,seller){
+  let t=tickets.find(x=>String(x.id)===String(ticketId));if(!t)return;
+  modal('<h2>Pago efectivo · Ticket '+esc(t.number)+'</h2><h2>Total: '+euro(t.total)+'</h2>'+
+    '<label>Entrega cliente</label><input id="orderExtraCashGiven" type="number" inputmode="decimal" step="0.01">'+
+    '<p><button class="primary" onclick="finishOrderExtraCash(\''+orderId+'\',\''+ticketId+'\',\''+esc(seller)+'\')">FINALIZAR COBRO</button> <button onclick="orderExtraPayment(\''+orderId+'\',\''+ticketId+'\',\''+esc(seller)+'\')">Volver</button></p>');
+};
+window.finishOrderExtraCash=function(orderId,ticketId,seller){
+  let t=tickets.find(x=>String(x.id)===String(ticketId)),el=document.getElementById('orderExtraCashGiven');if(!t||!el)return;
+  let raw=el.value.trim(),amount=raw===''?t.total:Number(raw);
+  if(!Number.isFinite(amount)||amount<t.total)return alert('Importe insuficiente o no válido.');
+  finishOrderExtraPay(orderId,ticketId,seller,'Efectivo',amount);
+};
+window.finishOrderExtraPay=function(orderId,ticketId,seller,method,cashGiven=0){
+  let o=orders.find(x=>String(x.id)===String(orderId)),t=tickets.find(x=>String(x.id)===String(ticketId));
+  if(!o||!t||t.paymentStatus!=='Pendiente')return alert('Este ticket ya no está pendiente.');
+  if(method==='Efectivo'&&cashGiven<t.total)return alert('El importe entregado es insuficiente.');
+  t.seller=seller;t.method=method;t.paymentStatus='Cobrado';
+  t.cashGiven=method==='Efectivo'?cashGiven:null;t.change=method==='Efectivo'?round(cashGiven-t.total):null;
+  t.paidAt=new Date().toLocaleString('es-ES');t.paidBy=seller;
+  save();modal(receiptHtml(t));
+};
+
+openOrder=function(id){
+  let o=orders.find(x=>String(x.id)===String(id));
+  if(!o)return alert('Encargo no encontrado.');
+  let total=orderPreparedTotal(o),lines=orderAllLines(o);
+  let top=(o.items||[]).map(l=>topLineHtml(o,l)).join('');
+  let groups=(o.groups||[]).map(g=>groupHtml(o,g)).join('');
+  let controls='';
+  if(o.ticketId){
+    let t=orderMainTicket(o),extraPending=orderPendingExtraTicket(o),extras=orderExtraTickets(o);
+    let collection=orderCollectionLabel(o);
+    controls='<div class="panel"><h3>Venta generada</h3>'+
+      '<p class="notice"><b>Ticket nº '+esc(o.ticketNumber)+'</b> · Importe: <b>'+euro(t?.total??total)+'</b>'+
+      '<br>Pago: <b>'+esc(t?.paymentStatus||'Pendiente')+'</b>'+
+      '<br>Recogida: <b>'+esc(collection)+'</b></p>'+
+      (t?.paymentStatus==='Pendiente'
+        ?'<div class="grid two"><button class="primary" onclick="chargePreparedOrder(\''+o.id+'\',\'deliver\')">COBRAR Y ENTREGAR</button><button onclick="chargePreparedOrder(\''+o.id+'\',\'pending_pickup\')">COBRAR · DEJAR PENDIENTE DE RECOGER</button></div>'
+        :'')+
+      '<p><button class="brand" onclick="orderAddPurchaseModal(\''+o.id+'\')">+ AÑADIR COMPRA</button></p>'+
+      (extraPending?'<div class="warn"><b>Compra adicional pendiente · Ticket '+esc(extraPending.number)+'</b><br>Total: '+euro(extraPending.total)+'<br><button class="primary" onclick="chargeOrderExtraTicket(\''+o.id+'\')">COBRAR COMPRA ADICIONAL</button></div>':'')+
+      (t?.paymentStatus==='Cobrado'&&collection!=='Recogido'?'<p><button class="green" onclick="markOrderDelivered(\''+o.id+'\')">MARCAR COMO RECOGIDO</button></p>':'')+
+      '<p><button onclick="openStoredTicket(\''+(o.ticketId||'')+'\')">Ver ticket principal</button></p>'+
+      (extras.length?'<p class="muted">Tickets adicionales: '+extras.map(x=>'nº '+esc(x.number)+' · '+esc(x.paymentStatus||'Pendiente')).join(' · ')+'</p>':'')+
+      '</div>';
+  }else{
+    controls='<div class="grid two">'+
+      '<button onclick="orderAddProduct(\''+o.id+'\',null)">+ AÑADIR ARTÍCULO</button>'+
+      '<button onclick="newOrderTrayModal(\''+o.id+'\')">+ AÑADIR BANDEJA</button>'+
+      '<button class="primary" '+(orderLinesReady(o)&&orderHasServedLines(o)?'':'disabled')+' onclick="finalizeOrderPreparation(\''+o.id+'\')">FINALIZAR PREPARACIÓN</button>'+
+      '<button onclick="ordersModal()">Volver a encargos</button>'+
+      '</div>';
+  }
+  modal('<h2>'+esc(o.number)+' · '+esc(o.customer)+'</h2>'+
+    '<p><b>Recogida prevista:</b> '+esc(o.pickupDate)+' '+esc(o.pickupTime||'')+
+    '<br><b>Teléfono:</b> '+esc(o.phone||'—')+
+    '<br><b>Vendedor:</b> '+esc(o.createdBy)+
+    '<br><b>Estado:</b> '+esc(o.status)+
+    (o.notes?'<br><b>Observaciones:</b> '+esc(o.notes):'')+'</p>'+
+    (top?'<div class="panel"><h3>Artículos</h3>'+top+'</div>':'')+
+    groups+
+    (!lines.length?'<p class="notice">Añade artículos normales o una bandeja. El peso/cantidad puede quedar pendiente hasta la preparación.</p>':'')+
+    '<h2>Total preparado: '+euro(total)+'</h2>'+controls);
+};
+
+window.chargePreparedOrder=function(id,collectionMode){
+  let o=orders.find(x=>String(x.id)===String(id)),t=orderMainTicket(o);
+  if(!o||!t||t.paymentStatus!=='Pendiente')return alert('Este ticket ya no está pendiente de cobro.');
+  o.pendingCollectionMode=collectionMode==='pending_pickup'?'pending_pickup':'deliver';
+  save();
+  let active=activeSellers();
+  modal('<h2>'+(o.pendingCollectionMode==='deliver'?'Cobrar y entregar':'Cobrar · dejar pendiente de recoger')+'</h2>'+
+    '<h2>Ticket nº '+esc(t.number)+' · '+euro(t.total)+'</h2>'+
+    '<p>Selecciona vendedor que cobra.</p><div class="sellerKeys">'+active.map(s=>'<button class="brand" onclick="orderPayment(\''+o.id+'\',\''+esc(s.name)+'\',\''+o.pendingCollectionMode+'\')">'+esc(s.name)+'</button>').join('')+'</div>'+
+    (active.length?'':'<p class="warn">No hay vendedores iniciados.</p>')+
+    '<p><button onclick="openOrder(\''+o.id+'\')">Cancelar</button></p>');
+};
+orderPayment=function(id,seller,collectionMode){
+  let o=orders.find(x=>String(x.id)===String(id)),t=orderMainTicket(o);if(!o||!t)return;
+  let mode=collectionMode||o.pendingCollectionMode||'deliver';
+  modal('<h2>Cobrar ticket nº '+esc(t.number)+'</h2><h2>Total: '+euro(t.total)+'</h2>'+
+    '<div class="grid two"><button class="primary" onclick="orderCash(\''+o.id+'\',\''+esc(seller)+'\',\''+mode+'\')">Efectivo</button>'+
+    '<button onclick="finishOrderPay(\''+o.id+'\',\''+esc(seller)+'\',\'Tarjeta\',0,\''+mode+'\')">Tarjeta</button>'+
+    '<button onclick="finishOrderPay(\''+o.id+'\',\''+esc(seller)+'\',\'Bizum\',0,\''+mode+'\')">Bizum</button>'+
+    '<button onclick="finishOrderPay(\''+o.id+'\',\''+esc(seller)+'\',\'Mixto\',0,\''+mode+'\')">Mixto</button></div>'+
+    '<p><button onclick="chargePreparedOrder(\''+o.id+'\',\''+mode+'\')">Volver</button></p>');
+};
+orderCash=function(id,seller,collectionMode){
+  let o=orders.find(x=>String(x.id)===String(id)),t=orderMainTicket(o);if(!o||!t)return;
+  let mode=collectionMode||o.pendingCollectionMode||'deliver';
+  modal('<h2>Pago efectivo · Ticket '+esc(t.number)+'</h2><h2>Total: '+euro(t.total)+'</h2>'+
+    '<label>Entrega cliente</label><input id="orderCashGiven" type="number" inputmode="decimal" step="0.01">'+
+    '<p><button class="primary" onclick="finishOrderCash(\''+id+'\',\''+esc(seller)+'\',\''+mode+'\')">FINALIZAR COBRO</button> <button onclick="orderPayment(\''+id+'\',\''+esc(seller)+'\',\''+mode+'\')">Volver</button></p>');
+};
+window.finishOrderCash=function(id,seller,collectionMode){
+  let o=orders.find(x=>String(x.id)===String(id)),t=orderMainTicket(o),el=document.getElementById('orderCashGiven');if(!t||!el)return;
+  let raw=el.value.trim(),amount=raw===''?t.total:Number(raw);
+  if(!Number.isFinite(amount))return alert('Introduce un importe válido.');
+  finishOrderPay(id,seller,'Efectivo',amount,collectionMode);
+};
+finishOrderPay=function(id,seller,method,cashGiven=0,collectionMode){
+  let o=orders.find(x=>String(x.id)===String(id)),t=orderMainTicket(o);
+  if(!o||!t||t.paymentStatus!=='Pendiente')return alert('El ticket ya no está pendiente de cobro.');
+  if(method==='Efectivo'&&cashGiven<t.total)return alert('El importe entregado es insuficiente.');
+  let mode=collectionMode||o.pendingCollectionMode||'deliver';
+  t.method=method;t.paymentStatus='Cobrado';t.cashGiven=method==='Efectivo'?cashGiven:null;
+  t.change=method==='Efectivo'?round(cashGiven-t.total):null;t.paidAt=new Date().toLocaleString('es-ES');t.paidBy=seller;
+  o.paidAt=t.paidAt;o.paidBy=seller;o.pendingCollectionMode=null;
+  if(mode==='pending_pickup'){
+    o.collectionStatus='Pendiente';o.status='Cobrado · pendiente de recoger';
+  }else{
+    o.collectionStatus='Recogido';o.status='Entregado';o.deliveredAt=t.paidAt;
+  }
+  save();modal(receiptHtml(t));
+};
+window.markOrderDelivered=function(id){
+  let o=orders.find(x=>String(x.id)===String(id)),t=orderMainTicket(o);
+  if(!o||!t||t.paymentStatus!=='Cobrado')return alert('Primero debe cobrarse el ticket.');
+  o.collectionStatus='Recogido';o.status='Entregado';o.deliveredAt=new Date().toLocaleString('es-ES');save();openOrder(o.id);
+};
+// ===== FIN REVISION 09/09/2026 =====
+
 })();
