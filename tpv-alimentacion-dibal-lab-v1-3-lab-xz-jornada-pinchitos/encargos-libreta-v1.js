@@ -2539,4 +2539,111 @@ window.markOrderDelivered=function(id){
 };
 // ===== FIN REVISION 09/09/2026 =====
 
+
+// ===== REVISION 09/09/2026 · COMPRA ADICIONAL DESDE VENTA =====
+let extraOrderSaleContext=null;
+const renderVentaBeforeExtraOrder=renderVenta;
+const selectProductBeforeExtraOrder=selectProduct;
+const directSaleBeforeExtraOrder=directSaleModal;
+const setAreaBeforeExtraOrder=setArea;
+
+function currentExtraOrder(){
+  return extraOrderSaleContext?orders.find(o=>String(o.id)===String(extraOrderSaleContext.orderId)):null;
+}
+function returnToExtraOrder(){
+  let o=currentExtraOrder();
+  extraOrderSaleContext=null;
+  closeModal();
+  if(o)return openOrder(o.id);
+  screen='venta';atRoot=true;area='Carne';subcat='';azScope=null;render();
+}
+window.startOrderExtraSale=function(orderId){
+  let o=orders.find(x=>String(x.id)===String(orderId)),t=orderMainTicket(o);
+  if(!o||!t)return alert('Encargo no disponible.');
+  extraOrderSaleContext={orderId:String(orderId)};
+  closeModal();
+  screen='venta';role='venta';area='Carne';subcat='';azScope=null;atRoot=true;
+  render();
+};
+orderAddPurchaseModal=function(id){
+  startOrderExtraSale(id);
+};
+window.orderAddPurchaseModal=orderAddPurchaseModal;
+
+renderVenta=function(app,bar){
+  if(!extraOrderSaleContext)return renderVentaBeforeExtraOrder(app,bar);
+  let o=currentExtraOrder(),t=orderMainTicket(o);
+  if(!o||!t){
+    extraOrderSaleContext=null;
+    return renderVentaBeforeExtraOrder(app,bar);
+  }
+  renderVentaBeforeExtraOrder(app,bar);
+  let wrapper=document.createElement('div');
+  wrapper.className='panel';
+  wrapper.innerHTML='<div class="saleTop"><strong>COMPRA ADICIONAL · '+esc(o.number)+'<br><small>'+esc(o.customer)+'</small></strong><button onclick="returnToExtraOrder()">VOLVER AL ENCARGO</button></div>'+
+    '<p class="notice">'+(t.paymentStatus==='Pendiente'
+      ?'<b>Se añadirá al mismo cobro del encargo.</b> Usa la venta normal: Carne, Charcutería, Elaborados, Código o A-Z.'
+      :'<b>El encargo ya está cobrado.</b> Lo que añadas generará un ticket adicional relacionado. Usa la venta normal: Carne, Charcutería, Elaborados, Código o A-Z.')+'</p>';
+  app.insertBefore(wrapper,app.firstChild);
+  bar.innerHTML='<div class="inner compact"><button onclick="returnToExtraOrder()">VOLVER AL ENCARGO</button><button class="primary" onclick="returnToExtraOrder()">FINALIZAR COMPRA ADICIONAL</button></div>';
+};
+
+setArea=function(a){
+  if(extraOrderSaleContext&&a==='Encargos')return returnToExtraOrder();
+  return setAreaBeforeExtraOrder(a);
+};
+
+selectProduct=function(code){
+  if(!extraOrderSaleContext)return selectProductBeforeExtraOrder(code);
+  let o=currentExtraOrder(),p=products.find(x=>x.code===code);
+  if(!o||!p)return alert('Artículo no encontrado.');
+  modal('<h2>'+esc(p.name)+'</h2>'+
+    '<p>Compra adicional · '+esc(o.number)+'<br>Precio actual: <b>'+euro(p.price)+' / '+esc(p.unit)+'</b></p>'+
+    '<label>'+(p.unit==='kg'?'Peso (kg)':'Unidades')+'</label>'+
+    '<input id="orderExtraSaleQty" type="number" inputmode="decimal" step="'+(p.unit==='kg'?'0.001':'1')+'" autofocus>'+
+    '<p><button class="primary" onclick="saveOrderExtraFromSale(\''+o.id+'\',\''+p.code+'\')">AÑADIR Y SEGUIR VENDIENDO</button> <button onclick="closeModal();render()">Cancelar</button></p>');
+  setTimeout(()=>document.getElementById('orderExtraSaleQty')?.focus(),50);
+};
+
+window.saveOrderExtraFromSale=function(id,code){
+  let o=orders.find(x=>String(x.id)===String(id)),main=orderMainTicket(o),p=products.find(x=>x.code===code);
+  if(!o||!main||!p)return alert('No se puede añadir la compra.');
+  let qty=Number(document.getElementById('orderExtraSaleQty')?.value);
+  if(!Number.isFinite(qty)||qty<=0)return alert('Introduce una cantidad válida.');
+  let line=orderExtraLineFromProduct(p,qty);
+  if(main.paymentStatus==='Pendiente'){
+    main.items=main.items||[];
+    main.items.push(line);
+    orderRecalcTicket(main);
+    o.extraBeforePayment=o.extraBeforePayment||[];
+    o.extraBeforePayment.push({code:p.code,qty,addedAt:new Date().toLocaleString('es-ES')});
+  }else{
+    let extra=orderPendingExtraTicket(o);
+    if(!extra){
+      let number=String(Math.max(0,...tickets.map(x=>Number(x.number)||0))+1).padStart(4,'0');
+      extra={
+        id:Date.now(),number,date:new Date().toLocaleString('es-ES'),
+        seller:'Pendiente',method:'Pendiente de cobro',paymentStatus:'Pendiente',
+        total:0,cashGiven:null,change:null,automaticDiscount:0,automaticDiscountName:'',offerDiscount:0,
+        orderNumber:o.number,orderExtraPurchase:true,parentTicketNumber:o.ticketNumber,items:[]
+      };
+      tickets.unshift(extra);
+      o.extraTicketIds=Array.isArray(o.extraTicketIds)?o.extraTicketIds:[];
+      o.extraTicketIds.push(extra.id);
+    }
+    extra.items.push(line);
+    orderRecalcTicket(extra);
+  }
+  save();
+  closeModal();
+  render();
+  flash('Añadido a '+o.number+' · '+p.name);
+};
+
+directSaleModal=function(section){
+  if(!extraOrderSaleContext)return directSaleBeforeExtraOrder(section);
+  alert('En compra adicional selecciona un artículo del catálogo, Código o A-Z para mantener la trazabilidad.');
+};
+// ===== FIN REVISION COMPRA ADICIONAL DESDE VENTA =====
+
 })();
