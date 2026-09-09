@@ -2647,4 +2647,44 @@ directSaleModal=function(section){
 };
 // ===== FIN REVISION COMPRA ADICIONAL DESDE VENTA =====
 
+
+// ===== REVISION 09/09/2026 · CIERRE TICKET ENCARGO VUELVE A ENCARGOS =====
+function closeOrderReceiptToOrders(orderId){
+  extraOrderSaleContext=null;
+  parkedOrderContext=null;
+  closeModal();
+  screen='venta';role='venta';area='Carne';subcat='';azScope=null;atRoot=true;
+  render();
+  ordersModal();
+}
+window.closeOrderReceiptToOrders=closeOrderReceiptToOrders;
+
+function wireOrderReceiptClose(orderId){
+  setTimeout(()=>{
+    let box=document.getElementById('modalBox');
+    if(!box)return;
+    let buttons=[...box.querySelectorAll('button')];
+    let closeBtn=buttons.find(b=>/^cerrar/i.test((b.textContent||'').trim()));
+    if(!closeBtn)return;
+    closeBtn.textContent='CERRAR · VOLVER A ENCARGOS';
+    closeBtn.onclick=()=>closeOrderReceiptToOrders(orderId);
+  },0);
+}
+
+const finishOrderPayBeforeReturnToOrders=finishOrderPay;
+finishOrderPay=function(id,seller,method,cashGiven=0,collectionMode){
+  finishOrderPayBeforeReturnToOrders(id,seller,method,cashGiven,collectionMode);
+  let o=orders.find(x=>String(x.id)===String(id)),t=orderMainTicket(o);
+  if(o&&t&&t.paymentStatus==='Cobrado')wireOrderReceiptClose(o.id);
+};
+
+const finishOrderExtraPayBeforeReturnToOrders=window.finishOrderExtraPay;
+window.finishOrderExtraPay=function(orderId,ticketId,seller,method,cashGiven=0){
+  finishOrderExtraPayBeforeReturnToOrders(orderId,ticketId,seller,method,cashGiven);
+  let o=orders.find(x=>String(x.id)===String(orderId)),t=tickets.find(x=>String(x.id)===String(ticketId));
+  if(o&&t&&t.paymentStatus==='Cobrado')wireOrderReceiptClose(o.id);
+};
+finishOrderExtraPay=window.finishOrderExtraPay;
+// ===== FIN REVISION CIERRE TICKET ENCARGO =====
+
 })();
