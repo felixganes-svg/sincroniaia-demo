@@ -576,7 +576,7 @@ function filteredPriceProducts(q='',ctx=priceContext){ensureHotfixCatalog2026090
  return sortProductsByName(products.filter(p=>p.active!==false&&productMatchesPriceContext(p,ctx)&&(!q||(p.name+' '+p.code+' '+p.area+' '+productSubs(p).join(' ')).toLowerCase().includes(q))));
 }
 function updatePriceCount(q=''){let el=document.getElementById('priceCount');if(el)el.textContent=filteredPriceProducts(q).length+' artículos · '+priceContextLabel()}
-function priceRows(q){return filteredPriceProducts(q).slice(0,120).map(p=>`<div class="line"><div><b>${esc(p.name)}</b><br><small>${esc(p.area)} · ${productSubs(p).map(esc).join(', ')} · Código ${esc(p.code)}</small></div><b>${euro(p.price)} / ${p.unit}</b></div>`).join('')||'<p>No hay artículos en este contexto con esa búsqueda.</p>'}
+function priceRows(q){return filteredPriceProducts(q).slice(0,120).map(p=>`<div class="line"><div><b>${esc(p.name)}</b><br><small>${esc(p.area)} · ${productSubs(p).map(esc).join(', ')}</small></div><div style="text-align:right"><b>${euro(p.price)} / ${p.unit}</b><br><small style="font-weight:800">Código ${esc(p.code)}</small></div></div>`).join('')||'<p>No hay artículos en este contexto con esa búsqueda.</p>'}
 function priceShowAll(){priceModal({mode:'all',label:'Todos los precios'})}
 function priceSectionChooser(){
  modal(`<h2>Cambiar sección · Mirar precio</h2><p class="notice">Elige la familia que quieres consultar.</p><div class="bigmenu">${PRODUCT_AREAS.map(a=>`<button onclick="priceChooseArea('${encodeURIComponent(a)}')">${esc(areaLabel(a))}</button>`).join('')}</div><p><button onclick="priceShowAll()">TODOS LOS PRECIOS</button> <button onclick="priceModal(priceContext)">Volver</button></p>`)
