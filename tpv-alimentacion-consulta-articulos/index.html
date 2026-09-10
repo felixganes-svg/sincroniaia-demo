@@ -281,21 +281,39 @@ function renderProducts(list,target){
  el.innerHTML=list.length?list.map(p=>'<button class="prod" data-code="'+esc(String(p.code))+'"><b>'+esc(p.name||'—')+'</b><small>Código '+esc(p.code)+'</small><div class="price">'+euro(p.price)+(p.unit==='kg'?' /kg':' /ud')+'</div></button>').join(''):'<div class="empty">No hay artículos con esta búsqueda.</div>';
  el.querySelectorAll('.prod').forEach(btn=>bindProductPress(btn))
 }
-let pressTimer=null,longPressTriggered=false;
+let pressTimer=null,longPressTriggered=false,pressStartX=0,pressStartY=0,pressMoved=false;
 function bindProductPress(btn){
  const code=btn.dataset.code;
- const start=()=>{
-   longPressTriggered=false;
+ const startTouch=(e)=>{
+   const t=e.touches&&e.touches[0];if(!t)return;
+   pressStartX=t.clientX;pressStartY=t.clientY;pressMoved=false;longPressTriggered=false;
    clearTimeout(pressTimer);
-   pressTimer=setTimeout(()=>{longPressTriggered=true;openQuickEdit(code)},900)
+   pressTimer=setTimeout(()=>{if(!pressMoved){longPressTriggered=true;openQuickEdit(code)}},1100)
  };
- const cancel=()=>{clearTimeout(pressTimer)};
- btn.addEventListener('touchstart',start,{passive:true});
- btn.addEventListener('touchend',cancel);
- btn.addEventListener('touchcancel',cancel);
- btn.addEventListener('mousedown',start);
- btn.addEventListener('mouseup',cancel);
- btn.addEventListener('mouseleave',cancel);
+ const moveTouch=(e)=>{
+   const t=e.touches&&e.touches[0];if(!t)return;
+   const dx=Math.abs(t.clientX-pressStartX),dy=Math.abs(t.clientY-pressStartY);
+   if(dx>8||dy>8){pressMoved=true;clearTimeout(pressTimer)}
+ };
+ const endTouch=()=>{clearTimeout(pressTimer);pressMoved=false};
+ const startMouse=(e)=>{
+   pressStartX=e.clientX;pressStartY=e.clientY;pressMoved=false;longPressTriggered=false;
+   clearTimeout(pressTimer);
+   pressTimer=setTimeout(()=>{if(!pressMoved){longPressTriggered=true;openQuickEdit(code)}},1100)
+ };
+ const moveMouse=(e)=>{
+   const dx=Math.abs(e.clientX-pressStartX),dy=Math.abs(e.clientY-pressStartY);
+   if(dx>8||dy>8){pressMoved=true;clearTimeout(pressTimer)}
+ };
+ const endMouse=()=>{clearTimeout(pressTimer);pressMoved=false};
+ btn.addEventListener('touchstart',startTouch,{passive:true});
+ btn.addEventListener('touchmove',moveTouch,{passive:true});
+ btn.addEventListener('touchend',endTouch);
+ btn.addEventListener('touchcancel',endTouch);
+ btn.addEventListener('mousedown',startMouse);
+ btn.addEventListener('mousemove',moveMouse);
+ btn.addEventListener('mouseup',endMouse);
+ btn.addEventListener('mouseleave',endMouse);
  btn.addEventListener('contextmenu',e=>e.preventDefault())
 }
 function renderList(){
