@@ -12,7 +12,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-f
 </style>
 </head>
 <body>
-<iframe id="app" src="./app-base.html?v=20260910-fichaje-0730-1335" allow="geolocation"></iframe>
+<iframe id="app" src="./app-base.html?v=20260910-fichajes-0909-1009" allow="geolocation"></iframe>
 <script>
 const frame=document.getElementById('app');
 frame.addEventListener('load',()=>{
@@ -20,8 +20,28 @@ frame.addEventListener('load',()=>{
     const w=frame.contentWindow,d=frame.contentDocument;
     if(!w||!d)return;
 
-    // Corrección puntual confirmada: 10/09/2026 · 07:30–13:35.
-    // Solo sustituye el dato de hoy y no altera ningún otro día.
+    // Fichaje real confirmado: 09/09/2026 · 07:30–13:45.
+    // Solo fija este día y no altera ningún otro registro.
+    if(!w.__fix0909Applied){
+      try{
+        w.eval(`(()=>{
+          const k='2026-09-09';
+          data.days[k]={sessions:[{
+            in:isoLocal(2026,9,9,7,30,0),
+            out:isoLocal(2026,9,9,13,45,0),
+            minutes:375,
+            source:'fichaje confirmado',
+            fichajeEntrada:'F-20260909-073000-CONFIRMADO',
+            fichajeSalida:'F-20260909-134500-CONFIRMADO'
+          }],source:'fichaje confirmado'};
+          save();
+          render();
+        })()`);
+      }catch(e){console.error('Fichaje 09/09',e)}
+      w.__fix0909Applied=true;
+    }
+
+    // Fichaje confirmado: 10/09/2026 · 07:30–13:35.
     if(!w.__fix1009ClosedApplied){
       try{
         w.eval(`(()=>{
