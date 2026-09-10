@@ -25,8 +25,8 @@ main{max-width:760px;margin:0 auto;padding:14px 12px 28px}
 .search{display:grid;grid-template-columns:1fr auto;gap:8px}
 .search input{width:100%;border:1px solid var(--line);border-radius:14px;padding:14px;font-size:18px}
 .search button{border:0;border-radius:14px;padding:0 14px;font-weight:900;background:#e8eef5}
-.subgrid{display:grid;grid-template-columns:1fr;gap:12px}
-.subbtn{min-height:82px;border:1px solid var(--line);background:#fff;border-radius:18px;padding:16px;text-align:left;font-size:21px;font-weight:1000;box-shadow:0 6px 18px #1020330d}
+.subgrid{display:flex;flex-direction:column;gap:18px;width:100%}
+.subbtn{display:block;width:100%;min-height:96px;border:2px solid var(--line);background:#fff;border-radius:20px;padding:18px;text-align:left;font-size:22px;font-weight:1000;box-shadow:0 8px 22px #10203314;margin:0}
 .subbtn small{display:block;font-size:14px;color:var(--muted);font-weight:700;margin-top:5px}
 .letters{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .letter{min-height:64px;border:1px solid var(--line);background:#fff;border-radius:16px;font-size:24px;font-weight:1000}
@@ -54,7 +54,6 @@ main{max-width:760px;margin:0 auto;padding:14px 12px 28px}
 .status{padding:10px 12px;border-radius:12px;background:#ecfdf3;color:#14532d;margin-top:10px;font-weight:800}
 @media(min-width:560px){
  .homegrid{grid-template-columns:repeat(3,1fr)}
- .subgrid{grid-template-columns:1fr 1fr}
  .products{grid-template-columns:1fr 1fr}
  .letters{grid-template-columns:repeat(7,1fr)}
 }
