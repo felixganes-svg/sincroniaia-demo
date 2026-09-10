@@ -73,7 +73,7 @@ main{max-width:760px;margin:0 auto;padding:14px 12px 28px}
     </div>
     <div class="homegrid">
       <button class="bigbtn carn" onclick="openDirectSectionAZ('Carne')">CARNICERÍA<small>Buscar por letra, nombre o código</small></button>
-      <button class="bigbtn char" onclick="openDirectSectionAZ('Charcutería')">CHARCUTERÍA<small>Buscar por letra, nombre o código</small></button>
+      <button class="bigbtn char" onclick="openArea('Charcutería')">CHARCUTERÍA<small>Embutidos, Quesos y Preparados</small></button>
       <button class="bigbtn elab" onclick="openDirectSectionAZ('Elaborados')">ELABORADOS<small>Buscar por letra, nombre o código</small></button>
     </div>
     <div class="note" id="source"></div><div class="adminlink"><button onclick="openAdmin()">EMPRESA · gestionar artículos</button></div>
@@ -253,21 +253,19 @@ async function loadFallback(){
 }
 
 function goHome(){currentArea='';currentSub='';currentLetter='';showScreen('home')}
+
 function openArea(a){
  currentArea=a;currentSub='';
  sectionTitle.textContent=areaLabel(a);
  const all=products.filter(p=>p.active!==false&&normalizeArea(p.area)===a);
- let subs=Array.from(new Set(all.flatMap(subcats))).sort((x,y)=>x.localeCompare(y,'es'));
  if(a==='Charcutería'){
-   const merged=['Embutidos','Quesos','Preparados'];
-   const rest=subs.filter(s=>!merged.includes(s));
-   const mergedCount=all.filter(p=>subcats(p).some(s=>merged.includes(s))).length;
-   subgrid.innerHTML='<button class="subbtn" onclick="openSub(\'Embutidos + Quesos + Preparados\')">Embutidos + Quesos + Preparados<small>'+mergedCount+' artículos</small></button>'+
-     rest.map(s=>{
-       const n=all.filter(p=>subcats(p).includes(s)).length;
-       return '<button class="subbtn" onclick="openSub('+JSON.stringify(s).replace(/"/g,'&quot;')+')">'+esc(s)+'<small>'+n+' artículos</small></button>';
-     }).join('');
+   const fixed=['Embutidos','Quesos','Preparados'];
+   subgrid.innerHTML=fixed.map(s=>{
+     const n=all.filter(p=>subcats(p).includes(s)).length;
+     return '<button class="subbtn" onclick="openSub('+JSON.stringify(s).replace(/"/g,'&quot;')+')">'+esc(s)+'<small>'+n+' artículos</small></button>';
+   }).join('');
  }else{
+   const subs=Array.from(new Set(all.flatMap(subcats))).sort((x,y)=>x.localeCompare(y,'es'));
    subgrid.innerHTML=subs.map(s=>{
      const n=all.filter(p=>subcats(p).includes(s)).length;
      return '<button class="subbtn" onclick="openSub('+JSON.stringify(s).replace(/"/g,'&quot;')+')">'+esc(s)+'<small>'+n+' artículos</small></button>';
@@ -323,13 +321,7 @@ function bindProductPress(btn){
  btn.addEventListener('contextmenu',e=>e.preventDefault())
 }
 function renderList(){
- let list=products.filter(p=>p.active!==false&&normalizeArea(p.area)===currentArea);
- if(currentArea==='Charcutería'&&currentSub==='Embutidos + Quesos + Preparados'){
-   const merged=['Embutidos','Quesos','Preparados'];
-   list=list.filter(p=>subcats(p).some(s=>merged.includes(s)));
- }else{
-   list=list.filter(p=>subcats(p).includes(currentSub));
- }
+ let list=products.filter(p=>p.active!==false&&normalizeArea(p.area)===currentArea&&subcats(p).includes(currentSub));
  const term=norm(sectionSearch.value.trim());
  if(term)list=list.filter(p=>norm(p.name).includes(term)||String(p.code||'').includes(term)||(p.alternateCodes||[]).some(c=>String(c).includes(term)));
  list.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es',{sensitivity:'base'}));
