@@ -291,10 +291,10 @@ function bindProductPress(btn){
  };
  const cancel=()=>{clearTimeout(pressTimer)};
  btn.addEventListener('touchstart',start,{passive:true});
- btn.addEventListener('touchend',()=>{cancel();if(!longPressTriggered)detail(code)});
+ btn.addEventListener('touchend',cancel);
  btn.addEventListener('touchcancel',cancel);
  btn.addEventListener('mousedown',start);
- btn.addEventListener('mouseup',()=>{cancel();if(!longPressTriggered)detail(code)});
+ btn.addEventListener('mouseup',cancel);
  btn.addEventListener('mouseleave',cancel);
  btn.addEventListener('contextmenu',e=>e.preventDefault())
 }
