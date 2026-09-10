@@ -120,6 +120,22 @@ main{max-width:760px;margin:0 auto;padding:14px 12px 28px}
     <div id="azProducts" class="products"></div>
   </section>
 
+  <section id="letterResultsScreen" class="screen">
+    <div class="topbar">
+      <button class="back" onclick="backToAlphabet()">← Abecedario</button>
+      <div class="titlebox"><h2 id="letterResultsTitle"></h2><small id="letterResultsSubtitle"></small></div>
+    </div>
+    <div class="card">
+      <div class="search">
+        <input id="letterSearch" placeholder="Buscar dentro de esta letra…" oninput="renderLetterResults()">
+        <button onclick="letterSearch.value='';renderLetterResults()">Limpiar</button>
+      </div>
+    </div>
+    <div class="resultsHead"><b>Artículos</b><span class="count" id="letterResultsCount"></span></div>
+    <div id="letterResultsProducts" class="products"></div>
+    <button class="close" onclick="goHome()">CERRAR / INICIO</button>
+  </section>
+
   <section id="adminScreen" class="screen">
     <div class="topbar">
       <button class="back" onclick="goHome()">← Inicio</button>
@@ -297,22 +313,21 @@ function openSectionAZ(){
  azTitle.textContent=areaLabel(currentArea)+' · Artículos A-Z';
  renderLetters();renderAZ();showScreen('azScreen')
 }
+
 function renderLetters(){
  const available=new Set(
    azBaseList().map(p=>String(p.name||'').trim()).filter(Boolean).map(n=>n.charAt(0).toLocaleUpperCase('es'))
  );
  const arr='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('').filter(l=>available.has(l));
- if(currentLetter&&!available.has(currentLetter))currentLetter='';
- letters.innerHTML=arr.map(l=>'<button class="letter '+(currentLetter===l?'active':'')+'" data-letter="'+l+'">'+l+'</button>').join('');
- letters.querySelectorAll('.letter').forEach(btn=>btn.onclick=()=>{currentLetter=currentLetter===btn.dataset.letter?'':btn.dataset.letter;renderLetters();renderAZ()})
+ letters.innerHTML=arr.map(l=>'<button class="letter" data-letter="'+l+'">'+l+'</button>').join('');
+ letters.querySelectorAll('.letter').forEach(btn=>btn.onclick=()=>openLetterResults(btn.dataset.letter))
 }
 function renderAZ(){
  let list=azBaseList();
- if(currentLetter)list=list.filter(p=>norm(p.name).startsWith(norm(currentLetter)));
  const term=norm(azSearch.value.trim());
  if(term)list=list.filter(p=>norm(p.name).includes(term)||String(p.code||'').includes(term)||(p.alternateCodes||[]).some(c=>String(c).includes(term)));
  list.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es',{sensitivity:'base'}));
- azHeading.textContent=currentLetter?'Letra '+currentLetter:(azScope==='section'?'Todos los artículos de '+areaLabel(currentArea):'Todos los artículos');
+ azHeading.textContent=azScope==='section'?'Todos los artículos de '+areaLabel(currentArea):'Todos los artículos';
  azCount.textContent=list.length+' artículos';renderProducts(list,'azProducts')
 }
 function openAdmin(){showAdminTab('edit');adminSearch.value='';renderAdminSearch();showScreen('adminScreen')}
@@ -359,6 +374,28 @@ function createArticle(){
  saveConsultaCustom();
  newStatus.innerHTML='<div class="status">Artículo '+esc(code)+' guardado en '+esc(areaLabel(area))+'. Ya aparece en su A-Z.</div>';
  newCode.value='';newName.value='';newPrice.value='';newUnit.value='kg'
+}
+function openLetterResults(letter){
+ currentLetter=letter;
+ letterSearch.value='';
+ letterResultsTitle.textContent=(azScope==='section'?areaLabel(currentArea)+' · ':'')+'Letra '+letter;
+ letterResultsSubtitle.textContent='Artículos que empiezan por '+letter;
+ renderLetterResults();
+ showScreen('letterResultsScreen')
+}
+function renderLetterResults(){
+ let list=azBaseList().filter(p=>norm(p.name).startsWith(norm(currentLetter)));
+ const term=norm(letterSearch.value.trim());
+ if(term)list=list.filter(p=>norm(p.name).includes(term)||String(p.code||'').includes(term));
+ list.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es',{sensitivity:'base'}));
+ letterResultsCount.textContent=list.length+' artículos';
+ renderProducts(list,'letterResultsProducts')
+}
+function backToAlphabet(){
+ currentLetter='';
+ renderLetters();
+ renderAZ();
+ showScreen('azScreen')
 }
 function detail(code){
  const p=products.find(x=>String(x.code)===String(code));if(!p)return;
