@@ -12,13 +12,31 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-f
 </style>
 </head>
 <body>
-<iframe id="app" src="./app-base.html?v=20260908-bank-hours-v2" allow="geolocation"></iframe>
+<iframe id="app" src="./app-base.html?v=20260910-fichaje-0730-open" allow="geolocation"></iframe>
 <script>
 const frame=document.getElementById('app');
 frame.addEventListener('load',()=>{
   try{
     const w=frame.contentWindow,d=frame.contentDocument;
     if(!w||!d)return;
+
+    // Corrección puntual confirmada: 10/09/2026 entrada 07:30 y jornada aún abierta.
+    // Solo se aplica mientras no exista una sesión cerrada de hoy; después de fichar salida no vuelve a abrirse.
+    if(!w.__fix1009Applied){
+      try{
+        w.eval(`(()=>{
+          const k='2026-09-10';
+          const hoy=typeof dateKey==='function'?dateKey(new Date()):'';
+          const cerradas=(data.days&&data.days[k]&&Array.isArray(data.days[k].sessions))?data.days[k].sessions:[];
+          if(hoy===k&&cerradas.length===0){
+            data.open={in:isoLocal(2026,9,10,7,30,0),gps:null,source:'corrección confirmada',fichaje_id:'F-20260910-073000-MANUAL'};
+            save();
+            render();
+          }
+        })()`);
+      }catch(e){console.error('Ajuste fichaje 10/09',e)}
+      w.__fix1009Applied=true;
+    }
 
     const company=d.getElementById('company');
     if(company&&!d.getElementById('correctionAccess')){
