@@ -401,8 +401,8 @@ function editArticleSection(code){
 function saveArticleSection(code){
  const p=products.find(x=>String(x.code)===String(code));if(!p)return;
  const newArea=editAreaSelect.value;
+ const newSub=editSubcatSelect.value||sectionDefaultSubcat(newArea);
  p.area=newArea;
- const newSub=quickSubcat.value||sectionDefaultSubcat(newArea);
  p.subcat=newSub;
  p.cat=newSub;
  p.subcats=[newSub];
@@ -463,11 +463,12 @@ function saveQuickEdit(code){
  const price=Number(quickPrice.value);
  if(!Number.isFinite(price))return alert('Introduce un precio válido.');
  const newArea=quickArea.value;
+ const newSub=quickSubcat.value||sectionDefaultSubcat(newArea);
  p.price=price;
  p.area=newArea;
- p.subcat=sectionDefaultSubcat(newArea);
- p.cat=p.subcat;
- p.subcats=[p.subcat];
+ p.subcat=newSub;
+ p.cat=newSub;
+ p.subcats=[newSub];
  p.active=quickActive.value==='true';
  saveConsultaCustom();
  closeDetail();
