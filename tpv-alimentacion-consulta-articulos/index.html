@@ -209,6 +209,12 @@ function saveConsultaCustom(){
  localStorage.setItem(CONSULTA_CUSTOM_KEY,JSON.stringify(products));
  source.textContent='PRUEBA · catálogo local modificado en este dispositivo';
 }
+function availableSubcatsForArea(area){
+ const set=new Set();
+ products.filter(p=>normalizeArea(p.area)===area).forEach(p=>subcats(p).forEach(s=>set.add(s)));
+ if(!set.size)set.add(sectionDefaultSubcat(area));
+ return Array.from(set).sort((a,b)=>a.localeCompare(b,'es'))
+}
 function sectionDefaultSubcat(area){
  return area==='Charcutería'?'Embutidos':area==='Elaborados'?'Elaborados':'Carnicería'
 }
@@ -383,16 +389,23 @@ function renderAdminSearch(){
 }
 function editArticleSection(code){
  const p=products.find(x=>String(x.code)===String(code));if(!p)return;
- sheet.innerHTML='<div class="detailName">'+esc(p.name||'—')+'</div><div class="code">Código '+esc(p.code)+'</div><div class="formgrid" style="margin-top:16px"><div><label>Sección</label><select id="editAreaSelect"><option value="Carne" '+(normalizeArea(p.area)==='Carne'?'selected':'')+'>Carnicería</option><option value="Charcutería" '+(normalizeArea(p.area)==='Charcutería'?'selected':'')+'>Charcutería</option><option value="Elaborados" '+(normalizeArea(p.area)==='Elaborados'?'selected':'')+'>Elaborados</option></select></div><button class="action" onclick="saveArticleSection('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')">GUARDAR CAMBIO</button></div><button class="close" onclick="closeDetail()">CANCELAR</button>';
- modal.classList.add('show')
+ const area=normalizeArea(p.area),currentSub=subcats(p)[0]||sectionDefaultSubcat(area);
+ const subOptions=availableSubcatsForArea(area).map(s=>'<option value="'+esc(s)+'" '+(s===currentSub?'selected':'')+'>'+esc(s)+'</option>').join('');
+ sheet.innerHTML='<div class="detailName">'+esc(p.name||'—')+'</div><div class="code">Código '+esc(p.code)+'</div><div class="formgrid" style="margin-top:16px"><div><label>Sección</label><select id="editAreaSelect"><option value="Carne" '+(area==='Carne'?'selected':'')+'>Carnicería</option><option value="Charcutería" '+(area==='Charcutería'?'selected':'')+'>Charcutería</option><option value="Elaborados" '+(area==='Elaborados'?'selected':'')+'>Elaborados</option></select></div><div><label>Subsección</label><select id="editSubcatSelect">'+subOptions+'</select></div><button class="action" onclick="saveArticleSection('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')">GUARDAR CAMBIO</button></div><button class="close" onclick="closeDetail()">CANCELAR</button>';
+ modal.classList.add('show');
+ editAreaSelect.addEventListener('change',()=>{
+   const opts=availableSubcatsForArea(editAreaSelect.value);
+   editSubcatSelect.innerHTML=opts.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('')
+ })
 }
 function saveArticleSection(code){
  const p=products.find(x=>String(x.code)===String(code));if(!p)return;
  const newArea=editAreaSelect.value;
  p.area=newArea;
- p.subcat=sectionDefaultSubcat(newArea);
- p.cat=p.subcat;
- p.subcats=[p.subcat];
+ const newSub=quickSubcat.value||sectionDefaultSubcat(newArea);
+ p.subcat=newSub;
+ p.cat=newSub;
+ p.subcats=[newSub];
  saveConsultaCustom();
  closeDetail();
  renderAdminSearch()
@@ -436,8 +449,14 @@ function backToAlphabet(){
 }
 function openQuickEdit(code){
  const p=products.find(x=>String(x.code)===String(code));if(!p)return;
- sheet.innerHTML='<div class="detailName">'+esc(p.name||'—')+'</div><div class="code">Código '+esc(p.code)+'</div><div class="formgrid" style="margin-top:16px"><div><label>Precio</label><input id="quickPrice" type="number" step="0.01" inputmode="decimal" value="'+Number(p.price||0)+'"></div><div><label>Sección</label><select id="quickArea"><option value="Carne" '+(normalizeArea(p.area)==='Carne'?'selected':'')+'>Carnicería</option><option value="Charcutería" '+(normalizeArea(p.area)==='Charcutería'?'selected':'')+'>Charcutería</option><option value="Elaborados" '+(normalizeArea(p.area)==='Elaborados'?'selected':'')+'>Elaborados</option></select></div><div><label>Estado</label><select id="quickActive"><option value="true" '+(p.active!==false?'selected':'')+'>Activo</option><option value="false" '+(p.active===false?'selected':'')+'>Inactivo</option></select></div><button class="action" onclick="saveQuickEdit('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')">GUARDAR CAMBIOS</button></div><button class="close" onclick="closeDetail()">CANCELAR</button>';
- modal.classList.add('show')
+ const area=normalizeArea(p.area),currentSub=subcats(p)[0]||sectionDefaultSubcat(area);
+ const subOptions=availableSubcatsForArea(area).map(s=>'<option value="'+esc(s)+'" '+(s===currentSub?'selected':'')+'>'+esc(s)+'</option>').join('');
+ sheet.innerHTML='<div class="detailName">'+esc(p.name||'—')+'</div><div class="code">Código '+esc(p.code)+'</div><div class="formgrid" style="margin-top:16px"><div><label>Precio</label><input id="quickPrice" type="number" step="0.01" inputmode="decimal" value="'+Number(p.price||0)+'"></div><div><label>Sección</label><select id="quickArea"><option value="Carne" '+(area==='Carne'?'selected':'')+'>Carnicería</option><option value="Charcutería" '+(area==='Charcutería'?'selected':'')+'>Charcutería</option><option value="Elaborados" '+(area==='Elaborados'?'selected':'')+'>Elaborados</option></select></div><div><label>Subsección</label><select id="quickSubcat">'+subOptions+'</select></div><div><label>Estado</label><select id="quickActive"><option value="true" '+(p.active!==false?'selected':'')+'>Activo</option><option value="false" '+(p.active===false?'selected':'')+'>Inactivo</option></select></div><button class="action" onclick="saveQuickEdit('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')">GUARDAR CAMBIOS</button></div><button class="close" onclick="closeDetail()">CANCELAR</button>';
+ modal.classList.add('show');
+ quickArea.addEventListener('change',()=>{
+   const opts=availableSubcatsForArea(quickArea.value);
+   quickSubcat.innerHTML=opts.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('')
+ })
 }
 function saveQuickEdit(code){
  const p=products.find(x=>String(x.code)===String(code));if(!p)return;
