@@ -1,0 +1,42 @@
+name: Build Consulta APK
+
+on:
+  push:
+    paths:
+      - 'android-consulta-articulos-apk/**'
+      - '.github/workflows/build-consulta-apk.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android-consulta-articulos-apk
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build debug APK
+        run: gradle :app:assembleDebug --stacktrace
+
+      - name: Rename APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk SINCRONIAIA-Consulta-Articulos.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SINCRONIAIA-Consulta-Articulos-APK
+          path: android-consulta-articulos-apk/SINCRONIAIA-Consulta-Articulos.apk
+          if-no-files-found: error
