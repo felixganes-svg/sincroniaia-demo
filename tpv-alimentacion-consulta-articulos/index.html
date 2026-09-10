@@ -33,7 +33,7 @@ main{max-width:760px;margin:0 auto;padding:14px 12px 28px}
 .letter.active{background:var(--dark);color:#fff}
 .resultsHead{display:flex;justify-content:space-between;align-items:end;gap:10px;margin:8px 2px 10px}.resultsHead b{font-size:18px}.count{font-weight:900;color:var(--muted)}
 .products{display:grid;grid-template-columns:1fr;gap:10px}
-.prod{border:1px solid var(--line);background:#fff;border-radius:18px;padding:15px;text-align:left;box-shadow:0 5px 16px #1020330d}
+.prod{border:1px solid var(--line);background:#fff;border-radius:18px;padding:15px;text-align:left;box-shadow:0 5px 16px #1020330d;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .prod b{display:block;font-size:20px;line-height:1.15}.prod small{display:block;color:var(--muted);margin-top:5px;font-size:14px}
 .price{font-size:24px;font-weight:1000;margin-top:8px}
 .empty{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;text-align:center;color:var(--muted)}
@@ -277,7 +277,26 @@ function openSub(s){
 }
 function backFromList(){openArea(currentArea)}
 function renderProducts(list,target){
- document.getElementById(target).innerHTML=list.length?list.map(p=>'<button class="prod" onclick="detail('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')"><b>'+esc(p.name||'—')+'</b><small>Código '+esc(p.code)+'</small><div class="price">'+euro(p.price)+(p.unit==='kg'?' /kg':' /ud')+'</div></button>').join(''):'<div class="empty">No hay artículos con esta búsqueda.</div>'
+ const el=document.getElementById(target);
+ el.innerHTML=list.length?list.map(p=>'<button class="prod" data-code="'+esc(String(p.code))+'"><b>'+esc(p.name||'—')+'</b><small>Código '+esc(p.code)+'</small><div class="price">'+euro(p.price)+(p.unit==='kg'?' /kg':' /ud')+'</div></button>').join(''):'<div class="empty">No hay artículos con esta búsqueda.</div>';
+ el.querySelectorAll('.prod').forEach(btn=>bindProductPress(btn))
+}
+let pressTimer=null,longPressTriggered=false;
+function bindProductPress(btn){
+ const code=btn.dataset.code;
+ const start=()=>{
+   longPressTriggered=false;
+   clearTimeout(pressTimer);
+   pressTimer=setTimeout(()=>{longPressTriggered=true;openQuickEdit(code)},900)
+ };
+ const cancel=()=>{clearTimeout(pressTimer)};
+ btn.addEventListener('touchstart',start,{passive:true});
+ btn.addEventListener('touchend',()=>{cancel();if(!longPressTriggered)detail(code)});
+ btn.addEventListener('touchcancel',cancel);
+ btn.addEventListener('mousedown',start);
+ btn.addEventListener('mouseup',()=>{cancel();if(!longPressTriggered)detail(code)});
+ btn.addEventListener('mouseleave',cancel);
+ btn.addEventListener('contextmenu',e=>e.preventDefault())
 }
 function renderList(){
  let list=products.filter(p=>p.active!==false&&normalizeArea(p.area)===currentArea);
@@ -396,6 +415,32 @@ function backToAlphabet(){
  renderLetters();
  renderAZ();
  showScreen('azScreen')
+}
+function openQuickEdit(code){
+ const p=products.find(x=>String(x.code)===String(code));if(!p)return;
+ sheet.innerHTML='<div class="detailName">'+esc(p.name||'—')+'</div><div class="code">Código '+esc(p.code)+'</div><div class="formgrid" style="margin-top:16px"><div><label>Precio</label><input id="quickPrice" type="number" step="0.01" inputmode="decimal" value="'+Number(p.price||0)+'"></div><div><label>Sección</label><select id="quickArea"><option value="Carne" '+(normalizeArea(p.area)==='Carne'?'selected':'')+'>Carnicería</option><option value="Charcutería" '+(normalizeArea(p.area)==='Charcutería'?'selected':'')+'>Charcutería</option><option value="Elaborados" '+(normalizeArea(p.area)==='Elaborados'?'selected':'')+'>Elaborados</option></select></div><div><label>Estado</label><select id="quickActive"><option value="true" '+(p.active!==false?'selected':'')+'>Activo</option><option value="false" '+(p.active===false?'selected':'')+'>Inactivo</option></select></div><button class="action" onclick="saveQuickEdit('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')">GUARDAR CAMBIOS</button></div><button class="close" onclick="closeDetail()">CANCELAR</button>';
+ modal.classList.add('show')
+}
+function saveQuickEdit(code){
+ const p=products.find(x=>String(x.code)===String(code));if(!p)return;
+ const price=Number(quickPrice.value);
+ if(!Number.isFinite(price))return alert('Introduce un precio válido.');
+ const newArea=quickArea.value;
+ p.price=price;
+ p.area=newArea;
+ p.subcat=sectionDefaultSubcat(newArea);
+ p.cat=p.subcat;
+ p.subcats=[p.subcat];
+ p.active=quickActive.value==='true';
+ saveConsultaCustom();
+ closeDetail();
+ if(document.getElementById('letterResultsScreen').classList.contains('active')){
+   renderLetterResults();
+ }else if(document.getElementById('azScreen').classList.contains('active')){
+   renderLetters();renderAZ();
+ }else if(document.getElementById('adminScreen').classList.contains('active')){
+   renderAdminSearch();
+ }
 }
 function detail(code){
  const p=products.find(x=>String(x.code)===String(code));if(!p)return;
