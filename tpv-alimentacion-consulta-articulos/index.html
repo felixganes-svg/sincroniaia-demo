@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>SINCRONIAIA · Consulta de artículos</title>
 <meta name="theme-color" content="#0f2238">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.svg" type="image/svg+xml">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Consulta">
 <style>
 :root{--bg:#f4f7fb;--card:#fff;--ink:#102033;--muted:#667085;--line:#d9e2ec;--brand:#0f766e;--purple:#7c3aed;--orange:#ea580c;--dark:#111827;--blue:#155eef}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
@@ -479,6 +484,11 @@ function detail(code){
 }
 function closeDetail(){modal.classList.remove('show')}
 (async()=>{if(!loadLocal())await loadFallback();applyListadoPrueba();loadConsultaCustom();})();
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+  });
+}
 </script>
 </body>
 </html>
