@@ -12,7 +12,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-f
 </style>
 </head>
 <body>
-<iframe id="app" src="./app-base.html?v=20260910-fichaje-0730-open" allow="geolocation"></iframe>
+<iframe id="app" src="./app-base.html?v=20260910-fichaje-0730-1335" allow="geolocation"></iframe>
 <script>
 const frame=document.getElementById('app');
 frame.addEventListener('load',()=>{
@@ -20,22 +20,26 @@ frame.addEventListener('load',()=>{
     const w=frame.contentWindow,d=frame.contentDocument;
     if(!w||!d)return;
 
-    // Corrección puntual confirmada: 10/09/2026 entrada 07:30 y jornada aún abierta.
-    // Solo se aplica mientras no exista una sesión cerrada de hoy; después de fichar salida no vuelve a abrirse.
-    if(!w.__fix1009Applied){
+    // Corrección puntual confirmada: 10/09/2026 · 07:30–13:35.
+    // Solo sustituye el dato de hoy y no altera ningún otro día.
+    if(!w.__fix1009ClosedApplied){
       try{
         w.eval(`(()=>{
           const k='2026-09-10';
-          const hoy=typeof dateKey==='function'?dateKey(new Date()):'';
-          const cerradas=(data.days&&data.days[k]&&Array.isArray(data.days[k].sessions))?data.days[k].sessions:[];
-          if(hoy===k&&cerradas.length===0){
-            data.open={in:isoLocal(2026,9,10,7,30,0),gps:null,source:'corrección confirmada',fichaje_id:'F-20260910-073000-MANUAL'};
-            save();
-            render();
-          }
+          data.days[k]={sessions:[{
+            in:isoLocal(2026,9,10,7,30,0),
+            out:isoLocal(2026,9,10,13,35,0),
+            minutes:365,
+            source:'corrección confirmada',
+            fichajeEntrada:'F-20260910-073000-MANUAL',
+            fichajeSalida:'F-20260910-133500-MANUAL'
+          }],source:'corrección confirmada'};
+          if(data.open&&dateKey(new Date(data.open.in))===k)data.open=null;
+          save();
+          render();
         })()`);
       }catch(e){console.error('Ajuste fichaje 10/09',e)}
-      w.__fix1009Applied=true;
+      w.__fix1009ClosedApplied=true;
     }
 
     const company=d.getElementById('company');
