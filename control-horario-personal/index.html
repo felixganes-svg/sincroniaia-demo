@@ -12,7 +12,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-f
 </style>
 </head>
 <body>
-<iframe id="app" src="./app-base.html?v=20260910-fichajes-0909-1009" allow="geolocation"></iframe>
+<iframe id="app" src="./app-base.html?v=20260910-doble-tramo" allow="geolocation"></iframe>
 <script>
 const frame=document.getElementById('app');
 frame.addEventListener('load',()=>{
@@ -21,7 +21,6 @@ frame.addEventListener('load',()=>{
     if(!w||!d)return;
 
     // Fichaje real confirmado: 09/09/2026 · 07:30–13:45.
-    // Solo fija este día y no altera ningún otro registro.
     if(!w.__fix0909Applied){
       try{
         w.eval(`(()=>{
@@ -34,32 +33,40 @@ frame.addEventListener('load',()=>{
             fichajeEntrada:'F-20260909-073000-CONFIRMADO',
             fichajeSalida:'F-20260909-134500-CONFIRMADO'
           }],source:'fichaje confirmado'};
-          save();
-          render();
+          save();render();
         })()`);
       }catch(e){console.error('Fichaje 09/09',e)}
       w.__fix0909Applied=true;
     }
 
-    // Fichaje confirmado: 10/09/2026 · 07:30–13:35.
-    if(!w.__fix1009ClosedApplied){
+    // Fichaje real confirmado: 10/09/2026 · 07:30–13:35 y 17:00–20:15.
+    if(!w.__fix1009DoubleApplied){
       try{
         w.eval(`(()=>{
           const k='2026-09-10';
-          data.days[k]={sessions:[{
-            in:isoLocal(2026,9,10,7,30,0),
-            out:isoLocal(2026,9,10,13,35,0),
-            minutes:365,
-            source:'corrección confirmada',
-            fichajeEntrada:'F-20260910-073000-MANUAL',
-            fichajeSalida:'F-20260910-133500-MANUAL'
-          }],source:'corrección confirmada'};
+          data.days[k]={sessions:[
+            {
+              in:isoLocal(2026,9,10,7,30,0),
+              out:isoLocal(2026,9,10,13,35,0),
+              minutes:365,
+              source:'fichaje confirmado',
+              fichajeEntrada:'F-20260910-073000-MANUAL',
+              fichajeSalida:'F-20260910-133500-MANUAL'
+            },
+            {
+              in:isoLocal(2026,9,10,17,0,0),
+              out:isoLocal(2026,9,10,20,15,0),
+              minutes:195,
+              source:'fichaje confirmado',
+              fichajeEntrada:'F-20260910-170000-CONFIRMADO',
+              fichajeSalida:'F-20260910-201500-CONFIRMADO'
+            }
+          ],source:'fichaje confirmado'};
           if(data.open&&dateKey(new Date(data.open.in))===k)data.open=null;
-          save();
-          render();
+          save();render();
         })()`);
-      }catch(e){console.error('Ajuste fichaje 10/09',e)}
-      w.__fix1009ClosedApplied=true;
+      }catch(e){console.error('Fichaje 10/09',e)}
+      w.__fix1009DoubleApplied=true;
     }
 
     const company=d.getElementById('company');
