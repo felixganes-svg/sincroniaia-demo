@@ -114,25 +114,22 @@ function dictatedTicketsModal(){
     render();
   }
   window.closeOrderReceiptToSale=closeOrderReceiptToSale;
+})();
 
-  wireOrderReceiptClose=function(orderId){
-    setTimeout(()=>{
-      const box=document.getElementById('modalBox');
-      if(!box)return;
-      const buttons=[...box.querySelectorAll('button')];
-      const closeBtn=buttons.find(b=>/^cerrar/i.test((b.textContent||'').trim()));
-      if(!closeBtn)return;
-      closeBtn.textContent='CERRAR';
-      closeBtn.onclick=()=>closeOrderReceiptToSale();
-      let backBtn=[...box.querySelectorAll('button')].find(b=>(b.textContent||'').trim()==='VOLVER A ENCARGOS');
-      if(!backBtn){
-        backBtn=document.createElement('button');
-        backBtn.textContent='VOLVER A ENCARGOS';
-        backBtn.onclick=()=>closeOrderReceiptToOrders(orderId);
-        closeBtn.insertAdjacentElement('afterend',backBtn);
-      }
-    },0);
+// Fuerza dos botones directamente en el HTML del ticket de Encargo.
+(function(){
+  const baseReceiptHtmlUX=receiptHtml;
+  receiptHtml=function(t,reprint=false){
+    let html=baseReceiptHtmlUX(t,reprint);
+    const isOrderTicket=!!(t&&t.orderNumber)||orders.some(o=>String(o.ticketId)===String(t&&t.id));
+    if(!isOrderTicket)return html;
+    const o=orders.find(x=>String(x.ticketId)===String(t.id));
+    const oid=o?String(o.id):'';
+    const custom='<button class="primary" onclick="closeOrderReceiptToSale()">\u200bCERRAR</button> '+
+      '<button onclick="closeOrderReceiptToOrders(\''+oid+'\')">VOLVER A ENCARGOS</button>';
+    html=html.replace(/<button onclick="closeModal\(\);render\(\)">Cerrar y nueva venta<\/button>/,custom);
+    html=html.replace(/<button onclick="closeModal\(\);render\(\)">Cerrar<\/button>/,custom);
+    return html;
   };
-  window.wireOrderReceiptClose=wireOrderReceiptClose;
 })();
 // ===== FIN REVISION CIERRE TICKET ENCARGO =====
