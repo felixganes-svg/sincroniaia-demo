@@ -103,3 +103,36 @@ function dictatedTicketsModal(){
   };
 })();
 // ===== FIN REVISION UX ENCARGOS =====
+
+// ===== REVISION 11/09/2026 · CIERRE TICKET ENCARGO CON DOS DESTINOS =====
+(function(){
+  function closeOrderReceiptToSale(){
+    extraOrderSaleContext=null;
+    parkedOrderContext=null;
+    closeModal();
+    screen='venta';role='venta';area='Carne';subcat='';azScope=null;atRoot=true;
+    render();
+  }
+  window.closeOrderReceiptToSale=closeOrderReceiptToSale;
+
+  wireOrderReceiptClose=function(orderId){
+    setTimeout(()=>{
+      const box=document.getElementById('modalBox');
+      if(!box)return;
+      const buttons=[...box.querySelectorAll('button')];
+      const closeBtn=buttons.find(b=>/^cerrar/i.test((b.textContent||'').trim()));
+      if(!closeBtn)return;
+      closeBtn.textContent='CERRAR';
+      closeBtn.onclick=()=>closeOrderReceiptToSale();
+      let backBtn=[...box.querySelectorAll('button')].find(b=>(b.textContent||'').trim()==='VOLVER A ENCARGOS');
+      if(!backBtn){
+        backBtn=document.createElement('button');
+        backBtn.textContent='VOLVER A ENCARGOS';
+        backBtn.onclick=()=>closeOrderReceiptToOrders(orderId);
+        closeBtn.insertAdjacentElement('afterend',backBtn);
+      }
+    },0);
+  };
+  window.wireOrderReceiptClose=wireOrderReceiptClose;
+})();
+// ===== FIN REVISION CIERRE TICKET ENCARGO =====
