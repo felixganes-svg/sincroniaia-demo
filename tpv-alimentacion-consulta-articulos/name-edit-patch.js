@@ -3,7 +3,8 @@
     const p=products.find(x=>String(x.code)===String(code));if(!p)return;
     const area=normalizeArea(p.area),currentSub=subcats(p)[0]||sectionDefaultSubcat(area);
     const subOptions=availableSubcatsForArea(area).map(s=>'<option value="'+esc(s)+'" '+(s===currentSub?'selected':'')+'>'+esc(s)+'</option>').join('');
-    sheet.innerHTML='<div class="detailName">'+esc(p.name||'—')+'</div><div class="code">Código '+esc(p.code)+'</div><div class="formgrid" style="margin-top:16px"><div><label>Nombre</label><input id="quickName" type="text" value="'+esc(p.name||'')+'"></div><div><label>Precio</label><input id="quickPrice" type="number" step="0.01" inputmode="decimal" value="'+Number(p.price||0)+'"></div><div><label>Sección</label><select id="quickArea"><option value="Carne" '+(area==='Carne'?'selected':'')+'>Carnicería</option><option value="Charcutería" '+(area==='Charcutería'?'selected':'')+'>Charcutería</option><option value="Elaborados" '+(area==='Elaborados'?'selected':'')+'>Elaborados</option></select></div><div><label>Subsección</label><select id="quickSubcat">'+subOptions+'</select></div><div><label>Estado</label><select id="quickActive"><option value="true" '+(p.active!==false?'selected':'')+'>Activo</option><option value="false" '+(p.active===false?'selected':'')+'>Inactivo</option></select></div><button class="action" onclick="saveQuickEdit('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')">GUARDAR CAMBIOS</button></div><button class="close" onclick="closeDetail()">CANCELAR</button>';
+    const unit=String(p.unit||'kg').toLowerCase()==='ud'?'ud':'kg';
+    sheet.innerHTML='<div class="detailName">'+esc(p.name||'—')+'</div><div class="code">Código '+esc(p.code)+'</div><div class="formgrid" style="margin-top:16px"><div><label>Nombre</label><input id="quickName" type="text" value="'+esc(p.name||'')+'"></div><div><label>Precio</label><input id="quickPrice" type="number" step="0.01" inputmode="decimal" value="'+Number(p.price||0)+'"></div><div><label>Venta por</label><select id="quickUnit"><option value="kg" '+(unit==='kg'?'selected':'')+'>KG · por peso</option><option value="ud" '+(unit==='ud'?'selected':'')+'>UND · por unidad</option></select></div><div><label>Sección</label><select id="quickArea"><option value="Carne" '+(area==='Carne'?'selected':'')+'>Carnicería</option><option value="Charcutería" '+(area==='Charcutería'?'selected':'')+'>Charcutería</option><option value="Elaborados" '+(area==='Elaborados'?'selected':'')+'>Elaborados</option></select></div><div><label>Subsección</label><select id="quickSubcat">'+subOptions+'</select></div><div><label>Estado</label><select id="quickActive"><option value="true" '+(p.active!==false?'selected':'')+'>Activo</option><option value="false" '+(p.active===false?'selected':'')+'>Inactivo</option></select></div><button class="action" onclick="saveQuickEdit('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')">GUARDAR CAMBIOS</button></div><button class="close" onclick="closeDetail()">CANCELAR</button>';
     modal.classList.add('show');
     document.getElementById('quickArea').addEventListener('change',()=>{
       const opts=availableSubcatsForArea(document.getElementById('quickArea').value);
@@ -21,6 +22,7 @@
     const newSub=document.getElementById('quickSubcat').value||sectionDefaultSubcat(newArea);
     p.name=name;
     p.price=price;
+    p.unit=document.getElementById('quickUnit').value==='ud'?'ud':'kg';
     p.area=newArea;
     p.subcat=newSub;
     p.cat=newSub;
@@ -43,7 +45,8 @@
     const p=products.find(x=>String(x.code)===String(code));if(!p)return;
     const area=normalizeArea(p.area),currentSub=subcats(p)[0]||sectionDefaultSubcat(area);
     const subOptions=availableSubcatsForArea(area).map(s=>'<option value="'+esc(s)+'" '+(s===currentSub?'selected':'')+'>'+esc(s)+'</option>').join('');
-    sheet.innerHTML='<div class="detailName">'+esc(p.name||'—')+'</div><div class="code">Código '+esc(p.code)+'</div><div class="formgrid" style="margin-top:16px"><div><label>Nombre</label><input id="editName" type="text" value="'+esc(p.name||'')+'"></div><div><label>Sección</label><select id="editAreaSelect"><option value="Carne" '+(area==='Carne'?'selected':'')+'>Carnicería</option><option value="Charcutería" '+(area==='Charcutería'?'selected':'')+'>Charcutería</option><option value="Elaborados" '+(area==='Elaborados'?'selected':'')+'>Elaborados</option></select></div><div><label>Subsección</label><select id="editSubcatSelect">'+subOptions+'</select></div><button class="action" onclick="saveArticleSection('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')">GUARDAR CAMBIO</button></div><button class="close" onclick="closeDetail()">CANCELAR</button>';
+    const unit=String(p.unit||'kg').toLowerCase()==='ud'?'ud':'kg';
+    sheet.innerHTML='<div class="detailName">'+esc(p.name||'—')+'</div><div class="code">Código '+esc(p.code)+'</div><div class="formgrid" style="margin-top:16px"><div><label>Nombre</label><input id="editName" type="text" value="'+esc(p.name||'')+'"></div><div><label>Venta por</label><select id="editUnit"><option value="kg" '+(unit==='kg'?'selected':'')+'>KG · por peso</option><option value="ud" '+(unit==='ud'?'selected':'')+'>UND · por unidad</option></select></div><div><label>Sección</label><select id="editAreaSelect"><option value="Carne" '+(area==='Carne'?'selected':'')+'>Carnicería</option><option value="Charcutería" '+(area==='Charcutería'?'selected':'')+'>Charcutería</option><option value="Elaborados" '+(area==='Elaborados'?'selected':'')+'>Elaborados</option></select></div><div><label>Subsección</label><select id="editSubcatSelect">'+subOptions+'</select></div><button class="action" onclick="saveArticleSection('+JSON.stringify(String(p.code)).replace(/"/g,'&quot;')+')">GUARDAR CAMBIO</button></div><button class="close" onclick="closeDetail()">CANCELAR</button>';
     modal.classList.add('show');
     document.getElementById('editAreaSelect').addEventListener('change',()=>{
       const opts=availableSubcatsForArea(document.getElementById('editAreaSelect').value);
@@ -58,6 +61,7 @@
     const newArea=document.getElementById('editAreaSelect').value;
     const newSub=document.getElementById('editSubcatSelect').value||sectionDefaultSubcat(newArea);
     p.name=name;
+    p.unit=document.getElementById('editUnit').value==='ud'?'ud':'kg';
     p.area=newArea;
     p.subcat=newSub;
     p.cat=newSub;
