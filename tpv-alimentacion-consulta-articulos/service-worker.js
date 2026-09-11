@@ -1,4 +1,4 @@
-const CACHE='sincroniaia-consulta-v2';
+const CACHE='sincroniaia-consulta-v3';
 const ASSETS=['./','./index.html','./manifest.webmanifest','./icon-192.svg','./icon-512.svg','./name-edit-patch.js'];
 
 self.addEventListener('install',event=>{
@@ -23,7 +23,7 @@ self.addEventListener('fetch',event=>{
           const html=await response.text();
           const injected=html.includes('name-edit-patch.js')
             ? html
-            : html.replace('</body>','<script src="./name-edit-patch.js?v=2"></script></body>');
+            : html.replace('</body>','<script src="./name-edit-patch.js?v=3"></script></body>');
           return new Response(injected,{
             status:response.status,
             statusText:response.statusText,
