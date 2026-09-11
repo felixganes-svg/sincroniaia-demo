@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SINCRONIAIA · Investigación de Campo · LAB 6 bloques</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#071327;color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:860px;margin:auto;padding:16px}.hero{background:#132238;border:1px solid #2f4664;border-radius:20px;padding:22px}.hero b{color:#38bdf8;letter-spacing:.08em;font-size:12px}.hero h1{margin:8px 0;font-size:28px}.hero p{margin:0;color:#cbd5e1;line-height:1.5}.lab{margin:12px 0;padding:11px 13px;border:1px solid #f59e0b66;background:#78350f33;border-radius:12px;color:#fde68a;font-size:13px}.progress{height:8px;background:#1e293b;border-radius:999px;overflow:hidden;margin:18px 0}.progress span{display:block;height:100%;background:#0ea5e9;width:16.6%}.card{background:#111f34;border:1px solid #2f4664;border-radius:16px;padding:18px;margin:14px 0}.card h2{margin:0 0 6px;font-size:21px}.muted{color:#94a3b8;font-size:14px;line-height:1.45}.q{margin:16px 0}.q label{display:block;font-weight:800;margin-bottom:8px}.q input,.q select,.q textarea{width:100%;background:#08152a;color:#fff;border:1px solid #38506f;border-radius:10px;padding:12px;font-size:16px}.q textarea{min-height:92px;resize:vertical}.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}.checks label{font-weight:600;background:#0b172a;border:1px solid #334155;border-radius:10px;padding:10px}.actions{display:flex;gap:10px;flex-wrap:wrap}.actions button{flex:1 1 220px}.primary,.secondary{padding:13px 14px;border-radius:11px;font-weight:850;font-size:16px;cursor:pointer}.primary{background:#0ea5e9;color:#fff;border:0}.secondary{background:#18283e;color:#fff;border:1px solid #405774}.hidden{display:none}.pill{display:inline-block;background:#0b2a3f;border:1px solid #1e6c92;color:#7dd3fc;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;margin-bottom:10px}.review{display:grid;gap:10px}.review .item{background:#0b172a;border:1px solid #334155;border-radius:12px;padding:12px}.review .item b{display:block;margin-bottom:6px}.foot{font-size:12px;color:#94a3b8;padding:8px 2px 24px}@media(max-width:520px){.wrap{padding:10px}.hero h1{font-size:23px}.actions{display:grid}.actions button{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section class="hero">
+<b>SINCRONIAIA · LAB AISLADA</b>
+<h1>Investigación de Campo · 6 bloques</h1>
+<p>Demostración independiente para visualizar cómo quedaría el cuestionario actual organizado por bloques, con algunas preguntas nuevas de frecuencia, impacto y prioridad.</p>
+</section>
+<div class="lab"><strong>Esta demo NO modifica Investigación de Campo actual.</strong> No guarda datos, no envía respuestas y no está conectada a ningún backend. Sirve solo para comparar el flujo.</div>
+<div class="progress"><span id="bar"></span></div>
+<section class="card" id="block"></section>
+<div class="actions"><button class="secondary" id="prev">← Anterior</button><button class="primary" id="next">Siguiente →</button></div>
+<div class="foot">LAB v1 · Investigación de Campo agrupada. No es producción.</div>
+</div>
+<script>
+const blocks=[
+{title:'Bloque 1 de 6 · Conocer el negocio',desc:'Entender contexto, tamaño, función del propietario y cómo entra el trabajo.',qs:[
+['text','¿Cuánto tiempo lleva funcionando el negocio?'],
+['textarea','Cuénteme cómo es un día normal en su negocio.'],
+['text','¿Cuántas personas trabajan actualmente?'],
+['textarea','¿Cuál es su papel dentro del negocio?'],
+['textarea','¿Cómo llegan actualmente nuevos clientes a su negocio?']
+]},
+{title:'Bloque 2 de 6 · Dependencia del propietario',desc:'Detectar qué partes del negocio dependen demasiado de una sola persona.',qs:[
+['textarea','¿Qué tareas dependen exclusivamente de usted?'],
+['textarea','Si usted no viniera mañana, ¿qué cosas quedarían pendientes o podrían bloquearse?'],
+['textarea','¿Hay información o conocimientos importantes que solo usted o una persona concreta domina?'],
+['textarea','¿Qué ocurre en el negocio cuando usted se ausenta?']
+]},
+{title:'Bloque 3 de 6 · Tiempo y tareas repetitivas',desc:'Descubrir trabajo manual, duplicaciones y tareas que consumen tiempo.',qs:[
+['textarea','Si pudiera eliminar una tarea de su día a día, ¿cuál sería?'],
+['textarea','¿Qué tareas suele ir dejando para más adelante por falta de tiempo?'],
+['textarea','¿Qué es lo que más le frustra o le hace perder tiempo actualmente?'],
+['select','¿Hay información que tenga que escribir, copiar o introducir más de una vez?',['No','A veces','Sí, semanalmente','Sí, casi a diario','Sí, varias veces al día']],
+['textarea','¿Qué tareas repite casi todos los días y le gustaría simplificar?']
+]},
+{title:'Bloque 4 de 6 · Pedidos, clientes y errores',desc:'Entender cómo se gestionan pendientes y dónde aparecen fallos.',qs:[
+['textarea','¿Cómo gestionan avisos, encargos, reservas, citas o trabajos pendientes?'],
+['textarea','¿Qué errores u olvidos se repiten con más frecuencia?'],
+['select','Cuando aparece un problema, ¿con qué frecuencia suele ocurrir?',['Casi nunca','Mensualmente','Semanalmente','Varios días por semana','Todos los días']],
+['checks','¿Qué consecuencia tiene normalmente?',['Pérdida de tiempo','Error interno','Cliente molesto','Pérdida de venta','Dinero perdido','Estrés o interrupciones']]
+]},
+{title:'Bloque 5 de 6 · Trabajo fuera de horario',desc:'Medir cuánto invade el negocio el tiempo personal.',qs:[
+['select','¿Recibe consultas, mensajes o solicitudes fuera del horario de trabajo?',['Nunca','Alguna vez','Varias veces por semana','Casi todos los días','Todos los días']],
+['select','¿Sigue haciendo tareas del negocio cuando llega a casa?',['No','Algún día','Varias veces por semana','Casi todos los días','Todos los días']],
+['text','¿Cuántos días trabaja normalmente a la semana?'],
+['text','¿Cuántas horas dedica aproximadamente al negocio?'],
+['textarea','¿Cuánto tiempo libre real tiene durante la semana?'],
+['textarea','Si recuperara dos horas a la semana, ¿en qué le gustaría utilizarlas?']
+]},
+{title:'Bloque 6 de 6 · Prioridad y futuro',desc:'Saber qué problema merece resolverse primero.',qs:[
+['textarea','¿Qué le gustaría que hubiera cambiado en su negocio dentro de un año?'],
+['textarea','Si mañana pudiera solucionar un solo problema del negocio, ¿cuál elegiría?'],
+['select','¿Cómo considera de urgente ese problema?',['Bajo','Medio','Alto','Muy alto','Crítico']],
+['textarea','¿Hay algo importante que no le haya preguntado y crea que debería saber sobre su negocio?']
+]}
+];
+let i=0; const answers={};
+const block=document.getElementById('block'),bar=document.getElementById('bar'),prev=document.getElementById('prev'),next=document.getElementById('next');
+function key(b,q){return `b${b}q${q}`}
+function render(){
+ const b=blocks[i]; bar.style.width=((i+1)/blocks.length*100)+'%';
+ block.innerHTML=`<span class="pill">${b.title}</span><h2>${b.title.replace(/^Bloque \d de 6 · /,'')}</h2><p class="muted">${b.desc}</p>`+b.qs.map((q,idx)=>renderQ(q,idx)).join('');
+ prev.disabled=i===0; next.textContent=i===blocks.length-1?'Ver resumen':'Siguiente →';
+ restore(); window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderQ(q,idx){const [type,label,opts]=q; const id=key(i,idx); if(type==='textarea')return `<div class="q"><label>${label}</label><textarea id="${id}"></textarea></div>`; if(type==='select')return `<div class="q"><label>${label}</label><select id="${id}"><option value="">Seleccione…</option>${opts.map(o=>`<option>${o}</option>`).join('')}</select></div>`; if(type==='checks')return `<div class="q"><label>${label}</label><div class="checks">${opts.map((o,n)=>`<label><input type="checkbox" data-id="${id}" value="${o}"> ${o}</label>`).join('')}</div></div>`; return `<div class="q"><label>${label}</label><input id="${id}"></div>`}
+function save(){blocks[i].qs.forEach((q,idx)=>{const id=key(i,idx); if(q[0]==='checks'){answers[id]=[...document.querySelectorAll(`input[data-id="${id}"]:checked`)].map(x=>x.value)}else{const el=document.getElementById(id); answers[id]=el?el.value:''}})}
+function restore(){blocks[i].qs.forEach((q,idx)=>{const id=key(i,idx); if(q[0]==='checks'){(answers[id]||[]).forEach(v=>{const el=[...document.querySelectorAll(`input[data-id="${id}"]`)].find(x=>x.value===v); if(el)el.checked=true})}else{const el=document.getElementById(id); if(el&&answers[id]!=null)el.value=answers[id]}})}
+function summary(){save(); const rows=[]; blocks.forEach((b,bi)=>b.qs.forEach((q,qi)=>{const v=answers[key(bi,qi)]; if((Array.isArray(v)&&v.length)||(!Array.isArray(v)&&String(v||'').trim())) rows.push(`<div class="item"><b>${q[1]}</b><div>${Array.isArray(v)?v.join(', '):v}</div></div>`)})); block.innerHTML=`<span class="pill">Resumen LAB</span><h2>Así se vería la revisión final</h2><p class="muted">Esta pantalla solo sirve para visualizar el flujo. No guarda ni envía nada.</p><div class="review">${rows.join('')||'<div class="item">No hay respuestas todavía.</div>'}</div>`; next.classList.add('hidden'); prev.textContent='← Volver al bloque 6'; bar.style.width='100%';}
+prev.onclick=()=>{if(next.classList.contains('hidden')){next.classList.remove('hidden');prev.textContent='← Anterior';render();return} save(); if(i>0){i--;render()}}
+next.onclick=()=>{save(); if(i<blocks.length-1){i++;render()} else summary()};
+render();
+</script>
+</body>
+</html>
