@@ -2649,6 +2649,15 @@ directSaleModal=function(section){
 
 
 // ===== REVISION 09/09/2026 · CIERRE TICKET ENCARGO VUELVE A ENCARGOS =====
+function closeOrderReceiptToSale(){
+  extraOrderSaleContext=null;
+  parkedOrderContext=null;
+  closeModal();
+  screen='venta';role='venta';area='Carne';subcat='';azScope=null;atRoot=true;
+  render();
+}
+window.closeOrderReceiptToSale=closeOrderReceiptToSale;
+
 function closeOrderReceiptToOrders(orderId){
   extraOrderSaleContext=null;
   parkedOrderContext=null;
@@ -2666,8 +2675,17 @@ function wireOrderReceiptClose(orderId){
     let buttons=[...box.querySelectorAll('button')];
     let closeBtn=buttons.find(b=>/^cerrar/i.test((b.textContent||'').trim()));
     if(!closeBtn)return;
-    closeBtn.textContent='CERRAR · VOLVER A ENCARGOS';
-    closeBtn.onclick=()=>closeOrderReceiptToOrders(orderId);
+    closeBtn.textContent='CERRAR';
+    closeBtn.onclick=()=>closeOrderReceiptToSale();
+
+    let backBtn=buttons.find(b=>(b.textContent||'').trim()==='VOLVER A ENCARGOS');
+    if(!backBtn){
+      backBtn=document.createElement('button');
+      backBtn.textContent='VOLVER A ENCARGOS';
+      backBtn.onclick=()=>closeOrderReceiptToOrders(orderId);
+      closeBtn.insertAdjacentText('afterend',' ');
+      closeBtn.insertAdjacentElement('afterend',backBtn);
+    }
   },0);
 }
 
