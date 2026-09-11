@@ -61,3 +61,45 @@ function dictatedTicketsModal(){
     ${last.errors.length?'<p class="warn"><b>Hay tickets bloqueados por datos incompletos o descuadre.</b></p>':''}
     <p><button onclick="closeModal()">Cerrar</button></p>`)
 }
+
+// ===== REVISION 11/09/2026 · UX ENCARGOS =====
+(function(){
+  const renderVentaBeforeOrderUx=renderVenta;
+  renderVenta=function(app,bar){
+    renderVentaBeforeOrderUx(app,bar);
+    const title=app?.querySelector('.saleTop strong')?.textContent||'';
+    if(title.includes('TICKET APARCADO')||title.includes('BANDEJA APARCADA')){
+      const topPark=[...app.querySelectorAll('.saleTop button')].find(b=>(b.textContent||'').trim()==='APARCAR');
+      if(topPark)topPark.remove();
+      const bottomPark=[...bar.querySelectorAll('button')].find(b=>(b.textContent||'').trim()==='APARCAR TICKET');
+      if(bottomPark)bottomPark.textContent='APARCAR ENCARGO';
+    }
+  };
+
+  const openOrderBeforeOrderUx=openOrder;
+  openOrder=function(id){
+    openOrderBeforeOrderUx(id);
+    const o=orders.find(x=>String(x.id)===String(id));
+    if(!o||!o.ticketId)return;
+    const t=tickets.find(x=>String(x.id)===String(o.ticketId));
+    if(!t)return;
+    const prepared=round(orderPreparedTotal(o));
+    const extra=round((t.items||[]).filter(l=>l&&l.orderExtra).reduce((s,l)=>s+Number(l.total||0),0));
+    if(extra<=0)return;
+    const box=document.getElementById('modalBox');
+    if(!box)return;
+    const venta=[...box.querySelectorAll('.panel')].find(p=>p.querySelector('h3')?.textContent.trim()==='Venta generada');
+    if(!venta)return;
+    const total=round(Number(t.total)||0);
+    const summary=document.createElement('div');
+    summary.className='panel';
+    summary.innerHTML='<h3>Resumen del cobro</h3>'+
+      '<div class="totals">'+
+        '<div><span>Encargo preparado</span><b>'+euro(prepared)+'</b></div>'+
+        '<div><span>Compra adicional</span><b>'+euro(extra)+'</b></div>'+
+        '<div class="final"><span>'+(t.paymentStatus==='Pendiente'?'TOTAL A COBRAR':'TOTAL TICKET')+'</span><b>'+euro(total)+'</b></div>'+
+      '</div>';
+    venta.parentNode.insertBefore(summary,venta);
+  };
+})();
+// ===== FIN REVISION UX ENCARGOS =====
