@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SINCRONIAIA · LAB Dolor de Negocio v1</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#071327;color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:860px;margin:auto;padding:16px}.hero{background:#132238;border:1px solid #2f4664;border-radius:20px;padding:22px}.hero b{color:#38bdf8;letter-spacing:.08em;font-size:12px}.hero h1{margin:8px 0 8px;font-size:28px}.hero p{margin:0;color:#cbd5e1;line-height:1.5}.lab{margin:12px 0;padding:11px 13px;border:1px solid #f59e0b66;background:#78350f33;border-radius:12px;color:#fde68a;font-size:13px}.card{background:#111f34;border:1px solid #2f4664;border-radius:16px;padding:18px;margin:14px 0}.card h2{margin:0 0 12px;font-size:19px}.q{margin:16px 0}.q label{display:block;font-weight:800;margin-bottom:8px}.q small{display:block;color:#94a3b8;margin:5px 0 8px}.q input,.q select,.q textarea{width:100%;background:#08152a;color:#fff;border:1px solid #38506f;border-radius:10px;padding:12px;font-size:16px}.q textarea{min-height:90px;resize:vertical}.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}.checks label{font-weight:600;background:#0b172a;border:1px solid #334155;border-radius:10px;padding:10px}.primary,.secondary{width:100%;padding:13px 14px;border-radius:11px;font-weight:850;font-size:16px;cursor:pointer}.primary{background:#0ea5e9;color:#fff;border:0}.secondary{margin-top:8px;background:#18283e;color:#fff;border:1px solid #405774}.hidden{display:none}.result{display:grid;gap:10px}.pain{border:1px solid #334155;border-radius:12px;padding:12px;background:#0b172a}.pain strong{display:block;margin-bottom:5px}.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900;background:#1d4ed8;color:white;margin-right:6px}.score{background:#dcfce7;color:#166534}.warn{background:#fef3c7;color:#92400e}.danger{background:#fee2e2;color:#991b1b}.foot{font-size:12px;color:#94a3b8;padding:8px 2px 24px}@media(max-width:520px){.wrap{padding:10px}.hero h1{font-size:23px}}
+</style>
+</head>
+<body><div class="wrap">
+<section class="hero"><b>SINCRONIAIA · LAB AISLADA</b><h1>Mapa de Dolor del Negocio</h1><p>Prueba independiente para detectar qué problemas consumen más tiempo, provocan más errores o dependen demasiado del propietario.</p></section>
+<div class="lab"><strong>No toca Investigación de Campo actual.</strong> Esta LAB no envía datos a ningún backend ni modifica otras demos. Todo se calcula en este navegador.</div>
+<section class="card" id="formCard">
+<h2>1 · Datos mínimos</h2>
+<div class="q"><label>Nombre del negocio</label><input id="business" placeholder="Ej. Carnicería López"></div>
+<div class="q"><label>Sector</label><select id="sector"><option value="">Seleccionar…</option><option>Alimentación</option><option>Hostelería</option><option>Comercio</option><option>Belleza y estética</option><option>Salud</option><option>Bienestar animal</option><option>Reformas / servicios</option><option>Otros</option></select></div>
+<h2>2 · Cómo entra el trabajo</h2>
+<div class="q"><label>¿Por dónde entran pedidos, citas o solicitudes?</label><div class="checks"><label><input type="checkbox" name="entrada" value="WhatsApp"> WhatsApp</label><label><input type="checkbox" name="entrada" value="Teléfono"> Teléfono</label><label><input type="checkbox" name="entrada" value="Presencial"> Presencial</label><label><input type="checkbox" name="entrada" value="Instagram"> Instagram</label><label><input type="checkbox" name="entrada" value="Email"> Email</label><label><input type="checkbox" name="entrada" value="Web"> Web</label></div></div>
+<div class="q"><label>¿Dónde queda apuntada esa información?</label><textarea id="where" placeholder="Ej. WhatsApp, libreta, papel, TPV, Excel..."></textarea></div>
+<h2>3 · Dolor operativo</h2>
+<div class="q"><label>¿Copiáis la misma información más de una vez?</label><select id="duplicate"><option value="0">No</option><option value="1">A veces</option><option value="2">Sí, semanalmente</option><option value="3">Sí, casi a diario</option><option value="4">Sí, varias veces al día</option></select></div>
+<div class="q"><label>¿Cuánto dependéis de que el propietario recuerde cosas importantes?</label><select id="memory"><option value="0">Muy poco</option><option value="1">Algo</option><option value="2">Bastante</option><option value="3">Mucho</option><option value="4">Demasiado</option></select></div>
+<div class="q"><label>¿Cuántas interrupciones repetitivas recibís al día?</label><select id="interrupt"><option value="0">Casi ninguna</option><option value="1">1–3</option><option value="2">4–10</option><option value="3">11–20</option><option value="4">Más de 20</option></select></div>
+<div class="q"><label>¿Con qué frecuencia hay errores u olvidos?</label><select id="errors"><option value="0">Casi nunca</option><option value="1">Mensualmente</option><option value="2">Semanalmente</option><option value="3">Varias veces por semana</option><option value="4">A diario</option></select></div>
+<div class="q"><label>¿Trabajáis fuera de horario para responder mensajes, revisar cosas o terminar gestión?</label><select id="after"><option value="0">No</option><option value="1">Algún día</option><option value="2">Varias veces por semana</option><option value="3">Casi todos los días</option><option value="4">Todos los días y bastante tiempo</option></select></div>
+<div class="q"><label>Antes de cerrar, ¿qué necesitas comprobar para irte tranquilo?</label><textarea id="closing" placeholder="Ej. caja, ventas, pedidos de mañana, fichajes, cobros..."></textarea></div>
+<div class="q"><label>Si mañana pudiéramos eliminar un solo problema, ¿cuál elegirías?</label><textarea id="priority" placeholder="Escribe el problema nº 1"></textarea></div>
+<button class="primary" id="calc">Generar mapa de dolor</button>
+</section>
+<section class="card hidden" id="resultCard"><h2>Resultado de la LAB</h2><div id="summary"></div><div class="result" id="result"></div><button class="secondary" id="back">← Volver y modificar</button></section>
+<div class="foot">LAB v1 · Investigación de dolor. No es producción, no guarda datos y no sustituye a Investigación de Campo.</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+function level(v){v=+v; if(v>=4)return ['CRÍTICO','danger']; if(v>=3)return ['ALTO','warn']; if(v>=2)return ['MEDIO','']; return ['BAJO','score'];}
+function addPain(title,score,why,solution){const [lab,cls]=level(score); const d=document.createElement('div'); d.className='pain'; d.innerHTML=`<strong>${title}</strong><span class="badge ${cls}">${lab}</span><span class="badge">${score}/4</span><div style="margin-top:8px;color:#cbd5e1">${why}</div><div style="margin-top:7px"><b>Posible respuesta SINCRONIAIA:</b> ${solution}</div>`; $('result').appendChild(d)}
+$('calc').onclick=()=>{
+ $('result').innerHTML='';
+ const vals={duplicate:+$('duplicate').value,memory:+$('memory').value,interrupt:+$('interrupt').value,errors:+$('errors').value,after:+$('after').value};
+ const total=Object.values(vals).reduce((a,b)=>a+b,0);
+ const name=$('business').value.trim()||'Negocio analizado';
+ const entries=[...document.querySelectorAll('input[name="entrada"]:checked')].map(x=>x.value);
+ $('summary').innerHTML=`<div class="pain"><strong>${name}</strong><div>Sector: ${$('sector').value||'No indicado'}</div><div>Canales de entrada: ${entries.join(', ')||'No indicados'}</div><div style="margin-top:8px"><b>Índice global de fricción:</b> ${total}/20</div><div style="margin-top:8px"><b>Prioridad declarada:</b> ${$('priority').value.trim()||'No indicada'}</div></div>`;
+ addPain('Información duplicada',vals.duplicate,'Cuanto más se copia la misma información, más tiempo se pierde y más probable es que aparezcan errores.','Automatización / Encargos / integración de datos');
+ addPain('Dependencia del propietario',vals.memory,'Si demasiadas cosas dependen de una sola persona, el negocio se vuelve frágil y difícil de delegar.','SINCRONIAIA HOY + procesos + datos centralizados');
+ addPain('Interrupciones repetitivas',vals.interrupt,'Las preguntas repetidas rompen el trabajo y consumen atención aunque cada una parezca pequeña.','Consulta rápida / autoservicio / asistente con datos propios');
+ addPain('Errores y olvidos',vals.errors,'Los errores frecuentes indican falta de sistema, estados claros o recordatorios.','Encargos / estados / alertas / trazabilidad');
+ addPain('Trabajo fuera de horario',vals.after,'El negocio sigue ocupando tiempo personal porque no absorbe solo las tareas repetitivas.','Atención 24/7 + automatización + avisos por excepción');
+ const extra=document.createElement('div'); extra.className='pain'; extra.innerHTML=`<strong>Qué necesita ver al cerrar</strong><div>${$('closing').value.trim()||'No indicado'}</div><div style="margin-top:7px"><b>Uso:</b> esta respuesta ayuda a diseñar el panel “SINCRONIAIA HOY”.</div>`; $('result').appendChild(extra);
+ $('formCard').classList.add('hidden'); $('resultCard').classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'});
+};
+$('back').onclick=()=>{$('resultCard').classList.add('hidden');$('formCard').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})};
+</script>
+</body></html>
