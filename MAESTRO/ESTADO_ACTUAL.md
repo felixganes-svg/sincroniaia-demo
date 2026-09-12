@@ -60,21 +60,27 @@ Estado validado hasta 12/09/2026:
 - petición y respuesta trazadas por SHA-256 sin almacenar secretos del certificado;
 - respuesta AEAT simulada `Correcto/Correcto` validada como `PENDIENTE_ENVIO -> ENVIADO -> ACEPTADO` sin modificar la huella fiscal;
 - evidencia backend 1.9: workflow `verifactu backend 1.9`, run `34720139172`, job `backend-tests`, resultado `success`, `5 passed`;
-- ninguna prueba 1.9 realizó una remisión real a AEAT;
+- backend LAB 2.0: timeout/ausencia de respuesta modelado como `PENDIENTE_ENVIO -> ENVIADO -> REINTENTO_PENDIENTE`;
+- ante no respuesta se conserva la huella fiscal y se registra evento técnico append-only `NO_RESPONSE_RETRY_PENDING`;
+- espera conservadora de LAB de 60 segundos registrada con `eligibleAt`; reintento anticipado bloqueado con `RETRY_WAIT_ACTIVE`;
+- `TiempoEsperaEnvio` de respuesta AEAT se parsea y queda disponible para control de flujo futuro;
+- evidencia backend 2.0: workflow `verifactu backend 2.0`, run `34720359399`, job `backend-tests`, resultado `success`, `6 passed`;
+- ninguna prueba 1.9/2.0 realizó una remisión real a AEAT;
 - la SQLite probada en GitHub Actions es temporal y NO equivale todavía a conservación fiscal robusta desplegada;
 - no hay autenticación real con certificado ante AEAT;
 - no hay respuesta real procedente de AEAT;
-- no hay política final de reintentos temporizados para ausencia de respuesta;
+- no hay scheduler persistente de reintentos automáticos;
+- no está implementada todavía la marca `Incidencia` en cabecera para reenvíos por caída/incidencia;
 - no hay despliegue persistente de backend fiscal;
 - no hay declaración responsable ni conformidad global demostrada.
 
 ## Próximo bloque técnico
 
 Siguiente objetivo autorizado en la copia aislada:
-1. preparar una prueba controlada de autenticación/conectividad con el entorno AEAT de preproducción, sin activar producción;
-2. separar certificado/clave de código y repositorio y comprobar su carga segura;
-3. definir comportamiento ante timeout o ausencia de respuesta, manteniendo trazabilidad y reintento seguro;
-4. validar respuestas reales de preproducción cuando exista certificado de prueba/autorizado;
+1. modelar reenvíos periódicos automáticos/persistentes sin duplicar ni alterar el registro fiscal;
+2. incorporar la marca `Incidencia` en la cabecera de remisión cuando proceda según especificación oficial;
+3. separar certificado/clave de código y repositorio y comprobar su carga segura en un entorno persistente;
+4. validar autenticación y respuestas reales de preproducción cuando exista certificado válido/autorizado;
 5. rectificación/anulación conforme a estructura oficial antes de integración con TPV.
 
 Principio: no promocionar ni declarar VERI*FACTU operativo sin evidencia completa y sellado.
