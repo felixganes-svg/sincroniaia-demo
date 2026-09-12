@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SINCRONIAIA · Control Horario · LAB Comercial</title>
+<style>
+:root{--bg:#f5f7fa;--card:#fff;--text:#16202a;--muted:#667085;--line:#e4e7ec;--dark:#101828;--green:#087443;--green2:#12b76a;--soft:#ecfdf3;--accent:#eef2ff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
+.wrap{max-width:940px;margin:auto;padding:12px 12px 72px}.lab{font-size:11px;font-weight:900;letter-spacing:.08em;color:#7f1d1d;background:#fef2f2;border:1px solid #fecaca;padding:8px 11px;border-radius:999px;display:inline-block;margin:4px 0 10px}
+.hero{background:var(--dark);color:#fff;border-radius:26px;padding:28px 22px}.brand{font-size:12px;font-weight:950;letter-spacing:.09em;opacity:.72}.hero h1{font-size:34px;line-height:1.05;margin:12px 0 12px;max-width:720px}.hero p{font-size:17px;line-height:1.55;opacity:.88;max-width:720px;margin:0 0 18px}.actions{display:flex;gap:9px;flex-wrap:wrap}.btn{display:inline-block;text-decoration:none;font-weight:950;border-radius:14px;padding:13px 17px}.btn.white{background:#fff;color:var(--dark)}.btn.ghost{border:1px solid #475467;color:#fff}.btn.green{background:var(--green);color:#fff}.full{display:block;text-align:center;width:100%}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:19px;margin:12px 0}.card h2{font-size:22px;margin:0 0 7px}.card>p{color:var(--muted);line-height:1.5;margin:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.tile{border:1px solid var(--line);border-radius:15px;padding:15px;background:#fff}.tile b{display:block;margin-bottom:6px}.tile span{font-size:13px;line-height:1.45;color:var(--muted)}
+.problem{font-size:18px;font-weight:850;margin-top:14px;padding:16px;border-radius:16px;background:#fff7ed;border:1px solid #fed7aa}.solution{background:var(--soft);border:1px solid #abefc6;border-radius:16px;padding:16px;margin-top:12px}.solution b{font-size:18px;color:#067647}.solution span{display:block;color:#475467;margin-top:5px;line-height:1.45}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}.step{border:1px solid var(--line);border-radius:15px;padding:13px}.num{width:27px;height:27px;border-radius:50%;display:grid;place-items:center;background:var(--dark);color:#fff;font-weight:950;margin-bottom:8px}.step b{font-size:14px}.step span{display:block;color:var(--muted);font-size:12px;margin-top:4px;line-height:1.4}
+.price{background:var(--dark);color:#fff;border-radius:22px;padding:22px;margin:13px 0}.price .eyebrow{font-size:12px;font-weight:900;letter-spacing:.08em;opacity:.7}.price .amount{font-size:48px;font-weight:1000;line-height:1;margin:10px 0 6px}.price .amount small{font-size:19px}.price p{opacity:.82;line-height:1.5;margin:6px 0}.save{display:inline-block;background:#d1fadf;color:#05603a;font-weight:900;padding:7px 10px;border-radius:999px;margin:8px 0 14px}.inc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.inc div{padding:9px 0;border-bottom:1px solid #344054;font-size:14px}.note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:13px}
+@media(max-width:720px){.hero h1{font-size:28px}.grid{grid-template-columns:1fr}.flow{grid-template-columns:1fr 1fr}.inc{grid-template-columns:1fr}.price .amount{font-size:42px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="lab">LAB COMERCIAL AISLADA · NO PRODUCCIÓN</div>
+  <section class="hero">
+    <div class="brand">SINCRONIAIA · CONTROL HORARIO</div>
+    <h1>Controla las horas de tu equipo sin papeles ni cuentas a mano.</h1>
+    <p>El trabajador ficha desde móvil o tablet. La empresa consulta entradas, salidas, horas e incidencias desde una vista sencilla.</p>
+    <div class="actions">
+      <a class="btn white" href="demo.html">PROBAR DEMO</a>
+      <a class="btn ghost" href="#precio">VER PRECIO</a>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>¿Te pasa esto?</h2>
+    <div class="problem">Papeles, mensajes de WhatsApp, olvidos de fichaje o tener que sumar horas al final de mes.</div>
+    <div class="solution"><b>La idea es muy simple.</b><span>Cada trabajador ficha su entrada y salida. Tú ves el registro ordenado desde la empresa.</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Lo pruebas tú mismo</h2>
+    <p>No hace falta una presentación técnica. Entra y comprueba el recorrido completo.</p>
+    <div class="flow">
+      <div class="step"><div class="num">1</div><b>Empresa demo</b><span>Crea un negocio ficticio.</span></div>
+      <div class="step"><div class="num">2</div><b>Trabajador</b><span>Añade un empleado de prueba.</span></div>
+      <div class="step"><div class="num">3</div><b>Ficha</b><span>Haz una entrada y una salida.</span></div>
+      <div class="step"><div class="num">4</div><b>Comprueba</b><span>Entra como empresa y mira el resultado.</span></div>
+    </div>
+    <div style="margin-top:14px"><a class="btn green full" href="demo.html">EMPEZAR PRUEBA</a></div>
+  </section>
+
+  <section class="card">
+    <h2>Qué incluye el plan básico</h2>
+    <div class="grid">
+      <div class="tile"><b>Entrada y salida</b><span>Fichaje desde móvil o tablet con varios tramos de jornada.</span></div>
+      <div class="tile"><b>Vista de empresa</b><span>Consulta de trabajadores, estado y horas registradas.</span></div>
+      <div class="tile"><b>Incidencias</b><span>Registros que requieren revisión quedan identificados.</span></div>
+      <div class="tile"><b>Histórico</b><span>Consulta de los registros conservados en el sistema contratado.</span></div>
+      <div class="tile"><b>Hasta 5 trabajadores</b><span>Una propuesta pensada para pequeños negocios.</span></div>
+      <div class="tile"><b>Puesta en marcha</b><span>Configuración inicial guiada para empezar sin tener que montarlo tú.</span></div>
+    </div>
+  </section>
+
+  <section id="precio" class="price">
+    <div class="eyebrow">PLAN BÁSICO · HASTA 5 TRABAJADORES</div>
+    <div class="amount">249 € <small>/ año</small></div>
+    <p>También disponible por <b>25 €/mes</b>.</p>
+    <div class="save">Con el anual ahorras 51 €</div>
+    <div class="inc">
+      <div>✓ Configuración inicial guiada</div>
+      <div>✓ Acceso empresa y trabajadores</div>
+      <div>✓ Fichaje desde móvil o tablet</div>
+      <div>✓ Consulta de horas e incidencias</div>
+    </div>
+    <a class="btn white full" href="demo.html">PROBAR ANTES DE DECIDIR</a>
+  </section>
+
+  <section class="card">
+    <h2>No te entregamos una app y te apañas.</h2>
+    <p>La propuesta de SINCRONIAIA es dejar el sistema preparado y acompañar la puesta en marcha para que el negocio pueda empezar a utilizarlo de forma sencilla.</p>
+  </section>
+
+  <div class="note">Entorno comercial de demostración. Utiliza datos ficticios. Esta LAB no sustituye a ninguna versión estable ni constituye por sí sola una afirmación de cumplimiento normativo integral.</div>
+</div>
+</body>
+</html>
