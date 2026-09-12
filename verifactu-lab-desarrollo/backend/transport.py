@@ -41,14 +41,7 @@ class TransportConfig:
         key_raw = os.getenv("VERIFACTU_AEAT_KEY_FILE", "").strip()
         timeout = float(os.getenv("VERIFACTU_AEAT_TIMEOUT", "15"))
         retry_wait = max(0, int(os.getenv("VERIFACTU_AEAT_RETRY_WAIT_SECONDS", "60")))
-        return cls(
-            enabled=enabled,
-            endpoint=endpoint,
-            cert_file=Path(cert_raw) if cert_raw else None,
-            key_file=Path(key_raw) if key_raw else None,
-            timeout_seconds=timeout,
-            retry_wait_seconds=retry_wait,
-        )
+        return cls(enabled, endpoint, Path(cert_raw) if cert_raw else None, Path(key_raw) if key_raw else None, timeout, retry_wait)
 
     def readiness(self) -> tuple[bool, str]:
         if not self.enabled:
@@ -74,17 +67,10 @@ def body_sha256(text: str) -> str:
 
 
 def esc(value: object) -> str:
-    return (
-        str(value)
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;")
-        .replace("'", "&apos;")
-    )
+    return str(value).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;").replace("'", "&apos;")
 
 
-def build_soap(record: dict, previous: Optional[dict] = None) -> str:
+def build_soap(record: dict, previous: Optional[dict] = None, incidencia: bool = False) -> str:
     if previous:
         enc = f"""<sum1:Encadenamiento>
             <sum1:RegistroAnterior>
@@ -95,65 +81,32 @@ def build_soap(record: dict, previous: Optional[dict] = None) -> str:
             </sum1:RegistroAnterior>
           </sum1:Encadenamiento>"""
     else:
-        enc = """<sum1:Encadenamiento>
-            <sum1:PrimerRegistro>S</sum1:PrimerRegistro>
-          </sum1:Encadenamiento>"""
-
+        enc = """<sum1:Encadenamiento><sum1:PrimerRegistro>S</sum1:PrimerRegistro></sum1:Encadenamiento>"""
+    incidencia_xml = "<sum1:Incidencia>S</sum1:Incidencia>" if incidencia else ""
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="{NS_SOAP}" xmlns:sum="{NS_LR}" xmlns:sum1="{NS_INFO}">
   <soapenv:Header/>
   <soapenv:Body>
     <sum:RegFactuSistemaFacturacion>
       <sum:Cabecera>
-        <sum1:ObligadoEmision>
-          <sum1:NombreRazon>EMPRESA DEMO SINCRONIAIA</sum1:NombreRazon>
-          <sum1:NIF>{esc(record['emisor'])}</sum1:NIF>
-        </sum1:ObligadoEmision>
+        <sum1:ObligadoEmision><sum1:NombreRazon>EMPRESA DEMO SINCRONIAIA</sum1:NombreRazon><sum1:NIF>{esc(record['emisor'])}</sum1:NIF></sum1:ObligadoEmision>
+        {incidencia_xml}
       </sum:Cabecera>
       <sum:RegistroFactura>
         <sum1:RegistroAlta>
           <sum1:IDVersion>1.0</sum1:IDVersion>
-          <sum1:IDFactura>
-            <sum1:IDEmisorFactura>{esc(record['emisor'])}</sum1:IDEmisorFactura>
-            <sum1:NumSerieFactura>{esc(record['numero'])}</sum1:NumSerieFactura>
-            <sum1:FechaExpedicionFactura>{esc(record['fecha'])}</sum1:FechaExpedicionFactura>
-          </sum1:IDFactura>
+          <sum1:IDFactura><sum1:IDEmisorFactura>{esc(record['emisor'])}</sum1:IDEmisorFactura><sum1:NumSerieFactura>{esc(record['numero'])}</sum1:NumSerieFactura><sum1:FechaExpedicionFactura>{esc(record['fecha'])}</sum1:FechaExpedicionFactura></sum1:IDFactura>
           <sum1:NombreRazonEmisor>EMPRESA DEMO SINCRONIAIA</sum1:NombreRazonEmisor>
           <sum1:TipoFactura>{esc(record['tipo'])}</sum1:TipoFactura>
           <sum1:DescripcionOperacion>Venta minorista alimentación · DEMO</sum1:DescripcionOperacion>
           <sum1:Desglose>
-            <sum1:DetalleDesglose>
-              <sum1:ClaveRegimen>01</sum1:ClaveRegimen>
-              <sum1:CalificacionOperacion>S1</sum1:CalificacionOperacion>
-              <sum1:TipoImpositivo>10</sum1:TipoImpositivo>
-              <sum1:BaseImponibleOimporteNoSujeto>15.41</sum1:BaseImponibleOimporteNoSujeto>
-              <sum1:CuotaRepercutida>1.54</sum1:CuotaRepercutida>
-            </sum1:DetalleDesglose>
-            <sum1:DetalleDesglose>
-              <sum1:ClaveRegimen>01</sum1:ClaveRegimen>
-              <sum1:CalificacionOperacion>S1</sum1:CalificacionOperacion>
-              <sum1:TipoImpositivo>4</sum1:TipoImpositivo>
-              <sum1:BaseImponibleOimporteNoSujeto>5.29</sum1:BaseImponibleOimporteNoSujeto>
-              <sum1:CuotaRepercutida>0.21</sum1:CuotaRepercutida>
-            </sum1:DetalleDesglose>
+            <sum1:DetalleDesglose><sum1:ClaveRegimen>01</sum1:ClaveRegimen><sum1:CalificacionOperacion>S1</sum1:CalificacionOperacion><sum1:TipoImpositivo>10</sum1:TipoImpositivo><sum1:BaseImponibleOimporteNoSujeto>15.41</sum1:BaseImponibleOimporteNoSujeto><sum1:CuotaRepercutida>1.54</sum1:CuotaRepercutida></sum1:DetalleDesglose>
+            <sum1:DetalleDesglose><sum1:ClaveRegimen>01</sum1:ClaveRegimen><sum1:CalificacionOperacion>S1</sum1:CalificacionOperacion><sum1:TipoImpositivo>4</sum1:TipoImpositivo><sum1:BaseImponibleOimporteNoSujeto>5.29</sum1:BaseImponibleOimporteNoSujeto><sum1:CuotaRepercutida>0.21</sum1:CuotaRepercutida></sum1:DetalleDesglose>
           </sum1:Desglose>
-          <sum1:CuotaTotal>{esc(record['cuota'])}</sum1:CuotaTotal>
-          <sum1:ImporteTotal>{esc(record['total'])}</sum1:ImporteTotal>
+          <sum1:CuotaTotal>{esc(record['cuota'])}</sum1:CuotaTotal><sum1:ImporteTotal>{esc(record['total'])}</sum1:ImporteTotal>
           {enc}
-          <sum1:SistemaInformatico>
-            <sum1:NombreRazon>PRODUCTOR DEMO SINCRONIAIA</sum1:NombreRazon>
-            <sum1:NIF>89890001K</sum1:NIF>
-            <sum1:NombreSistemaInformatico>SINCRONIAIA FISCAL</sum1:NombreSistemaInformatico>
-            <sum1:IdSistemaInformatico>S1</sum1:IdSistemaInformatico>
-            <sum1:Version>2.0.0-dev</sum1:Version>
-            <sum1:NumeroInstalacion>LAB0001</sum1:NumeroInstalacion>
-            <sum1:TipoUsoPosibleSoloVerifactu>S</sum1:TipoUsoPosibleSoloVerifactu>
-            <sum1:TipoUsoPosibleMultiOT>N</sum1:TipoUsoPosibleMultiOT>
-            <sum1:IndicadorMultiplesOT>N</sum1:IndicadorMultiplesOT>
-          </sum1:SistemaInformatico>
-          <sum1:FechaHoraHusoGenRegistro>{esc(record['fechaHora'])}</sum1:FechaHoraHusoGenRegistro>
-          <sum1:TipoHuella>01</sum1:TipoHuella>
-          <sum1:Huella>{esc(record['huella'])}</sum1:Huella>
+          <sum1:SistemaInformatico><sum1:NombreRazon>PRODUCTOR DEMO SINCRONIAIA</sum1:NombreRazon><sum1:NIF>89890001K</sum1:NIF><sum1:NombreSistemaInformatico>SINCRONIAIA FISCAL</sum1:NombreSistemaInformatico><sum1:IdSistemaInformatico>S1</sum1:IdSistemaInformatico><sum1:Version>2.1.0-dev</sum1:Version><sum1:NumeroInstalacion>LAB0001</sum1:NumeroInstalacion><sum1:TipoUsoPosibleSoloVerifactu>S</sum1:TipoUsoPosibleSoloVerifactu><sum1:TipoUsoPosibleMultiOT>N</sum1:TipoUsoPosibleMultiOT><sum1:IndicadorMultiplesOT>N</sum1:IndicadorMultiplesOT></sum1:SistemaInformatico>
+          <sum1:FechaHoraHusoGenRegistro>{esc(record['fechaHora'])}</sum1:FechaHoraHusoGenRegistro><sum1:TipoHuella>01</sum1:TipoHuella><sum1:Huella>{esc(record['huella'])}</sum1:Huella>
         </sum1:RegistroAlta>
       </sum:RegistroFactura>
     </sum:RegFactuSistemaFacturacion>
@@ -179,46 +132,24 @@ def parse_aeat_response(xml_text: str) -> dict:
         wait_seconds = int(wait_raw) if wait_raw is not None else None
     except ValueError:
         wait_seconds = None
-    mapped = {
-        "Correcto": "ACEPTADO",
-        "AceptadoConErrores": "ACEPTADO_CON_INCIDENCIA",
-        "Incorrecto": "RECHAZADO",
-    }.get(estado_registro)
-    return {
-        "estadoEnvio": estado_envio,
-        "estadoRegistro": estado_registro,
-        "estadoInterno": mapped,
-        "codigo": codigo,
-        "descripcion": descripcion,
-        "tiempoEsperaEnvio": wait_seconds,
-    }
+    mapped = {"Correcto": "ACEPTADO", "AceptadoConErrores": "ACEPTADO_CON_INCIDENCIA", "Incorrecto": "RECHAZADO"}.get(estado_registro)
+    return {"estadoEnvio": estado_envio, "estadoRegistro": estado_registro, "estadoInterno": mapped, "codigo": codigo, "descripcion": descripcion, "tiempoEsperaEnvio": wait_seconds}
 
 
 def perform_send(xml_text: str, config: TransportConfig) -> TransportResult:
     ready, reason = config.readiness()
     if not ready:
         raise RuntimeError(reason)
-
     context = ssl.create_default_context()
     if config.key_file:
         context.load_cert_chain(str(config.cert_file), keyfile=str(config.key_file))
     else:
         context.load_cert_chain(str(config.cert_file))
-
     try:
         with httpx.Client(verify=context, timeout=config.timeout_seconds) as client:
-            response = client.post(
-                config.endpoint,
-                content=xml_text.encode("utf-8"),
-                headers={"Content-Type": "text/xml; charset=utf-8"},
-            )
+            response = client.post(config.endpoint, content=xml_text.encode("utf-8"), headers={"Content-Type": "text/xml; charset=utf-8"})
     except httpx.TimeoutException as exc:
         raise TransportNoResponseError("TIMEOUT_NO_RESPONSE") from exc
     except httpx.TransportError as exc:
         raise TransportNoResponseError("TRANSPORT_NO_RESPONSE") from exc
-
-    return TransportResult(
-        status_code=response.status_code,
-        body=response.text,
-        headers={k.lower(): v for k, v in response.headers.items()},
-    )
+    return TransportResult(response.status_code, response.text, {k.lower(): v for k, v in response.headers.items()})
