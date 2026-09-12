@@ -1,4 +1,4 @@
-name: verifactu backend 1.9
+name: verifactu backend 2.0
 
 on:
   push:
@@ -19,6 +19,6 @@ jobs:
           python-version: '3.12'
       - name: Install
         run: pip install -r verifactu-lab-desarrollo/backend/requirements.txt
-      - name: Test backend append-only, states and transport guardrails
+      - name: Test backend append-only, states, transport and safe retries
         working-directory: verifactu-lab-desarrollo/backend
         run: pytest -q
