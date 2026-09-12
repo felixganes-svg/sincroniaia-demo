@@ -31,7 +31,8 @@ def base_root(incidencia=False):
     etree.SubElement(obl, I + "NombreRazon").text = "EMPRESA DEMO SINCRONIAIA"
     etree.SubElement(obl, I + "NIF").text = "89890001K"
     if incidencia:
-        etree.SubElement(cab, I + "Incidencia").text = "S"
+        remision = etree.SubElement(cab, I + "RemisionVoluntaria")
+        etree.SubElement(remision, I + "Incidencia").text = "S"
     return root
 
 
@@ -80,7 +81,7 @@ def add_alta(root, subsanacion=False):
     etree.SubElement(alta, I + "CuotaTotal").text = "2.00"
     etree.SubElement(alta, I + "ImporteTotal").text = "22.00"
     add_chain(alta)
-    add_sif(alta, "2.3.0-dev" if subsanacion else "2.1.0-dev")
+    add_sif(alta, "2.3.0-dev" if subsanacion else "2.1.1-dev")
     etree.SubElement(alta, I + "FechaHoraHusoGenRegistro").text = "2026-09-12T23:50:00+02:00"
     etree.SubElement(alta, I + "TipoHuella").text = "01"
     etree.SubElement(alta, I + "Huella").text = "B" * 64
