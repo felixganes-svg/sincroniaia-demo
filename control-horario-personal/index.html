@@ -12,13 +12,32 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-f
 </style>
 </head>
 <body>
-<iframe id="app" src="./app-base.html?v=20260912-festivo-saldo-explicado" allow="geolocation"></iframe>
+<iframe id="app" src="./app-base.html?v=20260912-fichaje-0809-1345" allow="geolocation"></iframe>
 <script>
 const frame=document.getElementById('app');
 frame.addEventListener('load',()=>{
   try{
     const w=frame.contentWindow,d=frame.contentDocument;
     if(!w||!d)return;
+
+    // Fichaje real confirmado: 08/09/2026 · 07:30–13:45.
+    if(!w.__fix0809Applied){
+      try{
+        w.eval(`(()=>{
+          const k='2026-09-08';
+          data.days[k]={sessions:[{
+            in:isoLocal(2026,9,8,7,30,0),
+            out:isoLocal(2026,9,8,13,45,0),
+            minutes:375,
+            source:'fichaje confirmado',
+            fichajeEntrada:'F-20260908-073000-CONFIRMADO',
+            fichajeSalida:'F-20260908-134500-CONFIRMADO'
+          }],source:'fichaje confirmado'};
+          save();render();
+        })()`);
+      }catch(e){console.error('Fichaje 08/09',e)}
+      w.__fix0809Applied=true;
+    }
 
     // Fichaje real confirmado: 09/09/2026 · 07:30–13:45.
     if(!w.__fix0909Applied){
