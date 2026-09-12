@@ -45,18 +45,23 @@ Estado validado hasta 12/09/2026:
 - prevalidación estructural del XML: validada funcionalmente;
 - payload `RegFactuSistemaFacturacion / RegistroAlta` equivalente a la prueba `VF-LAB-D-000012`: validado automáticamente contra `SuministroLR.xsd` + `SuministroInformacion.xsd` oficiales descargados durante GitHub Actions;
 - evidencia XSD: workflow `verifactu xsd validation`, run `34719536323`, job `validate-xsd`, resultado `success`, salida `XSD_RESULT=PASS`;
+- backend LAB 1.7 separado: implementado en `verifactu-lab-desarrollo/backend/` con FastAPI + SQLite independiente;
+- numeración central de backend, huella calculada en servidor, encadenamiento, transacción registro+contador y verificación `/integrity`: validados automáticamente;
+- registros fiscales del backend protegidos contra `UPDATE` y `DELETE` mediante ausencia de endpoints de modificación y triggers SQLite append-only;
+- evidencia backend 1.7: workflow `verifactu backend 1.7`, run `34719729472`, job `backend-tests`, resultado `success`;
+- la SQLite probada en GitHub Actions es temporal y NO equivale todavía a conservación fiscal robusta desplegada;
 - no hay remisión real a AEAT;
 - no hay autenticación/certificado de servicio;
 - no hay gestión real de respuestas, rechazos o reintentos AEAT;
-- no hay persistencia fiscal robusta de servidor;
+- no hay despliegue persistente de backend fiscal;
 - no hay declaración responsable ni conformidad global demostrada.
 
 ## Próximo bloque técnico
 
 Siguiente objetivo autorizado en la copia aislada:
-1. API separada + base de datos de servidor / prueba equivalente append-only;
-2. estados de envío y respuesta;
-3. preparar comunicación con servicios AEAT de prueba;
+1. estados de envío y respuesta AEAT sobre backend append-only;
+2. modelar `PENDIENTE_ENVIO`, `ENVIADO`, `ACEPTADO`, `ACEPTADO_CON_INCIDENCIA`, `RECHAZADO`, `REINTENTO_PENDIENTE` sin sobrescribir el registro fiscal original;
+3. preparar transporte al servicio AEAT de pruebas con certificado cuando proceda;
 4. modelar rechazo/reintento;
 5. rectificación/anulación conforme a estructura oficial antes de integración con TPV.
 
