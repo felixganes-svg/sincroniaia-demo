@@ -20,6 +20,10 @@ NS_LR = "https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/
 NS_INFO = "https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroInformacion.xsd"
 
 
+class TransportNoResponseError(RuntimeError):
+    """La petición pudo haberse iniciado pero no existe respuesta utilizable."""
+
+
 @dataclass(frozen=True)
 class TransportConfig:
     enabled: bool
@@ -27,6 +31,7 @@ class TransportConfig:
     cert_file: Optional[Path]
     key_file: Optional[Path]
     timeout_seconds: float = 15.0
+    retry_wait_seconds: int = 60
 
     @classmethod
     def from_env(cls) -> "TransportConfig":
@@ -35,12 +40,14 @@ class TransportConfig:
         cert_raw = os.getenv("VERIFACTU_AEAT_CERT_FILE", "").strip()
         key_raw = os.getenv("VERIFACTU_AEAT_KEY_FILE", "").strip()
         timeout = float(os.getenv("VERIFACTU_AEAT_TIMEOUT", "15"))
+        retry_wait = max(0, int(os.getenv("VERIFACTU_AEAT_RETRY_WAIT_SECONDS", "60")))
         return cls(
             enabled=enabled,
             endpoint=endpoint,
             cert_file=Path(cert_raw) if cert_raw else None,
             key_file=Path(key_raw) if key_raw else None,
             timeout_seconds=timeout,
+            retry_wait_seconds=retry_wait,
         )
 
     def readiness(self) -> tuple[bool, str]:
@@ -138,7 +145,7 @@ def build_soap(record: dict, previous: Optional[dict] = None) -> str:
             <sum1:NIF>89890001K</sum1:NIF>
             <sum1:NombreSistemaInformatico>SINCRONIAIA FISCAL</sum1:NombreSistemaInformatico>
             <sum1:IdSistemaInformatico>S1</sum1:IdSistemaInformatico>
-            <sum1:Version>1.9.0-dev</sum1:Version>
+            <sum1:Version>2.0.0-dev</sum1:Version>
             <sum1:NumeroInstalacion>LAB0001</sum1:NumeroInstalacion>
             <sum1:TipoUsoPosibleSoloVerifactu>S</sum1:TipoUsoPosibleSoloVerifactu>
             <sum1:TipoUsoPosibleMultiOT>N</sum1:TipoUsoPosibleMultiOT>
@@ -167,6 +174,11 @@ def parse_aeat_response(xml_text: str) -> dict:
     estado_registro = _local_text(root, "EstadoRegistro")
     codigo = _local_text(root, "CodigoErrorRegistro")
     descripcion = _local_text(root, "DescripcionErrorRegistro")
+    wait_raw = _local_text(root, "TiempoEsperaEnvio")
+    try:
+        wait_seconds = int(wait_raw) if wait_raw is not None else None
+    except ValueError:
+        wait_seconds = None
     mapped = {
         "Correcto": "ACEPTADO",
         "AceptadoConErrores": "ACEPTADO_CON_INCIDENCIA",
@@ -178,6 +190,7 @@ def parse_aeat_response(xml_text: str) -> dict:
         "estadoInterno": mapped,
         "codigo": codigo,
         "descripcion": descripcion,
+        "tiempoEsperaEnvio": wait_seconds,
     }
 
 
@@ -192,12 +205,18 @@ def perform_send(xml_text: str, config: TransportConfig) -> TransportResult:
     else:
         context.load_cert_chain(str(config.cert_file))
 
-    with httpx.Client(verify=context, timeout=config.timeout_seconds) as client:
-        response = client.post(
-            config.endpoint,
-            content=xml_text.encode("utf-8"),
-            headers={"Content-Type": "text/xml; charset=utf-8"},
-        )
+    try:
+        with httpx.Client(verify=context, timeout=config.timeout_seconds) as client:
+            response = client.post(
+                config.endpoint,
+                content=xml_text.encode("utf-8"),
+                headers={"Content-Type": "text/xml; charset=utf-8"},
+            )
+    except httpx.TimeoutException as exc:
+        raise TransportNoResponseError("TIMEOUT_NO_RESPONSE") from exc
+    except httpx.TransportError as exc:
+        raise TransportNoResponseError("TRANSPORT_NO_RESPONSE") from exc
+
     return TransportResult(
         status_code=response.status_code,
         body=response.text,
