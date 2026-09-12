@@ -82,7 +82,7 @@ def build_soap(record: dict, previous: Optional[dict] = None, incidencia: bool =
           </sum1:Encadenamiento>"""
     else:
         enc = """<sum1:Encadenamiento><sum1:PrimerRegistro>S</sum1:PrimerRegistro></sum1:Encadenamiento>"""
-    incidencia_xml = "<sum1:Incidencia>S</sum1:Incidencia>" if incidencia else ""
+    remision_xml = "<sum1:RemisionVoluntaria><sum1:Incidencia>S</sum1:Incidencia></sum1:RemisionVoluntaria>" if incidencia else ""
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <soapenv:Envelope xmlns:soapenv="{NS_SOAP}" xmlns:sum="{NS_LR}" xmlns:sum1="{NS_INFO}">
   <soapenv:Header/>
@@ -90,7 +90,7 @@ def build_soap(record: dict, previous: Optional[dict] = None, incidencia: bool =
     <sum:RegFactuSistemaFacturacion>
       <sum:Cabecera>
         <sum1:ObligadoEmision><sum1:NombreRazon>EMPRESA DEMO SINCRONIAIA</sum1:NombreRazon><sum1:NIF>{esc(record['emisor'])}</sum1:NIF></sum1:ObligadoEmision>
-        {incidencia_xml}
+        {remision_xml}
       </sum:Cabecera>
       <sum:RegistroFactura>
         <sum1:RegistroAlta>
@@ -105,7 +105,7 @@ def build_soap(record: dict, previous: Optional[dict] = None, incidencia: bool =
           </sum1:Desglose>
           <sum1:CuotaTotal>{esc(record['cuota'])}</sum1:CuotaTotal><sum1:ImporteTotal>{esc(record['total'])}</sum1:ImporteTotal>
           {enc}
-          <sum1:SistemaInformatico><sum1:NombreRazon>PRODUCTOR DEMO SINCRONIAIA</sum1:NombreRazon><sum1:NIF>89890001K</sum1:NIF><sum1:NombreSistemaInformatico>SINCRONIAIA FISCAL</sum1:NombreSistemaInformatico><sum1:IdSistemaInformatico>S1</sum1:IdSistemaInformatico><sum1:Version>2.1.0-dev</sum1:Version><sum1:NumeroInstalacion>LAB0001</sum1:NumeroInstalacion><sum1:TipoUsoPosibleSoloVerifactu>S</sum1:TipoUsoPosibleSoloVerifactu><sum1:TipoUsoPosibleMultiOT>N</sum1:TipoUsoPosibleMultiOT><sum1:IndicadorMultiplesOT>N</sum1:IndicadorMultiplesOT></sum1:SistemaInformatico>
+          <sum1:SistemaInformatico><sum1:NombreRazon>PRODUCTOR DEMO SINCRONIAIA</sum1:NombreRazon><sum1:NIF>89890001K</sum1:NIF><sum1:NombreSistemaInformatico>SINCRONIAIA FISCAL</sum1:NombreSistemaInformatico><sum1:IdSistemaInformatico>S1</sum1:IdSistemaInformatico><sum1:Version>2.1.1-dev</sum1:Version><sum1:NumeroInstalacion>LAB0001</sum1:NumeroInstalacion><sum1:TipoUsoPosibleSoloVerifactu>S</sum1:TipoUsoPosibleSoloVerifactu><sum1:TipoUsoPosibleMultiOT>N</sum1:TipoUsoPosibleMultiOT><sum1:IndicadorMultiplesOT>N</sum1:IndicadorMultiplesOT></sum1:SistemaInformatico>
           <sum1:FechaHoraHusoGenRegistro>{esc(record['fechaHora'])}</sum1:FechaHoraHusoGenRegistro><sum1:TipoHuella>01</sum1:TipoHuella><sum1:Huella>{esc(record['huella'])}</sum1:Huella>
         </sum1:RegistroAlta>
       </sum:RegistroFactura>
