@@ -12,7 +12,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-f
 </style>
 </head>
 <body>
-<iframe id="app" src="./app-base.html?v=20260910-doble-tramo" allow="geolocation"></iframe>
+<iframe id="app" src="./app-base.html?v=20260912-festivo-saldo-explicado" allow="geolocation"></iframe>
 <script>
 const frame=document.getElementById('app');
 frame.addEventListener('load',()=>{
@@ -68,6 +68,38 @@ frame.addEventListener('load',()=>{
       }catch(e){console.error('Fichaje 10/09',e)}
       w.__fix1009DoubleApplied=true;
     }
+
+    // Explicación visible del festivo computable y de la compensación del saldo anterior.
+    const bankNote=d.getElementById('bankNote');
+    if(bankNote&&!d.getElementById('bankExplanation')){
+      const info=d.createElement('div');
+      info.id='bankExplanation';
+      info.style.cssText='margin-top:10px;padding:12px;border-radius:14px;background:#f8fafc;border:1px solid #e4e7ec;font-size:13px;line-height:1.55';
+      bankNote.parentNode.insertBefore(info,bankNote.nextSibling);
+    }
+    const updateBankExplanation=()=>{
+      const info=d.getElementById('bankExplanation');
+      if(!info)return;
+      try{
+        const state=w.eval('bankState(new Date())');
+        const festivo=w.eval("holidayFor('2026-09-11')");
+        const festivoMin=w.eval("basePlannedMinutesForDate('2026-09-11')");
+        const fmt=m=>w.eval('dur('+Math.abs(Math.round(m||0))+')');
+        const parts=[];
+        if(festivo&&festivo.type==='holiday'&&festivoMin>0){
+          parts.push('<b>Festivo 11/09:</b> +'+fmt(festivoMin)+' computables ya incluidos en el total semanal.');
+        }
+        if(state&&state.previous<0&&state.weekDelta>0){
+          const compensado=Math.min(Math.abs(state.previous),state.weekDelta);
+          if(compensado>0)parts.push('<b>Compensación de saldo anterior:</b> '+fmt(compensado)+' devueltas de las horas pendientes.');
+          if(state.current>0)parts.push('<b>Saldo restante a favor del trabajador:</b> +'+fmt(state.current)+'.');
+          else if(state.current===0)parts.push('<b>Saldo pendiente:</b> completamente compensado.');
+        }
+        info.innerHTML=parts.length?parts.join('<br>'):'El saldo se calcula semana a semana, incluyendo festivos computables y compensaciones.';
+      }catch(e){info.textContent='El saldo se calcula semana a semana, incluyendo festivos computables y compensaciones.'}
+    };
+    updateBankExplanation();
+    setInterval(updateBankExplanation,1500);
 
     const company=d.getElementById('company');
     if(company&&!d.getElementById('correctionAccess')){
