@@ -36,51 +36,41 @@ Ruta:
 
 Estado validado hasta 12/09/2026:
 - huella SHA-256 construida contra vector oficial AEAT: validada en prueba real de navegador;
-- detección de alteración: validada;
-- numeración fiscal DEMO no reutilizable dentro del circuito: validada;
-- comprobación automática de cadena: validada;
-- persistencia IndexedDB DEMO y recuperación tras recarga: validada funcionalmente, NO equivale a almacenamiento fiscal robusto;
-- desglose IVA 10% / 4% de la prueba: validado funcionalmente;
-- generación XML SOAP de alta: validada funcionalmente en navegador;
-- prevalidación estructural del XML: validada funcionalmente;
-- payload `RegFactuSistemaFacturacion / RegistroAlta` equivalente a la prueba `VF-LAB-D-000012`: validado automáticamente contra `SuministroLR.xsd` + `SuministroInformacion.xsd` oficiales descargados durante GitHub Actions;
-- evidencia XSD: workflow `verifactu xsd validation`, run `34719536323`, job `validate-xsd`, resultado `success`, salida `XSD_RESULT=PASS`;
-- backend LAB 1.7 separado: implementado en `verifactu-lab-desarrollo/backend/` con FastAPI + SQLite independiente;
-- numeración central de backend, huella calculada en servidor, encadenamiento, transacción registro+contador y verificación `/integrity`: validados automáticamente;
-- registros fiscales del backend protegidos contra `UPDATE` y `DELETE` mediante ausencia de endpoints de modificación y triggers SQLite append-only;
-- evidencia backend 1.7: workflow `verifactu backend 1.7`, run `34719729472`, job `backend-tests`, resultado `success`;
-- backend LAB 1.8: estados de envío/respuesta modelados como eventos separados append-only, sin reescribir `fiscal_records`;
-- transiciones validadas: `PENDIENTE_ENVIO -> ENVIADO -> RECHAZADO -> REINTENTO_PENDIENTE -> ENVIADO -> ACEPTADO`;
-- transiciones inválidas bloqueadas; `state_events` protegido contra `UPDATE` y `DELETE`; huella original conservada durante cambios de estado;
-- evidencia backend 1.8: workflow `verifactu backend 1.8`, run `34719918175`, job `backend-tests`, resultado `success`;
-- backend LAB 1.9: cliente SOAP de preproducción preparado con envío real desactivado por defecto;
-- lista blanca de transporte limitada a `prewww1.aeat.es` y `prewww10.aeat.es`; endpoint de producción bloqueado en LAB;
-- certificado cliente obligatorio para considerar el transporte preparado para red;
-- eventos técnicos de petición/respuesta modelados como append-only y protegidos contra `UPDATE`/`DELETE`;
-- petición y respuesta trazadas por SHA-256 sin almacenar secretos del certificado;
-- respuesta AEAT simulada `Correcto/Correcto` validada como `PENDIENTE_ENVIO -> ENVIADO -> ACEPTADO` sin modificar la huella fiscal;
-- evidencia backend 1.9: workflow `verifactu backend 1.9`, run `34720139172`, job `backend-tests`, resultado `success`, `5 passed`;
-- backend LAB 2.0: timeout/ausencia de respuesta modelado como `PENDIENTE_ENVIO -> ENVIADO -> REINTENTO_PENDIENTE`;
-- ante no respuesta se conserva la huella fiscal y se registra evento técnico append-only `NO_RESPONSE_RETRY_PENDING`;
-- espera conservadora de LAB de 60 segundos registrada con `eligibleAt`; reintento anticipado bloqueado con `RETRY_WAIT_ACTIVE`;
-- `TiempoEsperaEnvio` de respuesta AEAT se parsea y queda disponible para control de flujo futuro;
-- evidencia backend 2.0: workflow `verifactu backend 2.0`, run `34720359399`, job `backend-tests`, resultado `success`, `6 passed`;
-- ninguna prueba 1.9/2.0 realizó una remisión real a AEAT;
-- la SQLite probada en GitHub Actions es temporal y NO equivale todavía a conservación fiscal robusta desplegada;
+- detección de alteración, numeración DEMO no reutilizable y comprobación de cadena: validadas;
+- persistencia IndexedDB DEMO y recuperación tras recarga: validada funcionalmente; NO equivale a conservación fiscal robusta;
+- desglose IVA 10% / 4%: validado funcionalmente;
+- XML SOAP de alta y prevalidación estructural: validados funcionalmente en navegador;
+- `RegistroAlta` de prueba: validado contra XSD oficiales AEAT; evidencia workflow `verifactu xsd validation`, run `34719536323`, `XSD_RESULT=PASS`;
+- backend 1.7 FastAPI + SQLite append-only: numeración central, huella servidor, cadena, transacción e integridad validadas; run `34719729472` success;
+- backend 1.8: estados append-only separados del registro fiscal, transiciones y bloqueo de mutaciones validados; run `34719918175` success;
+- backend 1.9: transporte SOAP preproducción preparado con envío real desactivado por defecto, whitelist preproducción, certificado obligatorio y trazabilidad técnica; run `34720139172`, `5 passed`;
+- backend 2.0: timeout/no respuesta -> `REINTENTO_PENDIENTE`, conservación de huella, espera/retry gate y parseo `TiempoEsperaEnvio`; run `34720359399`, `6 passed`;
+- roadmap 2.1–2.6 creado en módulos aislados y sometido a autovalidación técnica;
+- 2.1: reenvío por incidencia con `Cabecera / RemisionVoluntaria / Incidencia = S`; la primera ubicación directa bajo `Cabecera` falló XSD y fue corregida en origen;
+- 2.2: anulación aislada con `RegistroAnulacion`; reproduce el vector oficial de huella de anulación `177547C0D57AC74748561D054A9CEC14B4C4EA23D1BEFD6F2E69E3A388F90C68`;
+- 2.3: subsanación modelada como nuevo `RegistroAlta` con `Subsanacion = S`, sin alterar el original;
+- 2.4: módulo de cola de reintentos con selección por vencimiento y deduplicación por hash de petición;
+- 2.5: contrato aislado TPV -> API fiscal que solo acepta copia de ticket cerrado y prohíbe que el motor fiscal modifique el ticket comercial;
+- 2.6: checklist de readiness separa preparación técnica de LAB de preparación real de preproducción;
+- pruebas backend/roadmap: run `34720710372`, `12 passed`; tras corrección 2.1.1 run `34720873528`, resultado `success`;
+- validación XSD ampliada oficial: run `34720895170`, `XSD_INCIDENCIA_ALTA=PASS`, `XSD_ANULACION=PASS`, `XSD_SUBSANACION=PASS`, `XSD_ROADMAP_21_23=PASS`;
+- evidencia consolidada: `verifactu-lab-desarrollo/VALIDACION_ROADMAP_v2.1-v2.6.md`;
+- módulos 2.2–2.6 permanecen aislados del runtime principal y del TPV hasta sellado/integración controlada;
+- ninguna prueba realizó remisión real a AEAT;
+- la SQLite de GitHub Actions es temporal y NO equivale a conservación fiscal desplegada;
 - no hay autenticación real con certificado ante AEAT;
 - no hay respuesta real procedente de AEAT;
-- no hay scheduler persistente de reintentos automáticos;
-- no está implementada todavía la marca `Incidencia` en cabecera para reenvíos por caída/incidencia;
-- no hay despliegue persistente de backend fiscal;
+- no hay backend fiscal persistente desplegado;
 - no hay declaración responsable ni conformidad global demostrada.
 
-## Próximo bloque técnico
+## Bloqueos externos / siguiente fase
 
-Siguiente objetivo autorizado en la copia aislada:
-1. modelar reenvíos periódicos automáticos/persistentes sin duplicar ni alterar el registro fiscal;
-2. incorporar la marca `Incidencia` en la cabecera de remisión cuando proceda según especificación oficial;
-3. separar certificado/clave de código y repositorio y comprobar su carga segura en un entorno persistente;
-4. validar autenticación y respuestas reales de preproducción cuando exista certificado válido/autorizado;
-5. rectificación/anulación conforme a estructura oficial antes de integración con TPV.
+Antes de una prueba real de preproducción faltan cuatro puntos:
+1. desplegar backend fiscal persistente con conservación real;
+2. configurar certificado cliente válido fuera del repositorio;
+3. obtener y validar una respuesta real de AEAT en preproducción;
+4. completar identidad definitiva del producto, declaración responsable y revisión final de conformidad.
+
+Después, y solo después de sellar el LAB fiscal, podrá ejecutarse la FASE 6 de integración controlada con el TPV mediante copia de ticket cerrado.
 
 Principio: no promocionar ni declarar VERI*FACTU operativo sin evidencia completa y sellado.
