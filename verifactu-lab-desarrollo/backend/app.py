@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
@@ -14,7 +14,7 @@ import transport
 DB_PATH = Path(os.getenv("VERIFACTU_DB", Path(__file__).with_name("verifactu_dev.sqlite3")))
 SERIES = "VF-SRV-D"
 
-app = FastAPI(title="SINCRONIAIA FISCAL · VERI*FACTU BACKEND LAB 1.9")
+app = FastAPI(title="SINCRONIAIA FISCAL · VERI*FACTU BACKEND LAB 2.0")
 
 
 class RecordIn(BaseModel):
@@ -36,7 +36,7 @@ class StateEventIn(BaseModel):
 
 ALLOWED_TRANSITIONS = {
     "PENDIENTE_ENVIO": {"ENVIADO"},
-    "ENVIADO": {"ACEPTADO", "ACEPTADO_CON_INCIDENCIA", "RECHAZADO"},
+    "ENVIADO": {"ACEPTADO", "ACEPTADO_CON_INCIDENCIA", "RECHAZADO", "REINTENTO_PENDIENTE"},
     "RECHAZADO": {"REINTENTO_PENDIENTE"},
     "REINTENTO_PENDIENTE": {"ENVIADO"},
     "ACEPTADO": set(),
@@ -49,6 +49,14 @@ def connect() -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
+
+
+def _ensure_technical_columns(conn: sqlite3.Connection) -> None:
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(technical_events)").fetchall()}
+    if "retry_after_seconds" not in cols:
+        conn.execute("ALTER TABLE technical_events ADD COLUMN retry_after_seconds INTEGER")
+    if "eligible_at" not in cols:
+        conn.execute("ALTER TABLE technical_events ADD COLUMN eligible_at TEXT")
 
 
 def init_db() -> None:
@@ -98,6 +106,8 @@ def init_db() -> None:
               http_status INTEGER,
               result TEXT,
               detail TEXT,
+              retry_after_seconds INTEGER,
+              eligible_at TEXT,
               created_at TEXT NOT NULL,
               FOREIGN KEY(fiscal_record_id) REFERENCES fiscal_records(id)
             );
@@ -141,10 +151,15 @@ def init_db() -> None:
             INSERT OR IGNORE INTO meta(key, value) VALUES ('next_number', '1');
             """
         )
+        _ensure_technical_columns(conn)
 
 
 def local_iso_now() -> str:
     return datetime.now().astimezone().replace(microsecond=0).isoformat()
+
+
+def retry_eligible_iso(wait_seconds: int) -> str:
+    return (datetime.now().astimezone() + timedelta(seconds=wait_seconds)).replace(microsecond=0).isoformat()
 
 
 def number_for(n: int) -> str:
@@ -206,6 +221,8 @@ def technical_to_api(row: sqlite3.Row) -> dict:
         "httpStatus": row["http_status"],
         "result": row["result"],
         "detail": row["detail"],
+        "retryAfterSeconds": row["retry_after_seconds"],
+        "eligibleAt": row["eligible_at"],
         "createdAt": row["created_at"],
     }
 
@@ -223,6 +240,32 @@ def latest_state(conn: sqlite3.Connection, fiscal_record_id: int) -> Optional[st
         (fiscal_record_id,),
     ).fetchone()
     return row["estado"] if row else None
+
+
+def latest_retry_gate(conn: sqlite3.Connection, fiscal_record_id: int) -> Optional[sqlite3.Row]:
+    return conn.execute(
+        """
+        SELECT * FROM technical_events
+        WHERE fiscal_record_id = ? AND eligible_at IS NOT NULL
+        ORDER BY id DESC LIMIT 1
+        """,
+        (fiscal_record_id,),
+    ).fetchone()
+
+
+def retry_gate_status(conn: sqlite3.Connection, row: sqlite3.Row) -> dict:
+    current = latest_state(conn, row["id"])
+    gate = latest_retry_gate(conn, row["id"])
+    if current != "REINTENTO_PENDIENTE" or not gate:
+        return {"required": False, "canRetry": current in {"PENDIENTE_ENVIO", "REINTENTO_PENDIENTE"}, "eligibleAt": None, "retryAfterSeconds": None}
+    eligible_at = datetime.fromisoformat(gate["eligible_at"])
+    now = datetime.now().astimezone()
+    return {
+        "required": True,
+        "canRetry": now >= eligible_at,
+        "eligibleAt": gate["eligible_at"],
+        "retryAfterSeconds": gate["retry_after_seconds"],
+    }
 
 
 def append_state_event_db(
@@ -261,18 +304,20 @@ def append_technical_event(
     http_status: Optional[int] = None,
     result: Optional[str] = None,
     detail: Optional[str] = None,
+    retry_after_seconds: Optional[int] = None,
+    eligible_at: Optional[str] = None,
 ) -> None:
     with connect() as conn:
         conn.execute(
             """
             INSERT INTO technical_events(
               fiscal_record_id, kind, endpoint, request_sha256, response_sha256,
-              http_status, result, detail, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+              http_status, result, detail, retry_after_seconds, eligible_at, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 fiscal_record_id, kind, endpoint, request_sha256, response_sha256,
-                http_status, result, detail, local_iso_now(),
+                http_status, result, detail, retry_after_seconds, eligible_at, local_iso_now(),
             ),
         )
 
@@ -288,7 +333,7 @@ def health() -> dict:
     ready, reason = cfg.readiness()
     return {
         "status": "ok",
-        "lab": "1.9",
+        "lab": "2.0",
         "storage": "sqlite-append-only-demo",
         "state_events": "append-only",
         "technical_events": "append-only",
@@ -297,6 +342,7 @@ def health() -> dict:
         "aeat_real_send_enabled": cfg.enabled,
         "aeat_transport_ready": ready,
         "aeat_transport_reason": reason,
+        "defaultRetryWaitSeconds": cfg.retry_wait_seconds,
     }
 
 
@@ -313,6 +359,7 @@ def transport_status() -> dict:
         "certificateConfigured": bool(cfg.cert_file),
         "keyConfigured": bool(cfg.key_file),
         "productionAllowed": False,
+        "defaultRetryWaitSeconds": cfg.retry_wait_seconds,
     }
 
 
@@ -423,6 +470,15 @@ def get_current_state(numero: str) -> dict:
     return {"numero": numero, "estadoActual": state}
 
 
+@app.get("/records/{numero}/retry-status")
+def get_retry_status(numero: str) -> dict:
+    with connect() as conn:
+        row = get_record_row(conn, numero)
+        current = latest_state(conn, row["id"])
+        gate = retry_gate_status(conn, row)
+    return {"numero": numero, "estadoActual": current, **gate}
+
+
 @app.post("/records/{numero}/events", status_code=201)
 def append_state_event(numero: str, payload: StateEventIn) -> dict:
     target = payload.estado.strip().upper()
@@ -486,6 +542,21 @@ def send_transport(numero: str) -> dict:
     if current not in {"PENDIENTE_ENVIO", "REINTENTO_PENDIENTE"}:
         raise HTTPException(status_code=409, detail={"reason": "STATE_NOT_SENDABLE", "state": current})
 
+    if current == "REINTENTO_PENDIENTE":
+        with connect() as conn:
+            fresh = get_record_row(conn, numero)
+            gate = retry_gate_status(conn, fresh)
+        if gate["required"] and not gate["canRetry"]:
+            raise HTTPException(
+                status_code=429,
+                detail={
+                    "reason": "RETRY_WAIT_ACTIVE",
+                    "eligibleAt": gate["eligibleAt"],
+                    "retryAfterSeconds": gate["retryAfterSeconds"],
+                    "sent": False,
+                },
+            )
+
     record = row_to_api(row)
     xml = transport.build_soap(record, row_to_api(prev) if prev else None)
     request_hash = transport.body_sha256(xml)
@@ -498,12 +569,59 @@ def send_transport(numero: str) -> dict:
         )
         raise HTTPException(status_code=503, detail={"reason": reason, "sent": False})
 
+    conn = connect()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        fresh = get_record_row(conn, numero)
+        append_state_event_db(
+            conn, fresh, "ENVIADO", "AEAT_TRANSPORT_2_0",
+            detalle="Intento de remisión iniciado; pendiente de respuesta",
+        )
+        conn.commit()
+    except HTTPException:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
     append_technical_event(
         row["id"], "SEND_ATTEMPT", cfg.endpoint, request_hash,
         result="NETWORK_CALL_START", detail="Preproducción AEAT autorizada por configuración explícita",
     )
     try:
         response = transport.perform_send(xml, cfg)
+    except transport.TransportNoResponseError as exc:
+        wait_seconds = cfg.retry_wait_seconds
+        eligible_at = retry_eligible_iso(wait_seconds)
+        conn = connect()
+        try:
+            conn.execute("BEGIN IMMEDIATE")
+            fresh = get_record_row(conn, numero)
+            append_state_event_db(
+                conn, fresh, "REINTENTO_PENDIENTE", "AEAT_TRANSPORT_2_0",
+                codigo="NO_RESPONSE",
+                detalle="Sin respuesta utilizable; debe reintentarse el mismo registro",
+            )
+            conn.commit()
+        except HTTPException:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+        append_technical_event(
+            row["id"], "NO_RESPONSE_RETRY_PENDING", cfg.endpoint, request_hash,
+            result=str(exc), detail="Sin respuesta AEAT; reenvío periódico pendiente",
+            retry_after_seconds=wait_seconds, eligible_at=eligible_at,
+        )
+        raise HTTPException(
+            status_code=504,
+            detail={
+                "reason": "AEAT_NO_RESPONSE_RETRY_PENDING",
+                "retryAfterSeconds": wait_seconds,
+                "eligibleAt": eligible_at,
+                "sent": "UNKNOWN",
+            },
+        ) from exc
     except Exception as exc:
         append_technical_event(
             row["id"], "TRANSPORT_ERROR", cfg.endpoint, request_hash,
@@ -540,9 +658,8 @@ def send_transport(numero: str) -> dict:
     try:
         conn.execute("BEGIN IMMEDIATE")
         fresh = get_record_row(conn, numero)
-        append_state_event_db(conn, fresh, "ENVIADO", "AEAT_TRANSPORT_1_9", detalle="HTTP 2xx recibido")
         append_state_event_db(
-            conn, fresh, target, "AEAT_RESPONSE_1_9",
+            conn, fresh, target, "AEAT_RESPONSE_2_0",
             codigo=parsed.get("codigo"), detalle=parsed.get("descripcion"),
         )
         conn.commit()
@@ -555,7 +672,7 @@ def send_transport(numero: str) -> dict:
     append_technical_event(
         row["id"], "RESPONSE_RECEIVED", cfg.endpoint, request_hash, response_hash,
         response.status_code, target,
-        f"EstadoEnvio={parsed.get('estadoEnvio')}; EstadoRegistro={parsed.get('estadoRegistro')}",
+        f"EstadoEnvio={parsed.get('estadoEnvio')}; EstadoRegistro={parsed.get('estadoRegistro')}; TiempoEsperaEnvio={parsed.get('tiempoEsperaEnvio')}",
     )
     return {
         "numero": numero,
