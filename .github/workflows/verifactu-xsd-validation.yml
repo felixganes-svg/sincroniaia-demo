@@ -20,5 +20,7 @@ jobs:
           python-version: '3.12'
       - name: Install validator
         run: python -m pip install --disable-pip-version-check lxml
-      - name: Validate against official AEAT XSD
+      - name: Validate original alta against official AEAT XSD
         run: python verifactu-lab-desarrollo/xsd-validation/validate_xsd.py
+      - name: Validate incidencia, anulación and subsanación against official AEAT XSD
+        run: python verifactu-lab-desarrollo/xsd-validation/validate_roadmap_21_23.py
