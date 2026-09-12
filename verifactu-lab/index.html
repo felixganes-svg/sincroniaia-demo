@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SINCRONIAIA FISCAL · VERI*FACTU LAB 1.0</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:980px;margin:auto;padding:14px}.hero{background:#111827;color:#fff;border-radius:18px;padding:20px}.hero h1{margin:0 0 8px;font-size:24px}.hero p{margin:0;color:#cbd5e1;line-height:1.45}.warn{margin:12px 0;padding:12px 14px;border-radius:13px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-weight:800}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}.card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px;margin-top:12px}.card h2{margin:0 0 10px;font-size:18px}.kv{display:grid;grid-template-columns:145px 1fr;gap:7px 10px;font-size:13px}.k{color:#64748b}.v{font-weight:700;word-break:break-word}.lines{width:100%;border-collapse:collapse;font-size:13px}.lines th,.lines td{padding:8px 6px;border-bottom:1px solid #e5e7eb;text-align:left}.lines th:last-child,.lines td:last-child{text-align:right}.total{display:flex;justify-content:space-between;font-size:18px;font-weight:900;margin-top:10px}.btn{width:100%;border:0;border-radius:12px;padding:13px 14px;background:#111827;color:#fff;font-weight:900;font-size:14px}.btn[disabled]{background:#94a3b8}.tag{display:inline-block;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900}.demo{background:#fee2e2;color:#991b1b}.gen{background:#dcfce7;color:#166534}.muted{color:#64748b;font-size:12px;line-height:1.45}.box{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;overflow:auto;min-height:160px}.event{padding:8px 0;border-bottom:1px dashed #cbd5e1;font-size:12px}.event:last-child{border-bottom:0}.foot{padding:18px 2px 30px;color:#64748b;font-size:11px}@media(max-width:560px){.wrap{padding:9px}.hero h1{font-size:21px}.kv{grid-template-columns:1fr}.k{font-weight:800}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <h1>SINCRONIAIA FISCAL · VERI*FACTU LAB 1.0</h1>
+  <p>FASE 1 · Registro fiscal local de prueba. Laboratorio separado del TPV Alimentación protegido.</p>
+</header>
+<div class="warn">NO PRODUCCIÓN · NO VERI*FACTU OPERATIVO · DATOS FICTICIOS · NO ENVÍA NADA A AEAT</div>
+
+<div class="grid">
+<section class="card">
+  <h2>1 · Ticket comercial ficticio</h2>
+  <div class="kv">
+    <div class="k">Ticket origen</div><div class="v">DEMO-0023</div>
+    <div class="k">Fecha/hora</div><div class="v">12/09/2026 · 17:15:00</div>
+    <div class="k">Vendedor</div><div class="v">VENDEDOR DEMO</div>
+    <div class="k">Pago</div><div class="v">Efectivo</div>
+  </div>
+  <table class="lines">
+    <thead><tr><th>Artículo</th><th>Cant.</th><th>Precio</th><th>Importe</th></tr></thead>
+    <tbody>
+      <tr><td>Callos DEMO</td><td>2,000 kg</td><td>6,50 €</td><td>13,00 €</td></tr>
+      <tr><td>Canelones DEMO</td><td>1 ud</td><td>9,10 €</td><td>9,10 €</td></tr>
+      <tr><td>Flauta DEMO</td><td>0,250 kg</td><td>25,00 €</td><td>6,25 €</td></tr>
+    </tbody>
+  </table>
+  <div class="total"><span>Total</span><span>28,35 €</span></div>
+  <p class="muted">Este ticket es una copia de prueba completamente ficticia. No lee ni modifica tickets del TPV actual.</p>
+</section>
+
+<section class="card">
+  <h2>2 · Generar registro fiscal separado</h2>
+  <p class="muted">La FASE 1 demuestra únicamente separación, generación del objeto canónico y bloqueo de edición desde esta interfaz. Todavía no hay hash, QR ni envío AEAT.</p>
+  <button id="generateBtn" class="btn" type="button">GENERAR REGISTRO FISCAL DE PRUEBA</button>
+  <div style="margin-top:12px"><span id="stateTag" class="tag demo">NO GENERADO</span></div>
+  <div id="recordBox" class="box" style="margin-top:10px">Aún no existe registro fiscal.</div>
+</section>
+</div>
+
+<section class="card">
+  <h2>3 · Trazabilidad básica del LAB</h2>
+  <div id="events"><div class="event">LAB iniciado · sin registro fiscal generado.</div></div>
+</section>
+
+<section class="card">
+  <h2>Qué demuestra esta versión</h2>
+  <div class="kv">
+    <div class="k">Aislamiento</div><div class="v">Sí · ruta y código propios.</div>
+    <div class="k">Ticket comercial separado</div><div class="v">Sí · solo ejemplo ficticio.</div>
+    <div class="k">Registro fiscal canónico</div><div class="v">Sí · objeto de prueba.</div>
+    <div class="k">Edición posterior desde UI</div><div class="v">Bloqueada tras generar.</div>
+    <div class="k">Hash / encadenamiento</div><div class="v">NO IMPLEMENTADO.</div>
+    <div class="k">QR fiscal</div><div class="v">NO IMPLEMENTADO.</div>
+    <div class="k">AEAT</div><div class="v">NO CONECTADO.</div>
+  </div>
+</section>
+
+<div class="foot">SINCRONIAIA · EVIDENCIA ANTES QUE AFIRMACIÓN · VERI*FACTU LAB 1.0</div>
+</div>
+<script>
+(function(){
+  'use strict';
+  const btn=document.getElementById('generateBtn');
+  const box=document.getElementById('recordBox');
+  const tag=document.getElementById('stateTag');
+  const events=document.getElementById('events');
+  let generated=false;
+
+  function addEvent(text){
+    const d=document.createElement('div');
+    d.className='event';
+    d.textContent=new Date().toLocaleString('es-ES')+' · '+text;
+    events.prepend(d);
+  }
+
+  function canonicalRecord(){
+    return {
+      lab_version:'1.0',
+      record_state:'GENERADO',
+      internal_id:'VF-LAB-000001',
+      commercial_ticket_ref:'DEMO-0023',
+      generated_at:new Date().toISOString(),
+      issuer:{
+        name:'EMPRESA DEMO SINCRONIAIA',
+        tax_id:'NIF-DEMO-NO-VALIDO'
+      },
+      receiver:null,
+      invoice_type:'SIMPLIFICADA_DEMO',
+      lines:[
+        {description:'Callos DEMO',quantity:2,unit:'kg',unit_price:6.50,gross_amount:13.00,tax_rate:null,tax_base:null,tax_amount:null},
+        {description:'Canelones DEMO',quantity:1,unit:'ud',unit_price:9.10,gross_amount:9.10,tax_rate:null,tax_base:null,tax_amount:null},
+        {description:'Flauta DEMO',quantity:0.25,unit:'kg',unit_price:25.00,gross_amount:6.25,tax_rate:null,tax_base:null,tax_amount:null}
+      ],
+      totals:{gross_total:28.35,tax_base:null,tax_amount:null,total:28.35},
+      payment_method:'EFECTIVO',
+      previous_record_hash:null,
+      record_hash:null,
+      aeat:{status:'NO_CONECTADO',response:null},
+      immutable_in_this_demo_ui:true,
+      warning:'MODELO INCOMPLETO: IVA, HASH, QR Y ESQUEMA AEAT PENDIENTES DE FASES POSTERIORES'
+    };
+  }
+
+  btn.addEventListener('click',function(){
+    if(generated)return;
+    const record=canonicalRecord();
+    box.textContent=JSON.stringify(record,null,2);
+    generated=true;
+    btn.disabled=true;
+    btn.textContent='REGISTRO GENERADO · BLOQUEADO EN ESTA UI';
+    tag.textContent='GENERADO';
+    tag.className='tag gen';
+    addEvent('Registro fiscal VF-LAB-000001 generado como entidad separada del ticket comercial.');
+    addEvent('Edición posterior bloqueada desde la interfaz de esta LAB.');
+  });
+})();
+</script>
+</body>
+</html>
