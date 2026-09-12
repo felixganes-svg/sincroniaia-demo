@@ -49,20 +49,25 @@ Estado validado hasta 12/09/2026:
 - numeración central de backend, huella calculada en servidor, encadenamiento, transacción registro+contador y verificación `/integrity`: validados automáticamente;
 - registros fiscales del backend protegidos contra `UPDATE` y `DELETE` mediante ausencia de endpoints de modificación y triggers SQLite append-only;
 - evidencia backend 1.7: workflow `verifactu backend 1.7`, run `34719729472`, job `backend-tests`, resultado `success`;
+- backend LAB 1.8: estados de envío/respuesta modelados como eventos separados append-only, sin reescribir `fiscal_records`;
+- transiciones validadas: `PENDIENTE_ENVIO -> ENVIADO -> RECHAZADO -> REINTENTO_PENDIENTE -> ENVIADO -> ACEPTADO`;
+- transiciones inválidas bloqueadas; `state_events` protegido contra `UPDATE` y `DELETE`; huella original conservada durante cambios de estado;
+- evidencia backend 1.8: workflow `verifactu backend 1.8`, run `34719918175`, job `backend-tests`, resultado `success`;
 - la SQLite probada en GitHub Actions es temporal y NO equivale todavía a conservación fiscal robusta desplegada;
 - no hay remisión real a AEAT;
 - no hay autenticación/certificado de servicio;
-- no hay gestión real de respuestas, rechazos o reintentos AEAT;
+- no hay respuesta real procedente de AEAT;
+- no hay política final de reintentos temporizados;
 - no hay despliegue persistente de backend fiscal;
 - no hay declaración responsable ni conformidad global demostrada.
 
 ## Próximo bloque técnico
 
 Siguiente objetivo autorizado en la copia aislada:
-1. estados de envío y respuesta AEAT sobre backend append-only;
-2. modelar `PENDIENTE_ENVIO`, `ENVIADO`, `ACEPTADO`, `ACEPTADO_CON_INCIDENCIA`, `RECHAZADO`, `REINTENTO_PENDIENTE` sin sobrescribir el registro fiscal original;
-3. preparar transporte al servicio AEAT de pruebas con certificado cuando proceda;
-4. modelar rechazo/reintento;
+1. preparar transporte real al servicio AEAT de pruebas sin activarlo todavía en producción;
+2. modelar cliente HTTP/SOAP con certificado y configuración separada;
+3. distinguir envío simulado de envío real y bloquear el real sin credenciales explícitas;
+4. registrar petición/respuesta como eventos técnicos append-only;
 5. rectificación/anulación conforme a estructura oficial antes de integración con TPV.
 
 Principio: no promocionar ni declarar VERI*FACTU operativo sin evidencia completa y sellado.
