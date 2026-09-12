@@ -53,21 +53,28 @@ Estado validado hasta 12/09/2026:
 - transiciones validadas: `PENDIENTE_ENVIO -> ENVIADO -> RECHAZADO -> REINTENTO_PENDIENTE -> ENVIADO -> ACEPTADO`;
 - transiciones inválidas bloqueadas; `state_events` protegido contra `UPDATE` y `DELETE`; huella original conservada durante cambios de estado;
 - evidencia backend 1.8: workflow `verifactu backend 1.8`, run `34719918175`, job `backend-tests`, resultado `success`;
+- backend LAB 1.9: cliente SOAP de preproducción preparado con envío real desactivado por defecto;
+- lista blanca de transporte limitada a `prewww1.aeat.es` y `prewww10.aeat.es`; endpoint de producción bloqueado en LAB;
+- certificado cliente obligatorio para considerar el transporte preparado para red;
+- eventos técnicos de petición/respuesta modelados como append-only y protegidos contra `UPDATE`/`DELETE`;
+- petición y respuesta trazadas por SHA-256 sin almacenar secretos del certificado;
+- respuesta AEAT simulada `Correcto/Correcto` validada como `PENDIENTE_ENVIO -> ENVIADO -> ACEPTADO` sin modificar la huella fiscal;
+- evidencia backend 1.9: workflow `verifactu backend 1.9`, run `34720139172`, job `backend-tests`, resultado `success`, `5 passed`;
+- ninguna prueba 1.9 realizó una remisión real a AEAT;
 - la SQLite probada en GitHub Actions es temporal y NO equivale todavía a conservación fiscal robusta desplegada;
-- no hay remisión real a AEAT;
-- no hay autenticación/certificado de servicio;
+- no hay autenticación real con certificado ante AEAT;
 - no hay respuesta real procedente de AEAT;
-- no hay política final de reintentos temporizados;
+- no hay política final de reintentos temporizados para ausencia de respuesta;
 - no hay despliegue persistente de backend fiscal;
 - no hay declaración responsable ni conformidad global demostrada.
 
 ## Próximo bloque técnico
 
 Siguiente objetivo autorizado en la copia aislada:
-1. preparar transporte real al servicio AEAT de pruebas sin activarlo todavía en producción;
-2. modelar cliente HTTP/SOAP con certificado y configuración separada;
-3. distinguir envío simulado de envío real y bloquear el real sin credenciales explícitas;
-4. registrar petición/respuesta como eventos técnicos append-only;
+1. preparar una prueba controlada de autenticación/conectividad con el entorno AEAT de preproducción, sin activar producción;
+2. separar certificado/clave de código y repositorio y comprobar su carga segura;
+3. definir comportamiento ante timeout o ausencia de respuesta, manteniendo trazabilidad y reintento seguro;
+4. validar respuestas reales de preproducción cuando exista certificado de prueba/autorizado;
 5. rectificación/anulación conforme a estructura oficial antes de integración con TPV.
 
 Principio: no promocionar ni declarar VERI*FACTU operativo sin evidencia completa y sellado.
