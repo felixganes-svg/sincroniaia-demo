@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import os
 import sqlite3
 from datetime import datetime
@@ -10,10 +9,12 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
+import transport
+
 DB_PATH = Path(os.getenv("VERIFACTU_DB", Path(__file__).with_name("verifactu_dev.sqlite3")))
 SERIES = "VF-SRV-D"
 
-app = FastAPI(title="SINCRONIAIA FISCAL · VERI*FACTU BACKEND LAB 1.8")
+app = FastAPI(title="SINCRONIAIA FISCAL · VERI*FACTU BACKEND LAB 1.9")
 
 
 class RecordIn(BaseModel):
@@ -87,6 +88,20 @@ def init_db() -> None:
               FOREIGN KEY(fiscal_record_id) REFERENCES fiscal_records(id)
             );
 
+            CREATE TABLE IF NOT EXISTS technical_events (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              fiscal_record_id INTEGER NOT NULL,
+              kind TEXT NOT NULL,
+              endpoint TEXT,
+              request_sha256 TEXT,
+              response_sha256 TEXT,
+              http_status INTEGER,
+              result TEXT,
+              detail TEXT,
+              created_at TEXT NOT NULL,
+              FOREIGN KEY(fiscal_record_id) REFERENCES fiscal_records(id)
+            );
+
             CREATE TRIGGER IF NOT EXISTS fiscal_records_no_update
             BEFORE UPDATE ON fiscal_records
             BEGIN
@@ -109,6 +124,18 @@ def init_db() -> None:
             BEFORE DELETE ON state_events
             BEGIN
               SELECT RAISE(ABORT, 'append-only events: DELETE forbidden');
+            END;
+
+            CREATE TRIGGER IF NOT EXISTS technical_events_no_update
+            BEFORE UPDATE ON technical_events
+            BEGIN
+              SELECT RAISE(ABORT, 'append-only technical events: UPDATE forbidden');
+            END;
+
+            CREATE TRIGGER IF NOT EXISTS technical_events_no_delete
+            BEFORE DELETE ON technical_events
+            BEGIN
+              SELECT RAISE(ABORT, 'append-only technical events: DELETE forbidden');
             END;
 
             INSERT OR IGNORE INTO meta(key, value) VALUES ('next_number', '1');
@@ -138,6 +165,7 @@ def hash_input(r: dict) -> str:
 
 
 def sha256_upper(text: str) -> str:
+    import hashlib
     return hashlib.sha256(text.encode("utf-8")).hexdigest().upper()
 
 
@@ -168,6 +196,20 @@ def event_to_api(row: sqlite3.Row) -> dict:
     }
 
 
+def technical_to_api(row: sqlite3.Row) -> dict:
+    return {
+        "id": row["id"],
+        "kind": row["kind"],
+        "endpoint": row["endpoint"],
+        "requestSha256": row["request_sha256"],
+        "responseSha256": row["response_sha256"],
+        "httpStatus": row["http_status"],
+        "result": row["result"],
+        "detail": row["detail"],
+        "createdAt": row["created_at"],
+    }
+
+
 def get_record_row(conn: sqlite3.Connection, numero: str) -> sqlite3.Row:
     row = conn.execute("SELECT * FROM fiscal_records WHERE numero = ?", (numero,)).fetchone()
     if not row:
@@ -183,6 +225,58 @@ def latest_state(conn: sqlite3.Connection, fiscal_record_id: int) -> Optional[st
     return row["estado"] if row else None
 
 
+def append_state_event_db(
+    conn: sqlite3.Connection,
+    row: sqlite3.Row,
+    target: str,
+    source: str,
+    codigo: Optional[str] = None,
+    detalle: Optional[str] = None,
+    fecha_hora: Optional[str] = None,
+) -> sqlite3.Row:
+    current = latest_state(conn, row["id"])
+    if target not in ALLOWED_TRANSITIONS.get(current, set()):
+        raise HTTPException(
+            status_code=409,
+            detail={"reason": "INVALID_STATE_TRANSITION", "from": current, "to": target},
+        )
+    event_time = fecha_hora or local_iso_now()
+    cur = conn.execute(
+        """
+        INSERT INTO state_events(
+          fiscal_record_id, estado, codigo, detalle, source, fecha_hora, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        """,
+        (row["id"], target, codigo, detalle, source, event_time, local_iso_now()),
+    )
+    return conn.execute("SELECT * FROM state_events WHERE id = ?", (cur.lastrowid,)).fetchone()
+
+
+def append_technical_event(
+    fiscal_record_id: int,
+    kind: str,
+    endpoint: Optional[str] = None,
+    request_sha256: Optional[str] = None,
+    response_sha256: Optional[str] = None,
+    http_status: Optional[int] = None,
+    result: Optional[str] = None,
+    detail: Optional[str] = None,
+) -> None:
+    with connect() as conn:
+        conn.execute(
+            """
+            INSERT INTO technical_events(
+              fiscal_record_id, kind, endpoint, request_sha256, response_sha256,
+              http_status, result, detail, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                fiscal_record_id, kind, endpoint, request_sha256, response_sha256,
+                http_status, result, detail, local_iso_now(),
+            ),
+        )
+
+
 @app.on_event("startup")
 def startup() -> None:
     init_db()
@@ -190,13 +284,35 @@ def startup() -> None:
 
 @app.get("/health")
 def health() -> dict:
+    cfg = transport.TransportConfig.from_env()
+    ready, reason = cfg.readiness()
     return {
         "status": "ok",
-        "lab": "1.8",
+        "lab": "1.9",
         "storage": "sqlite-append-only-demo",
         "state_events": "append-only",
+        "technical_events": "append-only",
         "production": False,
         "aeat_connected": False,
+        "aeat_real_send_enabled": cfg.enabled,
+        "aeat_transport_ready": ready,
+        "aeat_transport_reason": reason,
+    }
+
+
+@app.get("/transport/status")
+def transport_status() -> dict:
+    cfg = transport.TransportConfig.from_env()
+    ready, reason = cfg.readiness()
+    return {
+        "enabled": cfg.enabled,
+        "ready": ready,
+        "reason": reason,
+        "endpoint": cfg.endpoint,
+        "endpointPreproductionWhitelisted": cfg.endpoint in transport.PREPROD_ENDPOINTS,
+        "certificateConfigured": bool(cfg.cert_file),
+        "keyConfigured": bool(cfg.key_file),
+        "productionAllowed": False,
     }
 
 
@@ -288,6 +404,17 @@ def list_state_events(numero: str) -> list[dict]:
     return [event_to_api(e) for e in events]
 
 
+@app.get("/records/{numero}/technical-events")
+def list_technical_events(numero: str) -> list[dict]:
+    with connect() as conn:
+        row = get_record_row(conn, numero)
+        events = conn.execute(
+            "SELECT * FROM technical_events WHERE fiscal_record_id = ? ORDER BY id",
+            (row["id"],),
+        ).fetchall()
+    return [technical_to_api(e) for e in events]
+
+
 @app.get("/records/{numero}/state")
 def get_current_state(numero: str) -> dict:
     with connect() as conn:
@@ -303,36 +430,142 @@ def append_state_event(numero: str, payload: StateEventIn) -> dict:
     try:
         conn.execute("BEGIN IMMEDIATE")
         row = get_record_row(conn, numero)
-        current = latest_state(conn, row["id"])
-        allowed = ALLOWED_TRANSITIONS.get(current, set())
-        if target not in allowed:
-            conn.rollback()
-            raise HTTPException(
-                status_code=409,
-                detail={"reason": "INVALID_STATE_TRANSITION", "from": current, "to": target},
-            )
-        event_time = payload.fechaHora or local_iso_now()
-        cur = conn.execute(
-            """
-            INSERT INTO state_events(
-              fiscal_record_id, estado, codigo, detalle, source, fecha_hora, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                row["id"], target, payload.codigo, payload.detalle,
-                payload.source, event_time, local_iso_now(),
-            ),
+        created = append_state_event_db(
+            conn, row, target, payload.source, payload.codigo, payload.detalle, payload.fechaHora
         )
         conn.commit()
-        created = conn.execute("SELECT * FROM state_events WHERE id = ?", (cur.lastrowid,)).fetchone()
         return {"numero": numero, "evento": event_to_api(created), "estadoActual": target}
     except HTTPException:
+        conn.rollback()
         raise
     except sqlite3.Error as exc:
         conn.rollback()
         raise HTTPException(status_code=409, detail=str(exc)) from exc
     finally:
         conn.close()
+
+
+def _record_and_previous(numero: str) -> tuple[sqlite3.Row, Optional[sqlite3.Row], str]:
+    with connect() as conn:
+        row = get_record_row(conn, numero)
+        prev = conn.execute(
+            "SELECT * FROM fiscal_records WHERE id < ? ORDER BY id DESC LIMIT 1",
+            (row["id"],),
+        ).fetchone()
+        current = latest_state(conn, row["id"])
+    return row, prev, current
+
+
+@app.post("/records/{numero}/transport/prepare")
+def prepare_transport(numero: str) -> dict:
+    row, prev, current = _record_and_previous(numero)
+    if current not in {"PENDIENTE_ENVIO", "REINTENTO_PENDIENTE"}:
+        raise HTTPException(status_code=409, detail={"reason": "STATE_NOT_SENDABLE", "state": current})
+    xml = transport.build_soap(row_to_api(row), row_to_api(prev) if prev else None)
+    cfg = transport.TransportConfig.from_env()
+    request_hash = transport.body_sha256(xml)
+    append_technical_event(
+        row["id"], "REQUEST_PREPARED", cfg.endpoint, request_hash,
+        result="NOT_SENT", detail="SOAP preparado; sin remisión de red",
+    )
+    ready, reason = cfg.readiness()
+    return {
+        "numero": numero,
+        "estadoActual": current,
+        "requestSha256": request_hash,
+        "bytes": len(xml.encode("utf-8")),
+        "transportReady": ready,
+        "transportReason": reason,
+        "sent": False,
+    }
+
+
+@app.post("/records/{numero}/transport/send")
+def send_transport(numero: str) -> dict:
+    row, prev, current = _record_and_previous(numero)
+    if current not in {"PENDIENTE_ENVIO", "REINTENTO_PENDIENTE"}:
+        raise HTTPException(status_code=409, detail={"reason": "STATE_NOT_SENDABLE", "state": current})
+
+    record = row_to_api(row)
+    xml = transport.build_soap(record, row_to_api(prev) if prev else None)
+    request_hash = transport.body_sha256(xml)
+    cfg = transport.TransportConfig.from_env()
+    ready, reason = cfg.readiness()
+    if not ready:
+        append_technical_event(
+            row["id"], "SEND_BLOCKED", cfg.endpoint, request_hash,
+            result=reason, detail="No se realizó ninguna conexión de red",
+        )
+        raise HTTPException(status_code=503, detail={"reason": reason, "sent": False})
+
+    append_technical_event(
+        row["id"], "SEND_ATTEMPT", cfg.endpoint, request_hash,
+        result="NETWORK_CALL_START", detail="Preproducción AEAT autorizada por configuración explícita",
+    )
+    try:
+        response = transport.perform_send(xml, cfg)
+    except Exception as exc:
+        append_technical_event(
+            row["id"], "TRANSPORT_ERROR", cfg.endpoint, request_hash,
+            result=type(exc).__name__, detail=str(exc)[:500],
+        )
+        raise HTTPException(status_code=502, detail={"reason": "TRANSPORT_ERROR"}) from exc
+
+    response_hash = transport.body_sha256(response.body)
+    if not 200 <= response.status_code < 300:
+        append_technical_event(
+            row["id"], "HTTP_ERROR", cfg.endpoint, request_hash, response_hash,
+            response.status_code, "HTTP_ERROR", response.body[:500],
+        )
+        raise HTTPException(status_code=502, detail={"reason": "AEAT_HTTP_ERROR", "status": response.status_code})
+
+    try:
+        parsed = transport.parse_aeat_response(response.body)
+    except Exception as exc:
+        append_technical_event(
+            row["id"], "RESPONSE_PARSE_ERROR", cfg.endpoint, request_hash, response_hash,
+            response.status_code, type(exc).__name__, str(exc)[:500],
+        )
+        raise HTTPException(status_code=502, detail={"reason": "AEAT_RESPONSE_PARSE_ERROR"}) from exc
+
+    target = parsed.get("estadoInterno")
+    if not target:
+        append_technical_event(
+            row["id"], "RESPONSE_UNMAPPED", cfg.endpoint, request_hash, response_hash,
+            response.status_code, parsed.get("estadoRegistro"), str(parsed)[:500],
+        )
+        raise HTTPException(status_code=502, detail={"reason": "AEAT_RESPONSE_UNMAPPED"})
+
+    conn = connect()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        fresh = get_record_row(conn, numero)
+        append_state_event_db(conn, fresh, "ENVIADO", "AEAT_TRANSPORT_1_9", detalle="HTTP 2xx recibido")
+        append_state_event_db(
+            conn, fresh, target, "AEAT_RESPONSE_1_9",
+            codigo=parsed.get("codigo"), detalle=parsed.get("descripcion"),
+        )
+        conn.commit()
+    except HTTPException:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+    append_technical_event(
+        row["id"], "RESPONSE_RECEIVED", cfg.endpoint, request_hash, response_hash,
+        response.status_code, target,
+        f"EstadoEnvio={parsed.get('estadoEnvio')}; EstadoRegistro={parsed.get('estadoRegistro')}",
+    )
+    return {
+        "numero": numero,
+        "sent": True,
+        "httpStatus": response.status_code,
+        "requestSha256": request_hash,
+        "responseSha256": response_hash,
+        "aeat": parsed,
+        "estadoActual": target,
+    }
 
 
 @app.get("/integrity")
