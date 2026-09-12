@@ -3,86 +3,70 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>SINCRONIAIA FISCAL · VERI*FACTU LAB 1.1</title>
+<title>SINCRONIAIA FISCAL · VERI*FACTU LAB 1.2</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:980px;margin:auto;padding:14px}.hero{background:#111827;color:#fff;border-radius:18px;padding:20px}.hero h1{margin:0 0 8px;font-size:24px}.hero p{margin:0;color:#cbd5e1;line-height:1.45}.warn{margin:12px 0;padding:12px 14px;border-radius:13px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-weight:800}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}.card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px;margin-top:12px}.card h2{margin:0 0 10px;font-size:18px}.kv{display:grid;grid-template-columns:145px 1fr;gap:7px 10px;font-size:13px}.k{color:#64748b}.v{font-weight:700;word-break:break-word}.lines{width:100%;border-collapse:collapse;font-size:13px}.lines th,.lines td{padding:8px 6px;border-bottom:1px solid #e5e7eb;text-align:left}.lines th:last-child,.lines td:last-child{text-align:right}.total{display:flex;justify-content:space-between;font-size:18px;font-weight:900;margin-top:10px}.btn{width:100%;border:0;border-radius:12px;padding:13px 14px;background:#111827;color:#fff;font-weight:900;font-size:14px;margin-top:8px}.btn.alt{background:#334155}.btn[disabled]{background:#94a3b8}.tag{display:inline-block;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900}.demo{background:#fee2e2;color:#991b1b}.gen{background:#dcfce7;color:#166534}.ok{background:#dbeafe;color:#1d4ed8}.muted{color:#64748b;font-size:12px;line-height:1.45}.box{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;overflow:auto;min-height:160px}.event{padding:8px 0;border-bottom:1px dashed #cbd5e1;font-size:12px}.event:last-child{border-bottom:0}.hash{font:11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all;background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:8px}.foot{padding:18px 2px 30px;color:#64748b;font-size:11px}@media(max-width:560px){.wrap{padding:9px}.hero h1{font-size:21px}.kv{grid-template-columns:1fr}.k{font-weight:800}}
+*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:1000px;margin:auto;padding:14px}.hero{background:#111827;color:#fff;border-radius:18px;padding:20px}.hero h1{margin:0 0 8px;font-size:24px}.hero p{margin:0;color:#cbd5e1;line-height:1.45}.warn{margin:12px 0;padding:12px 14px;border-radius:13px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-weight:800}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}.card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px;margin-top:12px}.card h2{margin:0 0 10px;font-size:18px}.kv{display:grid;grid-template-columns:155px 1fr;gap:7px 10px;font-size:13px}.k{color:#64748b}.v{font-weight:700;word-break:break-word}.lines{width:100%;border-collapse:collapse;font-size:13px}.lines th,.lines td{padding:8px 6px;border-bottom:1px solid #e5e7eb;text-align:left}.lines th:last-child,.lines td:last-child{text-align:right}.total{display:flex;justify-content:space-between;font-size:18px;font-weight:900;margin-top:10px}.btn{width:100%;border:0;border-radius:12px;padding:13px 14px;background:#111827;color:#fff;font-weight:900;font-size:14px;margin-top:8px}.btn.alt{background:#334155}.btn[disabled]{background:#94a3b8}.tag{display:inline-block;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900}.demo{background:#fee2e2;color:#991b1b}.gen{background:#dcfce7;color:#166534}.ok{background:#dbeafe;color:#1d4ed8}.muted{color:#64748b;font-size:12px;line-height:1.45}.box{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:12px;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;overflow:auto;min-height:130px}.event{padding:8px 0;border-bottom:1px dashed #cbd5e1;font-size:12px}.event:last-child{border-bottom:0}.hash{font:11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all;background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:8px}.qrTicket{max-width:340px;margin:auto;background:#fff;border:1px dashed #111;padding:14px;text-align:center}.qrTitle{font-size:13px;font-weight:900;margin-bottom:6px}.qrWrap{width:35mm;height:35mm;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;background:#fff}.qrWrap canvas,.qrWrap img{max-width:35mm!important;max-height:35mm!important;width:35mm!important;height:35mm!important}.vf{font-weight:900;font-size:13px}.ticketData{margin-top:10px;text-align:left;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace}.url{font:10px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all;background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:8px}.foot{padding:18px 2px 30px;color:#64748b;font-size:11px}@media(max-width:560px){.wrap{padding:9px}.hero h1{font-size:21px}.kv{grid-template-columns:1fr}.k{font-weight:800}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header class="hero">
-  <h1>SINCRONIAIA FISCAL · VERI*FACTU LAB 1.1</h1>
-  <p>FASE 2 · Registro fiscal de prueba con huella SHA-256 y encadenamiento. Separado del TPV Alimentación protegido.</p>
-</header>
-<div class="warn">NO PRODUCCIÓN · NO VERI*FACTU OPERATIVO · DATOS FICTICIOS · NO ENVÍA NADA A AEAT</div>
+<header class="hero"><h1>SINCRONIAIA FISCAL · VERI*FACTU LAB 1.2</h1><p>FASE 3 · Huella, encadenamiento y representación QR tributaria técnica de prueba. Separado del TPV Alimentación protegido.</p></header>
+<div class="warn">NO PRODUCCIÓN · NO VERI*FACTU OPERATIVO · DATOS DE PRUEBA · NO REMITE REGISTROS A AEAT</div>
 
 <div class="grid">
 <section class="card">
-  <h2>1 · Ticket comercial ficticio A</h2>
-  <div class="kv"><div class="k">Ticket origen</div><div class="v">DEMO-0023</div><div class="k">Fecha/hora</div><div class="v">12/09/2026 · 17:15:00</div><div class="k">Vendedor</div><div class="v">VENDEDOR DEMO</div><div class="k">Pago</div><div class="v">Efectivo</div></div>
-  <table class="lines"><thead><tr><th>Artículo</th><th>Cant.</th><th>Precio</th><th>Importe</th></tr></thead><tbody><tr><td>Callos DEMO</td><td>2,000 kg</td><td>6,50 €</td><td>13,00 €</td></tr><tr><td>Canelones DEMO</td><td>1 ud</td><td>9,10 €</td><td>9,10 €</td></tr><tr><td>Flauta DEMO</td><td>0,250 kg</td><td>25,00 €</td><td>6,25 €</td></tr></tbody></table>
-  <div class="total"><span>Total</span><span>28,35 €</span></div>
-  <p class="muted">Solo datos ficticios. No se lee ni modifica el TPV actual.</p>
+<h2>1 · Ticket comercial ficticio A</h2>
+<div class="kv"><div class="k">Ticket origen</div><div class="v">DEMO-0023</div><div class="k">Fecha/hora</div><div class="v">12/09/2026 · 17:15:00</div><div class="k">Vendedor</div><div class="v">VENDEDOR DEMO</div><div class="k">Pago</div><div class="v">Efectivo</div></div>
+<table class="lines"><thead><tr><th>Artículo</th><th>Cant.</th><th>Precio</th><th>Importe</th></tr></thead><tbody><tr><td>Callos DEMO</td><td>2,000 kg</td><td>6,50 €</td><td>13,00 €</td></tr><tr><td>Canelones DEMO</td><td>1 ud</td><td>9,10 €</td><td>9,10 €</td></tr><tr><td>Flauta DEMO</td><td>0,250 kg</td><td>25,00 €</td><td>6,25 €</td></tr></tbody></table>
+<div class="total"><span>Total</span><span>28,35 €</span></div><p class="muted">Solo datos ficticios. No se lee ni modifica el TPV actual.</p>
 </section>
-
 <section class="card">
-  <h2>2 · Registro fiscal A</h2>
-  <button id="generateA" class="btn" type="button">GENERAR REGISTRO A + SHA-256</button>
-  <div style="margin-top:12px"><span id="tagA" class="tag demo">NO GENERADO</span></div>
-  <div id="recordA" class="box" style="margin-top:10px">Aún no existe registro fiscal A.</div>
-  <div class="k" style="margin-top:10px">Hash A</div><div id="hashA" class="hash">Pendiente</div>
+<h2>2 · Registro fiscal A</h2>
+<button id="generateA" class="btn" type="button">GENERAR REGISTRO A + SHA-256</button><div style="margin-top:12px"><span id="tagA" class="tag demo">NO GENERADO</span></div><div id="recordA" class="box" style="margin-top:10px">Aún no existe registro fiscal A.</div><div class="k" style="margin-top:10px">Hash A</div><div id="hashA" class="hash">Pendiente</div>
 </section>
 </div>
 
 <div class="grid">
-<section class="card">
-  <h2>3 · Ticket comercial ficticio B</h2>
-  <div class="kv"><div class="k">Ticket origen</div><div class="v">DEMO-0024</div><div class="k">Fecha/hora</div><div class="v">12/09/2026 · 17:18:00</div><div class="k">Vendedor</div><div class="v">VENDEDOR DEMO</div><div class="k">Pago</div><div class="v">Tarjeta</div></div>
-  <table class="lines"><tbody><tr><td>Lomo DEMO</td><td>1,000 kg</td><td>16,95 €</td><td>16,95 €</td></tr></tbody></table>
-  <div class="total"><span>Total</span><span>16,95 €</span></div>
-  <p class="muted">El registro B solo puede generarse después de A, para heredar su huella.</p>
-</section>
-
-<section class="card">
-  <h2>4 · Registro fiscal B encadenado</h2>
-  <button id="generateB" class="btn alt" type="button" disabled>GENERAR REGISTRO B ENCADENADO</button>
-  <div style="margin-top:12px"><span id="tagB" class="tag demo">ESPERANDO A</span></div>
-  <div class="k" style="margin-top:10px">Hash anterior guardado en B</div><div id="prevB" class="hash">Pendiente</div>
-  <div class="k" style="margin-top:10px">Hash B</div><div id="hashB" class="hash">Pendiente</div>
-</section>
+<section class="card"><h2>3 · Ticket comercial ficticio B</h2><div class="kv"><div class="k">Ticket origen</div><div class="v">DEMO-0024</div><div class="k">Fecha/hora</div><div class="v">12/09/2026 · 17:18:00</div><div class="k">Vendedor</div><div class="v">VENDEDOR DEMO</div><div class="k">Pago</div><div class="v">Tarjeta</div></div><table class="lines"><tbody><tr><td>Lomo DEMO</td><td>1,000 kg</td><td>16,95 €</td><td>16,95 €</td></tr></tbody></table><div class="total"><span>Total</span><span>16,95 €</span></div><p class="muted">El registro B solo puede generarse después de A, para heredar su huella.</p></section>
+<section class="card"><h2>4 · Registro fiscal B encadenado</h2><button id="generateB" class="btn alt" type="button" disabled>GENERAR REGISTRO B ENCADENADO</button><div style="margin-top:12px"><span id="tagB" class="tag demo">ESPERANDO A</span></div><div class="k" style="margin-top:10px">Hash anterior guardado en B</div><div id="prevB" class="hash">Pendiente</div><div class="k" style="margin-top:10px">Hash B</div><div id="hashB" class="hash">Pendiente</div></section>
 </div>
 
-<section class="card">
-  <h2>5 · Verificación de cadena</h2>
-  <button id="verifyBtn" class="btn" type="button" disabled>VERIFICAR CADENA A → B</button>
-  <div style="margin-top:12px"><span id="chainTag" class="tag demo">NO VERIFICADA</span></div>
-  <p id="chainText" class="muted">Se comprobará que el hash anterior guardado en B coincide exactamente con la huella de A y que ambas huellas siguen correspondiendo a sus datos canónicos.</p>
-</section>
+<section class="card"><h2>5 · Verificación de cadena</h2><button id="verifyBtn" class="btn" type="button" disabled>VERIFICAR CADENA A → B</button><div style="margin-top:12px"><span id="chainTag" class="tag demo">NO VERIFICADA</span></div><p id="chainText" class="muted">Se comprobará que el hash anterior guardado en B coincide exactamente con la huella de A y que ambas huellas siguen correspondiendo a sus datos canónicos.</p></section>
 
 <section class="card">
-  <h2>6 · Trazabilidad básica del LAB</h2>
-  <div id="events"><div class="event">LAB 1.1 iniciado · cadena vacía.</div></div>
-</section>
-
-<section class="card">
-  <h2>Qué demuestra esta versión</h2>
-  <div class="kv"><div class="k">Aislamiento</div><div class="v">Sí · ruta y código propios.</div><div class="k">Registro separado</div><div class="v">Sí · objetos fiscales distintos de los tickets comerciales.</div><div class="k">SHA-256</div><div class="v">IMPLEMENTADO EN LAB mediante Web Crypto.</div><div class="k">Encadenamiento</div><div class="v">IMPLEMENTADO EN LAB: B conserva hash de A.</div><div class="k">Verificación</div><div class="v">IMPLEMENTADA EN LAB sobre los datos canónicos de prueba.</div><div class="k">Persistencia fiscal robusta</div><div class="v">NO IMPLEMENTADA.</div><div class="k">QR fiscal</div><div class="v">NO IMPLEMENTADO.</div><div class="k">AEAT</div><div class="v">NO CONECTADO.</div></div>
-</section>
-
-<div class="foot">SINCRONIAIA · EVIDENCIA ANTES QUE AFIRMACIÓN · VERI*FACTU LAB 1.1</div>
+<h2>6 · QR tributario técnico · FASE 3</h2>
+<p class="muted">Este QR usa la URL oficial del <strong>entorno de pruebas</strong> indicada por AEAT. El NIF <strong>89890001K</strong> es un valor de ejemplo publicado en la documentación técnica de AEAT. No identifica a SINCRONIAIA ni a un cliente real. Esta LAB no ha remitido ningún registro: si se escanea, el servicio de pruebas puede responder que la factura no se encuentra.</p>
+<button id="qrBtn" class="btn" type="button">GENERAR REPRESENTACIÓN QR DE PRUEBA</button>
+<div id="qrStatus" style="margin-top:12px"><span class="tag demo">NO GENERADO</span></div>
+<div id="qrTicket" class="qrTicket" style="margin-top:12px;display:none">
+  <div class="qrTitle">QR tributario:</div>
+  <div id="qr" class="qrWrap"></div>
+  <div class="vf">VERI*FACTU</div>
+  <div class="ticketData">NIF ejemplo AEAT: 89890001K<br>Factura: VF-DEMO-0023<br>Fecha: 12-09-2026<br>Importe total: 28,35 €</div>
 </div>
+<div class="k" style="margin-top:12px">URL codificada en el QR</div><div id="qrUrl" class="url">Pendiente</div>
+<div class="kv" style="margin-top:12px"><div class="k">Tamaño representado</div><div class="v">35 × 35 mm</div><div class="k">Corrección de errores</div><div class="v">Nivel M</div><div class="k">Entorno</div><div class="v">Pruebas externas AEAT</div><div class="k">Envío AEAT</div><div class="v">NO realizado</div></div>
+</section>
+
+<section class="card"><h2>7 · Trazabilidad básica del LAB</h2><div id="events"><div class="event">LAB 1.2 iniciado · cadena y QR pendientes.</div></div></section>
+
+<section class="card"><h2>Qué demuestra esta versión</h2><div class="kv"><div class="k">Aislamiento</div><div class="v">Sí · ruta y código propios.</div><div class="k">Registro separado</div><div class="v">Sí · objetos fiscales distintos de los tickets comerciales.</div><div class="k">SHA-256</div><div class="v">IMPLEMENTADO EN LAB mediante Web Crypto.</div><div class="k">Encadenamiento</div><div class="v">IMPLEMENTADO EN LAB: B conserva hash de A.</div><div class="k">Verificación</div><div class="v">IMPLEMENTADA EN LAB.</div><div class="k">QR técnico</div><div class="v">IMPLEMENTADO EN LAB con URL de pruebas AEAT.</div><div class="k">Persistencia fiscal robusta</div><div class="v">NO IMPLEMENTADA.</div><div class="k">Esquema de alta AEAT</div><div class="v">NO IMPLEMENTADO.</div><div class="k">Remisión AEAT</div><div class="v">NO CONECTADA.</div></div></section>
+<div class="foot">SINCRONIAIA · EVIDENCIA ANTES QUE AFIRMACIÓN · VERI*FACTU LAB 1.2</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
 <script>
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);let recordA=null,recordB=null;
 function addEvent(text){const d=document.createElement('div');d.className='event';d.textContent=new Date().toLocaleString('es-ES')+' · '+text;$('events').prepend(d)}
-function stable(value){if(Array.isArray(value))return '['+value.map(stable).join(',')+']';if(value&&typeof value==='object'){return '{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+stable(value[k])).join(',')+'}'}return JSON.stringify(value)}
+function stable(value){if(Array.isArray(value))return '['+value.map(stable).join(',')+']';if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+stable(value[k])).join(',')+'}';return JSON.stringify(value)}
 async function sha256(text){const bytes=new TextEncoder().encode(text);const digest=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('')}
 function payloadForHash(r){const c=JSON.parse(JSON.stringify(r));delete c.record_hash;return c}
-function baseRecord(id,ticket,total,payment,previous){return {lab_version:'1.1',record_state:'GENERADO',internal_id:id,commercial_ticket_ref:ticket,generated_at:new Date().toISOString(),issuer:{name:'EMPRESA DEMO SINCRONIAIA',tax_id:'NIF-DEMO-NO-VALIDO'},receiver:null,invoice_type:'SIMPLIFICADA_DEMO',totals:{gross_total:total,tax_base:null,tax_amount:null,total:total},payment_method:payment,previous_record_hash:previous,record_hash:null,aeat:{status:'NO_CONECTADO',response:null},immutable_in_this_demo_ui:true,warning:'LAB: IVA, QR, ESQUEMA AEAT Y PERSISTENCIA FISCAL ROBUSTA PENDIENTES'}}
+function baseRecord(id,ticket,total,payment,previous){return {lab_version:'1.2',record_state:'GENERADO',internal_id:id,commercial_ticket_ref:ticket,generated_at:new Date().toISOString(),issuer:{name:'EMPRESA DEMO SINCRONIAIA',tax_id:'89890001K',tax_id_note:'NIF de ejemplo publicado por AEAT'},receiver:null,invoice_type:'SIMPLIFICADA_DEMO',totals:{gross_total:total,tax_base:null,tax_amount:null,total:total},payment_method:payment,previous_record_hash:previous,record_hash:null,aeat:{status:'NO_CONECTADO',response:null},immutable_in_this_demo_ui:true,warning:'LAB: IVA, ESQUEMA DE ALTA, PERSISTENCIA FISCAL ROBUSTA Y REMISION AEAT PENDIENTES'}}
 $('generateA').addEventListener('click',async()=>{if(recordA)return;recordA=baseRecord('VF-LAB-000001','DEMO-0023',28.35,'EFECTIVO',null);recordA.lines=[{description:'Callos DEMO',quantity:2,unit:'kg',unit_price:6.50,gross_amount:13.00},{description:'Canelones DEMO',quantity:1,unit:'ud',unit_price:9.10,gross_amount:9.10},{description:'Flauta DEMO',quantity:.25,unit:'kg',unit_price:25,gross_amount:6.25}];recordA.record_hash=await sha256(stable(payloadForHash(recordA)));$('recordA').textContent=JSON.stringify(recordA,null,2);$('hashA').textContent=recordA.record_hash;$('tagA').textContent='GENERADO + HASH';$('tagA').className='tag gen';$('generateA').disabled=true;$('generateA').textContent='REGISTRO A BLOQUEADO EN ESTA UI';$('generateB').disabled=false;$('tagB').textContent='LISTO PARA ENCADENAR';$('tagB').className='tag ok';addEvent('Registro A generado y huella SHA-256 calculada.');addEvent('Registro A bloqueado desde esta interfaz.');});
 $('generateB').addEventListener('click',async()=>{if(!recordA||recordB)return;recordB=baseRecord('VF-LAB-000002','DEMO-0024',16.95,'TARJETA',recordA.record_hash);recordB.lines=[{description:'Lomo DEMO',quantity:1,unit:'kg',unit_price:16.95,gross_amount:16.95}];recordB.record_hash=await sha256(stable(payloadForHash(recordB)));$('prevB').textContent=recordB.previous_record_hash;$('hashB').textContent=recordB.record_hash;$('tagB').textContent='ENCADENADO';$('tagB').className='tag gen';$('generateB').disabled=true;$('generateB').textContent='REGISTRO B BLOQUEADO EN ESTA UI';$('verifyBtn').disabled=false;addEvent('Registro B generado con previous_record_hash = hash del registro A.');});
 $('verifyBtn').addEventListener('click',async()=>{if(!recordA||!recordB)return;const a=await sha256(stable(payloadForHash(recordA)));const b=await sha256(stable(payloadForHash(recordB)));const ok=a===recordA.record_hash&&b===recordB.record_hash&&recordB.previous_record_hash===recordA.record_hash;$('chainTag').textContent=ok?'CADENA CORRECTA':'CADENA INCORRECTA';$('chainTag').className='tag '+(ok?'gen':'demo');$('chainText').textContent=ok?'Verificación correcta: A conserva su huella, B conserva su propia huella y B referencia exactamente la huella de A.':'La cadena no coincide. Algún dato o huella ha cambiado.';addEvent(ok?'Cadena A → B verificada correctamente.':'ERROR: cadena A → B no válida.');});
+$('qrBtn').addEventListener('click',async()=>{const base='https://prewww2.aeat.es/wlpl/TIKE-CONT/ValidarQR';const params=new URLSearchParams({nif:'89890001K',numserie:'VF-DEMO-0023',fecha:'12-09-2026',importe:'28.35'});const url=base+'?'+params.toString();$('qrUrl').textContent=url;$('qr').innerHTML='';if(typeof QRCode==='undefined'){ $('qrStatus').innerHTML='<span class="tag demo">ERROR CARGANDO LIBRERÍA QR</span>';addEvent('ERROR: no se pudo cargar la librería QR.');return;}try{await QRCode.toCanvas(url,{errorCorrectionLevel:'M',margin:2,width:132},function(err,canvas){if(err)throw err;$('qr').appendChild(canvas)});$('qrTicket').style.display='block';$('qrStatus').innerHTML='<span class="tag gen">QR TÉCNICO GENERADO</span>';$('qrBtn').disabled=true;$('qrBtn').textContent='QR GENERADO · REPRESENTACIÓN BLOQUEADA';addEvent('QR técnico generado con URL oficial de pruebas AEAT, tamaño representado 35 mm y corrección M.');}catch(e){$('qrStatus').innerHTML='<span class="tag demo">ERROR GENERANDO QR</span>';addEvent('ERROR generando QR: '+e.message);}});
 })();
 </script>
 </body>
