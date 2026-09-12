@@ -12,6 +12,7 @@ def load_app(tmp_path: Path):
     os.environ.pop("VERIFACTU_AEAT_ENDPOINT", None)
     os.environ.pop("VERIFACTU_AEAT_CERT_FILE", None)
     os.environ.pop("VERIFACTU_AEAT_KEY_FILE", None)
+    os.environ.pop("VERIFACTU_AEAT_RETRY_WAIT_SECONDS", None)
     import app as backend
     importlib.reload(backend)
     return backend
@@ -26,6 +27,15 @@ def demo_payload(fecha_hora: str):
         "total": "22.45",
         "fechaHora": fecha_hora,
     }
+
+
+def enable_fake_transport(backend, tmp_path, monkeypatch):
+    cert = tmp_path / "demo-cert.pem"
+    cert.write_text("CERTIFICADO DEMO NO USADO EN TEST", encoding="utf-8")
+    monkeypatch.setenv("VERIFACTU_AEAT_SEND_ENABLED", "1")
+    monkeypatch.setenv("VERIFACTU_AEAT_ENDPOINT", backend.transport.DEFAULT_ENDPOINT)
+    monkeypatch.setenv("VERIFACTU_AEAT_CERT_FILE", str(cert))
+    return cert
 
 
 def test_append_only_chain_and_numbering(tmp_path, monkeypatch):
@@ -123,6 +133,7 @@ def test_transport_disabled_prepares_but_never_sends(tmp_path, monkeypatch):
     assert status["ready"] is False
     assert status["reason"] == "REAL_SEND_DISABLED"
     assert status["productionAllowed"] is False
+    assert status["defaultRetryWaitSeconds"] == 60
 
     prepared = client.post(f"/records/{numero}/transport/prepare")
     assert prepared.status_code == 200
@@ -171,17 +182,13 @@ def test_transport_simulated_aeat_acceptance_without_network(tmp_path, monkeypat
     created = client.post("/records", json=demo_payload("2026-09-12T23:45:00+02:00"))
     numero = created.json()["numero"]
     original_hash = created.json()["huella"]
-
-    cert = tmp_path / "demo-cert.pem"
-    cert.write_text("CERTIFICADO DEMO NO USADO EN TEST", encoding="utf-8")
-    monkeypatch.setenv("VERIFACTU_AEAT_SEND_ENABLED", "1")
-    monkeypatch.setenv("VERIFACTU_AEAT_ENDPOINT", backend.transport.DEFAULT_ENDPOINT)
-    monkeypatch.setenv("VERIFACTU_AEAT_CERT_FILE", str(cert))
+    enable_fake_transport(backend, tmp_path, monkeypatch)
 
     calls = []
     response_xml = """<?xml version='1.0' encoding='UTF-8'?>
     <RespuestaRegFactuSistemaFacturacion>
       <EstadoEnvio>Correcto</EstadoEnvio>
+      <TiempoEsperaEnvio>60</TiempoEsperaEnvio>
       <RespuestaLinea>
         <EstadoRegistro>Correcto</EstadoRegistro>
       </RespuestaLinea>
@@ -204,6 +211,7 @@ def test_transport_simulated_aeat_acceptance_without_network(tmp_path, monkeypat
     assert body["estadoActual"] == "ACEPTADO"
     assert body["aeat"]["estadoEnvio"] == "Correcto"
     assert body["aeat"]["estadoRegistro"] == "Correcto"
+    assert body["aeat"]["tiempoEsperaEnvio"] == 60
     assert len(calls) == 1
     assert "RegFactuSistemaFacturacion" in calls[0][0]
     assert calls[0][1] == backend.transport.DEFAULT_ENDPOINT
@@ -220,6 +228,60 @@ def test_transport_simulated_aeat_acceptance_without_network(tmp_path, monkeypat
     record = client.get(f"/records/{numero}").json()
     assert record["huella"] == original_hash
     assert record["estadoRegistro"] == "GENERADO"
+    assert client.get("/integrity").json()["ok"] is True
+
+
+def test_timeout_marks_retry_pending_and_blocks_early_retry(tmp_path, monkeypatch):
+    monkeypatch.syspath_prepend(str(Path(__file__).parent))
+    backend = load_app(tmp_path)
+    client = TestClient(backend.app)
+
+    created = client.post("/records", json=demo_payload("2026-09-12T23:55:00+02:00"))
+    numero = created.json()["numero"]
+    original_hash = created.json()["huella"]
+    enable_fake_transport(backend, tmp_path, monkeypatch)
+
+    calls = []
+
+    def fake_timeout(xml_text, config):
+        calls.append(xml_text)
+        raise backend.transport.TransportNoResponseError("TIMEOUT_NO_RESPONSE")
+
+    monkeypatch.setattr(backend.transport, "perform_send", fake_timeout)
+
+    result = client.post(f"/records/{numero}/transport/send")
+    assert result.status_code == 504
+    detail = result.json()["detail"]
+    assert detail["reason"] == "AEAT_NO_RESPONSE_RETRY_PENDING"
+    assert detail["retryAfterSeconds"] == 60
+    assert detail["sent"] == "UNKNOWN"
+    assert len(calls) == 1
+
+    states = client.get(f"/records/{numero}/events").json()
+    assert [x["estado"] for x in states] == ["PENDIENTE_ENVIO", "ENVIADO", "REINTENTO_PENDIENTE"]
+
+    retry = client.get(f"/records/{numero}/retry-status")
+    assert retry.status_code == 200
+    assert retry.json()["required"] is True
+    assert retry.json()["canRetry"] is False
+    assert retry.json()["retryAfterSeconds"] == 60
+    assert retry.json()["eligibleAt"]
+
+    too_early = client.post(f"/records/{numero}/transport/send")
+    assert too_early.status_code == 429
+    assert too_early.json()["detail"]["reason"] == "RETRY_WAIT_ACTIVE"
+    assert too_early.json()["detail"]["sent"] is False
+    assert len(calls) == 1
+
+    technical = client.get(f"/records/{numero}/technical-events").json()
+    assert [x["kind"] for x in technical] == ["SEND_ATTEMPT", "NO_RESPONSE_RETRY_PENDING"]
+    assert technical[-1]["retryAfterSeconds"] == 60
+    assert technical[-1]["eligibleAt"]
+
+    record = client.get(f"/records/{numero}").json()
+    assert record["huella"] == original_hash
+    assert record["estadoRegistro"] == "GENERADO"
+    assert record["estadoActual"] == "REINTENTO_PENDIENTE"
     assert client.get("/integrity").json()["ok"] is True
 
 
