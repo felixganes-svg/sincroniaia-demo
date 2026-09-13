@@ -1,59 +1,47 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>SINCRONIAIA — Inventario</title>
 <style>
-:root{--bg:#0b1220;--panel:#111b2e;--panel2:#17233a;--text:#f5f7fb;--muted:#a7b3c7;--ok:#28c76f;--warn:#ffb020;--danger:#ff5d5d;--line:#263552;--accent:#6ea8fe}*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#08101d,#0d1728);color:var(--text);min-height:100vh}.wrap{max-width:1100px;margin:auto;padding:18px}.top{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}.brand h1{font-size:clamp(25px,5vw,42px);margin:0}.brand p{color:var(--muted);margin:6px 0 0}.badge{border:1px solid #1f7f4d;background:#0f3927;color:#bff3d3;padding:8px 12px;border-radius:999px;font-weight:700}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}.card{background:rgba(17,27,46,.92);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 10px 30px #0003}.metric b{font-size:26px;display:block}.metric span{color:var(--muted);font-size:13px}.toolbar{display:grid;grid-template-columns:2fr 1fr auto;gap:10px;margin:14px 0}input,select,button{font:inherit;border-radius:12px;border:1px solid var(--line);padding:12px;background:#0d1728;color:var(--text)}button{cursor:pointer;font-weight:700;background:#182844}button.primary{background:#1d64d8;border-color:#2a76ef}button.danger{background:#4a2027;border-color:#70323c}.table{overflow:auto;border:1px solid var(--line);border-radius:16px}table{width:100%;border-collapse:collapse;min-width:800px;background:rgba(17,27,46,.8)}th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left}th{color:#cbd6e7;background:#111b2e;position:sticky;top:0}.pill{padding:5px 8px;border-radius:999px;font-size:12px;font-weight:800}.ok{background:#123d2a;color:#aef0c8}.low{background:#4a3514;color:#ffd58a}.zero{background:#4b2026;color:#ffc0c0}.actions{display:flex;gap:6px;flex-wrap:wrap}.actions button{padding:7px 9px}.empty{padding:30px;text-align:center;color:var(--muted)}dialog{border:none;border-radius:18px;background:#111b2e;color:var(--text);width:min(560px,94vw);padding:0;box-shadow:0 30px 80px #0009}dialog::backdrop{background:#0009}.dlg{padding:18px}.dlg h2{margin-top:0}.form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form label{font-size:13px;color:var(--muted)}.form label span{display:block;margin-bottom:5px}.form input,.form select{width:100%}.full{grid-column:1/-1}.dlgfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.note{margin-top:14px;color:var(--muted);font-size:13px}.footer{color:var(--muted);font-size:12px;text-align:center;margin:18px 0}.toast{position:fixed;right:16px;bottom:16px;background:#17233a;border:1px solid var(--line);padding:12px 16px;border-radius:12px;display:none;max-width:320px}@media(max-width:760px){.grid{grid-template-columns:1fr 1fr}.toolbar{grid-template-columns:1fr}.form{grid-template-columns:1fr}.full{grid-column:auto}.wrap{padding:12px}.card{padding:12px}}@media(max-width:430px){.grid{grid-template-columns:1fr 1fr}.metric b{font-size:22px}}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="top"><div class="brand"><h1>SINCRONIAIA — Inventario</h1><p>Control simple de existencias, entradas, salidas y mínimos.</p></div><div class="badge">LAB · v1.0</div></div>
-  <section class="grid">
-    <div class="card metric"><b id="mArt">0</b><span>Artículos</span></div>
-    <div class="card metric"><b id="mUnits">0</b><span>Unidades en stock</span></div>
-    <div class="card metric"><b id="mLow">0</b><span>Bajo mínimo</span></div>
-    <div class="card metric"><b id="mZero">0</b><span>Sin stock</span></div>
-  </section>
-  <section class="card">
-    <div class="toolbar">
-      <input id="q" placeholder="Buscar por nombre, código o categoría…">
-      <select id="filter"><option value="all">Todos</option><option value="low">Bajo mínimo</option><option value="zero">Sin stock</option></select>
-      <button class="primary" id="add">+ Nuevo artículo</button>
-    </div>
-    <div class="table"><table><thead><tr><th>Código</th><th>Artículo</th><th>Categoría</th><th>Stock</th><th>Mínimo</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="empty">Aún no hay artículos. Crea el primero.</div></div>
-    <div class="note">Los datos de esta versión quedan guardados en este dispositivo/navegador. No es todavía una base de datos centralizada entre varios terminales.</div>
-  </section>
-  <div class="footer">SINCRONIAIA · Evidencia antes que afirmación</div>
-</div>
-<dialog id="dlg"><form method="dialog" class="dlg" id="form"><h2 id="dlgTitle">Nuevo artículo</h2><div class="form">
-<label><span>Código</span><input id="code" required maxlength="30"></label>
-<label><span>Artículo</span><input id="name" required maxlength="80"></label>
-<label><span>Categoría</span><input id="cat" maxlength="50" placeholder="Carnicería, limpieza…"></label>
-<label><span>Unidad</span><select id="unit"><option>ud</option><option>kg</option><option>g</option><option>l</option><option>ml</option><option>caja</option><option>paquete</option></select></label>
-<label><span>Stock inicial</span><input id="stock" type="number" min="0" step="0.001" value="0" required></label>
-<label><span>Stock mínimo</span><input id="min" type="number" min="0" step="0.001" value="0" required></label>
-</div><div class="dlgfoot"><button value="cancel">Cancelar</button><button class="primary" id="save" value="default">Guardar</button></div></form></dialog>
-<div class="toast" id="toast"></div>
-<script>
-const KEY='sincroniaia_inventario_v1';
-let items=[];let editId=null;
-const $=id=>document.getElementById(id);
-function load(){try{items=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(items))items=[]}catch{items=[]}render()}
-function persist(){localStorage.setItem(KEY,JSON.stringify(items));render()}
-function fmt(n){return Number(n).toLocaleString('es-ES',{maximumFractionDigits:3})}
-function status(x){if(Number(x.stock)<=0)return ['Sin stock','zero'];if(Number(x.stock)<=Number(x.min))return ['Bajo mínimo','low'];return ['Correcto','ok']}
-function render(){const q=$('q').value.trim().toLowerCase(),f=$('filter').value;let visible=items.filter(x=>{const s=status(x)[1];const text=`${x.code} ${x.name} ${x.cat}`.toLowerCase();return (!q||text.includes(q))&&(f==='all'||s===f)});$('rows').innerHTML=visible.map(x=>{const st=status(x);return `<tr><td>${esc(x.code)}</td><td><b>${esc(x.name)}</b></td><td>${esc(x.cat||'—')}</td><td>${fmt(x.stock)} ${esc(x.unit)}</td><td>${fmt(x.min)} ${esc(x.unit)}</td><td><span class="pill ${st[1]}">${st[0]}</span></td><td><div class="actions"><button onclick="move('${x.id}',1)">+ Entrada</button><button onclick="move('${x.id}',-1)">− Salida</button><button onclick="edit('${x.id}')">Editar</button><button class="danger" onclick="removeItem('${x.id}')">Eliminar</button></div></td></tr>`}).join('');$('empty').style.display=visible.length?'none':'block';$('mArt').textContent=items.length;$('mUnits').textContent=fmt(items.reduce((a,x)=>a+Number(x.stock||0),0));$('mLow').textContent=items.filter(x=>Number(x.stock)>0&&Number(x.stock)<=Number(x.min)).length;$('mZero').textContent=items.filter(x=>Number(x.stock)<=0).length}
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function openNew(){editId=null;$('dlgTitle').textContent='Nuevo artículo';$('form').reset();$('stock').value='0';$('min').value='0';$('dlg').showModal();setTimeout(()=>$('code').focus(),50)}
-window.edit=id=>{const x=items.find(i=>i.id===id);if(!x)return;editId=id;$('dlgTitle').textContent='Editar artículo';$('code').value=x.code;$('name').value=x.name;$('cat').value=x.cat;$('unit').value=x.unit;$('stock').value=x.stock;$('min').value=x.min;$('dlg').showModal()}
-window.move=(id,dir)=>{const x=items.find(i=>i.id===id);if(!x)return;const raw=prompt(dir>0?'Cantidad que entra:':'Cantidad que sale:','1');if(raw===null)return;const n=Number(String(raw).replace(',','.'));if(!Number.isFinite(n)||n<=0)return toast('Cantidad no válida');if(dir<0&&n>Number(x.stock))return toast('No puedes sacar más stock del disponible');x.stock=Number(x.stock)+(dir*n);x.updated=new Date().toISOString();persist();toast(dir>0?'Entrada registrada':'Salida registrada')}
-window.removeItem=id=>{const x=items.find(i=>i.id===id);if(!x)return;if(confirm(`¿Eliminar ${x.name}?`)){items=items.filter(i=>i.id!==id);persist();toast('Artículo eliminado')}}
-function toast(t){$('toast').textContent=t;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',1800)}
-$('add').onclick=openNew;$('q').oninput=render;$('filter').onchange=render;
-$('save').onclick=e=>{e.preventDefault();const code=$('code').value.trim(),name=$('name').value.trim();if(!code||!name)return toast('Código y artículo son obligatorios');if(items.some(x=>x.code.toLowerCase()===code.toLowerCase()&&x.id!==editId))return toast('Ese código ya existe');const data={code,name,cat:$('cat').value.trim(),unit:$('unit').value,stock:Number($('stock').value||0),min:Number($('min').value||0),updated:new Date().toISOString()};if(data.stock<0||data.min<0)return toast('Stock y mínimo no pueden ser negativos');if(editId){Object.assign(items.find(i=>i.id===editId),data)}else{items.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),...data,created:new Date().toISOString()})}persist();$('dlg').close();toast(editId?'Artículo actualizado':'Artículo creado')}
-load();
-</script>
-</body></html>
+*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:1080px;margin:auto;padding:14px}.hero{background:#111827;color:#fff;border-radius:18px;padding:20px}.hero h1{margin:0 0 8px;font-size:clamp(25px,5vw,40px)}.ok{display:inline-block;background:#dcfce7;color:#166534;border-radius:999px;padding:7px 10px;font-weight:900}.lead{color:#cbd5e1;line-height:1.5}.bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.btn{display:inline-block;text-decoration:none;background:#fff;color:#111827;padding:10px 12px;border-radius:10px;font-weight:800}.btn.dark{background:#334155;color:#fff}.notice{margin:12px 0;padding:13px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;line-height:1.5}.sec{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px;margin:12px 0}.sec h2{margin:0 0 10px;font-size:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}.card{border:1px solid #e5e7eb;border-radius:13px;padding:12px}.name{font-weight:900;margin-bottom:6px}.tag{display:inline-block;font-size:10px;font-weight:900;border-radius:999px;padding:4px 7px;margin-bottom:7px}.live{background:#dcfce7;color:#166534}.review{background:#fef3c7;color:#92400e}.lab{background:#dbeafe;color:#1d4ed8}.desc{font-size:13px;line-height:1.5;color:#56616f}.links{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.links a{font-size:12px;text-decoration:none;background:#111827;color:#fff;border-radius:8px;padding:7px 9px;font-weight:800}.list{margin:0;padding-left:18px}.list li{margin:7px 0;line-height:1.45}.foot{font-size:11px;color:#64748b;padding:8px 2px 24px}@media(max-width:480px){.wrap{padding:9px}.hero{padding:16px}.hero h1{font-size:25px}}
+</style></head>
+<body><div class="wrap">
+<header class="hero">
+<h1>SINCRONIAIA — Inventario</h1>
+<span class="ok">✅ Verificado y en línea</span>
+<p class="lead">Inventario maestro de proyectos, demos, laboratorios, versiones y accesos del repositorio SINCRONIAIA. El estado “en línea” corresponde a este inventario; cada proyecto mantiene su propio estado real.</p>
+<div class="bar"><a class="btn" href="../" target="_blank" rel="noopener">Portal público</a><a class="btn dark" href="https://github.com/felixganes-svg/sincroniaia-demo" target="_blank" rel="noopener">Repositorio completo</a><a class="btn dark" href="../centro-control/" target="_blank" rel="noopener">Centro de Control</a></div>
+</header>
+<div class="notice"><b>⚠️ Aviso importante.</b> El repositorio contiene muchas carpetas y versiones históricas de un mismo proyecto. La existencia de una carpeta no significa que sea la versión oficial. Antes de eliminar o archivar nada hay que identificar, por familia, la producción viva, la versión anterior validada y el histórico.</div>
+
+<section class="sec"><h2>Verticales / demos por sector</h2><div class="grid">
+<div class="card"><div class="name">Restaurante / Can Soler</div><span class="tag live">ACTUAL EN CENTRO DE CONTROL</span><div class="desc">Demo de pedidos tipo WhatsApp para restauración/heladería.</div><div class="links"><a href="../can-soler/" target="_blank">can-soler</a><a href="../prueba-can-soler-v1/" target="_blank">prueba v1</a></div></div>
+<div class="card"><div class="name">Bienestar Animal / SINCRONIA Animal</div><span class="tag live">ACTUAL EN CENTRO DE CONTROL</span><div class="desc">La ruta canónica indicada actualmente es SINCRONIA Animal. Existen además versiones de prueba y estudio.</div><div class="links"><a href="../sincronia-animal/" target="_blank">sincronia-animal</a><a href="../prueba-bienestar-animal-v2/" target="_blank">prueba v2</a><a href="../sincroniaia-bienestar-animal-estudio/" target="_blank">estudio</a></div></div>
+<div class="card"><div class="name">Ascensores</div><span class="tag live">ACTUAL EN CENTRO DE CONTROL</span><div class="links"><a href="../prueba-ascensores-v1/" target="_blank">Abrir</a></div></div>
+<div class="card"><div class="name">Investigación de campo</div><span class="tag live">ACTUAL EN CENTRO DE CONTROL</span><div class="links"><a href="../investigacion/" target="_blank">investigacion</a><a href="../investigacion-dolor-lab-v1/" target="_blank">dolor LAB</a><a href="../investigacion-campo-6-bloques-lab-v1/" target="_blank">6 bloques LAB</a></div></div>
+<div class="card"><div class="name">Panadería Todo Bueno</div><span class="tag live">CLIENTE / PILOTO</span><div class="links"><a href="../todo-bueno/" target="_blank">Todo Bueno</a><a href="../todo-bueno/control-horario/" target="_blank">Control horario</a></div></div>
+</div></section>
+
+<section class="sec"><h2>Control Horario · familia con múltiples versiones</h2><p class="desc">No tratar todas estas carpetas como equivalentes. El Centro de Control distingue actualmente <b>Control Horario personal</b> como MASTER y <b>demo-control-horario</b> como demo general.</p><div class="grid">
+<div class="card"><div class="name">Rutas principales</div><span class="tag live">CLASIFICADAS</span><div class="links"><a href="../control-horario-personal/" target="_blank">Personal MASTER</a><a href="../demo-control-horario/" target="_blank">Demo general</a><a href="../control-horario-versiones/" target="_blank">Planes</a><a href="../control-horario-calculadora/" target="_blank">Calculadora</a></div></div>
+<div class="card"><div class="name">Otras carpetas localizadas</div><span class="tag review">REVISAR / HISTÓRICO</span><div class="desc">control-horario-comercial · control-horario-comercial-lab · control-horario-felix · control-horario-felix-v064 · control-horario-felix-v065 · control-horario-prueba.</div></div>
+</div></section>
+
+<section class="sec"><h2>TPV Alimentación / Carnicería</h2><div class="grid">
+<div class="card"><div class="name">LAB actual de trabajo</div><span class="tag lab">PRUEBA REAL · NO MASTER GLOBAL</span><div class="desc">El Centro de Control señala como ruta actual la versión verificada de cierre, con pruebas pendientes antes del sellado global.</div><div class="links"><a href="../tpv-alimentacion-lab-verificado-20260908-cerrar/" target="_blank">Abrir LAB actual</a><a href="../tpv-alimentacion-consulta-articulos/" target="_blank">Consulta artículos</a></div></div>
+<div class="card"><div class="name">Otras carpetas TPV</div><span class="tag review">REVISAR / HISTÓRICO</span><div class="desc">tpv-alimentacion-dibal-lab-v1-3-lab-despensa-6digitos · tickets-dictados · xz-jornada-pinchitos · lab-visible-20260908 · piloto · red-piloto · android-consulta-articulos-apk.</div></div>
+</div></section>
+
+<section class="sec"><h2>Otros proyectos del repositorio</h2><div class="grid">
+<div class="card"><div class="name">Copiloto Comercial</div><span class="tag review">INTERNO</span><div class="links"><a href="../copiloto-comercial/" target="_blank">Abrir</a></div></div>
+<div class="card"><div class="name">SINCRONIAIA ENCARGOS</div><span class="tag lab">DESARROLLO / LAB</span><div class="links"><a href="../encargos-lab/" target="_blank">Abrir LAB</a></div></div>
+<div class="card"><div class="name">Gestión</div><span class="tag review">REVISAR</span><div class="desc">gestion-app · gestion · calculadora-gestion-laboral · gestion-laboral-lab.</div></div>
+<div class="card"><div class="name">Voz</div><span class="tag review">LAB</span><div class="desc">prueba-voz · prueba-voz-v2 · prueba-voz-v3.</div></div>
+<div class="card"><div class="name">Veri*Factu</div><span class="tag review">LAB / DESARROLLO</span><div class="desc">verifactu-lab · verifactu-lab-desarrollo. No se presenta como homologado.</div></div>
+<div class="card"><div class="name">MAESTRO</div><span class="tag live">GOBERNANZA</span><div class="desc">Normas, continuidad, evidencia antes que afirmación y reglas de sellado. No es una demo pública.</div></div>
+</div></section>
+
+<section class="sec"><h2>Regla de limpieza del repositorio</h2><ol class="list"><li>Identificar una única ruta viva por familia.</li><li>Conservar la versión anterior validada como respaldo.</li><li>Separar LAB, histórico y producción.</li><li>No eliminar carpetas hasta confirmar dependencias y enlaces.</li><li>Actualizar Centro de Control e Inventario después de cada cambio validado.</li></ol></section>
+<div class="foot">SINCRONIAIA · Inventario maestro · Evidencia antes que afirmación</div>
+</div></body></html>
