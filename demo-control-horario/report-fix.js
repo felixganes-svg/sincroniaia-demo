@@ -55,7 +55,7 @@ window.addEventListener('load', function () {
     cont.style.cssText='font-family:Arial,sans-serif;color:#392414;background:#fff;padding:0;margin:0;width:100%;';
     var cab=document.createElement('div');
     cab.style.cssText='text-align:center;margin:0 0 18px 0;padding:0 0 12px 0;border-bottom:1px solid #ead9c6;';
-    cab.innerHTML='<h1 style="font-size:22px;margin:0 0 5px 0">Panadería Todo Bueno Mataró</h1><div style="font-size:15px;font-weight:700">Informe de fichajes</div>'+(textoPeriodo()?'<div style="font-size:11px;color:#77695f;margin-top:5px">'+esc(textoPeriodo())+'</div>':'');
+    cab.innerHTML='<h1 style="font-size:22px;margin:0 0 5px 0">SINCRONIAIA · Demo Control Horario</h1><div style="font-size:15px;font-weight:700">Informe de fichajes</div>'+(textoPeriodo()?'<div style="font-size:11px;color:#77695f;margin-top:5px">'+esc(textoPeriodo())+'</div>':'');
     cont.appendChild(cab);
     var copia=informe.querySelector('.informe-detallado').cloneNode(true);
     var pistaDeslizar=copia.querySelector('.pista-deslizar');
@@ -93,7 +93,7 @@ window.addEventListener('load', function () {
     asegurarMotorPDF(function(ok){
       if(!ok){if(boton){boton.disabled=false;boton.textContent=textoOriginal||'Descargar PDF'}alert('No se ha podido cargar el generador de PDF. Comprueba la conexión y vuelve a intentarlo.');return}
       var ahora=new Date();
-      var nombre='Todo-Bueno-Control-Horario-'+ahora.getFullYear()+'-'+String(ahora.getMonth()+1).padStart(2,'0')+'-'+String(ahora.getDate()).padStart(2,'0')+'.pdf';
+      var nombre='Demo-Control-Horario-'+ahora.getFullYear()+'-'+String(ahora.getMonth()+1).padStart(2,'0')+'-'+String(ahora.getDate()).padStart(2,'0')+'.pdf';
       var opciones={margin:[10,10,10,10],filename:nombre,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy'],avoid:['.card','tr']}};
       window.html2pdf().set(opciones).from(doc).save().then(function(){if(boton){boton.disabled=false;boton.textContent=textoOriginal||'Descargar PDF'}}).catch(function(){if(boton){boton.disabled=false;boton.textContent=textoOriginal||'Descargar PDF'}alert('No se ha podido generar el PDF. Vuelve a intentarlo.')});
     });
