@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SINCRONIAIA TPV · Prueba corrección misma venta</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0f2238}
+#tpv{display:block;width:100%;height:100%;border:0;background:#fff}
+#labMark{position:fixed;z-index:99999;right:8px;top:8px;background:#7c2d12;color:#fff;border-radius:999px;padding:6px 10px;font:700 11px system-ui;box-shadow:0 2px 8px #0005;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="labMark">PRUEBA · CORRECCIÓN MISMA VENTA</div>
+<iframe id="tpv" src="./index.html?prueba-correccion-misma-venta=20260914"></iframe>
+<script>
+(function(){
+  const frame=document.getElementById('tpv');
+  frame.addEventListener('load',function(){
+    const w=frame.contentWindow;
+    if(!w||typeof w.saveOpenSaleQty!=='function'||typeof w.receiptLineHtml!=='function'){
+      console.error('No se pudo activar la prueba de corrección: funciones base no disponibles.');
+      return;
+    }
+
+    const originalSaveOpenSaleQty=w.saveOpenSaleQty;
+    const originalReceiptLineHtml=w.receiptLineHtml;
+
+    function clone(value){return JSON.parse(JSON.stringify(value));}
+    function cleanLine(line){
+      const out=clone(line||{});
+      delete out._ticketOriginal;
+      delete out._ticketCorrection;
+      return out;
+    }
+    function r2(n){return Math.round((Number(n)||0)*100)/100;}
+    function r3(n){return Math.round((Number(n)||0)*1000)/1000;}
+    function qtyText(qty,unit){
+      const n=Number(qty)||0;
+      if(unit==='kg')return r3(n).toFixed(3).replace('.',',')+' kg';
+      return String(n).replace('.',',')+' ud';
+    }
+
+    w.saveOpenSaleQty=function(index){
+      const current=w.cart&&w.cart[index];
+      if(!current)return originalSaveOpenSaleQty.call(w,index);
+
+      const before=clone(current);
+      const ticketOriginal=before._ticketOriginal?cleanLine(before._ticketOriginal):cleanLine(before);
+      const beforeQty=Number(before.qty)||0;
+
+      originalSaveOpenSaleQty.call(w,index);
+
+      const after=w.cart&&w.cart[index];
+      if(!after)return;
+      if(Math.abs((Number(after.qty)||0)-beforeQty)<0.0000001)return;
+
+      const deltaQty=(Number(after.qty)||0)-(Number(ticketOriginal.qty)||0);
+      if(Math.abs(deltaQty)<0.0000001){
+        delete after._ticketOriginal;
+        delete after._ticketCorrection;
+      }else{
+        after._ticketOriginal=ticketOriginal;
+        after._ticketCorrection={
+          qty: after.unit==='kg'?r3(deltaQty):deltaQty,
+          total:r2((Number(after.total)||0)-(Number(ticketOriginal.total)||0)),
+          normalTotal:r2((Number(after.normalTotal)||0)-(Number(ticketOriginal.normalTotal)||0)),
+          discount:r2((Number(after.discount)||0)-(Number(ticketOriginal.discount)||0))
+        };
+      }
+
+      if(w.sellerMems&&w.selectedCloseSeller){
+        w.sellerMems[w.selectedCloseSeller]=w.cart.map(clone);
+      }
+      if(typeof w.save==='function')w.save();
+      if(typeof w.openSaleModification==='function')w.openSaleModification();
+    };
+
+    w.receiptLineHtml=function(line){
+      if(!line||!line._ticketOriginal||!line._ticketCorrection){
+        return originalReceiptLineHtml.call(w,line);
+      }
+
+      const original=cleanLine(line._ticketOriginal);
+      const correction=line._ticketCorrection;
+      const first=originalReceiptLineHtml.call(w,original);
+      const unit=original.unit||line.unit||'ud';
+      const price=Number(original.price??line.price)||0;
+      const name=String(original.name||line.name||'Artículo');
+      const second='<div class="line"><div><b>'+w.esc(name)+'</b><br><small>'+qtyText(correction.qty,unit)+' × '+w.euro(price)+'/'+w.esc(unit)+' = '+w.euro(correction.total)+'</small></div><b>'+w.euro(correction.total)+'</b></div>';
+      return first+second;
+    };
+
+    console.info('SINCRONIAIA LAB: corrección visible en misma venta activada.');
+  });
+})();
+</script>
+</body>
+</html>
