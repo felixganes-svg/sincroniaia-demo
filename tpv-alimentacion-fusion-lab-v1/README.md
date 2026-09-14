@@ -13,7 +13,14 @@ BASE funcional inicial: B, por ser la versión cuyo flujo de Encargos fue valida
 Las mejoras de A se incorporarán UNA A UNA, con prueba desde cero después de cada incorporación. No se declara MASTER/STABLE hasta superar todas las pruebas.
 
 ## Fase 0 · copia segura de B
-Esta primera publicación es una copia exacta del index.html de B, aislada en una nueva ruta. Objetivo: comprobar que el nuevo laboratorio conserva el comportamiento validado antes de introducir ninguna mejora de A.
+VALIDADA MANUALMENTE SIN ERRORES por el usuario el 14/09/2026.
+
+## Fase 1 · X por fecha/rango
+Corrección aislada: se conserva la base exacta de B como `base.html` y se añade únicamente `fase1-x-fechas.js` para hacer visibles las fechas, preseleccionar el día actual y mostrar el resultado de la X por fechas dentro de la propia pantalla de Informes.
+
+No se modifica A ni B. No se cambia Z, Encargos, catálogo, cobros ni ventas.
+
+Estado: PENDIENTE DE PRUEBA MANUAL.
 
 ## Orden previsto de incorporación
 1. X por fecha/rango.
@@ -23,6 +30,3 @@ Esta primera publicación es una copia exacta del index.html de B, aislada en un
 5. Corrección dentro de venta abierta.
 6. Ticket térmico 58 mm / Fun Print.
 7. Revisión final de Encargos, compra adicional, cobro/recogida y cierres.
-
-## Estado
-FASE 0 · LISTA PARA PRUEBA MANUAL. A y B permanecen intactas.
