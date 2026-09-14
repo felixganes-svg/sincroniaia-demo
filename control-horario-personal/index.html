@@ -12,13 +12,43 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-f
 </style>
 </head>
 <body>
-<iframe id="app" src="./app-base.html?v=20260912-fichaje-0809-1345" allow="geolocation"></iframe>
+<iframe id="app" src="./app-base.html?v=20260914-horario-1409" allow="geolocation"></iframe>
 <script>
 const frame=document.getElementById('app');
 frame.addEventListener('load',()=>{
   try{
     const w=frame.contentWindow,d=frame.contentDocument;
     if(!w||!d)return;
+
+    // Nuevo periodo de horario desde 14/09/2026. El histórico anterior queda intacto.
+    if(!w.__schedule1409Applied){
+      try{
+        w.eval(`(()=>{
+          const anterior=SCHEDULES.find(s=>s.id==='HORARIO_0709_2026');
+          if(anterior)anterior.to='2026-09-13';
+          if(!SCHEDULES.some(s=>s.id==='HORARIO_1409_2026')){
+            SCHEDULES.push({
+              id:'HORARIO_1409_2026',
+              name:'Horario desde 14/09/2026',
+              from:'2026-09-14',
+              to:null,
+              weeklyMinutes:2400,
+              days:{
+                1:[['17:00','20:00']],
+                2:[['08:00','13:30'],['17:00','20:00']],
+                3:[['07:30','13:30']],
+                4:[['09:00','13:30'],['17:00','20:00']],
+                5:[['07:30','13:30'],['17:00','20:00']],
+                6:[['07:30','13:30']],
+                0:[]
+              }
+            });
+          }
+          render();
+        })()`);
+      }catch(e){console.error('Horario desde 14/09',e)}
+      w.__schedule1409Applied=true;
+    }
 
     // Fichaje real confirmado: 08/09/2026 · 07:30–13:45.
     if(!w.__fix0809Applied){
@@ -88,7 +118,6 @@ frame.addEventListener('load',()=>{
       w.__fix1009DoubleApplied=true;
     }
 
-    // Explicación visible del festivo computable y de la compensación del saldo anterior.
     const bankNote=d.getElementById('bankNote');
     if(bankNote&&!d.getElementById('bankExplanation')){
       const info=d.createElement('div');
