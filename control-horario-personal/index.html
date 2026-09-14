@@ -12,7 +12,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-f
 </style>
 </head>
 <body>
-<iframe id="app" src="./app-base.html?v=20260914-horario-1409" allow="geolocation"></iframe>
+<iframe id="app" src="./app-base.html?v=20260914-banco-24agosto-300" allow="geolocation"></iframe>
 <script>
 const frame=document.getElementById('app');
 frame.addEventListener('load',()=>{
@@ -48,6 +48,20 @@ frame.addEventListener('load',()=>{
         })()`);
       }catch(e){console.error('Horario desde 14/09',e)}
       w.__schedule1409Applied=true;
+    }
+
+    // Cómputo histórico confirmado del 24/08/2026.
+    // El fichaje real fue 08:30–13:30 = 5:00; el horario previsto era 07:30–13:30 = 6:00.
+    // Por tanto este día genera -1:00 en el banco y NO se altera el fichaje real.
+    if(!w.__compute2408Applied){
+      try{
+        w.eval(`(()=>{
+          HISTORICAL_COMPUTE['2026-08-24']=300;
+          HISTORICAL_NOTES['2026-08-24']='Fichaje real 08:30–13:30 (5:00). Horario previsto 07:30–13:30 (6:00). Diferencia banco: -1:00, posteriormente recuperada.';
+          render();
+        })()`);
+      }catch(e){console.error('Cómputo 24/08',e)}
+      w.__compute2408Applied=true;
     }
 
     // Fichaje real confirmado: 08/09/2026 · 07:30–13:45.
@@ -130,21 +144,25 @@ frame.addEventListener('load',()=>{
       if(!info)return;
       try{
         const state=w.eval('bankState(new Date())');
-        const festivo=w.eval("holidayFor('2026-09-11')");
-        const festivoMin=w.eval("basePlannedMinutesForDate('2026-09-11')");
         const fmt=m=>w.eval('dur('+Math.abs(Math.round(m||0))+')');
+        const historical=w.eval(`(()=>{
+          const w1s=new Date('2026-08-17T00:00:00'),w1e=new Date('2026-08-23T23:59:59');
+          const w2s=new Date('2026-08-24T00:00:00'),w2e=new Date('2026-08-30T23:59:59');
+          const w4s=new Date('2026-09-07T00:00:00'),w4e=new Date('2026-09-13T23:59:59');
+          return {a:sumComputableBetween(w1s,w1e)-contractMinutesWeek(),b:sumComputableBetween(w2s,w2e)-contractMinutesWeek(),c:sumComputableBetween(w4s,w4e)-contractMinutesWeek()};
+        })()`);
         const parts=[];
-        if(festivo&&festivo.type==='holiday'&&festivoMin>0){
-          parts.push('<b>Festivo 11/09:</b> +'+fmt(festivoMin)+' computables ya incluidos en el total semanal.');
+        parts.push('<b>24/08:</b> fichaje real 5:00 frente a 6:00 previstas → <b>-1:00</b>.');
+        if(historical){
+          parts.push('<b>Semana 17–23/08:</b> '+(historical.a<0?'-':'+')+fmt(historical.a)+'.');
+          parts.push('<b>Semana 24–30/08:</b> '+(historical.b<0?'-':'+')+fmt(historical.b)+'.');
+          parts.push('<b>Semana 07–13/09:</b> '+(historical.c<0?'-':'+')+fmt(historical.c)+'.');
+          const cierre=historical.a+historical.b+historical.c;
+          parts.push('<b>Saldo tras recuperar las horas pendientes:</b> '+(cierre===0?'0:00 · CUADRADO':(cierre<0?'-':'+')+fmt(cierre))+'.');
         }
-        if(state&&state.previous<0&&state.weekDelta>0){
-          const compensado=Math.min(Math.abs(state.previous),state.weekDelta);
-          if(compensado>0)parts.push('<b>Compensación de saldo anterior:</b> '+fmt(compensado)+' devueltas de las horas pendientes.');
-          if(state.current>0)parts.push('<b>Saldo restante a favor del trabajador:</b> +'+fmt(state.current)+'.');
-          else if(state.current===0)parts.push('<b>Saldo pendiente:</b> completamente compensado.');
-        }
-        info.innerHTML=parts.length?parts.join('<br>'):'El saldo se calcula semana a semana, incluyendo festivos computables y compensaciones.';
-      }catch(e){info.textContent='El saldo se calcula semana a semana, incluyendo festivos computables y compensaciones.'}
+        if(state&&state.current!==0)parts.push('<span class="muted">El saldo de la semana actual se calcula aparte desde el 14/09.</span>');
+        info.innerHTML=parts.join('<br>');
+      }catch(e){info.textContent='El saldo se calcula semana a semana y conserva el fichaje real.'}
     };
     updateBankExplanation();
     setInterval(updateBankExplanation,1500);
