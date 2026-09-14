@@ -68,3 +68,16 @@ Estas LAB permanecen recuperables desde el historial de Git.
 - Eliminado el cartel temporal de comprobación 08/09 de la ruta visible.
 - Verificación técnica: sintaxis OK, botón superior presente y texto temporal ausente.
 - Estado: aprobada para prueba real; NO MASTER global.
+
+
+## Actualización 14/09/2026 · Corrección dentro de la misma venta
+- Se mantiene ACTUAL: `tpv-alimentacion-dibal-lab-v1-3-lab-xz-jornada-pinchitos`.
+- La prueba se realiza de forma aislada mediante `prueba-correccion-misma-venta.html`; no se sustituye ni se duplica el TPV.
+- **MODIFICAR VENTA** pasa a ser accesible directamente durante la venta abierta, sin obligar a entrar antes en SUBTOTAL.
+- Si existe una sola venta pendiente, entra directamente a modificarla; si existen varias, se selecciona primero el vendedor.
+- SUBTOTAL conserva su función de consulta y acceso secundario a modificación/cobro.
+- Cuando se reduce peso o unidades dentro de la misma venta, el cálculo interno usa la cantidad correcta y el ticket final conserva visualmente la línea original y añade debajo la diferencia negativa.
+- Ejemplo: 2 ud × 1,25 € = 2,50 € + corrección -1 ud × 1,25 € = -1,25 €; total efectivo de la línea = 1,25 €.
+- Tickets ya cerrados mantienen el circuito de rectificación autorizado existente; esta función solo afecta a venta abierta.
+- Verificación técnica: archivo publicado, integración apoyada sobre `modificar-venta-v1.js`, sin alterar catálogo, X/Z, cobros, encargos ni ticket rectificativo.
+- Estado: **APROBADA PARA PRUEBA MANUAL · NO MASTER/STABLE** hasta superar prueba real desde móvil con unidades y kilos.
