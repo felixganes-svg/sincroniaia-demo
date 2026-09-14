@@ -12,7 +12,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-f
 </style>
 </head>
 <body>
-<iframe id="app" src="./app-base.html?v=20260914-banco-24agosto-300" allow="geolocation"></iframe>
+<iframe id="app" src="./app-base.html?v=20260914-trazabilidad-recuperadas" allow="geolocation"></iframe>
 <script>
 const frame=document.getElementById('app');
 frame.addEventListener('load',()=>{
@@ -20,7 +20,6 @@ frame.addEventListener('load',()=>{
     const w=frame.contentWindow,d=frame.contentDocument;
     if(!w||!d)return;
 
-    // Nuevo periodo de horario desde 14/09/2026. El histórico anterior queda intacto.
     if(!w.__schedule1409Applied){
       try{
         w.eval(`(()=>{
@@ -28,20 +27,8 @@ frame.addEventListener('load',()=>{
           if(anterior)anterior.to='2026-09-13';
           if(!SCHEDULES.some(s=>s.id==='HORARIO_1409_2026')){
             SCHEDULES.push({
-              id:'HORARIO_1409_2026',
-              name:'Horario desde 14/09/2026',
-              from:'2026-09-14',
-              to:null,
-              weeklyMinutes:2400,
-              days:{
-                1:[['17:00','20:00']],
-                2:[['08:00','13:30'],['17:00','20:00']],
-                3:[['07:30','13:30']],
-                4:[['09:00','13:30'],['17:00','20:00']],
-                5:[['07:30','13:30'],['17:00','20:00']],
-                6:[['07:30','13:30']],
-                0:[]
-              }
+              id:'HORARIO_1409_2026',name:'Horario desde 14/09/2026',from:'2026-09-14',to:null,weeklyMinutes:2400,
+              days:{1:[['17:00','20:00']],2:[['08:00','13:30'],['17:00','20:00']],3:[['07:30','13:30']],4:[['09:00','13:30'],['17:00','20:00']],5:[['07:30','13:30'],['17:00','20:00']],6:[['07:30','13:30']],0:[]}
             });
           }
           render();
@@ -50,80 +37,36 @@ frame.addEventListener('load',()=>{
       w.__schedule1409Applied=true;
     }
 
-    // Cómputo histórico confirmado del 24/08/2026.
-    // El fichaje real fue 08:30–13:30 = 5:00; el horario previsto era 07:30–13:30 = 6:00.
-    // Por tanto este día genera -1:00 en el banco y NO se altera el fichaje real.
+    // El fichaje real del 24/08 se conserva: 08:30–13:30 = 5:00.
+    // En el banco genera una hora pendiente adicional frente a las 6:00 previstas.
     if(!w.__compute2408Applied){
       try{
         w.eval(`(()=>{
           HISTORICAL_COMPUTE['2026-08-24']=300;
-          HISTORICAL_NOTES['2026-08-24']='Fichaje real 08:30–13:30 (5:00). Horario previsto 07:30–13:30 (6:00). Diferencia banco: -1:00, posteriormente recuperada.';
+          HISTORICAL_NOTES['2026-08-24']='Fichaje real 08:30–13:30 (5:00). Horario previsto 07:30–13:30 (6:00). Diferencia: -1:00. Recuperada en la semana 07–13/09.';
           render();
         })()`);
       }catch(e){console.error('Cómputo 24/08',e)}
       w.__compute2408Applied=true;
     }
 
-    // Fichaje real confirmado: 08/09/2026 · 07:30–13:45.
     if(!w.__fix0809Applied){
-      try{
-        w.eval(`(()=>{
-          const k='2026-09-08';
-          data.days[k]={sessions:[{
-            in:isoLocal(2026,9,8,7,30,0),
-            out:isoLocal(2026,9,8,13,45,0),
-            minutes:375,
-            source:'fichaje confirmado',
-            fichajeEntrada:'F-20260908-073000-CONFIRMADO',
-            fichajeSalida:'F-20260908-134500-CONFIRMADO'
-          }],source:'fichaje confirmado'};
-          save();render();
-        })()`);
-      }catch(e){console.error('Fichaje 08/09',e)}
+      try{w.eval(`(()=>{const k='2026-09-08';data.days[k]={sessions:[{in:isoLocal(2026,9,8,7,30,0),out:isoLocal(2026,9,8,13,45,0),minutes:375,source:'fichaje confirmado',fichajeEntrada:'F-20260908-073000-CONFIRMADO',fichajeSalida:'F-20260908-134500-CONFIRMADO'}],source:'fichaje confirmado'};save();render();})()`)}catch(e){console.error('Fichaje 08/09',e)}
       w.__fix0809Applied=true;
     }
 
-    // Fichaje real confirmado: 09/09/2026 · 07:30–13:45.
     if(!w.__fix0909Applied){
-      try{
-        w.eval(`(()=>{
-          const k='2026-09-09';
-          data.days[k]={sessions:[{
-            in:isoLocal(2026,9,9,7,30,0),
-            out:isoLocal(2026,9,9,13,45,0),
-            minutes:375,
-            source:'fichaje confirmado',
-            fichajeEntrada:'F-20260909-073000-CONFIRMADO',
-            fichajeSalida:'F-20260909-134500-CONFIRMADO'
-          }],source:'fichaje confirmado'};
-          save();render();
-        })()`);
-      }catch(e){console.error('Fichaje 09/09',e)}
+      try{w.eval(`(()=>{const k='2026-09-09';data.days[k]={sessions:[{in:isoLocal(2026,9,9,7,30,0),out:isoLocal(2026,9,9,13,45,0),minutes:375,source:'fichaje confirmado',fichajeEntrada:'F-20260909-073000-CONFIRMADO',fichajeSalida:'F-20260909-134500-CONFIRMADO'}],source:'fichaje confirmado'};save();render();})()`)}catch(e){console.error('Fichaje 09/09',e)}
       w.__fix0909Applied=true;
     }
 
-    // Fichaje real confirmado: 10/09/2026 · 07:30–13:35 y 17:00–20:15.
     if(!w.__fix1009DoubleApplied){
       try{
         w.eval(`(()=>{
           const k='2026-09-10';
           data.days[k]={sessions:[
-            {
-              in:isoLocal(2026,9,10,7,30,0),
-              out:isoLocal(2026,9,10,13,35,0),
-              minutes:365,
-              source:'fichaje confirmado',
-              fichajeEntrada:'F-20260910-073000-MANUAL',
-              fichajeSalida:'F-20260910-133500-MANUAL'
-            },
-            {
-              in:isoLocal(2026,9,10,17,0,0),
-              out:isoLocal(2026,9,10,20,15,0),
-              minutes:195,
-              source:'fichaje confirmado',
-              fichajeEntrada:'F-20260910-170000-CONFIRMADO',
-              fichajeSalida:'F-20260910-201500-CONFIRMADO'
-            }
+            {in:isoLocal(2026,9,10,7,30,0),out:isoLocal(2026,9,10,13,35,0),minutes:365,source:'fichaje confirmado',fichajeEntrada:'F-20260910-073000-MANUAL',fichajeSalida:'F-20260910-133500-MANUAL'},
+            {in:isoLocal(2026,9,10,17,0,0),out:isoLocal(2026,9,10,20,15,0),minutes:195,source:'fichaje confirmado',fichajeEntrada:'F-20260910-170000-CONFIRMADO',fichajeSalida:'F-20260910-201500-CONFIRMADO'}
           ],source:'fichaje confirmado'};
           if(data.open&&dateKey(new Date(data.open.in))===k)data.open=null;
           save();render();
@@ -136,33 +79,31 @@ frame.addEventListener('load',()=>{
     if(bankNote&&!d.getElementById('bankExplanation')){
       const info=d.createElement('div');
       info.id='bankExplanation';
-      info.style.cssText='margin-top:10px;padding:12px;border-radius:14px;background:#f8fafc;border:1px solid #e4e7ec;font-size:13px;line-height:1.55';
+      info.style.cssText='margin-top:10px;padding:12px;border-radius:14px;background:#f8fafc;border:1px solid #e4e7ec;font-size:13px;line-height:1.6';
       bankNote.parentNode.insertBefore(info,bankNote.nextSibling);
     }
+
     const updateBankExplanation=()=>{
       const info=d.getElementById('bankExplanation');
       if(!info)return;
       try{
-        const state=w.eval('bankState(new Date())');
-        const fmt=m=>w.eval('dur('+Math.abs(Math.round(m||0))+')');
-        const historical=w.eval(`(()=>{
-          const w1s=new Date('2026-08-17T00:00:00'),w1e=new Date('2026-08-23T23:59:59');
-          const w2s=new Date('2026-08-24T00:00:00'),w2e=new Date('2026-08-30T23:59:59');
-          const w4s=new Date('2026-09-07T00:00:00'),w4e=new Date('2026-09-13T23:59:59');
-          return {a:sumComputableBetween(w1s,w1e)-contractMinutesWeek(),b:sumComputableBetween(w2s,w2e)-contractMinutesWeek(),c:sumComputableBetween(w4s,w4e)-contractMinutesWeek()};
+        const recovered=w.eval(`(()=>{
+          const s=new Date('2026-09-07T00:00:00'),e=new Date('2026-09-13T23:59:59');
+          return sumComputableBetween(s,e)-contractMinutesWeek();
         })()`);
-        const parts=[];
-        parts.push('<b>24/08:</b> fichaje real 5:00 frente a 6:00 previstas → <b>-1:00</b>.');
-        if(historical){
-          parts.push('<b>Semana 17–23/08:</b> '+(historical.a<0?'-':'+')+fmt(historical.a)+'.');
-          parts.push('<b>Semana 24–30/08:</b> '+(historical.b<0?'-':'+')+fmt(historical.b)+'.');
-          parts.push('<b>Semana 07–13/09:</b> '+(historical.c<0?'-':'+')+fmt(historical.c)+'.');
-          const cierre=historical.a+historical.b+historical.c;
-          parts.push('<b>Saldo tras recuperar las horas pendientes:</b> '+(cierre===0?'0:00 · CUADRADO':(cierre<0?'-':'+')+fmt(cierre))+'.');
-        }
-        if(state&&state.current!==0)parts.push('<span class="muted">El saldo de la semana actual se calcula aparte desde el 14/09.</span>');
-        info.innerHTML=parts.join('<br>');
-      }catch(e){info.textContent='El saldo se calcula semana a semana y conserva el fichaje real.'}
+        const fmt=m=>w.eval('dur('+Math.abs(Math.round(m||0))+')');
+        const recoveryOk=Math.round(recovered)===180;
+        info.innerHTML=
+          '<b style="font-size:14px">Trazabilidad de horas recuperadas</b><br><br>'+ 
+          '<b>17–23/08:</b> 39:00 h − 40:00 h = <b>−1:00 h</b> → <b>recuperada en 07–13/09</b>.<br>'+ 
+          '<b>24/08:</b> fichaje real 08:30–13:30 = 5:00 h; previstas 07:30–13:30 = 6:00 h → <b>−1:00 h adicional</b> → <b>recuperada en 07–13/09</b>.<br>'+ 
+          '<b>24–30/08:</b> saldo ordinario semanal 39:00 h − 40:00 h = <b>−1:00 h</b> → <b>recuperada en 07–13/09</b>.<br><br>'+ 
+          '<b>Total pendiente acumulado:</b> −3:00 h.<br>'+ 
+          '<b>Semana 07–13/09:</b> +'+fmt(recovered)+' h destinadas a recuperar el saldo anterior.<br>'+ 
+          '<b>Saldo histórico pendiente:</b> '+(recoveryOk?'0:00 h · CUADRADO':'revisar cómputo')+'.';
+      }catch(e){
+        info.textContent='No se ha podido calcular la trazabilidad del banco de horas.';
+      }
     };
     updateBankExplanation();
     setInterval(updateBankExplanation,1500);
@@ -172,8 +113,7 @@ frame.addEventListener('load',()=>{
       const cards=[...company.querySelectorAll('.card')];
       const history=cards.find(x=>x.textContent.includes('Histórico mensual'));
       const card=d.createElement('div');
-      card.className='card';
-      card.id='correctionAccess';
+      card.className='card';card.id='correctionAccess';
       card.innerHTML='<b>Corrección de fichajes</b><p class="muted">Modifica una entrada o salida con copia previa y registro de auditoría.</p><button class="btn dark" id="openCorrection">CORREGIR FICHAJE</button>';
       if(history)history.parentNode.insertBefore(card,history);else company.appendChild(card);
       card.querySelector('#openCorrection').onclick=()=>{location.href='./corregir.html?v=20260903-day-detail'};
@@ -182,15 +122,7 @@ frame.addEventListener('load',()=>{
     if(typeof w.doPunch==='function'&&!w.__sincroniaBackupWrapped){
       const original=w.doPunch;
       const snapshot=()=>{try{const o=JSON.parse(localStorage.getItem('sincroniaia_control_personal_master')||'{}');return JSON.stringify({days:o.days||{},open:o.open||null})}catch(e){return ''}};
-      w.doPunch=async function(){
-        const before=snapshot();
-        await original.apply(w,arguments);
-        const after=snapshot();
-        if(before!==after&&typeof w.makeBackup==='function'){
-          w.makeBackup();
-          if(typeof w.toast==='function')w.toast('✅ Fichaje guardado + copia automática');
-        }
-      };
+      w.doPunch=async function(){const before=snapshot();await original.apply(w,arguments);const after=snapshot();if(before!==after&&typeof w.makeBackup==='function'){w.makeBackup();if(typeof w.toast==='function')w.toast('✅ Fichaje guardado + copia automática')}};
       w.__sincroniaBackupWrapped=true;
     }
   }catch(e){console.error('Control horario wrapper',e)}
