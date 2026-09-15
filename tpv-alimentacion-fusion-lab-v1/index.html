@@ -11,7 +11,7 @@
 fetch('base.html?v=20260914-fase1')
   .then(r=>{if(!r.ok)throw new Error('No se pudo cargar la base');return r.text();})
   .then(html=>{
-    const patch='<script src="fase1-x-fechas.js?v=20260914-1"><\/script><script src="fase5-trazabilidad-ticket.js?v=20260915-5"><\/script>';
+    const patch='<script src="fase1-x-fechas.js?v=20260914-1"><\/script><script src="fase5-trazabilidad-ticket.js?v=20260915-6"><\/script>';
     html=/<\/body>/i.test(html)?html.replace(/<\/body>/i,patch+'</body>'):html+patch;
     document.open();
     document.write(html);
