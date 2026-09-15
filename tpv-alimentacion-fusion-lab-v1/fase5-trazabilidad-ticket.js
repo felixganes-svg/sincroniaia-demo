@@ -1,6 +1,6 @@
-// SINCRONIAIA · LAB FUSIÓN · FASE 5 v4
+// SINCRONIAIA · LAB FUSIÓN · FASE 5 v5
 // Trazabilidad visible de correcciones y retiradas en venta abierta.
-// No modifica A/B. Conserva original + corrección/anulación + motivo en venta abierta, ticket y copia.
+// Regla adicional: cantidad/peso 0 = anulación completa de la línea.
 (function(){
   function clone(v){try{return JSON.parse(JSON.stringify(v));}catch(e){return v}}
   function getReason(){
@@ -46,9 +46,9 @@
   }
 
   function install(){
-    if(window.__fusionFase5InstalledV4)return;
+    if(window.__fusionFase5InstalledV5)return;
     if(typeof saveOpenSaleQty!=='function' || typeof removeOpenSaleLine!=='function' || typeof receiptLineHtml!=='function' || typeof finishPay!=='function' || typeof openSaleModification!=='function')return setTimeout(install,120);
-    window.__fusionFase5InstalledV4=true;
+    window.__fusionFase5InstalledV5=true;
 
     var baseOpenSaleModification=openSaleModification;
     openSaleModification=function(){
@@ -62,27 +62,7 @@
           wrap.innerHTML='<div class="notice" style="margin-top:10px"><b>TRAZABILIDAD DE ESTA VENTA</b>'+trace+'</div>';
           if(total)box.insertBefore(wrap.firstChild,total); else box.appendChild(wrap.firstChild);
         }
-      }catch(e){console.warn('FASE5 v4: no se pudo mostrar trazabilidad en venta abierta',e)}
-      return out;
-    };
-
-    var baseSaveQty=saveOpenSaleQty;
-    saveOpenSaleQty=function(index){
-      var c=(typeof cart!=='undefined'?cart:null);
-      var before=(c&&c[index])?clone(c[index]):null;
-      var reason=getReason();
-      var out=baseSaveQty.apply(this,arguments);
-      try{
-        c=(typeof cart!=='undefined'?cart:null);
-        var after=(c&&c[index])?c[index]:null;
-        if(before&&after&&Math.abs(Number(before.qty)-Number(after.qty))>0.0000001){
-          after._openSaleTrace=after._openSaleTrace||[];
-          after._openSaleTrace.push({type:'QTY_CHANGE',date:new Date().toLocaleString('es-ES'),reason:reason,before:clone(before),after:clone(after)});
-          if(typeof selectedCloseSeller!=='undefined' && typeof sellerMems!=='undefined' && selectedCloseSeller){sellerMems[selectedCloseSeller]=c.map(clone)}
-          if(typeof save==='function')save();
-          setTimeout(function(){try{openSaleModification()}catch(e){}},0);
-        }
-      }catch(e){console.warn('FASE5 v4: no se pudo adjuntar trazabilidad',e)}
+      }catch(e){console.warn('FASE5 v5: no se pudo mostrar trazabilidad en venta abierta',e)}
       return out;
     };
 
@@ -100,14 +80,39 @@
           removedPending.push({type:'REMOVED',date:new Date().toLocaleString('es-ES'),reason:reason,seller:seller,before:before});
           if(c.length)setTimeout(function(){try{openSaleModification()}catch(e){}},0);
         }
-      }catch(e){console.warn('FASE5 v4: no se pudo registrar retirada',e)}
+      }catch(e){console.warn('FASE5 v5: no se pudo registrar retirada',e)}
+      return out;
+    };
+
+    var baseSaveQty=saveOpenSaleQty;
+    saveOpenSaleQty=function(index){
+      var qty=Number(document.getElementById('openSaleQty')&&document.getElementById('openSaleQty').value);
+      // UX: 0 significa anular completamente la línea, usando el mismo motivo obligatorio.
+      if(Number.isFinite(qty) && qty===0){
+        return removeOpenSaleLine(index);
+      }
+      var c=(typeof cart!=='undefined'?cart:null);
+      var before=(c&&c[index])?clone(c[index]):null;
+      var reason=getReason();
+      var out=baseSaveQty.apply(this,arguments);
+      try{
+        c=(typeof cart!=='undefined'?cart:null);
+        var after=(c&&c[index])?c[index]:null;
+        if(before&&after&&Math.abs(Number(before.qty)-Number(after.qty))>0.0000001){
+          after._openSaleTrace=after._openSaleTrace||[];
+          after._openSaleTrace.push({type:'QTY_CHANGE',date:new Date().toLocaleString('es-ES'),reason:reason,before:clone(before),after:clone(after)});
+          if(typeof selectedCloseSeller!=='undefined' && typeof sellerMems!=='undefined' && selectedCloseSeller){sellerMems[selectedCloseSeller]=c.map(clone)}
+          if(typeof save==='function')save();
+          setTimeout(function(){try{openSaleModification()}catch(e){}},0);
+        }
+      }catch(e){console.warn('FASE5 v5: no se pudo adjuntar trazabilidad',e)}
       return out;
     };
 
     var baseLine=receiptLineHtml;
     receiptLineHtml=function(l){
       var html=baseLine.apply(this,arguments);
-      try{((l&&l._openSaleTrace)||[]).forEach(function(tr){html+=correctionBlock(tr,l)})}catch(e){console.warn('FASE5 v4: no se pudo pintar corrección',e)}
+      try{((l&&l._openSaleTrace)||[]).forEach(function(tr){html+=correctionBlock(tr,l)})}catch(e){console.warn('FASE5 v5: no se pudo pintar corrección',e)}
       return html;
     };
 
@@ -122,7 +127,7 @@
         block+='</div>';
         if(/<div class=["']totals["']/.test(html))html=html.replace(/<div class=(["'])totals\1/,block+'<div class="totals"');
         else html+=block;
-      }catch(e){console.warn('FASE5 v4: no se pudo pintar retirada en ticket',e)}
+      }catch(e){console.warn('FASE5 v5: no se pudo pintar retirada en ticket',e)}
       return html;
     };
 
@@ -136,7 +141,7 @@
           removedPending=removedPending.filter(function(x){return pending.indexOf(x)===-1});
           if(typeof save==='function')save();
         }
-      }catch(e){console.warn('FASE5 v4: no se pudo asociar retirada al ticket',e)}
+      }catch(e){console.warn('FASE5 v5: no se pudo asociar retirada al ticket',e)}
       return out;
     };
   }
