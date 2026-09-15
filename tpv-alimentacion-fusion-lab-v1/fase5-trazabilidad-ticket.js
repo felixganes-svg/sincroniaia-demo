@@ -1,6 +1,6 @@
-// SINCRONIAIA · LAB FUSIÓN · FASE 5 v3
+// SINCRONIAIA · LAB FUSIÓN · FASE 5 v4
 // Trazabilidad visible de correcciones y retiradas en venta abierta.
-// No modifica A/B. Conserva original + corrección/anulación + motivo en ticket y copia.
+// No modifica A/B. Conserva original + corrección/anulación + motivo en venta abierta, ticket y copia.
 (function(){
   function clone(v){try{return JSON.parse(JSON.stringify(v));}catch(e){return v}}
   function getReason(){
@@ -34,11 +34,37 @@
       '<small><b style="color:#c62828">ANULACIÓN:</b> -'+fmtQty(b.qty,unit)+' '+escHtml(unit)+' · -'+money(b.total)+'</small><br>'+ 
       '<small><b>Motivo:</b> '+escHtml(tr.reason||'Sin motivo')+'</small></div>';
   }
+  function openTraceHtml(){
+    var c=(typeof cart!=='undefined'?cart:[]),html='';
+    c.forEach(function(l){((l&&l._openSaleTrace)||[]).forEach(function(tr){html+=correctionBlock(tr,l)})});
+    if(removedPending.length){
+      html+='<div style="margin-top:8px"><b style="color:#c62828">ANULACIONES EN ESTA VENTA</b>';
+      removedPending.forEach(function(tr){html+=removedBlock(tr)});
+      html+='</div>';
+    }
+    return html;
+  }
 
   function install(){
-    if(window.__fusionFase5InstalledV3)return;
-    if(typeof saveOpenSaleQty!=='function' || typeof removeOpenSaleLine!=='function' || typeof receiptLineHtml!=='function' || typeof finishPay!=='function')return setTimeout(install,120);
-    window.__fusionFase5InstalledV3=true;
+    if(window.__fusionFase5InstalledV4)return;
+    if(typeof saveOpenSaleQty!=='function' || typeof removeOpenSaleLine!=='function' || typeof receiptLineHtml!=='function' || typeof finishPay!=='function' || typeof openSaleModification!=='function')return setTimeout(install,120);
+    window.__fusionFase5InstalledV4=true;
+
+    var baseOpenSaleModification=openSaleModification;
+    openSaleModification=function(){
+      var out=baseOpenSaleModification.apply(this,arguments);
+      try{
+        var trace=openTraceHtml();
+        var box=document.getElementById('modalBox');
+        if(trace&&box){
+          var total=Array.from(box.querySelectorAll('h2')).find(function(h){return /Total provisional/i.test(h.textContent||'')});
+          var wrap=document.createElement('div');
+          wrap.innerHTML='<div class="notice" style="margin-top:10px"><b>TRAZABILIDAD DE ESTA VENTA</b>'+trace+'</div>';
+          if(total)box.insertBefore(wrap.firstChild,total); else box.appendChild(wrap.firstChild);
+        }
+      }catch(e){console.warn('FASE5 v4: no se pudo mostrar trazabilidad en venta abierta',e)}
+      return out;
+    };
 
     var baseSaveQty=saveOpenSaleQty;
     saveOpenSaleQty=function(index){
@@ -54,8 +80,9 @@
           after._openSaleTrace.push({type:'QTY_CHANGE',date:new Date().toLocaleString('es-ES'),reason:reason,before:clone(before),after:clone(after)});
           if(typeof selectedCloseSeller!=='undefined' && typeof sellerMems!=='undefined' && selectedCloseSeller){sellerMems[selectedCloseSeller]=c.map(clone)}
           if(typeof save==='function')save();
+          setTimeout(function(){try{openSaleModification()}catch(e){}},0);
         }
-      }catch(e){console.warn('FASE5 v3: no se pudo adjuntar trazabilidad',e)}
+      }catch(e){console.warn('FASE5 v4: no se pudo adjuntar trazabilidad',e)}
       return out;
     };
 
@@ -71,15 +98,31 @@
         c=(typeof cart!=='undefined'?cart:null);
         if(before&&c&&c.length===lenBefore-1){
           removedPending.push({type:'REMOVED',date:new Date().toLocaleString('es-ES'),reason:reason,seller:seller,before:before});
+          if(c.length)setTimeout(function(){try{openSaleModification()}catch(e){}},0);
         }
-      }catch(e){console.warn('FASE5 v3: no se pudo registrar retirada',e)}
+      }catch(e){console.warn('FASE5 v4: no se pudo registrar retirada',e)}
       return out;
     };
 
     var baseLine=receiptLineHtml;
     receiptLineHtml=function(l){
       var html=baseLine.apply(this,arguments);
-      try{((l&&l._openSaleTrace)||[]).forEach(function(tr){html+=correctionBlock(tr,l)})}catch(e){console.warn('FASE5 v3: no se pudo pintar corrección',e)}
+      try{((l&&l._openSaleTrace)||[]).forEach(function(tr){html+=correctionBlock(tr,l)})}catch(e){console.warn('FASE5 v4: no se pudo pintar corrección',e)}
+      return html;
+    };
+
+    var baseReceipt=receiptHtml;
+    receiptHtml=function(t,reprint){
+      var html=baseReceipt.apply(this,arguments);
+      try{
+        var rem=(t&&t._removedOpenSaleTrace&&t._removedOpenSaleTrace.length)?t._removedOpenSaleTrace:removedPending;
+        if(!rem||!rem.length)return html;
+        var block='<div style="margin:8px 0"><b style="color:#c62828">ANULACIONES EN VENTA ABIERTA</b>';
+        rem.forEach(function(tr){block+=removedBlock(tr)});
+        block+='</div>';
+        if(/<div class=["']totals["']/.test(html))html=html.replace(/<div class=(["'])totals\1/,block+'<div class="totals"');
+        else html+=block;
+      }catch(e){console.warn('FASE5 v4: no se pudo pintar retirada en ticket',e)}
       return html;
     };
 
@@ -93,23 +136,8 @@
           removedPending=removedPending.filter(function(x){return pending.indexOf(x)===-1});
           if(typeof save==='function')save();
         }
-      }catch(e){console.warn('FASE5 v3: no se pudo asociar retirada al ticket',e)}
+      }catch(e){console.warn('FASE5 v4: no se pudo asociar retirada al ticket',e)}
       return out;
-    };
-
-    var baseReceipt=receiptHtml;
-    receiptHtml=function(t,reprint){
-      var html=baseReceipt.apply(this,arguments);
-      try{
-        var rem=(t&&t._removedOpenSaleTrace)||[];
-        if(!rem.length)return html;
-        var block='<div style="margin:8px 0"><b style="color:#c62828">ANULACIONES EN VENTA ABIERTA</b>';
-        rem.forEach(function(tr){block+=removedBlock(tr)});
-        block+='</div>';
-        if(/<div class=["']totals["']/.test(html))html=html.replace(/<div class=(["'])totals\1/,block+'<div class="totals"');
-        else html+=block;
-      }catch(e){console.warn('FASE5 v3: no se pudo pintar retirada en ticket',e)}
-      return html;
     };
   }
   install();
