@@ -1,6 +1,7 @@
 # VALIDACIÓN · MODIFICAR VENTA DIRECTAMENTE
 
-Fecha: 14/09/2026
+Fecha inicial: 14/09/2026
+Validación de usuario: 15/09/2026
 LAB: `tpv-alimentacion-dibal-lab-v1-3-lab-xz-jornada-pinchitos`
 Prueba aislada: `prueba-correccion-misma-venta.html`
 
@@ -15,20 +16,22 @@ Permitir acceder a **MODIFICAR VENTA** durante una venta abierta sin pasar antes
 - [x] No se ha modificado el circuito de tickets ya cerrados/rectificación.
 - [x] La prueba reutiliza `openSaleModification`, `saveOpenSaleQty` y `receiptLineHtml` existentes.
 - [x] Se añade acceso directo **MODIFICAR VENTA** en la barra inferior de la venta.
-- [x] Una venta pendiente: acceso directo al vendedor correspondiente.
-- [x] Varias ventas pendientes: selección previa de vendedor.
 - [x] La cantidad/peso corregidos siguen siendo los datos usados para el total de la venta.
 - [x] Se conserva en el ticket la línea original y se añade la diferencia negativa.
-- [x] El fichero Maestro ha sido actualizado con la decisión y el estado de validación.
+- [x] El fichero Maestro ha sido actualizado.
 
-## Pruebas manuales pendientes
-1. Venta por unidades: registrar 2 ud, modificar directamente a 1 ud y comprobar ticket `2 ud` + `-1 ud`.
-2. Venta por kilos: registrar 0,850 kg, modificar directamente a 0,650 kg y comprobar ticket `0,850 kg` + `-0,200 kg`.
-3. Comprobar total cobrado y cambio.
-4. Comprobar que la venta aparece correctamente en X.
-5. Con dos vendedores con venta pendiente, comprobar selector de vendedor.
+## Validación real del usuario
+- [x] El usuario confirma el flujo y da la orden explícita **“Validamos”**.
+- [x] Se considera validado el acceso a **MODIFICAR VENTA** directamente desde la venta abierta, sin pasar por SUBTOTAL.
+- [x] Se considera validado el criterio de representación en ticket: línea original + línea negativa de corrección dentro de la misma venta.
+
+## Comprobaciones no declaradas como realizadas
+Estas pruebas siguen pendientes de confirmación específica y no se dan por superadas por inferencia:
+1. Comprobar X/Z después de una venta corregida.
+2. Comprobar selector con dos vendedores que tengan venta pendiente simultáneamente.
+3. Cualquier prueba no ejecutada expresamente en el flujo real de mostrador.
 
 ## Resultado
-**APROBADA TÉCNICAMENTE PARA PRUEBA MANUAL.**
+**VALIDADA FUNCIONALMENTE POR EL USUARIO PARA EL FLUJO PROBADO.**
 
-No se declara MASTER, STABLE ni lista para cliente hasta superar las pruebas manuales anteriores desde el flujo real de mostrador.
+La función queda aprobada dentro de la LAB ACTUAL para el comportamiento validado. Esto no convierte por sí solo toda la LAB en MASTER/STABLE ni declara superadas las comprobaciones pendientes indicadas arriba.
