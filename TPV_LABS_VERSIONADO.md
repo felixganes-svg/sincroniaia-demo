@@ -33,26 +33,22 @@ Antes de retirar una LAB antigua se comprobará que la cadena actual conserva la
 
 Estas LAB permanecen recuperables desde el historial de Git.
 
-
 ## Actualización 07/09/2026 · Catálogo maestro
 - Nueva ACTUAL: `tpv-alimentacion-dibal-lab-v1-3-lab-catalogo-maestro`.
 - ANTERIOR inmediata: `tpv-alimentacion-dibal-lab-v1-3-lab-precio-contextual`.
 - Se retira de main `tpv-alimentacion-dibal-lab-v1-3-lab-venta-compacta` por quedar dos generaciones atrás.
 - Continúa recuperable desde el historial Git.
 
-
 ## Actualización 07/09/2026 · Despensa 6 dígitos
 - Nueva ACTUAL: `tpv-alimentacion-dibal-lab-v1-3-lab-despensa-6digitos`.
 - ANTERIOR: `tpv-alimentacion-dibal-lab-v1-3-lab-catalogo-maestro`.
 - Se retira de main `tpv-alimentacion-dibal-lab-v1-3-lab-precio-contextual` por quedar dos generaciones atrás.
-
 
 ## Actualización 07/09/2026 · Tickets dictados
 - Nueva ACTUAL: `tpv-alimentacion-dibal-lab-v1-3-lab-tickets-dictados`.
 - ANTERIOR: `tpv-alimentacion-dibal-lab-v1-3-lab-despensa-6digitos`.
 - Importador con referencia única, control de duplicados y validación de cuadre.
 - Se retira de main `tpv-alimentacion-dibal-lab-v1-3-lab-catalogo-maestro` por quedar dos generaciones atrás.
-
 
 ## Actualización 08/09/2026 · X/Z por jornada + pinchitos
 - Nueva ACTUAL: `tpv-alimentacion-dibal-lab-v1-3-lab-xz-jornada-pinchitos`.
@@ -61,14 +57,12 @@ Estas LAB permanecen recuperables desde el historial de Git.
 - Nuevos artículos: 000150 Pinchitos de pollo · 17,95 €/kg · Pollo; 000151 Pinchitos de ibérico · 22,50 €/kg · Cerdo.
 - Autovalidación técnica aprobada para prueba real; no MASTER/STABLE.
 
-
 ## Actualización 08/09/2026 · Mirar precio
 - Se mantiene ACTUAL: `tpv-alimentacion-dibal-lab-v1-3-lab-xz-jornada-pinchitos`.
 - Botón **CERRAR** añadido al principio de MIRAR PRECIO para uso móvil sin bajar al final.
 - Eliminado el cartel temporal de comprobación 08/09 de la ruta visible.
 - Verificación técnica: sintaxis OK, botón superior presente y texto temporal ausente.
 - Estado: aprobada para prueba real; NO MASTER global.
-
 
 ## Actualización 14/09/2026 · Corrección dentro de la misma venta
 - Se mantiene ACTUAL: `tpv-alimentacion-dibal-lab-v1-3-lab-xz-jornada-pinchitos`.
@@ -80,4 +74,12 @@ Estas LAB permanecen recuperables desde el historial de Git.
 - Ejemplo: 2 ud × 1,25 € = 2,50 € + corrección -1 ud × 1,25 € = -1,25 €; total efectivo de la línea = 1,25 €.
 - Tickets ya cerrados mantienen el circuito de rectificación autorizado existente; esta función solo afecta a venta abierta.
 - Verificación técnica: archivo publicado, integración apoyada sobre `modificar-venta-v1.js`, sin alterar catálogo, X/Z, cobros, encargos ni ticket rectificativo.
-- Estado: **APROBADA PARA PRUEBA MANUAL · NO MASTER/STABLE** hasta superar prueba real desde móvil con unidades y kilos.
+
+## Validación 15/09/2026 · Modificar venta directa
+- El usuario confirma la prueba real con la orden explícita **“Validamos”**.
+- Queda **VALIDADO** el acceso a **MODIFICAR VENTA** directamente desde la venta abierta, sin pasar por SUBTOTAL.
+- Queda **VALIDADO** el criterio visual del ticket: conservar la línea original y añadir debajo la diferencia negativa dentro de la misma venta.
+- La validación se limita al flujo efectivamente probado; no se dan por superadas por inferencia pruebas no realizadas expresamente.
+- Pendiente de confirmación específica: comportamiento en X/Z tras una venta corregida y selector cuando existan dos vendedores con ventas pendientes simultáneas.
+- Estado de esta función: **VALIDADA FUNCIONALMENTE EN LAB ACTUAL**.
+- Estado global de la LAB: sigue siendo **LAB ACTUAL**, no MASTER/STABLE global hasta completar las validaciones que correspondan.
