@@ -390,13 +390,53 @@ function lastEntryTime(){if(data.open)return hm(new Date(data.open.in));const s=
 function lastExitTime(){const s=lastClosedSession();return s?hm(new Date(s.out)):'—'}
 function saveContract(){const v=Number($('weeklyContract').value);if(!Number.isFinite(v)||v<=0||v>80){toast('⚠️ Revisa las horas contratadas');return}data.config.weeklyContractHours=v;save();render();toast('✅ Jornada contratada guardada')}
 async function checkGPS(silent=false){if(!navigator.geolocation){data.gps={ok:false,estado:'NO_DISPONIBLE',text:'GPS no disponible',time:new Date().toISOString()};save();render();if(!silent)toast('⚠️ GPS no disponible');return data.gps}return new Promise(resolve=>navigator.geolocation.getCurrentPosition(p=>{data.gps={ok:true,estado:'VERIFICADO',lat:p.coords.latitude,lon:p.coords.longitude,accuracy:p.coords.accuracy,time:new Date().toISOString()};save();render();if(!silent)toast('✅ Ubicación obtenida');resolve(data.gps)},e=>{data.gps={ok:false,estado:'NO_VERIFICADO',text:e.code===1?'Permiso de ubicación denegado':e.code===3?'No se obtuvo ubicación a tiempo':'Ubicación no disponible',time:new Date().toISOString()};save();render();if(!silent)toast('⚠️ No se pudo verificar ubicación');resolve(data.gps)},{enableHighAccuracy:true,timeout:10000,maximumAge:0}))}
-async function apiPost(payload){if(!SECRET_TOKEN)return {ok:false,error:'ACCESO_NO_CONFIGURADO'};try{const r=await fetch(BACKEND_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...payload,token:SECRET_TOKEN}),redirect:'follow'});const j=await r.json();return j}catch(e){return {ok:false,error:String(e)}}}
-async function sendBackend(ev){const j=await apiPost(ev);return !!j.ok}
+async function apiPost(payload){
+  if(!SECRET_TOKEN)return {ok:false,error:'ACCESO_NO_CONFIGURADO'};
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),10000);
+  try{
+    const r=await fetch(BACKEND_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...payload,token:SECRET_TOKEN}),redirect:'follow',signal:controller.signal});
+    return await r.json();
+  }catch(e){
+    return {ok:false,error:e&&e.name==='AbortError'?'TIMEOUT_BACKEND':String(e)};
+  }finally{clearTimeout(timer)}
+}
+async function apiGet(action,extra={}){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),10000);
+  try{
+    const q=new URLSearchParams({action,...extra});
+    if(SECRET_TOKEN)q.set('token',SECRET_TOKEN);
+    const r=await fetch(BACKEND_URL+'?'+q.toString(),{method:'GET',cache:'no-store',redirect:'follow',signal:controller.signal});
+    return await r.json();
+  }catch(e){
+    return {ok:false,error:e&&e.name==='AbortError'?'TIMEOUT_BACKEND':String(e)};
+  }finally{clearTimeout(timer)}
+}
+async function sendBackend(ev){const payload={...ev,action:ev.action==='registrar_fichaje'?'fichaje':ev.action};const j=await apiPost(payload);return !!j.ok}
 function localIsoFromParts(fechaIso,hora){const h=String(hora||'00:00:00');return new Date(`${fechaIso}T${h}`).toISOString()}
 function sameMinute(a,b){return Math.abs(new Date(a)-new Date(b))<60000}
 function mergeRemoteFichajes(rows){if(!Array.isArray(rows)||!rows.length)return 0;const byDay={};rows.forEach(r=>{const k=r.fecha_iso||((r.fecha||'').match(/^(\d{2})\/(\d{2})\/(\d{4})$/)?`${RegExp.$3}-${RegExp.$2}-${RegExp.$1}`:'');if(!k||!r.tipo||!r.hora)return;(byDay[k]||(byDay[k]=[])).push(r)});let added=0,remoteOpen=null;Object.entries(byDay).forEach(([k,movs])=>{movs.sort((a,b)=>String(a.hora).localeCompare(String(b.hora)));const corrected=movs.some(m=>String(m.gps_estado||'').toUpperCase()==='CORREGIDO_MANUAL');if(corrected){data.days[k]={sessions:[],source:'backend corregido'}}else if(!data.days[k])data.days[k]={sessions:[],source:'backend'};let ent=null;movs.forEach(m=>{if(m.tipo==='ENTRADA')ent=m;else if(m.tipo==='SALIDA'&&ent){const ii=localIsoFromParts(k,ent.hora),oo=localIsoFromParts(k,m.hora);const exists=data.days[k].sessions.some(x=>sameMinute(x.in,ii)&&sameMinute(x.out,oo));if(!exists){data.days[k].sessions.push({in:ii,out:oo,minutes:minsBetween(ii,oo),source:corrected?'backend corregido':'backend',fichajeEntrada:ent.fichaje_id||'',fichajeSalida:m.fichaje_id||''});added++}ent=null}});if(ent){remoteOpen={in:localIsoFromParts(k,ent.hora),gps:null,source:'backend',fichaje_id:ent.fichaje_id||''}}});if(remoteOpen&&!data.open&&dateKey(new Date(remoteOpen.in))===dateKey(new Date()))data.open=remoteOpen;save();return added}
-async function hydrateFromBackend(){const el=$('backendState');if(el)el.innerHTML='<span class="muted">Comprobando conexión con backend…</span>';const [fj,cfg]=await Promise.all([apiPost({action:'consultar_fichajes',empresa_id:WORKER.empresa_id,trabajador_id:WORKER.trabajador_id}),apiPost({action:'consultar_configuracion',empresa_id:WORKER.empresa_id,trabajador_id:WORKER.trabajador_id})]);if(fj.ok&&Array.isArray(fj.fichajes)){mergeRemoteFichajes(fj.fichajes);if(el)el.innerHTML='<span class="ok">✅ Backend conectado · '+fj.fichajes.length+' movimiento(s) recuperado(s).</span>'}else if(el)el.innerHTML='<span class="warn">⚠️ Backend no disponible en este dispositivo.</span>';if(cfg.ok&&cfg.configuracion&&Number(cfg.configuracion.horas_semanales)>0){data.config.weeklyContractHours=Number(cfg.configuracion.horas_semanales);save()}render()}
-function backendEvent(tipo,iso,gps){return {action:'registrar_fichaje',empresa_id:WORKER.empresa_id,trabajador_id:WORKER.trabajador_id,nombre:WORKER.nombre,tipo,fecha_iso:dateKey(new Date(iso)),hora:hm(new Date(iso))+':00',timestamp:iso,gps:gps||null}}
+async function hydrateFromBackend(){
+  const el=$('backendState');
+  if(el)el.innerHTML='<span class="muted">Comprobando conexión con backend…</span>';
+  const [fj,cfg]=await Promise.all([
+    apiGet('consultar_fichajes',{empresa_id:WORKER.empresa_id,trabajador_id:WORKER.trabajador_id}),
+    apiGet('consultar_configuracion',{empresa_id:WORKER.empresa_id,trabajador_id:WORKER.trabajador_id})
+  ]);
+  if(fj.ok&&Array.isArray(fj.fichajes)){
+    data.backups.unshift({at:new Date().toISOString(),days:JSON.parse(JSON.stringify(data.days)),open:data.open?JSON.parse(JSON.stringify(data.open)):null,source:'pre-backend-sync'});
+    data.backups=data.backups.slice(0,10);
+    const added=mergeRemoteFichajes(fj.fichajes);
+    if(el)el.innerHTML='<span class="ok">✅ Backend conectado · '+fj.fichajes.length+' movimiento(s) leídos · '+added+' jornada(s) añadida(s).</span>';
+  }else{
+    if(el)el.innerHTML='<span class="warn">⚠️ Backend no disponible · '+(fj.error||'sin respuesta válida')+'</span>';
+  }
+  const trabajador=cfg&&Array.isArray(cfg.trabajadores)?cfg.trabajadores.find(x=>String(x.trabajador_id||'')===WORKER.trabajador_id):null;
+  if(trabajador&&Number(trabajador.horas_contrato_semana)>0){data.config.weeklyContractHours=Number(trabajador.horas_contrato_semana);save()}
+  render();
+}
+function backendEvent(tipo,iso,gps){return {action:'fichaje',empresa_id:WORKER.empresa_id,trabajador_id:WORKER.trabajador_id,nombre:WORKER.nombre,tipo,fecha_iso:dateKey(new Date(iso)),hora:hm(new Date(iso))+':00',timestamp:iso,centro_id:'CENTRO-001',centro:'Centro de trabajo',latitud:gps&&gps.ok?gps.lat:'',longitud:gps&&gps.ok?gps.lon:'',gps_estado:gps&&gps.estado?gps.estado:(gps&&gps.ok?'VERIFICADO':'NO_DISPONIBLE')}}}
 async function doPunch(){let now=new Date(),k=dateKey(now);if(!data.gps){toast('📍 Intentando obtener ubicación…');await checkGPS(true);now=new Date();k=dateKey(now)}const gps=data.gps||{ok:false,estado:'NO_DISPONIBLE',text:'Sin dato GPS'};if(data.open){if(!confirm('¿Confirmas FICHAR SALIDA ahora?'))return;const ev=backendEvent('SALIDA',now.toISOString(),gps);const entryKey=dateKey(new Date(data.open.in));if(!data.days[entryKey])data.days[entryKey]={sessions:[]};data.days[entryKey].sessions.push({in:data.open.in,out:now.toISOString(),minutes:minsBetween(data.open.in,now.toISOString()),gpsIn:data.open.gps||null,gpsOut:gps});data.open=null;const ok=await sendBackend(ev);if(!ok)data.pending.push(ev);save();render();toast(ok?'✅ Salida registrada y sincronizada':'✅ Salida registrada · pendiente de sincronizar')}else{if(!confirm('¿Confirmas FICHAR ENTRADA ahora?'))return;const ev=backendEvent('ENTRADA',now.toISOString(),gps);data.open={in:now.toISOString(),gps:gps};const ok=await sendBackend(ev);if(!ok)data.pending.push(ev);save();render();toast(ok?'✅ Entrada registrada y sincronizada':'✅ Entrada registrada · pendiente de sincronizar')}}
 async function syncPending(){if(!data.pending.length){toast('✅ No hay pendientes');return}const keep=[];for(const ev of data.pending){if(!(await sendBackend(ev)))keep.push(ev)}data.pending=keep;save();render();toast(keep.length?'⚠️ Quedan '+keep.length+' pendiente(s)':'✅ Pendientes sincronizados')}
 function makeBackup(){data.backups.unshift({at:new Date().toISOString(),days:JSON.parse(JSON.stringify(data.days)),open:data.open?JSON.parse(JSON.stringify(data.open)):null});data.backups=data.backups.slice(0,10);save();render();toast('✅ Copia local creada')}
