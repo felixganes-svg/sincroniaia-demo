@@ -5,77 +5,65 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>SINCRONIAIA · Centro de Control</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:1080px;margin:auto;padding:14px}.hero{background:#111827;color:#fff;border-radius:18px;padding:20px}.hero h1{margin:0 0 6px;font-size:24px}.hero p{margin:0;color:#cbd5e1;line-height:1.45}.rule{margin:12px 0;padding:12px;border-radius:13px;background:#eaf4ff;border:1px solid #b9d7fa;color:#214d78;font-size:13px;line-height:1.5}.focus{background:#fff7ed;border-color:#fed7aa;color:#9a3412}.warn{background:#fff1f2;border-color:#fecdd3;color:#9f1239}.sec{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px;margin:12px 0}.sec h2{margin:0 0 10px;font-size:17px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:9px}.card{border:1px solid #e5e7eb;border-radius:13px;padding:12px;display:flex;flex-direction:column;gap:8px}.row{display:flex;gap:8px;align-items:flex-start}.name{font-weight:800;flex:1}.status{font-size:10px;font-weight:900;border-radius:999px;padding:4px 7px;white-space:nowrap}.ok{background:#dcfce7;color:#166534}.hold{background:#fef3c7;color:#92400e}.review{background:#dbeafe;color:#1d4ed8}.stop{background:#fee2e2;color:#991b1b}.desc{font-size:12.5px;line-height:1.48;color:#56616f}.btn{display:inline-block;text-decoration:none;background:#111827;color:#fff;padding:8px 10px;border-radius:9px;font-size:12px;font-weight:800}.btn.alt{background:#475569}.todo{margin:0;padding-left:18px}.todo li{margin:7px 0;font-size:13px;line-height:1.45}.meta{font-size:11.5px;color:#64748b;border-top:1px dashed #e2e8f0;padding-top:7px}.foot{font-size:11px;color:#687384;padding:8px 2px 24px}@media(max-width:480px){.wrap{padding:9px}.hero h1{font-size:21px}}
+*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}.wrap{max-width:1080px;margin:auto;padding:14px}.hero{background:#111827;color:#fff;border-radius:18px;padding:20px}.hero h1{margin:0 0 6px;font-size:24px}.hero p{margin:0;color:#cbd5e1;line-height:1.45}.rule{margin:12px 0;padding:12px;border-radius:13px;background:#eaf4ff;border:1px solid #b9d7fa;color:#214d78;font-size:13px;line-height:1.5}.focus{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}.sec{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:14px;margin:12px 0}.sec h2{margin:0 0 10px;font-size:17px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:9px}.card{border:1px solid #e5e7eb;border-radius:13px;padding:12px;display:flex;flex-direction:column;gap:8px}.row{display:flex;gap:8px;align-items:flex-start}.name{font-weight:800;flex:1}.status{font-size:10px;font-weight:900;border-radius:999px;padding:4px 7px;white-space:nowrap}.ok{background:#dcfce7;color:#166534}.review{background:#dbeafe;color:#1d4ed8}.hold{background:#fef3c7;color:#92400e}.stop{background:#fee2e2;color:#991b1b}.desc{font-size:12.5px;line-height:1.48;color:#56616f}.meta{font-size:11.5px;color:#64748b;border-top:1px dashed #e2e8f0;padding-top:7px}.btn{display:inline-block;text-decoration:none;background:#111827;color:#fff;padding:8px 10px;border-radius:9px;font-size:12px;font-weight:800}.btn.alt{background:#475569}.foot{font-size:11px;color:#687384;padding:8px 2px 24px}@media(max-width:480px){.wrap{padding:9px}.hero h1{font-size:21px}}
 </style>
 </head>
 <body><div class="wrap">
-<header class="hero"><h1>SINCRONIAIA · Centro de Control</h1><p>Índice maestro de accesos, estado real, evidencias y siguiente trabajo autorizado. ACTUAL no significa MASTER. MASTER exige validación completa, regresión y sellado.</p></header>
+<header class="hero"><h1>SINCRONIAIA · Centro de Control</h1><p>Accesos principales, estado real y referencias maestras. Actualizado 16/09/2026.</p></header>
 
-<div class="rule"><b>REGLA MAESTRA:</b> una sola producción oficial por módulo. Antes de modificar: consultar MASTER/continuidad, localizar la función responsable y proteger lo validado. <b>No se añade una capa nueva si el fallo puede corregirse en origen.</b> Después de cada cambio: prueba desde cero, registrar evidencia y conservar la versión anterior válida.</div>
-<div class="rule focus"><b>EVIDENCIA ANTES QUE AFIRMACIÓN:</b> distinguir siempre entre <b>verificado en código</b>, <b>probado funcionalmente</b>, <b>validado en uso real</b>, <b>validado en hardware</b> y <b>MASTER/STABLE</b>. “No encontrado” no equivale a “no existe”: antes de negar una función se revisa el archivo fuente exacto.</div>
-<div class="rule warn"><b>REGLA DE CONSOLIDACIÓN:</b> una LAB puede usar parches temporales, pero no se encadenan indefinidamente. Primero se terminan pruebas funcionales; después se consolidan funciones en una implementación única; luego regresión completa y VALIDACION antes de promover a MASTER/STABLE.</div>
+<div class="rule"><b>REGLA MAESTRA:</b> EVIDENCIA ANTES QUE AFIRMACIÓN. Se protege lo validado, se modifica solo lo necesario y antes de cambios importantes se conserva un respaldo recuperable.</div>
+<div class="rule focus"><b>TPV ALIMENTACIÓN:</b> ya no se crean nuevas versiones LAB por defecto. La carpeta <code>tpv-alimentacion-fusion-lab-v1/</code> se mantiene como <b>TPV PRINCIPAL DE REFERENCIA</b>, aunque conserve “lab” en el nombre interno.</div>
+<div class="rule warn"><b>IMPORTANTE:</b> el MASTER CANDIDATE creado para consolidación dio error de carga de base y <b>NO debe usarse</b> como TPV principal. El sistema válido sigue siendo el TPV principal indicado abajo.</div>
 
-<section class="sec"><h2>FOCO ACTUAL · 15/09/2026</h2><div class="grid">
-<div class="card"><div class="row"><div class="name">SINCRONIAIA TPV Alimentación · LAB FUSIÓN</div><span class="status review">LAB ACTUAL · NO MASTER</span></div>
-<div class="desc"><b>Ruta de integración activa:</b> B como base funcional + mejoras seleccionadas de A. A y B permanecen protegidas. La LAB FUSIÓN es el único espacio autorizado para integrar y probar.</div>
-<div class="meta"><b>Estado verificado:</b> FASE 0–5 trabajadas y validadas en sus pruebas; X por fecha/rango, Z selectiva con protección de doble cierre, catálogo/persistencia, VN vendedores y corrección de venta abierta con trazabilidad. Ticket 58 mm con logo/dirección, columnas PRECIO/TOTAL corregidas y prueba visual correcta. IndexedDB / <code>pilotDb</code> verificado en código y conectado a guardado/restauración.</div>
-<div class="meta"><b>Pendiente antes de cerrar FASE 6:</b> anulación completa reflejada en ticket 58 mm + impresión física; mantener trazabilidad en copia/reimpresión.</div>
-<div class="meta"><b>Seguridad PIN en cuarentena:</b> riesgo verificado en código por PIN demo visibles, PIN nuevo por defecto 0000, ausencia de límite de intentos, sesión Empresa sin caducidad y falta de estado separado entre “sesión activa” y “acceso habilitado/revocado”. Validación funcional móvil pendiente.</div>
-<a class="btn" target="_blank" rel="noopener" href="../tpv-alimentacion-fusion-lab-v1/?fase6=8">Abrir LAB FUSIÓN</a>
-<a class="btn alt" target="_blank" rel="noopener" href="../tpv-alimentacion-lab-verificado-20260908-cerrar/">Abrir base B protegida</a>
+<section class="sec"><h2>FOCO ACTUAL · TPV ALIMENTACIÓN</h2><div class="grid">
+<div class="card"><div class="row"><div class="name">SINCRONIAIA TPV Alimentación · PRINCIPAL</div><span class="status ok">PRINCIPAL VALIDADO</span></div>
+<div class="desc">Es el acceso operativo de referencia. Se mantiene la misma carpeta y estructura para no introducir riesgo innecesario.</div>
+<div class="meta"><b>Validado por bloques:</b> venta normal, kg/unidades, vendedores, Mi actividad, venta abierta, correcciones, rectificaciones, encargos, compra adicional, cobro, tickets, X/Z por fechas, edición rápida, seguridad Empresa/vendedor y ticket 58 mm.</div>
+<div class="meta"><b>Persistencia:</b> IndexedDB / <code>pilotDb</code> verificado en código y conectado a guardado/restauración.</div>
+<div class="meta"><b>Seguridad:</b> Empresa 5 fallos → 2 min; vendedor 5 fallos → 15 s; sesión Empresa → cierre por 5 min de inactividad.</div>
+<a class="btn" target="_blank" rel="noopener" href="../tpv-alimentacion-fusion-lab-v1/">Abrir TPV PRINCIPAL</a>
 </div>
-<div class="card"><div class="row"><div class="name">Consulta de artículos TPV · móvil/PWA</div><span class="status review">PRUEBA</span></div><div class="desc">Buscador/consulta de artículos separado del TPV principal. No sustituye a LAB FUSIÓN ni se marca como producción.</div><a class="btn" target="_blank" rel="noopener" href="../tpv-alimentacion-consulta-articulos/">Abrir consulta artículos</a></div>
-<div class="card"><div class="row"><div class="name">Todo Bueno · Control Horario</div><span class="status review">VALIDAR SELLADO</span></div><div class="desc">Piloto empresa/trabajador con backend Apps Script. Mantener operativo, pero repetir checklist desde cero antes de MASTER cliente.</div><a class="btn" target="_blank" rel="noopener" href="../todo-bueno/control-horario/">Abrir Control Horario</a></div>
+
+<div class="card"><div class="row"><div class="name">Maestro TPV Alimentación</div><span class="status ok">MAESTRO ACTUAL</span></div>
+<div class="desc">Documento de continuidad: enlace principal, estado, reglas, bloques validados, respaldo y criterio de evolución.</div>
+<a class="btn" target="_blank" rel="noopener" href="../tpv-alimentacion-fusion-lab-v1/MAESTRO_TPV_ALIMENTACION.md">Abrir MAESTRO</a>
+</div>
+
+<div class="card"><div class="row"><div class="name">Respaldo TPV validado</div><span class="status ok">PROTEGIDO</span></div>
+<div class="desc">Rama independiente creada antes de seguir modificando: <code>respaldo-tpv-fusion-validado-2026-09-16</code>.</div>
+<div class="meta">Punto de referencia: commit <code>00262939023f828073c769fc8d6235283d95c9ed</code>.</div>
+</div>
+
+<div class="card"><div class="row"><div class="name">MASTER CANDIDATE v1</div><span class="status stop">NO USAR</span></div>
+<div class="desc">La prueba mostró: “No se ha podido cargar la base”. Se conserva solo como intento de consolidación fallido; no sustituye al TPV principal.</div>
+</div>
 </div></section>
 
 <section class="sec"><h2>ESTADO TPV · CERTEZA ACTUAL</h2><div class="grid">
-<div class="card"><div class="row"><div class="name">Persistencia local</div><span class="status ok">VERIFICADO EN CÓDIGO</span></div><div class="desc"><code>pilotDb</code> usa IndexedDB: apertura, objectStore, <code>put()</code>, <code>get()</code>, snapshot y restauración. Esto no equivale todavía a sincronización entre dispositivos ni a backend comercial central.</div></div>
-<div class="card"><div class="row"><div class="name">Ticket 58 mm</div><span class="status review">MUY AVANZADO</span></div><div class="desc">PNG propio para Fun Print/MX06. Corrección parcial con trazabilidad ya llegó a papel. Logo y dirección corregidos. Columnas PRECIO/TOTAL verificadas visualmente el 15/09.</div></div>
-<div class="card"><div class="row"><div class="name">Seguridad vendedores / Empresa</div><span class="status hold">PRUEBA ESPECÍFICA PENDIENTE</span></div><div class="desc">Código leído y mapa de 7 puntos de acceso elaborado. Pendiente forzar fallos en móvil: PIN incorrecto/vacío, vendedor revocado, intentos repetidos y caducidad de sesión.</div></div>
-<div class="card"><div class="row"><div class="name">Arquitectura LAB</div><span class="status hold">NO CONSOLIDADA</span></div><div class="desc">La LAB sigue usando <code>base.html</code> + scripts de fase. Válido para laboratorio. Antes de MASTER: consolidar, eliminar capas redundantes y repetir regresión completa.</div></div>
+<div class="card"><div class="row"><div class="name">Acceso Empresa y vendedores</div><span class="status ok">VALIDADO</span></div><div class="desc">Accesos correctos, PIN incorrecto, vendedor deshabilitado, cambio de código Empresa, límites de intentos y caducidad de sesión probados.</div></div>
+<div class="card"><div class="row"><div class="name">Mi actividad</div><span class="status ok">VALIDADO</span></div><div class="desc">Acceso por PIN, tickets del periodo, devoluciones/rectificaciones y venta neta personal coherentes con los tickets.</div></div>
+<div class="card"><div class="row"><div class="name">Rectificaciones</div><span class="status ok">VALIDADO</span></div><div class="desc">Cobro de diferencia y devolución completa/parcial probados, con relación al ticket original.</div></div>
+<div class="card"><div class="row"><div class="name">X / Z por fechas</div><span class="status ok">VALIDADO</span></div><div class="desc">Consulta por fechas y presencia de rectificaciones positivas/negativas comprobadas.</div></div>
+<div class="card"><div class="row"><div class="name">Encargos</div><span class="status ok">VALIDADO</span></div><div class="desc">Crear, preparar, completar, compra adicional, cobrar, recoger y cierre trabajados y validados previamente.</div></div>
+<div class="card"><div class="row"><div class="name">Ticket 58 mm / Fun Print</div><span class="status ok">VALIDADO EN PAPEL</span></div><div class="desc">PNG propio, logo/dirección, kg/unidades, correcciones y total/cambio. Se confirmó que lo visto en PNG se reproduce en papel.</div></div>
 </div></section>
 
-<section class="sec"><h2>OPERATIVO / ACCESO CONFIRMADO</h2><div class="grid">
+<section class="sec"><h2>OTROS ACCESOS PRINCIPALES</h2><div class="grid">
 <div class="card"><div class="row"><div class="name">Portal SINCRONIAIA</div><span class="status ok">ACTUAL</span></div><div class="desc">Escaparate general y acceso a demos.</div><a class="btn" target="_blank" rel="noopener" href="../">Abrir portal</a></div>
-<div class="card"><div class="row"><div class="name">Investigación de Campo</div><span class="status ok">ACTUAL</span></div><div class="desc">Toma de datos y diagnóstico inicial para negocios.</div><a class="btn" target="_blank" rel="noopener" href="../investigacion/">Abrir</a></div>
-<div class="card"><div class="row"><div class="name">Can Soler</div><span class="status ok">ACTUAL</span></div><div class="desc">Demo de pedidos tipo WhatsApp.</div><a class="btn" target="_blank" rel="noopener" href="../can-soler/">Abrir</a></div>
-<div class="card"><div class="row"><div class="name">Ascensores</div><span class="status ok">ACTUAL</span></div><div class="desc">Demo sectorial de averías, cambio de mantenedor y modernización.</div><a class="btn" target="_blank" rel="noopener" href="../prueba-ascensores-v1/">Abrir</a></div>
-<div class="card"><div class="row"><div class="name">SINCRONIA Animal</div><span class="status ok">ACTUAL</span></div><div class="desc">Vertical de necesidades del animal.</div><a class="btn" target="_blank" rel="noopener" href="../sincronia-animal/">Abrir</a></div>
-<div class="card"><div class="row"><div class="name">Todo Bueno · Cliente</div><span class="status ok">ACTUAL</span></div><div class="desc">Demo cliente/panadería separada del control horario.</div><a class="btn" target="_blank" rel="noopener" href="../todo-bueno/">Abrir</a></div>
+<div class="card"><div class="row"><div class="name">Consulta de artículos TPV</div><span class="status review">AUXILIAR</span></div><div class="desc">Buscador móvil/PWA separado del TPV principal.</div><a class="btn" target="_blank" rel="noopener" href="../tpv-alimentacion-consulta-articulos/">Abrir consulta</a></div>
+<div class="card"><div class="row"><div class="name">Todo Bueno · Control Horario</div><span class="status review">OPERATIVO / REVISAR SELLADO</span></div><div class="desc">Piloto empresa/trabajador con backend Apps Script.</div><a class="btn" target="_blank" rel="noopener" href="../todo-bueno/control-horario/">Abrir Control Horario</a></div>
 <div class="card"><div class="row"><div class="name">Control Horario personal</div><span class="status ok">MASTER</span></div><div class="desc">Referencia personal oficial protegida.</div><a class="btn" target="_blank" rel="noopener" href="../control-horario-personal/">Abrir MASTER</a></div>
-<div class="card"><div class="row"><div class="name">Control Horario · Demo general</div><span class="status review">DEMO</span></div><div class="desc">Acceso genérico para enseñar el concepto.</div><a class="btn" target="_blank" rel="noopener" href="../demo-control-horario/">Abrir demo</a></div>
-<div class="card"><div class="row"><div class="name">Planes Control Horario</div><span class="status ok">ACTUAL</span></div><div class="desc">Comparativa comercial.</div><a class="btn" target="_blank" rel="noopener" href="../control-horario-versiones/">Abrir</a></div>
-<div class="card"><div class="row"><div class="name">Calculadora Control Horario</div><span class="status ok">ACTUAL</span></div><div class="desc">Calculadora comercial asociada.</div><a class="btn" target="_blank" rel="noopener" href="../control-horario-calculadora/">Abrir</a></div>
+<div class="card"><div class="row"><div class="name">Investigación de Campo</div><span class="status ok">ACTUAL</span></div><div class="desc">Toma de datos y diagnóstico inicial para negocios.</div><a class="btn" target="_blank" rel="noopener" href="../investigacion/">Abrir</a></div>
+<div class="card"><div class="row"><div class="name">Can Soler</div><span class="status ok">ACTUAL</span></div><div class="desc">Demo de pedidos.</div><a class="btn" target="_blank" rel="noopener" href="../can-soler/">Abrir</a></div>
+<div class="card"><div class="row"><div class="name">SINCRONIA Animal</div><span class="status ok">ACTUAL</span></div><div class="desc">Vertical de necesidades del animal.</div><a class="btn" target="_blank" rel="noopener" href="../sincronia-animal/">Abrir</a></div>
+<div class="card"><div class="row"><div class="name">Copiloto Comercial</div><span class="status hold">INTERNO</span></div><div class="desc">Herramienta interna todavía no sellada.</div><a class="btn" target="_blank" rel="noopener" href="../copiloto-comercial/">Abrir</a></div>
 </div></section>
 
-<section class="sec"><h2>EN DESARROLLO / FALTA CERRAR</h2><div class="grid">
-<div class="card"><div class="row"><div class="name">SINCRONIAIA ENCARGOS · MASTER 1.0</div><span class="status hold">DESARROLLO</span></div><div class="desc">Producto independiente. No confundir con Encargos integrados en TPV.</div></div>
-<div class="card"><div class="row"><div class="name">SINCRONIAIA ENCARGOS · LAB</div><span class="status hold">LAB</span></div><div class="desc">Laboratorio aislado.</div><a class="btn" target="_blank" rel="noopener" href="../encargos-lab/">Abrir LAB</a></div>
-<div class="card"><div class="row"><div class="name">Copiloto Comercial</div><span class="status hold">INTERNO</span></div><div class="desc">Pendiente acceso protegido y sellado.</div><a class="btn" target="_blank" rel="noopener" href="../copiloto-comercial/">Abrir</a></div>
-<div class="card"><div class="row"><div class="name">Todo Bueno · Conectada</div><span class="status hold">DEMO LOCAL</span></div><div class="desc">No operativo entre dispositivos hasta backend central validado.</div><a class="btn" target="_blank" rel="noopener" href="../todo-bueno/conectada/">Abrir</a></div>
-<div class="card"><div class="row"><div class="name">Todo Bueno · Empresa</div><span class="status hold">DEMO LOCAL</span></div><div class="desc">Panel empresa de pedidos en demostración local.</div><a class="btn" target="_blank" rel="noopener" href="../todo-bueno/empresa/">Abrir</a></div>
-<div class="card"><div class="row"><div class="name">Gestión Laboral · LAB</div><span class="status hold">LAB</span></div><div class="desc">Horarios, ausencias y compensaciones. Alcance todavía abierto.</div><a class="btn" target="_blank" rel="noopener" href="../gestion-laboral-lab/">Abrir LAB</a></div>
-<div class="card"><div class="row"><div class="name">Simulador Comercial</div><span class="status hold">REVISAR</span></div><div class="desc">Falta recuperar/publicar ruta canónica vigente.</div></div>
-<div class="card"><div class="row"><div class="name">Pruebas de voz · v3</div><span class="status hold">LAB</span></div><div class="desc">Última prueba de voz localizada.</div><a class="btn" target="_blank" rel="noopener" href="../prueba-voz-v3/">Abrir v3</a></div>
+<section class="sec"><h2>REFERENCIAS HISTÓRICAS TPV</h2><div class="grid">
+<div class="card"><div class="row"><div class="name">TPV base B</div><span class="status stop">HISTÓRICO PROTEGIDO</span></div><div class="desc">Base funcional de referencia anterior. No usar como principal.</div></div>
+<div class="card"><div class="row"><div class="name">TPV A</div><span class="status stop">HISTÓRICO PROTEGIDO</span></div><div class="desc">Referencia equipada anterior. No usar como principal.</div></div>
 </div></section>
 
-<section class="sec"><h2>HISTÓRICO / REFERENCIAS PROTEGIDAS</h2><div class="grid">
-<div class="card"><div class="row"><div class="name">TPV base B · validada</div><span class="status stop">REFERENCIA PROTEGIDA</span></div><div class="desc">Base funcional usada por LAB FUSIÓN. No modificar para experimentar.</div><a class="btn" target="_blank" rel="noopener" href="../tpv-alimentacion-lab-verificado-20260908-cerrar/">Abrir B</a></div>
-<div class="card"><div class="row"><div class="name">TPV A · equipada</div><span class="status stop">REFERENCIA PROTEGIDA</span></div><div class="desc">Fuente de funciones seleccionadas para FUSIÓN. No modificar.</div><a class="btn" target="_blank" rel="noopener" href="../tpv-alimentacion-dibal-lab-v1-3-lab-xz-jornada-pinchitos/">Abrir A</a></div>
-<div class="card"><div class="row"><div class="name">Can Soler · prueba inicial</div><span class="status stop">HISTÓRICO</span></div><div class="desc">Ruta antigua; la actual es /can-soler/.</div><a class="btn" target="_blank" rel="noopener" href="../prueba-can-soler-v1/">Abrir histórico</a></div>
-<div class="card"><div class="row"><div class="name">Control Horario · versiones antiguas</div><span class="status stop">HISTÓRICO</span></div><div class="desc">No usar para corregir producción.</div></div>
-</div></section>
-
-<section class="sec"><h2>QUÉ QUEDA POR TERMINAR · ORDEN AUTORIZADO</h2><ol class="todo">
-<li><b>FASE 6 TPV:</b> probar anulación completa de línea en ticket 58 mm y después imprimirla físicamente con Fun Print/MX06.</li>
-<li><b>Seguridad PIN:</b> ejecutar matriz móvil de los 6 puntos protegidos + vendedor revocado + sesión Empresa sin caducidad. Corregir solo funciones responsables.</li>
-<li><b>FASE 7 · regresión completa:</b> venta, vendedores, catálogo, Encargos, cobros, X/Z, persistencia, correcciones y ticket 58 mm.</li>
-<li><b>Congelar funciones nuevas.</b> No añadir nuevas capacidades durante consolidación.</li>
-<li><b>Consolidar LAB FUSIÓN:</b> integrar funciones nativas y eliminar capas/parches redundantes.</li>
-<li><b>Repetir regresión desde cero</b> sobre la versión consolidada.</li>
-<li><b>Generar VALIDACION</b> con CRÍTICO / RELEVANTE / MENOR y estado APROBADA / NO APROBADA.</li>
-<li><b>Solo entonces</b> promover a MASTER/STABLE.</li>
-</ol></section>
-
-<div class="foot">SINCRONIAIA · Centro de Control actualizado · 15/09/2026 · Fuente: repositorio real + pruebas documentadas. Una capacidad trabajada no se considera MASTER mientras no exista evidencia de validación y sellado.</div>
-</div></body></html>
+<div class="foot">SINCRONIAIA · Centro de Control · Actualizado 16/09/2026 · TPV principal: tpv-alimentacion-fusion-lab-v1/</div>
+</div></body>
+</html>
