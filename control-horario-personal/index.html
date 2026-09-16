@@ -12,7 +12,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-f
 </style>
 </head>
 <body>
-<iframe id="app" src="./app-base.html?v=20260914-trazabilidad-recuperadas" allow="geolocation"></iframe>
+<iframe id="app" src="./app-base.html?v=20260916-banco-semana-en-curso" allow="geolocation"></iframe>
 <script>
 const frame=document.getElementById('app');
 frame.addEventListener('load',()=>{
@@ -37,17 +37,19 @@ frame.addEventListener('load',()=>{
       w.__schedule1409Applied=true;
     }
 
-    // El fichaje real del 24/08 se conserva: 08:30–13:30 = 5:00.
-    // En el banco genera una hora pendiente adicional frente a las 6:00 previstas.
-    if(!w.__compute2408Applied){
+    // Ajustes de cómputo histórico. El fichaje real NO se modifica.
+    if(!w.__historicalBankFixApplied){
       try{
         w.eval(`(()=>{
           HISTORICAL_COMPUTE['2026-08-24']=300;
           HISTORICAL_NOTES['2026-08-24']='Fichaje real 08:30–13:30 (5:00). Horario previsto 07:30–13:30 (6:00). Diferencia: -1:00. Recuperada en la semana 07–13/09.';
+          // 12/09: se conservan 6:08 reales; para banco se computan 6:00.
+          HISTORICAL_COMPUTE['2026-09-12']=360;
+          HISTORICAL_NOTES['2026-09-12']='Fichaje real 07:30–13:38 (6:08). Cómputo de banco: 6:00. Los 8 minutos residuales no generan nuevo saldo.';
           render();
         })()`);
-      }catch(e){console.error('Cómputo 24/08',e)}
-      w.__compute2408Applied=true;
+      }catch(e){console.error('Cómputo histórico banco',e)}
+      w.__historicalBankFixApplied=true;
     }
 
     if(!w.__fix0809Applied){
@@ -83,30 +85,61 @@ frame.addEventListener('load',()=>{
       bankNote.parentNode.insertBefore(info,bankNote.nextSibling);
     }
 
-    const updateBankExplanation=()=>{
-      const info=d.getElementById('bankExplanation');
-      if(!info)return;
+    const updateBankUI=()=>{
       try{
-        const recovered=w.eval(`(()=>{
-          const s=new Date('2026-09-07T00:00:00'),e=new Date('2026-09-13T23:59:59');
-          return sumComputableBetween(s,e)-contractMinutesWeek();
-        })()`);
+        const now=new Date();
+        const state=w.eval('bankState(new Date())');
         const fmt=m=>w.eval('dur('+Math.abs(Math.round(m||0))+')');
-        const recoveryOk=Math.round(recovered)===180;
-        info.innerHTML=
-          '<b style="font-size:14px">Trazabilidad de horas recuperadas</b><br><br>'+ 
-          '<b>17–23/08:</b> 39:00 h − 40:00 h = <b>−1:00 h</b> → <b>recuperada en 07–13/09</b>.<br>'+ 
-          '<b>24/08:</b> fichaje real 08:30–13:30 = 5:00 h; previstas 07:30–13:30 = 6:00 h → <b>−1:00 h adicional</b> → <b>recuperada en 07–13/09</b>.<br>'+ 
-          '<b>24–30/08:</b> saldo ordinario semanal 39:00 h − 40:00 h = <b>−1:00 h</b> → <b>recuperada en 07–13/09</b>.<br><br>'+ 
-          '<b>Total pendiente acumulado:</b> −3:00 h.<br>'+ 
-          '<b>Semana 07–13/09:</b> +'+fmt(recovered)+' h destinadas a recuperar el saldo anterior.<br>'+ 
-          '<b>Saldo histórico pendiente:</b> '+(recoveryOk?'0:00 h · CUADRADO':'revisar cómputo')+'.';
-      }catch(e){
-        info.textContent='No se ha podido calcular la trazabilidad del banco de horas.';
-      }
+        const signed=m=>(m<0?'−':m>0?'+':'')+fmt(m);
+
+        // Banco: semanas cerradas + progreso real de la semana actual.
+        const bp=d.getElementById('bankPrevious'),bd=d.getElementById('bankWeekDelta'),bc=d.getElementById('bankCurrent'),bn=d.getElementById('bankNote');
+        if(state){
+          if(bp)bp.textContent=signed(state.previous);
+          if(bd)bd.textContent=signed(state.weekDelta);
+          if(bc)bc.textContent=signed(state.current);
+          if(bn)bn.textContent=state.current>0?'Horas a favor del trabajador: '+fmt(state.current):state.current<0?'Horas pendientes: '+fmt(state.current):'Banco de horas cuadrado: 0:00';
+        }
+
+        const info=d.getElementById('bankExplanation');
+        if(info){
+          info.innerHTML=
+            '<b style="font-size:14px">Trazabilidad de horas recuperadas</b><br><br>'+ 
+            '<b>17–23/08:</b> 39:00 h − 40:00 h = <b>−1:00 h</b> → <b>recuperada en 07–13/09</b>.<br>'+ 
+            '<b>24/08:</b> fichaje real 08:30–13:30 = 5:00 h; previstas 07:30–13:30 = 6:00 h → <b>−1:00 h adicional</b> → <b>recuperada en 07–13/09</b>.<br>'+ 
+            '<b>24–30/08:</b> saldo ordinario semanal 39:00 h − 40:00 h = <b>−1:00 h</b> → <b>recuperada en 07–13/09</b>.<br><br>'+ 
+            '<b>Total pendiente acumulado:</b> −3:00 h.<br>'+ 
+            '<b>Semana 07–13/09:</b> 43:00 h computables − 40:00 h = <b>+3:00 h</b> destinadas a recuperar el saldo anterior.<br>'+ 
+            '<b>Fichaje real de la semana:</b> 43:08 h; los 8 minutos residuales quedan visibles pero no generan banco.<br>'+ 
+            '<b>Saldo histórico pendiente al 13/09:</b> <b>0:00 h · CUADRADO</b>.';
+        }
+
+        // En el mes actual no comparar una semana aún abierta contra las 40 h completas.
+        const box=d.getElementById('monthlyBalance');
+        if(box && w.calDate && w.calDate.getFullYear()===now.getFullYear() && w.calDate.getMonth()===now.getMonth()){
+          const y=now.getFullYear(),m=now.getMonth();
+          const ma=new Date(y,m,1),mb=new Date(y,m+1,0,23,59,59,999);
+          const realMonth=w.eval(`sumBetween(new Date(${ma.getTime()}),new Date(${mb.getTime()}))`);
+          const compMonth=w.eval(`sumComputableBetween(new Date(${ma.getTime()}),new Date(${mb.getTime()}))`);
+          const ws=w.eval('weekStart(new Date())'),we=w.eval('weekEnd(new Date())');
+          const currentComputed=w.eval(`sumComputableBetween(new Date(${ws.getTime()}),new Date())`);
+          let plannedToDate=0;
+          for(let x=new Date(ws);x<=now;x.setDate(x.getDate()+1)) plannedToDate+=w.eval(`basePlannedMinutesForDate('${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}')`);
+          const curDiff=currentComputed-plannedToDate;
+          box.innerHTML=
+            '<div class="grid3" style="margin-top:10px">'+
+              '<div class="metric"><span class="muted">Real mes</span><b>'+fmt(realMonth)+'</b></div>'+
+              '<div class="metric"><span class="muted">Computable mes</span><b>'+fmt(compMonth)+'</b></div>'+
+              '<div class="metric"><span class="muted">Saldo banco actual</span><b>'+signed(state?state.current:curDiff)+'</b></div>'+
+            '</div>'+
+            '<div style="margin-top:14px;padding:10px 0;border-bottom:1px solid #eaecf0"><b>Semana 31/08–06/09</b><span style="float:right;font-weight:800">0:00</span><br><span class="muted">Cómputo: 40:00 / 40:00</span></div>'+
+            '<div style="padding:10px 0;border-bottom:1px solid #eaecf0"><b>Semana 07/09–13/09</b><span style="float:right;font-weight:800;color:#07864b">+3:00</span><br><span class="muted">Cómputo banco: 43:00 / 40:00 · Real: 43:08</span></div>'+
+            '<div style="padding:10px 0"><b>Semana '+String(ws.getDate()).padStart(2,'0')+'/'+String(ws.getMonth()+1).padStart(2,'0')+'–'+String(we.getDate()).padStart(2,'0')+'/'+String(we.getMonth()+1).padStart(2,'0')+' <span class="muted">(en curso)</span></b><span style="float:right;font-weight:800;color:'+(curDiff>=0?'#07864b':'#b42318')+'">'+signed(curDiff)+'</span><br><span class="muted">Hasta hoy: '+fmt(currentComputed)+' computables / '+fmt(plannedToDate)+' previstos</span></div>';
+        }
+      }catch(e){console.error('Banco UI',e)}
     };
-    updateBankExplanation();
-    setInterval(updateBankExplanation,1500);
+    updateBankUI();
+    setInterval(updateBankUI,1500);
 
     const company=d.getElementById('company');
     if(company&&!d.getElementById('correctionAccess')){
