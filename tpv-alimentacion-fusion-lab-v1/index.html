@@ -11,7 +11,7 @@
 fetch('base.html?v='+Date.now())
   .then(r=>{if(!r.ok)throw new Error('No se pudo cargar la base');return r.text();})
   .then(html=>{
-    const patch='<script src="fase1-x-fechas.js?v=20260914-1"><\/script><script src="fase5-trazabilidad-ticket.js?v=20260915-8"><\/script><script src="fase6-ticket58-v4.js?v=20260915-8"><\/script><script src="fase6-logo-centrado-v5.js?v=20260915-5"><\/script><script src="fase-rectificacion-validacion-v1.js?v=20260916-1"><\/script><script src="fase-seguridad-sesion-empresa-v1.js?v=20260916-1"><\/script>';
+    const patch='<script src="fase1-x-fechas.js?v=20260914-1"><\/script><script src="fase5-trazabilidad-ticket.js?v=20260915-8"><\/script><script src="fase6-ticket58-v4.js?v=20260915-8"><\/script><script src="fase6-logo-centrado-v5.js?v=20260915-5"><\/script><script src="fase-rectificacion-validacion-v1.js?v=20260916-1"><\/script><script src="fase-seguridad-sesion-empresa-v1.js?v=20260916-1"><\/script><script src="fase-informes-xz-rectificaciones-v1.js?v=20260916-1"><\/script>';
     html=/<\/body>/i.test(html)?html.replace(/<\/body>/i,patch+'</body>'):html+patch;
     document.open();
     document.write(html);
