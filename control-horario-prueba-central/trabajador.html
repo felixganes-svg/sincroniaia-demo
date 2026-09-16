@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SINCRONIAIA · Prueba Central · Trabajador</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#172033;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;background:#f4f6f8}.wrap{max-width:520px;margin:auto;padding:18px}.card{background:#fff;border:1px solid #e4e7ec;border-radius:18px;padding:18px;margin-top:16px}.title{font-size:22px;font-weight:800}.muted{color:#667085;font-size:14px}.clock{font-size:42px;font-weight:800;margin:18px 0}.btn{width:100%;border:0;border-radius:14px;padding:16px;font-size:18px;font-weight:800;margin-top:12px}.green{background:#16a34a;color:#fff}.dark{background:#101828;color:#fff}.state{margin-top:14px;padding:12px;border-radius:12px;background:#f8fafc;font-size:14px}.ok{color:#067647}.warn{color:#b54708}.links{margin-top:14px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="title">SINCRONIAIA · PRUEBA CENTRAL</div>
+  <div class="muted">Trabajador · Félix</div>
+  <div class="card">
+    <div id="fecha" class="muted"></div>
+    <div id="clock" class="clock">--:--</div>
+    <div id="estado" class="state">Comprobando último fichaje central…</div>
+    <button id="btn" class="btn green" disabled>FICHAR ENTRADA</button>
+  </div>
+  <div class="card">
+    <b>Resultado de la última operación</b>
+    <div id="resultado" class="state">Todavía no se ha enviado ningún fichaje desde esta pantalla.</div>
+  </div>
+  <div class="links"><a href="./empresa.html">Abrir panel Empresa</a></div>
+</div>
+<script>
+const BACKEND_URL='https://script.google.com/macros/s/AKfycbyLwc8-1Ld3pnOcwF5aIpy9hIF8MpYN-LubyXkm5hPaSdyTI8jzSe02IDSkZDjDw_zr/exec';
+const EMPRESA='EMP-FELIX-DEMO';
+const TRABAJADOR='TRAB-FELIX-001';
+const NOMBRE='Félix';
+const KEY='sincroniaia_prueba_central_backend_key';
+const qs=new URLSearchParams(location.search);
+const incoming=qs.get('k');
+if(incoming){localStorage.setItem(KEY,incoming);qs.delete('k');history.replaceState({},document.title,location.pathname+(qs.toString()?'?'+qs.toString():''));}
+const TOKEN=localStorage.getItem(KEY)||'';
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+const fechaIso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const hora=d=>`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+let proximoTipo='ENTRADA';
+function tick(){const n=new Date();$('clock').textContent=`${pad(n.getHours())}:${pad(n.getMinutes())}`;$('fecha').textContent=n.toLocaleDateString('es-ES',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});}tick();setInterval(tick,1000);
+async function getFichajes(){
+  const q=new URLSearchParams({action:'consultar_fichajes',empresa_id:EMPRESA,trabajador_id:TRABAJADOR});
+  const c=new AbortController();const t=setTimeout(()=>c.abort(),10000);
+  try{const r=await fetch(BACKEND_URL+'?'+q.toString(),{cache:'no-store',signal:c.signal});return await r.json();}
+  finally{clearTimeout(t)}
+}
+async function cargarEstado(){
+  const btn=$('btn');
+  try{
+    const j=await getFichajes();
+    if(!j.ok||!Array.isArray(j.fichajes))throw new Error(j.error||'Respuesta no válida');
+    const rows=j.fichajes.slice().sort((a,b)=>String((a.fecha_iso||'')+' '+(a.hora||'')).localeCompare(String((b.fecha_iso||'')+' '+(b.hora||''))));
+    const last=rows[rows.length-1];
+    proximoTipo=last&&String(last.tipo).toUpperCase()==='ENTRADA'?'SALIDA':'ENTRADA';
+    $('estado').innerHTML=last?`Último central: <b>${last.tipo}</b> · ${last.fecha_iso||last.fecha||''} · ${last.hora||''}`:'Sin fichajes centrales. El próximo será ENTRADA.';
+    btn.textContent='FICHAR '+proximoTipo;
+    btn.className='btn '+(proximoTipo==='ENTRADA'?'green':'dark');
+    btn.disabled=!TOKEN;
+    if(!TOKEN)$('resultado').innerHTML='<span class="warn">Falta la clave de acceso. Abre esta página una vez con <b>?k=TU_CLAVE</b>.</span>';
+  }catch(e){$('estado').innerHTML='<span class="warn">No se pudo leer el backend: '+String(e.message||e)+'</span>';btn.disabled=true;}
+}
+async function fichar(){
+  if(!TOKEN)return;
+  const btn=$('btn');btn.disabled=true;
+  const n=new Date();
+  const payload={action:'fichaje',empresa_id:EMPRESA,trabajador_id:TRABAJADOR,nombre:NOMBRE,tipo:proximoTipo,fecha_iso:fechaIso(n),hora:hora(n),timestamp:n.toISOString(),centro_id:'CENTRO-001',centro:'Prueba central',latitud:'',longitud:'',gps_estado:'PRUEBA_CENTRAL',token:TOKEN};
+  const c=new AbortController();const t=setTimeout(()=>c.abort(),10000);
+  try{
+    const r=await fetch(BACKEND_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),redirect:'follow',signal:c.signal});
+    const j=await r.json();
+    if(!j.ok)throw new Error(j.error||'El backend rechazó el fichaje');
+    $('resultado').innerHTML='<span class="ok">✅ '+proximoTipo+' guardada en el backend central · '+fechaIso(n)+' '+hora(n)+'</span>';
+    await cargarEstado();
+  }catch(e){$('resultado').innerHTML='<span class="warn">⚠️ No se ha confirmado el guardado central: '+String(e.message||e)+'</span>';btn.disabled=false;}
+  finally{clearTimeout(t)}
+}
+$('btn').addEventListener('click',fichar);
+cargarEstado();
+</script>
+</body>
+</html>
