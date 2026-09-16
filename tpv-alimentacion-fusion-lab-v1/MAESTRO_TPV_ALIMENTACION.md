@@ -6,6 +6,29 @@
 
 ---
 
+## REGLA ABSOLUTA · CENTRO DE CONTROL
+
+El **Centro de Control de SINCRONIAIA es el índice maestro completo**.
+
+Esta regla es permanente y prevalece sobre cualquier actualización futura:
+
+1. **Nunca se debe perder contenido anterior del Centro de Control.**
+2. Las actualizaciones deben **añadir y actualizar**, no sustituir ni recortar el inventario maestro.
+3. Un elemento anterior solo puede salir del bloque principal si queda expresamente clasificado como **HISTÓRICO**, **RETIRADO**, **SUSTITUIDO** o equivalente, conservando su trazabilidad.
+4. El Centro debe mantener accesos, estados, fechas, evidencias, históricos, pendientes y referencias maestras de todos los módulos conocidos.
+5. Cada actualización debe indicar la **fecha de estado**.
+6. No se debe convertir el Centro de Control en un resumen parcial de un único proyecto.
+7. Antes de publicar una nueva versión del Centro se debe comprobar que los bloques existentes siguen presentes o han sido reclasificados de forma explícita.
+8. Si se añade un módulo nuevo, se incorpora sin borrar los anteriores.
+9. Si cambia la ruta principal de un módulo, la anterior se conserva como referencia histórica/protegida cuando corresponda.
+10. El Centro de Control funciona como **índice maestro completo de SINCRONIAIA**, no como página temporal de trabajo.
+
+**Regla operativa corta:**
+
+> ACTUALIZAR = CONSERVAR + AÑADIR + RECLASIFICAR CUANDO PROCEDA. NUNCA BORRAR CONTEXTO MAESTRO SIN TRAZABILIDAD.
+
+---
+
 ## 1. TPV PRINCIPAL
 
 **Enlace principal actual:**
@@ -167,6 +190,7 @@ Esto no debe confundirse con una base de datos remota multi-dispositivo.
 8. No convertir un experimento en principal sin prueba real.
 9. Mantener una única función propietaria por bloque cuando se consolide código.
 10. El usuario debe tener siempre claro cuál es el enlace principal.
+11. **El Centro de Control debe conservar siempre el índice maestro completo sin perder contenido previo.**
 
 ---
 
@@ -230,7 +254,8 @@ A partir de este Maestro:
 - no se repiten pruebas ya cerradas salvo que un cambio pueda afectarlas,
 - se modifica únicamente lo necesario,
 - cada nueva función debe quedar registrada aquí,
-- cada incidencia debe indicar: síntoma, causa encontrada, corrección, prueba y resultado.
+- cada incidencia debe indicar: síntoma, causa encontrada, corrección, prueba y resultado,
+- el Centro de Control se actualiza sin perder nunca el inventario maestro anterior.
 
 ---
 
