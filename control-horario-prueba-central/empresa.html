@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SINCRONIAIA · Prueba Central · Empresa</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#172033;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;background:#f4f6f8}.wrap{max-width:760px;margin:auto;padding:18px}.title{font-size:22px;font-weight:800}.muted{color:#667085;font-size:14px}.card{background:#fff;border:1px solid #e4e7ec;border-radius:18px;padding:18px;margin-top:16px}.state{padding:12px;border-radius:12px;background:#f8fafc;font-size:14px}.ok{color:#067647}.warn{color:#b54708}.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:800;background:#101828;color:#fff;margin-top:10px}.table{width:100%;border-collapse:collapse;margin-top:12px}.table th,.table td{padding:10px 8px;border-bottom:1px solid #eaecf0;text-align:left;font-size:14px}.table th{font-size:12px;color:#667085}.links{margin-top:14px;font-size:14px}@media(max-width:560px){.table th:nth-child(1),.table td:nth-child(1){display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="title">SINCRONIAIA · PRUEBA CENTRAL</div>
+  <div class="muted">Panel Empresa</div>
+  <div class="card">
+    <b>Estado de conexión</b>
+    <div id="estado" class="state">Consultando backend central…</div>
+    <button class="btn" id="recargar">ACTUALIZAR AHORA</button>
+  </div>
+  <div class="card">
+    <b>Fichajes del trabajador</b>
+    <div class="muted">Se actualiza automáticamente cada 5 segundos.</div>
+    <div style="overflow:auto"><table class="table"><thead><tr><th>ID</th><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Trabajador</th></tr></thead><tbody id="rows"><tr><td colspan="5">Cargando…</td></tr></tbody></table></div>
+  </div>
+  <div class="links"><a href="./trabajador.html">Abrir pantalla Trabajador</a></div>
+</div>
+<script>
+const BACKEND_URL='https://script.google.com/macros/s/AKfycbyLwc8-1Ld3pnOcwF5aIpy9hIF8MpYN-LubyXkm5hPaSdyTI8jzSe02IDSkZDjDw_zr/exec';
+const EMPRESA='EMP-FELIX-DEMO';
+const TRABAJADOR='TRAB-FELIX-001';
+const KEY='sincroniaia_prueba_central_backend_key';
+const qs=new URLSearchParams(location.search);const incoming=qs.get('k');if(incoming){localStorage.setItem(KEY,incoming);qs.delete('k');history.replaceState({},document.title,location.pathname+(qs.toString()?'?'+qs.toString():''));}
+const TOKEN=localStorage.getItem(KEY)||'';
+const $=id=>document.getElementById(id);
+async function cargar(){
+  const q=new URLSearchParams({action:'consultar_fichajes',empresa_id:EMPRESA,trabajador_id:TRABAJADOR});if(TOKEN)q.set('token',TOKEN);
+  const c=new AbortController();const t=setTimeout(()=>c.abort(),10000);
+  try{
+    const r=await fetch(BACKEND_URL+'?'+q.toString(),{cache:'no-store',signal:c.signal});
+    const j=await r.json();
+    if(!j.ok||!Array.isArray(j.fichajes))throw new Error(j.error||'Respuesta no válida');
+    const rows=j.fichajes.slice().sort((a,b)=>String((b.fecha_iso||'')+' '+(b.hora||'')).localeCompare(String((a.fecha_iso||'')+' '+(a.hora||''))));
+    $('estado').innerHTML='<span class="ok">✅ Backend central conectado · '+rows.length+' movimiento(s) recibidos.</span>';
+    $('rows').innerHTML=rows.length?rows.map(x=>`<tr><td>${x.fichaje_id||'—'}</td><td>${x.fecha_iso||x.fecha||'—'}</td><td>${x.hora||'—'}</td><td><b>${x.tipo||'—'}</b></td><td>${x.nombre||'—'}</td></tr>`).join(''):'<tr><td colspan="5">No hay fichajes todavía.</td></tr>';
+  }catch(e){$('estado').innerHTML='<span class="warn">⚠️ No se pudo consultar el backend: '+String(e.message||e)+'</span>';}
+  finally{clearTimeout(t)}
+}
+$('recargar').addEventListener('click',cargar);cargar();setInterval(cargar,5000);
+</script>
+</body>
+</html>
