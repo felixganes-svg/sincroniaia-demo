@@ -1,0 +1,117 @@
+name: Fix Control Horario backend root
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-control-horario-backend.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Aplicar corrección raíz
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          app = Path('control-horario-personal/app-base.html')
+          idx = Path('control-horario-personal/index.html')
+          s = app.read_text(encoding='utf-8')
+          original = s
+
+          new_api = r'''async function apiPost(payload){
+            if(!SECRET_TOKEN)return {ok:false,error:'ACCESO_NO_CONFIGURADO'};
+            const controller=new AbortController();
+            const timer=setTimeout(()=>controller.abort(),10000);
+            try{
+              const r=await fetch(BACKEND_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...payload,token:SECRET_TOKEN}),redirect:'follow',signal:controller.signal});
+              return await r.json();
+            }catch(e){
+              return {ok:false,error:e&&e.name==='AbortError'?'TIMEOUT_BACKEND':String(e)};
+            }finally{clearTimeout(timer)}
+          }
+          async function apiGet(action,extra={}){
+            const controller=new AbortController();
+            const timer=setTimeout(()=>controller.abort(),10000);
+            try{
+              const q=new URLSearchParams({action,...extra});
+              if(SECRET_TOKEN)q.set('token',SECRET_TOKEN);
+              const r=await fetch(BACKEND_URL+'?'+q.toString(),{method:'GET',cache:'no-store',redirect:'follow',signal:controller.signal});
+              return await r.json();
+            }catch(e){
+              return {ok:false,error:e&&e.name==='AbortError'?'TIMEOUT_BACKEND':String(e)};
+            }finally{clearTimeout(timer)}
+          }'''
+
+          s,n=re.subn(r"async function apiPost\(payload\)\{.*?\}\nasync function sendBackend",new_api+'\nasync function sendBackend',s,count=1)
+          assert n==1, 'No se encontró apiPost exactamente una vez'
+
+          old_send="async function sendBackend(ev){const j=await apiPost(ev);return !!j.ok}"
+          new_send="async function sendBackend(ev){const payload={...ev,action:ev.action==='registrar_fichaje'?'fichaje':ev.action};const j=await apiPost(payload);return !!j.ok}"
+          assert s.count(old_send)==1, 'No se encontró sendBackend exactamente una vez'
+          s=s.replace(old_send,new_send,1)
+
+          new_hydrate = r'''async function hydrateFromBackend(){
+            const el=$('backendState');
+            if(el)el.innerHTML='<span class="muted">Comprobando conexión con backend…</span>';
+            const [fj,cfg]=await Promise.all([
+              apiGet('consultar_fichajes',{empresa_id:WORKER.empresa_id,trabajador_id:WORKER.trabajador_id}),
+              apiGet('consultar_configuracion',{empresa_id:WORKER.empresa_id,trabajador_id:WORKER.trabajador_id})
+            ]);
+            if(fj.ok&&Array.isArray(fj.fichajes)){
+              data.backups.unshift({at:new Date().toISOString(),days:JSON.parse(JSON.stringify(data.days)),open:data.open?JSON.parse(JSON.stringify(data.open)):null,source:'pre-backend-sync'});
+              data.backups=data.backups.slice(0,10);
+              const added=mergeRemoteFichajes(fj.fichajes);
+              if(el)el.innerHTML='<span class="ok">✅ Backend conectado · '+fj.fichajes.length+' movimiento(s) leídos · '+added+' jornada(s) añadida(s).</span>';
+            }else{
+              if(el)el.innerHTML='<span class="warn">⚠️ Backend no disponible · '+(fj.error||'sin respuesta válida')+'</span>';
+            }
+            const trabajador=cfg&&Array.isArray(cfg.trabajadores)?cfg.trabajadores.find(x=>String(x.trabajador_id||'')===WORKER.trabajador_id):null;
+            if(trabajador&&Number(trabajador.horas_contrato_semana)>0){data.config.weeklyContractHours=Number(trabajador.horas_contrato_semana);save()}
+            render();
+          }'''
+          s,n=re.subn(r"async function hydrateFromBackend\(\)\{.*?\}\nfunction backendEvent",new_hydrate+'\nfunction backendEvent',s,count=1)
+          assert n==1, 'No se encontró hydrateFromBackend exactamente una vez'
+
+          old_event=re.search(r"function backendEvent\(tipo,iso,gps\)\{.*?\}",s)
+          assert old_event, 'No se encontró backendEvent'
+          new_event="function backendEvent(tipo,iso,gps){return {action:'fichaje',empresa_id:WORKER.empresa_id,trabajador_id:WORKER.trabajador_id,nombre:WORKER.nombre,tipo,fecha_iso:dateKey(new Date(iso)),hora:hm(new Date(iso))+':00',timestamp:iso,centro_id:'CENTRO-001',centro:'Centro de trabajo',latitud:gps&&gps.ok?gps.lat:'',longitud:gps&&gps.ok?gps.lon:'',gps_estado:gps&&gps.estado?gps.estado:(gps&&gps.ok?'VERIFICADO':'NO_DISPONIBLE')}}"
+          s=s[:old_event.start()]+new_event+s[old_event.end():]
+
+          assert s!=original, 'No se aplicó ningún cambio'
+          assert "action:'registrar_fichaje'" not in s, 'Queda registrar_fichaje en app-base'
+          assert "apiGet('consultar_fichajes'" in s, 'No quedó lectura GET de fichajes'
+          assert "TIMEOUT_BACKEND" in s, 'No quedó timeout de backend'
+          assert "horas_contrato_semana" in s, 'No quedó lectura correcta de jornada'
+          app.write_text(s,encoding='utf-8')
+
+          t=idx.read_text(encoding='utf-8')
+          old='app-base.html?v=20260916-banco-semana-en-curso'
+          new='app-base.html?v=20260916-backend-central-root'
+          assert t.count(old)==1, 'No se encontró versión iframe esperada'
+          idx.write_text(t.replace(old,new,1),encoding='utf-8')
+
+          print('OK: app-base e index actualizados con validaciones')
+
+      - name: Validar diferencias
+        run: |
+          git diff --check
+          grep -q "apiGet('consultar_fichajes'" control-horario-personal/app-base.html
+          grep -q "action:'fichaje'" control-horario-personal/app-base.html
+          grep -q "20260916-backend-central-root" control-horario-personal/index.html
+
+      - name: Commit de la corrección
+        run: |
+          git config user.name "SINCRONIAIA automation"
+          git config user.email "actions@users.noreply.github.com"
+          git add control-horario-personal/app-base.html control-horario-personal/index.html
+          git commit -m "fix(control-horario): conectar directamente con backend central"
+          git push
