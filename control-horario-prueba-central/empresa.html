@@ -32,7 +32,7 @@
   </div>
   <div class="card">
     <b>Fichajes del trabajador</b>
-    <div class="muted">Se actualiza automáticamente cada 5 segundos.</div>
+    <div class="muted">Se actualiza automáticamente cada 15 segundos.</div>
     <div style="overflow:auto"><table class="table"><thead><tr><th>ID</th><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Trabajador</th></tr></thead><tbody id="rows"><tr><td colspan="5">Cargando…</td></tr></tbody></table></div>
   </div>
   <div class="links"><a href="./trabajador.html">Abrir pantalla Trabajador</a></div>
@@ -74,21 +74,28 @@ function resumenHoy(rows){
   $('detalleHoy').textContent=movs.length?`${movs.length} movimiento(s) centrales de hoy · actualizado desde servidor.`:'Sin movimientos centrales de hoy.';
   $('tramosHoy').innerHTML=tramos.length?tramos.map(t=>`<div class="tramo"><b>${t.inicio}–${t.fin}</b><span>${duracion(t.seg)}${t.enCurso?' · en curso':''}</span></div>`).join(''):'<div class="muted">No hay tramos de trabajo hoy.</div>';
 }
+let cargando=false;
 async function cargar(){
-  const q=new URLSearchParams({action:'consultar_fichajes',empresa_id:EMPRESA,trabajador_id:TRABAJADOR});if(TOKEN)q.set('token',TOKEN);
-  const c=new AbortController();const t=setTimeout(()=>c.abort(),10000);
+  if(cargando)return;
+  cargando=true;
+  $('recargar').disabled=true;
   try{
-    const r=await fetch(BACKEND_URL+'?'+q.toString(),{cache:'no-store',signal:c.signal});
+    const q=new URLSearchParams({action:'consultar_fichajes',empresa_id:EMPRESA,trabajador_id:TRABAJADOR});if(TOKEN)q.set('token',TOKEN);
+    const r=await fetch(BACKEND_URL+'?'+q.toString(),{cache:'no-store'});
     const j=await r.json();
     if(!j.ok||!Array.isArray(j.fichajes))throw new Error(j.error||'Respuesta no válida');
     const rows=j.fichajes.slice().sort((a,b)=>claveOrden(b).localeCompare(claveOrden(a)));
     $('estado').innerHTML='<span class="ok">✅ Backend central conectado · '+rows.length+' movimiento(s) recibidos.</span>';
     resumenHoy(j.fichajes);
     $('rows').innerHTML=rows.length?rows.map(x=>`<tr><td>${x.fichaje_id||'—'}</td><td>${limpiarFecha(x.fecha_iso||x.fecha)}</td><td>${limpiarHora(x.hora)}</td><td><b>${x.tipo||'—'}</b></td><td>${x.nombre||'—'}</td></tr>`).join(''):'<tr><td colspan="5">No hay fichajes todavía.</td></tr>';
-  }catch(e){$('estado').innerHTML='<span class="warn">⚠️ No se pudo consultar el backend: '+String(e.message||e)+'</span>';}
-  finally{clearTimeout(t)}
+  }catch(e){
+    $('estado').innerHTML='<span class="warn">⚠️ No se pudo consultar el backend: '+String(e.message||e)+'</span>';
+  }finally{
+    cargando=false;
+    $('recargar').disabled=false;
+  }
 }
-$('recargar').addEventListener('click',cargar);cargar();setInterval(cargar,5000);
+$('recargar').addEventListener('click',cargar);cargar();setInterval(cargar,15000);
 </script>
 </body>
 </html>
