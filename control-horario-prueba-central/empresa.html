@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>SINCRONIAIA · Prueba Central · Empresa</title>
 <style>
-:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#172033;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;background:#f4f6f8}.wrap{max-width:760px;margin:auto;padding:18px}.title{font-size:22px;font-weight:800}.muted{color:#667085;font-size:14px}.card{background:#fff;border:1px solid #e4e7ec;border-radius:18px;padding:18px;margin-top:16px}.state{padding:12px;border-radius:12px;background:#f8fafc;font-size:14px}.ok{color:#067647}.warn{color:#b54708}.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:800;background:#101828;color:#fff;margin-top:10px}.table{width:100%;border-collapse:collapse;margin-top:12px}.table th,.table td{padding:10px 8px;border-bottom:1px solid #eaecf0;text-align:left;font-size:14px}.table th{font-size:12px;color:#667085}.links{margin-top:14px;font-size:14px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.metric{background:#f8fafc;border-radius:14px;padding:14px;text-align:center}.metric span{display:block;color:#667085;font-size:12px}.metric b{display:block;font-size:22px;margin-top:5px}.working{color:#067647}.outside{color:#475467}@media(max-width:560px){.table th:nth-child(1),.table td:nth-child(1){display:none}.grid{grid-template-columns:1fr 1fr}.grid .metric:last-child{grid-column:1/-1}}
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#172033;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;background:#f4f6f8}.wrap{max-width:760px;margin:auto;padding:18px}.title{font-size:22px;font-weight:800}.muted{color:#667085;font-size:14px}.card{background:#fff;border:1px solid #e4e7ec;border-radius:18px;padding:18px;margin-top:16px}.state{padding:12px;border-radius:12px;background:#f8fafc;font-size:14px}.ok{color:#067647}.warn{color:#b54708}.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:800;background:#101828;color:#fff;margin-top:10px}.table{width:100%;border-collapse:collapse;margin-top:12px}.table th,.table td{padding:10px 8px;border-bottom:1px solid #eaecf0;text-align:left;font-size:14px}.table th{font-size:12px;color:#667085}.links{margin-top:14px;font-size:14px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.metric{background:#f8fafc;border-radius:14px;padding:14px;text-align:center}.metric span{display:block;color:#667085;font-size:12px}.metric b{display:block;font-size:22px;margin-top:5px}.working{color:#067647}.outside{color:#475467}.tramo{display:grid;grid-template-columns:1fr auto;gap:10px;padding:11px 0;border-bottom:1px solid #eaecf0}.tramo:last-child{border-bottom:0}.tramo b{font-size:15px}.tramo span{color:#667085;font-size:14px}@media(max-width:560px){.table th:nth-child(1),.table td:nth-child(1){display:none}.grid{grid-template-columns:1fr 1fr}.grid .metric:last-child{grid-column:1/-1}}
 </style>
 </head>
 <body>
@@ -27,6 +27,10 @@
     <div id="detalleHoy" class="muted" style="margin-top:10px">Calculado exclusivamente con los fichajes del servidor central.</div>
   </div>
   <div class="card">
+    <b>Tramos de hoy</b>
+    <div id="tramosHoy" style="margin-top:8px"><div class="muted">Cargando tramos…</div></div>
+  </div>
+  <div class="card">
     <b>Fichajes del trabajador</b>
     <div class="muted">Se actualiza automáticamente cada 5 segundos.</div>
     <div style="overflow:auto"><table class="table"><thead><tr><th>ID</th><th>Fecha</th><th>Hora</th><th>Tipo</th><th>Trabajador</th></tr></thead><tbody id="rows"><tr><td colspan="5">Cargando…</td></tr></tbody></table></div>
@@ -43,43 +47,32 @@ const TOKEN=localStorage.getItem(KEY)||'';
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
 function fechaHoyKey(){const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
-function fechaKey(v){
-  const s=String(v??'').trim();
-  let m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return `${m[1]}-${m[2]}-${m[3]}`;
-  m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);if(m)return `${m[3]}-${m[2]}-${m[1]}`;
-  return '';
-}
-function limpiarFecha(v){
-  const k=fechaKey(v);if(!k)return String(v??'').trim()||'—';
-  const [y,m,d]=k.split('-');return `${d}/${m}/${y}`;
-}
-function limpiarHora(v){
-  const s=String(v??'').trim();if(!s)return '—';
-  const m=s.match(/(\d{2}:\d{2}:\d{2})/);if(m)return m[1];
-  const h=s.match(/(\d{2}:\d{2})/);if(h)return h[1]+':00';
-  return s;
-}
+function fechaKey(v){const s=String(v??'').trim();let m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return `${m[1]}-${m[2]}-${m[3]}`;m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);if(m)return `${m[3]}-${m[2]}-${m[1]}`;return '';}
+function limpiarFecha(v){const k=fechaKey(v);if(!k)return String(v??'').trim()||'—';const [y,m,d]=k.split('-');return `${d}/${m}/${y}`;}
+function limpiarHora(v){const s=String(v??'').trim();if(!s)return '—';const m=s.match(/(\d{2}:\d{2}:\d{2})/);if(m)return m[1];const h=s.match(/(\d{2}:\d{2})/);if(h)return h[1]+':00';return s;}
 function horaSegundos(v){const h=limpiarHora(v).match(/^(\d{2}):(\d{2}):(\d{2})$/);return h?(+h[1])*3600+(+h[2])*60+(+h[3]):null;}
 function claveOrden(x){return fechaKey(x.fecha_iso||x.fecha)+' '+limpiarHora(x.hora);}
 function duracion(seg){seg=Math.max(0,Math.floor(seg||0));const h=Math.floor(seg/3600),m=Math.floor((seg%3600)/60);return `${h}:${pad(m)}`;}
+function hm(v){return limpiarHora(v).slice(0,5);}
 function resumenHoy(rows){
   const hoy=fechaHoyKey();
   const movs=rows.filter(x=>fechaKey(x.fecha_iso||x.fecha)===hoy).slice().sort((a,b)=>limpiarHora(a.hora).localeCompare(limpiarHora(b.hora)));
-  let entrada=null,total=0;
+  let entrada=null,total=0,tramos=[];
   for(const x of movs){
     const tipo=String(x.tipo||'').toUpperCase(),s=horaSegundos(x.hora);
     if(s===null)continue;
-    if(tipo==='ENTRADA')entrada=s;
-    else if(tipo==='SALIDA'&&entrada!==null){total+=Math.max(0,s-entrada);entrada=null;}
+    if(tipo==='ENTRADA'){entrada={seg:s,hora:hm(x.hora)};}
+    else if(tipo==='SALIDA'&&entrada){const d=Math.max(0,s-entrada.seg);total+=d;tramos.push({inicio:entrada.hora,fin:hm(x.hora),seg:d,enCurso:false});entrada=null;}
   }
-  if(entrada!==null){const n=new Date(),ahora=n.getHours()*3600+n.getMinutes()*60+n.getSeconds();total+=Math.max(0,ahora-entrada);}
+  if(entrada){const n=new Date(),ahora=n.getHours()*3600+n.getMinutes()*60+n.getSeconds(),d=Math.max(0,ahora-entrada.seg);total+=d;tramos.push({inicio:entrada.hora,fin:'en curso',seg:d,enCurso:true});}
   const last=movs[movs.length-1]||null;
   const trabajando=!!last&&String(last.tipo||'').toUpperCase()==='ENTRADA';
   $('estadoTrabajador').textContent=trabajando?'● Trabajando':'● Fuera';
   $('estadoTrabajador').className=trabajando?'working':'outside';
   $('totalHoy').textContent=duracion(total);
-  $('ultimoMovimiento').textContent=last?`${String(last.tipo||'').toUpperCase()} ${limpiarHora(last.hora).slice(0,5)}`:'—';
+  $('ultimoMovimiento').textContent=last?`${String(last.tipo||'').toUpperCase()} ${hm(last.hora)}`:'—';
   $('detalleHoy').textContent=movs.length?`${movs.length} movimiento(s) centrales de hoy · actualizado desde servidor.`:'Sin movimientos centrales de hoy.';
+  $('tramosHoy').innerHTML=tramos.length?tramos.map(t=>`<div class="tramo"><b>${t.inicio}–${t.fin}</b><span>${duracion(t.seg)}${t.enCurso?' · en curso':''}</span></div>`).join(''):'<div class="muted">No hay tramos de trabajo hoy.</div>';
 }
 async function cargar(){
   const q=new URLSearchParams({action:'consultar_fichajes',empresa_id:EMPRESA,trabajador_id:TRABAJADOR});if(TOKEN)q.set('token',TOKEN);
