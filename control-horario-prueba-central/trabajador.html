@@ -39,14 +39,17 @@ const pad=n=>String(n).padStart(2,'0');
 const fechaIso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const hora=d=>`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 let proximoTipo='ENTRADA';
+let leyendo=false;
+let enviando=false;
 function tick(){const n=new Date();$('clock').textContent=`${pad(n.getHours())}:${pad(n.getMinutes())}`;$('fecha').textContent=n.toLocaleDateString('es-ES',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});}tick();setInterval(tick,1000);
 async function getFichajes(){
   const q=new URLSearchParams({action:'consultar_fichajes',empresa_id:EMPRESA,trabajador_id:TRABAJADOR});
-  const c=new AbortController();const t=setTimeout(()=>c.abort(),10000);
-  try{const r=await fetch(BACKEND_URL+'?'+q.toString(),{cache:'no-store',signal:c.signal});return await r.json();}
-  finally{clearTimeout(t)}
+  const r=await fetch(BACKEND_URL+'?'+q.toString(),{cache:'no-store'});
+  return await r.json();
 }
 async function cargarEstado(){
+  if(leyendo)return;
+  leyendo=true;
   const btn=$('btn');
   try{
     const j=await getFichajes();
@@ -57,24 +60,26 @@ async function cargarEstado(){
     $('estado').innerHTML=last?`Último central: <b>${last.tipo}</b> · ${last.fecha_iso||last.fecha||''} · ${last.hora||''}`:'Sin fichajes centrales. El próximo será ENTRADA.';
     btn.textContent='FICHAR '+proximoTipo;
     btn.className='btn '+(proximoTipo==='ENTRADA'?'green':'dark');
-    btn.disabled=!TOKEN;
+    btn.disabled=!TOKEN||enviando;
     if(!TOKEN)$('resultado').innerHTML='<span class="warn">Falta la clave de acceso. Abre esta página una vez con <b>?k=TU_CLAVE</b>.</span>';
   }catch(e){$('estado').innerHTML='<span class="warn">No se pudo leer el backend: '+String(e.message||e)+'</span>';btn.disabled=true;}
+  finally{leyendo=false;}
 }
 async function fichar(){
-  if(!TOKEN)return;
+  if(!TOKEN||enviando)return;
+  enviando=true;
   const btn=$('btn');btn.disabled=true;
   const n=new Date();
-  const payload={action:'fichaje',empresa_id:EMPRESA,trabajador_id:TRABAJADOR,nombre:NOMBRE,tipo:proximoTipo,fecha_iso:fechaIso(n),hora:hora(n),timestamp:n.toISOString(),centro_id:'CENTRO-001',centro:'Prueba central',latitud:'',longitud:'',gps_estado:'PRUEBA_CENTRAL',token:TOKEN};
-  const c=new AbortController();const t=setTimeout(()=>c.abort(),10000);
+  const tipo=proximoTipo;
+  const payload={action:'fichaje',empresa_id:EMPRESA,trabajador_id:TRABAJADOR,nombre:NOMBRE,tipo,fecha_iso:fechaIso(n),hora:hora(n),timestamp:n.toISOString(),centro_id:'CENTRO-001',centro:'Prueba central',latitud:'',longitud:'',gps_estado:'PRUEBA_CENTRAL',token:TOKEN};
   try{
-    const r=await fetch(BACKEND_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),redirect:'follow',signal:c.signal});
+    const r=await fetch(BACKEND_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),redirect:'follow'});
     const j=await r.json();
     if(!j.ok)throw new Error(j.error||'El backend rechazó el fichaje');
-    $('resultado').innerHTML='<span class="ok">✅ '+proximoTipo+' guardada en el backend central · '+fechaIso(n)+' '+hora(n)+'</span>';
+    $('resultado').innerHTML='<span class="ok">✅ '+tipo+' guardada en el backend central · '+fechaIso(n)+' '+hora(n)+'</span>';
     await cargarEstado();
-  }catch(e){$('resultado').innerHTML='<span class="warn">⚠️ No se ha confirmado el guardado central: '+String(e.message||e)+'</span>';btn.disabled=false;}
-  finally{clearTimeout(t)}
+  }catch(e){$('resultado').innerHTML='<span class="warn">⚠️ No se ha confirmado el guardado central: '+String(e.message||e)+'</span>';}
+  finally{enviando=false;btn.disabled=!TOKEN;await cargarEstado();}
 }
 $('btn').addEventListener('click',fichar);
 cargarEstado();
