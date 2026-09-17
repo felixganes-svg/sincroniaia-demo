@@ -32,6 +32,31 @@ const KEY='sincroniaia_prueba_central_backend_key';
 const qs=new URLSearchParams(location.search);const incoming=qs.get('k');if(incoming){localStorage.setItem(KEY,incoming);qs.delete('k');history.replaceState({},document.title,location.pathname+(qs.toString()?'?'+qs.toString():''));}
 const TOKEN=localStorage.getItem(KEY)||'';
 const $=id=>document.getElementById(id);
+function limpiarFecha(v){
+  const s=String(v??'').trim();
+  if(!s)return '—';
+  const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m)return `${m[3]}/${m[2]}/${m[1]}`;
+  const d=s.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  if(d)return `${d[1]}/${d[2]}/${d[3]}`;
+  return s;
+}
+function limpiarHora(v){
+  const s=String(v??'').trim();
+  if(!s)return '—';
+  const m=s.match(/(\d{2}:\d{2}:\d{2})/);
+  if(m)return m[1];
+  const h=s.match(/(\d{2}:\d{2})/);
+  if(h)return h[1]+':00';
+  return s;
+}
+function claveOrden(x){
+  const f=String(x.fecha_iso||x.fecha||'').match(/(\d{4})-(\d{2})-(\d{2})/) || String(x.fecha_iso||x.fecha||'').match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  let fecha='';
+  if(f){fecha=f[0].includes('-')?`${f[1]}-${f[2]}-${f[3]}`:`${f[3]}-${f[2]}-${f[1]}`;}
+  const hm=String(x.hora||'').match(/(\d{2}:\d{2}:\d{2})/)||String(x.hora||'').match(/(\d{2}:\d{2})/);
+  return fecha+' '+(hm?hm[1]:'');
+}
 async function cargar(){
   const q=new URLSearchParams({action:'consultar_fichajes',empresa_id:EMPRESA,trabajador_id:TRABAJADOR});if(TOKEN)q.set('token',TOKEN);
   const c=new AbortController();const t=setTimeout(()=>c.abort(),10000);
@@ -39,9 +64,9 @@ async function cargar(){
     const r=await fetch(BACKEND_URL+'?'+q.toString(),{cache:'no-store',signal:c.signal});
     const j=await r.json();
     if(!j.ok||!Array.isArray(j.fichajes))throw new Error(j.error||'Respuesta no válida');
-    const rows=j.fichajes.slice().sort((a,b)=>String((b.fecha_iso||'')+' '+(b.hora||'')).localeCompare(String((a.fecha_iso||'')+' '+(a.hora||''))));
+    const rows=j.fichajes.slice().sort((a,b)=>claveOrden(b).localeCompare(claveOrden(a)));
     $('estado').innerHTML='<span class="ok">✅ Backend central conectado · '+rows.length+' movimiento(s) recibidos.</span>';
-    $('rows').innerHTML=rows.length?rows.map(x=>`<tr><td>${x.fichaje_id||'—'}</td><td>${x.fecha_iso||x.fecha||'—'}</td><td>${x.hora||'—'}</td><td><b>${x.tipo||'—'}</b></td><td>${x.nombre||'—'}</td></tr>`).join(''):'<tr><td colspan="5">No hay fichajes todavía.</td></tr>';
+    $('rows').innerHTML=rows.length?rows.map(x=>`<tr><td>${x.fichaje_id||'—'}</td><td>${limpiarFecha(x.fecha_iso||x.fecha)}</td><td>${limpiarHora(x.hora)}</td><td><b>${x.tipo||'—'}</b></td><td>${x.nombre||'—'}</td></tr>`).join(''):'<tr><td colspan="5">No hay fichajes todavía.</td></tr>';
   }catch(e){$('estado').innerHTML='<span class="warn">⚠️ No se pudo consultar el backend: '+String(e.message||e)+'</span>';}
   finally{clearTimeout(t)}
 }
