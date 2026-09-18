@@ -38,6 +38,10 @@ const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
 const fechaIso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const hora=d=>`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+const soloFecha=v=>{const m=String(v||'').match(/(\d{4})-(\d{2})-(\d{2})/);return m?`${m[3]}/${m[2]}/${m[1]}`:String(v||'');};
+const fechaClave=v=>{const m=String(v||'').match(/(\d{4})-(\d{2})-(\d{2})/);return m?`${m[1]}-${m[2]}-${m[3]}`:String(v||'').slice(0,10);};
+const soloHora=v=>{const m=String(v||'').match(/(\d{2}):(\d{2}):(\d{2})/);return m?`${m[1]}:${m[2]}:${m[3]}`:String(v||'');};
+const segundosHora=v=>{const m=soloHora(v).match(/^(\d{2}):(\d{2}):(\d{2})$/);return m?(+m[1])*3600+(+m[2])*60+(+m[3]):NaN;};
 let proximoTipo='ENTRADA';
 let leyendo=false;
 let enviando=false;
@@ -57,7 +61,7 @@ async function cargarEstado(){
     const rows=j.fichajes.slice().sort((a,b)=>String((a.fecha_iso||'')+' '+(a.hora||'')).localeCompare(String((b.fecha_iso||'')+' '+(b.hora||''))));
     const last=rows[rows.length-1];
     proximoTipo=last&&String(last.tipo).toUpperCase()==='ENTRADA'?'SALIDA':'ENTRADA';
-    $('estado').innerHTML=last?`Último central: <b>${last.tipo}</b> · ${last.fecha_iso||last.fecha||''} · ${last.hora||''}`:'Sin fichajes centrales. El próximo será ENTRADA.';
+    $('estado').innerHTML=last?`Último central: <b>${last.tipo}</b> · ${soloFecha(last.fecha_iso||last.fecha||'')} · ${soloHora(last.hora||'')}`:'Sin fichajes centrales. El próximo será ENTRADA.';
     btn.textContent='FICHAR '+proximoTipo;
     btn.className='btn '+(proximoTipo==='ENTRADA'?'green':'dark');
     btn.disabled=!TOKEN||enviando;
@@ -78,7 +82,30 @@ async function fichar(){
     if(!j.ok)throw new Error(j.error||'El backend rechazó el fichaje');
     $('resultado').innerHTML='<span class="ok">✅ '+tipo+' guardada en el backend central · '+fechaIso(n)+' '+hora(n)+'</span>';
     await cargarEstado();
-  }catch(e){$('resultado').innerHTML='<span class="warn">⚠️ No se ha confirmado el guardado central: '+String(e.message||e)+'</span>';}
+  }catch(e){
+    // El POST puede haberse guardado aunque Apps Script devuelva HTML o una respuesta no JSON.
+    // Antes de mostrar error, verificamos la fuente de verdad central y NO reenviamos el fichaje.
+    let confirmado=false;
+    try{
+      await new Promise(r=>setTimeout(r,900));
+      const v=await getFichajes();
+      if(v.ok&&Array.isArray(v.fichajes)){
+        const objetivoFecha=fechaIso(n);
+        const objetivoSeg=segundosHora(hora(n));
+        confirmado=v.fichajes.some(x=>{
+          if(String(x.tipo||'').toUpperCase()!==tipo)return false;
+          if(fechaClave(x.fecha_iso||x.fecha||'')!==objetivoFecha)return false;
+          const s=segundosHora(x.hora||'');
+          return Number.isFinite(s)&&Math.abs(s-objetivoSeg)<=120;
+        });
+      }
+    }catch(_){}
+    if(confirmado){
+      $('resultado').innerHTML='<span class="ok">✅ '+tipo+' guardada y verificada en la central · '+fechaIso(n)+' '+hora(n)+'</span>';
+    }else{
+      $('resultado').innerHTML='<span class="warn">⚠️ No se ha podido confirmar el fichaje en la central. No pulses otra vez todavía; actualiza el estado antes de repetir.</span>';
+    }
+  }
   finally{enviando=false;btn.disabled=!TOKEN;await cargarEstado();}
 }
 $('btn').addEventListener('click',fichar);
