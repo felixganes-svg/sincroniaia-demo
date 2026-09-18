@@ -192,6 +192,66 @@ function recalcOpenLine(line,qty){
   return {...line,qty,normalTotal:c.normal,total:c.total,discount:c.disc,offerLabel:c.label,offerPrice:c.appliedPrice};
 }
 
+const baseReceiptLineHtmlForSameSale=receiptLineHtml;
+function sameSaleQtyText(qty,unit){
+  let n=Number(qty)||0;
+  return unit==='kg'
+    ?(Math.round(n*1000)/1000).toFixed(3).replace('.',',')+' kg'
+    :String(n).replace('.',',')+' ud';
+}
+receiptLineHtml=function(line){
+  if(!line||!line._ticketOriginal||!line._ticketCorrection){
+    return baseReceiptLineHtmlForSameSale(line);
+  }
+  let original=cloneLine(line._ticketOriginal);
+  delete original._ticketOriginal;
+  delete original._ticketCorrection;
+  let correction=line._ticketCorrection;
+  let first=baseReceiptLineHtmlForSameSale(original);
+  let unit=original.unit||line.unit||'ud';
+  let price=Number(original.price??line.price)||0;
+  let second='<div class="line"><div><b>'+esc(original.name||line.name||'Artículo')+'</b><br><small>'+
+    sameSaleQtyText(correction.qty,unit)+' × '+euro(price)+'/'+esc(unit)+' = '+euro(correction.total)+
+    '</small></div><b>'+euro(correction.total)+'</b></div>';
+  return first+second;
+};
+
+function openPendingSaleForModification(encodedName){
+  let name=decodeURIComponent(encodedName);
+  let pending=sellerMems[name]||[];
+  if(!pending.length)return alert('Este vendedor no tiene una venta abierta para modificar.');
+  selectedCloseSeller=name;
+  cart=pending.map(cloneLine);
+  openSaleModification();
+}
+function directModifyOpenSale(){
+  let pending=activeSellers().filter(s=>(sellerMems[s.name]||[]).length>0);
+  if(!pending.length)return alert('No hay ninguna venta abierta para modificar.');
+  if(pending.length===1)return openPendingSaleForModification(encodeURIComponent(pending[0].name));
+  modal(
+    '<h2>Modificar venta abierta</h2>'+
+    '<p>Selecciona el vendedor cuya venta quieres corregir.</p>'+
+    '<div class="sellerKeys">'+pending.map(s=>
+      '<button class="brand" onclick="openPendingSaleForModification(\''+encodeURIComponent(s.name)+'\')">'+esc(s.name)+'</button>'
+    ).join('')+'</div>'+
+    '<p><button onclick="closeModal()">Cancelar</button></p>'
+  );
+}
+const baseRenderVentaForDirectModify=renderVenta;
+renderVenta=function(app,bar){
+  baseRenderVentaForDirectModify(app,bar);
+  if(screen!=='venta'||!bar)return;
+  let inner=bar.querySelector('.inner');
+  if(!inner||document.getElementById('directModifyBtn'))return;
+  inner.style.gridTemplateColumns='1fr 1fr 1fr';
+  let btn=document.createElement('button');
+  btn.id='directModifyBtn';
+  btn.textContent='MODIFICAR VENTA';
+  btn.onclick=directModifyOpenSale;
+  btn.style.fontSize='13px';
+  inner.insertBefore(btn,inner.lastElementChild);
+};
+
 pilotSnapshot=function(){
   return {version:4,savedAt:new Date().toISOString(),company,sellers,products,tickets,zReports,sellerMems,customSubsections,orders,saleAdjustments,priceChanges};
 };
@@ -321,7 +381,24 @@ saveOpenSaleQty=function(index){
   if(!Number.isFinite(qty)||qty<=0)return alert('Indica un peso o cantidad válido.');
   if(l.unit==='ud'&&!Number.isInteger(qty))return alert('Las unidades deben ser un número entero.');
   if(Math.abs(qty-Number(l.qty))<0.0000001)return alert('No hay ningún cambio en el peso o cantidad.');
-  let before=cloneLine(l),after=recalcOpenLine(l,qty);
+  let before=cloneLine(l);
+  let ticketOriginal=before._ticketOriginal?cloneLine(before._ticketOriginal):cloneLine(before);
+  delete ticketOriginal._ticketOriginal;
+  delete ticketOriginal._ticketCorrection;
+  let after=recalcOpenLine(l,qty);
+  let deltaQty=Number(after.qty||0)-Number(ticketOriginal.qty||0);
+  if(Math.abs(deltaQty)<0.0000001){
+    delete after._ticketOriginal;
+    delete after._ticketCorrection;
+  }else{
+    after._ticketOriginal=ticketOriginal;
+    after._ticketCorrection={
+      qty:after.unit==='kg'?Math.round(deltaQty*1000)/1000:deltaQty,
+      total:round(Number(after.total||0)-Number(ticketOriginal.total||0)),
+      normalTotal:round(Number(after.normalTotal||0)-Number(ticketOriginal.normalTotal||0)),
+      discount:round(Number(after.discount||0)-Number(ticketOriginal.discount||0))
+    };
+  }
   cart[index]=after;
   sellerMems[selectedCloseSeller]=cart.map(cloneLine);
   logOpenSaleAdjustment('CAMBIO PESO/CANTIDAD',before,after,reason);
@@ -397,6 +474,8 @@ window.findQuickPriceProduct=findQuickPriceProduct;
 window.confirmQuickPriceChange=confirmQuickPriceChange;
 window.priceChangeHistoryModal=priceChangeHistoryModal;
 window.reasonOtherToggle=reasonOtherToggle;
+window.directModifyOpenSale=directModifyOpenSale;
+window.openPendingSaleForModification=openPendingSaleForModification;
 })();
 
 // Marca visible adicional para evitar confundir esta LAB con otras.
