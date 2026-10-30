@@ -102,6 +102,7 @@ const KEY='sincroniaia_control_personal_master';
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
 function parse(v,f){try{return JSON.parse(v)}catch(e){return f}}
+function esc(v){return String(v??'').replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[ch]))}
 function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2600)}
 function hm(v){const d=new Date(v);return Number.isFinite(d.getTime())?pad(d.getHours())+':'+pad(d.getMinutes()):''}
 function localIso(day,time){
@@ -131,10 +132,10 @@ function renderAudit(){
     const when=new Date(a.at).toLocaleString('es-ES');
     if(a.action==='ALTA_TRAMO_OMITIDO'){
       const x=a.after||{};
-      return '<div class="audit"><b>'+a.day+'</b> · <span class="warn">Alta manual de tramo omitido</span><br><b>'+x.in+'–'+x.out+'</b> · '+duration(x.minutes)+'<br>'+a.reason+'<br><span class="muted">'+(a.actor||'Empresa')+' · '+when+' · '+(a.correctionId||'')+'</span></div>';
+      return '<div class="audit"><b>'+esc(a.day)+'</b> · <span class="warn">Alta manual de tramo omitido</span><br><b>'+esc(x.in)+'–'+esc(x.out)+'</b> · '+duration(x.minutes)+'<br>'+esc(a.reason)+'<br><span class="muted">'+esc(a.actor||'Empresa')+' · '+when+' · '+esc(a.correctionId||'')+'</span></div>';
     }
     const before=a.before||{},after=a.after||{};
-    return '<div class="audit"><b>'+a.day+'</b> · '+(before.in||'—')+'–'+(before.out||'—')+' → <b>'+(after.in||'—')+'–'+(after.out||'—')+'</b><br>'+a.reason+' · '+when+'</div>';
+    return '<div class="audit"><b>'+esc(a.day)+'</b> · '+esc(before.in||'—')+'–'+esc(before.out||'—')+' → <b>'+esc(after.in||'—')+'–'+esc(after.out||'—')+'</b><br>'+esc(a.reason)+' · '+when+'</div>';
   }).join(''):'Sin modificaciones manuales.';
 }
 function addMissingSessions(){
@@ -172,7 +173,8 @@ function addMissingSessions(){
   if(!confirm(confirmText))return;
 
   backup('antes_alta_manual_tramo_omitido');
-  if(!data.days[day]||!Array.isArray(data.days[day].sessions))data.days[day]={sessions:[]};
+  if(!data.days[day])data.days[day]={};
+  if(!Array.isArray(data.days[day].sessions))data.days[day].sessions=[];
   const created=[];
   proposed.forEach(p=>{
     const correctionId='CORR-'+Date.now()+'-'+Math.random().toString(36).slice(2,7).toUpperCase();
