@@ -7,32 +7,243 @@
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
 <title>Corregir fichaje · SINCRONIAIA</title>
 <style>
-:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#172033;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;background:#f4f6f8}.app{max-width:720px;margin:auto;min-height:100vh;background:#fff}.hero{padding:18px;background:#101828;color:#fff}.hero h1{font-size:19px;margin:0 0 4px}.view{padding:14px}.card{border:1px solid #e4e7ec;border-radius:16px;padding:14px;margin-bottom:12px;background:#fff}.muted{color:#667085;font-size:13px}.row{display:flex;gap:8px}.row>*{flex:1}.btn{width:100%;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:800;margin-top:9px}.dark{background:#101828;color:#fff}.light{background:#eef2f6;color:#111827}input,select{width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:12px;margin:5px 0 8px;font-size:16px}.ok{color:#16794a}.warn{color:#b54708}.audit{padding:9px 0;border-bottom:1px solid #eaecf0;font-size:13px}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#101828;color:#fff;padding:11px 14px;border-radius:12px;opacity:0;pointer-events:none;transition:.2s;z-index:20;max-width:90%}.toast.show{opacity:1}</style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#172033;background:#f4f6f8}
+*{box-sizing:border-box}
+body{margin:0;background:#f4f6f8}
+.app{max-width:720px;margin:auto;min-height:100vh;background:#fff}
+.hero{padding:18px;background:#101828;color:#fff}
+.hero h1{font-size:19px;margin:0 0 4px}
+.view{padding:14px}
+.card{border:1px solid #e4e7ec;border-radius:16px;padding:14px;margin-bottom:12px;background:#fff}
+.muted{color:#667085;font-size:13px;line-height:1.5}
+.row{display:flex;gap:8px}
+.row>*{flex:1;min-width:0}
+.btn{width:100%;border:0;border-radius:14px;padding:14px;font-size:16px;font-weight:800;margin-top:9px}
+.dark{background:#101828;color:#fff}
+.light{background:#eef2f6;color:#111827}
+input,select{width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:12px;margin:5px 0 8px;font-size:16px;background:#fff;color:#172033}
+label{display:block}
+.ok{color:#16794a}
+.warn{color:#b54708}
+.audit{padding:9px 0;border-bottom:1px solid #eaecf0;font-size:13px;line-height:1.5}
+.session-block{padding:10px;border:1px solid #eaecf0;border-radius:12px;margin:8px 0;background:#f8fafc}
+.checkline{display:flex;gap:9px;align-items:flex-start;margin-top:12px;font-size:13px;line-height:1.45}
+.checkline input{width:auto;margin:2px 0 0}
+.note{padding:11px;border-radius:12px;background:#fffaeb;border:1px solid #fedf89;color:#93370d;font-size:13px;line-height:1.5;margin-top:10px}
+.success{padding:11px;border-radius:12px;background:#ecfdf3;border:1px solid #abefc6;color:#067647;font-size:13px;line-height:1.5;margin-top:10px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#101828;color:#fff;padding:11px 14px;border-radius:12px;opacity:0;pointer-events:none;transition:.2s;z-index:20;max-width:90%}
+.toast.show{opacity:1}
+@media(max-width:390px){.row{gap:6px}.card{padding:12px}}
+</style>
 </head>
-<body><div class="app"><header class="hero"><h1>SINCRONIAIA · CORREGIR FICHAJE</h1><small>Empresa · modificación auditada</small></header><main class="view">
-<div class="card"><b>Seleccionar fichaje</b><p class="muted">La corrección no borra el valor anterior: queda registrada en auditoría.</p>
-<label class="muted">Fecha</label><input id="date" type="date">
-<label class="muted">Periodo</label><select id="session"><option value="">Selecciona una fecha</option></select>
-<div class="row"><div><label class="muted">Entrada</label><input id="in" type="time"></div><div><label class="muted">Salida</label><input id="out" type="time"></div></div>
-<label class="muted">Motivo</label><input id="reason" maxlength="180" placeholder="Ej.: salida anotada incorrectamente">
-<button class="btn dark" id="save">GUARDAR CORRECCIÓN</button><div id="info" class="muted" style="margin-top:8px"></div></div>
-<div class="card"><b>Registro de modificaciones</b><div id="audit" class="muted" style="margin-top:8px">Sin modificaciones manuales.</div></div>
-<button class="btn light" onclick="location.replace('./?v=382')">VOLVER AL CONTROL HORARIO</button>
-</main></div><div id="toast" class="toast"></div>
+<body>
+<div class="app">
+<header class="hero">
+  <h1>SINCRONIAIA · CORREGIR FICHAJE</h1>
+  <small>Empresa · corrección y alta manual auditada</small>
+</header>
+<main class="view">
+
+  <section class="card">
+    <b>Añadir tramo que se olvidó fichar</b>
+    <p class="muted">Para una jornada realizada sin fichaje de entrada o salida. Se añade como declaración manual y queda diferenciada de los fichajes originales.</p>
+    <label class="muted" for="newDate">Fecha trabajada</label>
+    <input id="newDate" type="date">
+    <div class="session-block">
+      <b>Tramo 1</b>
+      <div class="row">
+        <div><label class="muted" for="newIn1">Entrada</label><input id="newIn1" type="time"></div>
+        <div><label class="muted" for="newOut1">Salida</label><input id="newOut1" type="time"></div>
+      </div>
+    </div>
+    <div class="session-block">
+      <b>Tramo 2 <span class="muted">(opcional)</span></b>
+      <div class="row">
+        <div><label class="muted" for="newIn2">Entrada</label><input id="newIn2" type="time"></div>
+        <div><label class="muted" for="newOut2">Salida</label><input id="newOut2" type="time"></div>
+      </div>
+    </div>
+    <label class="muted" for="newReason">Motivo de la incorporación</label>
+    <input id="newReason" maxlength="180" value="Olvido de fichaje; jornada declarada por el trabajador." placeholder="Explica por qué falta el fichaje original">
+    <label class="checkline"><input id="declaration" type="checkbox"><span>Confirmo que estos tramos corresponden a trabajo realizado y que no son fichajes originales del sistema.</span></label>
+    <button class="btn dark" id="addMissing">AÑADIR TRAMO(S) OMITIDO(S)</button>
+    <div id="addInfo" aria-live="polite"></div>
+    <div class="note"><b>Importante:</b> este formulario guarda la corrección en el almacenamiento local de este navegador. La sincronización de altas manuales con la hoja central todavía no está validada. Después de guardar, descarga una copia JSON desde Empresa para conservar el respaldo.</div>
+  </section>
+
+  <section class="card">
+    <b>Modificar un fichaje ya existente</b>
+    <p class="muted">La corrección no borra el valor anterior: guarda una copia previa y registra el antes, el después y el motivo.</p>
+    <label class="muted" for="date">Fecha</label><input id="date" type="date">
+    <label class="muted" for="session">Periodo</label>
+    <select id="session"><option value="">Selecciona una fecha</option></select>
+    <div class="row">
+      <div><label class="muted" for="in">Entrada</label><input id="in" type="time"></div>
+      <div><label class="muted" for="out">Salida</label><input id="out" type="time"></div>
+    </div>
+    <label class="muted" for="reason">Motivo</label>
+    <input id="reason" maxlength="180" placeholder="Ej.: salida anotada incorrectamente">
+    <button class="btn dark" id="save">GUARDAR CORRECCIÓN</button>
+    <div id="info" class="muted" style="margin-top:8px"></div>
+  </section>
+
+  <section class="card">
+    <b>Registro de modificaciones</b>
+    <div id="audit" class="muted" style="margin-top:8px">Sin modificaciones manuales.</div>
+  </section>
+  <button class="btn light" onclick="location.replace('./?v=20261030-correccion-auditada')">VOLVER AL CONTROL HORARIO</button>
+</main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
 <script>
+'use strict';
 const KEY='sincroniaia_control_personal_master';
-const $=id=>document.getElementById(id);const pad=n=>String(n).padStart(2,'0');
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
 function parse(v,f){try{return JSON.parse(v)}catch(e){return f}}
-function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2400)}
+function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2600)}
 function hm(v){const d=new Date(v);return Number.isFinite(d.getTime())?pad(d.getHours())+':'+pad(d.getMinutes()):''}
-function localIso(day,time){const [y,m,d]=day.split('-').map(Number),[h,mi]=time.split(':').map(Number);return new Date(y,m-1,d,h,mi,0).toISOString()}
-let data=parse(localStorage.getItem(KEY),{})||{};if(!data.days)data.days={};if(!Array.isArray(data.audit))data.audit=[];if(!Array.isArray(data.backups))data.backups=[];
-function backup(reason){data.backups.unshift({at:new Date().toISOString(),reason,days:JSON.parse(JSON.stringify(data.days)),open:data.open?JSON.parse(JSON.stringify(data.open)):null});data.backups=data.backups.slice(0,10)}
+function localIso(day,time){
+  const [y,m,d]=day.split('-').map(Number),[h,mi]=time.split(':').map(Number);
+  return new Date(y,m-1,d,h,mi,0,0).toISOString();
+}
+function minutesOf(time){const [h,m]=time.split(':').map(Number);return h*60+m}
+function duration(m){const n=Math.max(0,Math.round(m||0));return pad(Math.floor(n/60))+':'+pad(n%60)}
+function todayKey(){const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+let data=parse(localStorage.getItem(KEY),{})||{};
+if(!data.days||typeof data.days!=='object')data.days={};
+if(!Array.isArray(data.audit))data.audit=[];
+if(!Array.isArray(data.backups))data.backups=[];
+function backup(reason){
+  data.backups.unshift({
+    at:new Date().toISOString(),reason,
+    days:JSON.parse(JSON.stringify(data.days)),
+    open:data.open?JSON.parse(JSON.stringify(data.open)):null,
+    audit:JSON.parse(JSON.stringify(data.audit))
+  });
+  data.backups=data.backups.slice(0,10);
+}
 function saveData(){localStorage.setItem(KEY,JSON.stringify(data))}
-function loadDay(){const day=$('date').value,ss=(data.days[day]&&Array.isArray(data.days[day].sessions))?data.days[day].sessions:[];$('session').innerHTML=ss.length?ss.map((s,i)=>`<option value="${i}">Periodo ${i+1} · ${hm(s.in)}–${hm(s.out)}</option>`).join(''):'<option value="">No hay fichajes cerrados ese día</option>';if(ss.length){$('session').value='0';loadSession()}else{$('in').value='';$('out').value=''}}
-function loadSession(){const day=$('date').value,i=Number($('session').value),s=data.days[day]?.sessions?.[i];if(!s)return;$('in').value=hm(s.in);$('out').value=hm(s.out)}
-function renderAudit(){$('audit').innerHTML=data.audit.length?data.audit.slice(0,15).map(a=>`<div class="audit"><b>${a.day}</b> · ${a.before.in}–${a.before.out} → <b>${a.after.in}–${a.after.out}</b><br>${a.reason} · ${new Date(a.at).toLocaleString('es-ES')}</div>`).join(''):'Sin modificaciones manuales.'}
-$('date').addEventListener('change',loadDay);$('session').addEventListener('change',loadSession);
-$('save').addEventListener('click',()=>{const day=$('date').value,idx=$('session').value,ti=$('in').value,to=$('out').value,reason=$('reason').value.trim();if(!day||idx===''){toast('⚠️ Selecciona un fichaje');return}const s=data.days[day]?.sessions?.[Number(idx)];if(!s){toast('⚠️ No se encuentra el fichaje');return}if(!ti||!to){toast('⚠️ Indica entrada y salida');return}if(reason.length<4){toast('⚠️ Indica el motivo');return}const ni=localIso(day,ti),no=localIso(day,to),mins=Math.floor((new Date(no)-new Date(ni))/60000);if(!Number.isFinite(mins)||mins<=0||mins>1440){toast('⚠️ Revisa las horas');return}const before={in:hm(s.in),out:hm(s.out),minutes:s.minutes},after={in:ti,out:to,minutes:mins};if(before.in===after.in&&before.out===after.out){toast('ℹ️ No hay cambios');return}if(!confirm(`¿Confirmas ${before.in}–${before.out} → ${after.in}–${after.out}?`))return;backup('antes_correccion_empresa');data.audit.unshift({at:new Date().toISOString(),actor:'Empresa',action:'CORRECCION_FICHAJE',day,sessionIndex:Number(idx),before,after,reason});data.audit=data.audit.slice(0,100);s.in=ni;s.out=no;s.minutes=mins;s.source='correccion_empresa_auditada';saveData();$('reason').value='';$('info').innerHTML='<span class="ok">✅ Corrección guardada con copia y auditoría.</span>';loadDay();renderAudit();toast('✅ Fichaje corregido')});
-const now=new Date();$('date').value=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;loadDay();renderAudit();
-</script></body></html>
+function renderAudit(){
+  const entries=data.audit.slice(0,30);
+  $('audit').innerHTML=entries.length?entries.map(a=>{
+    const when=new Date(a.at).toLocaleString('es-ES');
+    if(a.action==='ALTA_TRAMO_OMITIDO'){
+      const x=a.after||{};
+      return '<div class="audit"><b>'+esc(a.day)+'</b> · <span class="warn">Alta manual de tramo omitido</span><br><b>'+esc(x.in)+'–'+esc(x.out)+'</b> · '+duration(x.minutes)+'<br>'+esc(a.reason)+'<br><span class="muted">'+esc(a.actor||'Empresa')+' · '+when+' · '+esc(a.correctionId||'')+'</span></div>';
+    }
+    const before=a.before||{},after=a.after||{};
+    return '<div class="audit"><b>'+esc(a.day)+'</b> · '+esc(before.in||'—')+'–'+esc(before.out||'—')+' → <b>'+esc(after.in||'—')+'–'+esc(after.out||'—')+'</b><br>'+esc(a.reason)+' · '+when+'</div>';
+  }).join(''):'Sin modificaciones manuales.';
+}
+function addMissingSessions(){
+  const day=$('newDate').value,reason=$('newReason').value.trim();
+  if(!day){toast('⚠️ Selecciona la fecha trabajada');return}
+  if(day>todayKey()){toast('⚠️ No puedes añadir un tramo en una fecha futura');return}
+  if(reason.length<4){toast('⚠️ Explica el motivo de la incorporación');return}
+  if(!$('declaration').checked){toast('⚠️ Confirma la declaración antes de continuar');return}
+  if(data.open&&Number.isFinite(new Date(data.open.in).getTime())){
+    const openDay=new Date(data.open.in),openKey=openDay.getFullYear()+'-'+pad(openDay.getMonth()+1)+'-'+pad(openDay.getDate());
+    if(openKey===day){toast('⚠️ Hay un fichaje abierto ese día. Resuélvelo antes de añadir otro tramo.');return}
+  }
+  const raw=[[$('newIn1').value,$('newOut1').value],[$('newIn2').value,$('newOut2').value]];
+  const proposed=[];
+  for(let i=0;i<raw.length;i++){
+    const [start,end]=raw[i];
+    if(!start&&!end)continue;
+    if(!start||!end){toast('⚠️ Completa entrada y salida del tramo '+(i+1));return}
+    const from=minutesOf(start),to=minutesOf(end);
+    if(!Number.isFinite(from)||!Number.isFinite(to)||to<=from){toast('⚠️ Revisa las horas del tramo '+(i+1)+': la salida debe ser posterior a la entrada.');return}
+    proposed.push({from,to,start,end,minutes:to-from});
+  }
+  if(!proposed.length){toast('⚠️ Introduce al menos un tramo');return}
+  proposed.sort((a,b)=>a.from-b.from);
+  for(let i=1;i<proposed.length;i++){
+    if(proposed[i].from<proposed[i-1].to){toast('⚠️ Los dos tramos se solapan');return}
+  }
+  const existing=(data.days[day]?.sessions||[]).filter(s=>s&&s.in&&s.out).map(s=>({from:minutesOf(hm(s.in)),to:minutesOf(hm(s.out))}));
+  for(const p of proposed){
+    if(existing.some(s=>p.from<s.to&&p.to>s.from)){toast('⚠️ El tramo '+p.start+'–'+p.end+' se solapa con un fichaje que ya existe');return}
+  }
+  const total=proposed.reduce((n,p)=>n+p.minutes,0);
+  const detail=proposed.map(p=>p.start+'–'+p.end+' ('+duration(p.minutes)+')').join('\n');
+  const confirmText='Fecha: '+day+'\n'+detail+'\nTotal a incorporar: '+duration(total)+'\n\nSe guardará como alta manual auditada. ¿Confirmas?';
+  if(!confirm(confirmText))return;
+
+  backup('antes_alta_manual_tramo_omitido');
+  if(!data.days[day])data.days[day]={};
+  if(!Array.isArray(data.days[day].sessions))data.days[day].sessions=[];
+  const created=[];
+  proposed.forEach(p=>{
+    const correctionId='CORR-'+Date.now()+'-'+Math.random().toString(36).slice(2,7).toUpperCase();
+    const session={
+      in:localIso(day,p.start),out:localIso(day,p.end),minutes:p.minutes,
+      source:'alta_manual_auditada',manualCorrection:true,correctionId,
+      fichajeEntrada:'',fichajeSalida:''
+    };
+    data.days[day].sessions.push(session);
+    created.push({correctionId,session});
+  });
+  data.days[day].sessions.sort((a,b)=>new Date(a.in)-new Date(b.in));
+  data.days[day].source='correccion_empresa_auditada';
+  created.forEach(({correctionId,session})=>{
+    const sessionIndex=data.days[day].sessions.findIndex(s=>s.correctionId===correctionId);
+    data.audit.unshift({
+      at:new Date().toISOString(),actor:'Empresa',action:'ALTA_TRAMO_OMITIDO',
+      day,sessionIndex,before:null,
+      after:{in:hm(session.in),out:hm(session.out),minutes:session.minutes},
+      reason,correctionId,source:'declaracion_manual'
+    });
+  });
+  data.audit=data.audit.slice(0,100);
+  saveData();
+  $('addInfo').className='success';
+  $('addInfo').innerHTML='✅ Incorporados '+proposed.length+' tramo(s): <b>'+detail.replace(/\n/g,' · ')+'</b><br>Total añadido: <b>'+duration(total)+'</b>. La copia previa y la auditoría quedan guardadas en este navegador.';
+  $('newIn1').value='';$('newOut1').value='';$('newIn2').value='';$('newOut2').value='';
+  $('declaration').checked=false;
+  renderAudit();
+  toast('✅ Alta manual guardada');
+}
+
+function loadDay(){
+  const day=$('date').value,ss=(data.days[day]&&Array.isArray(data.days[day].sessions))?data.days[day].sessions:[];
+  $('session').innerHTML=ss.length?ss.map((s,i)=>'<option value="'+i+'">Periodo '+(i+1)+' · '+hm(s.in)+'–'+hm(s.out)+'</option>').join(''):'<option value="">No hay fichajes cerrados ese día</option>';
+  if(ss.length){$('session').value='0';loadSession()}else{$('in').value='';$('out').value=''}
+}
+function loadSession(){
+  const day=$('date').value,i=Number($('session').value),s=data.days[day]?.sessions?.[i];
+  if(!s)return;
+  $('in').value=hm(s.in);$('out').value=hm(s.out);
+}
+function saveExistingCorrection(){
+  const day=$('date').value,idx=$('session').value,ti=$('in').value,to=$('out').value,reason=$('reason').value.trim();
+  if(!day||idx===''){toast('⚠️ Selecciona un fichaje');return}
+  const s=data.days[day]?.sessions?.[Number(idx)];
+  if(!s){toast('⚠️ No se encuentra el fichaje');return}
+  if(!ti||!to){toast('⚠️ Indica entrada y salida');return}
+  if(reason.length<4){toast('⚠️ Indica el motivo');return}
+  const ni=localIso(day,ti),no=localIso(day,to),mins=Math.floor((new Date(no)-new Date(ni))/60000);
+  if(!Number.isFinite(mins)||mins<=0||mins>1440){toast('⚠️ Revisa las horas');return}
+  const before={in:hm(s.in),out:hm(s.out),minutes:s.minutes},after={in:ti,out:to,minutes:mins};
+  if(before.in===after.in&&before.out===after.out){toast('ℹ️ No hay cambios');return}
+  if(!confirm('¿Confirmas '+before.in+'–'+before.out+' → '+after.in+'–'+after.out+'?'))return;
+  backup('antes_correccion_empresa');
+  data.audit.unshift({at:new Date().toISOString(),actor:'Empresa',action:'CORRECCION_FICHAJE',day,sessionIndex:Number(idx),before,after,reason});
+  data.audit=data.audit.slice(0,100);
+  s.in=ni;s.out=no;s.minutes=mins;s.source='correccion_empresa_auditada';
+  saveData();$('reason').value='';$('info').innerHTML='<span class="ok">✅ Corrección guardada con copia y auditoría.</span>';
+  loadDay();renderAudit();toast('✅ Fichaje corregido');
+}
+$('newDate').max=todayKey();
+$('newDate').value=new URLSearchParams(location.search).get('fecha')||'';
+$('date').addEventListener('change',loadDay);
+$('session').addEventListener('change',loadSession);
+$('addMissing').addEventListener('click',addMissingSessions);
+$('save').addEventListener('click',saveExistingCorrection);
+$('date').value=todayKey();
+loadDay();renderAudit();
+</script>
+</body>
+</html>
