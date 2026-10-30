@@ -102,7 +102,7 @@ const KEY='sincroniaia_control_personal_master';
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
 function parse(v,f){try{return JSON.parse(v)}catch(e){return f}}
-function esc(v){return String(v??'').replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[ch]))}
+function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
 function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2600)}
 function hm(v){const d=new Date(v);return Number.isFinite(d.getTime())?pad(d.getHours())+':'+pad(d.getMinutes()):''}
 function localIso(day,time){
