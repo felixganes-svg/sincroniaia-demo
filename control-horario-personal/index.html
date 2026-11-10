@@ -12,7 +12,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff;font-f
 </style>
 </head>
 <body>
-<iframe id="app" src="./app-base.html?v=20260917-restaurado-estable" allow="geolocation"></iframe>
+<iframe id="app" src="./app-base.html?v=20261109-horario-nuevo" allow="geolocation"></iframe>
 <script>
 const frame=document.getElementById('app');
 frame.addEventListener('load',()=>{
@@ -27,13 +27,30 @@ frame.addEventListener('load',()=>{
           if(anterior)anterior.to='2026-09-13';
           if(!SCHEDULES.some(s=>s.id==='HORARIO_1409_2026')){
             SCHEDULES.push({
-              id:'HORARIO_1409_2026',name:'Horario desde 14/09/2026',from:'2026-09-14',to:null,weeklyMinutes:2400,
+              id:'HORARIO_1409_2026',name:'Horario desde 14/09/2026',from:'2026-09-14',to:'2026-11-08',weeklyMinutes:2400,
               days:{1:[['17:00','20:00']],2:[['08:00','13:30'],['17:00','20:00']],3:[['07:30','13:30']],4:[['09:00','13:30'],['17:00','20:00']],5:[['07:30','13:30'],['17:00','20:00']],6:[['07:30','13:30']],0:[]}
+            });
+          }else{
+            const h=SCHEDULES.find(s=>s.id==='HORARIO_1409_2026');
+            if(h)h.to='2026-11-08';
+          }
+          if(!SCHEDULES.some(s=>s.id==='HORARIO_0911_2026')){
+            SCHEDULES.push({
+              id:'HORARIO_0911_2026',name:'Horario desde 09/11/2026',from:'2026-11-09',to:null,weeklyMinutes:2400,
+              days:{
+                1:[['17:00','20:00']],
+                2:[['08:00','13:30']],
+                3:[['07:30','13:30'],['17:00','20:00']],
+                4:[['09:00','13:30'],['17:00','20:00']],
+                5:[['07:30','13:30'],['17:00','20:00']],
+                6:[['07:30','13:30']],
+                0:[]
+              }
             });
           }
           render();
         })()`);
-      }catch(e){console.error('Horario desde 14/09',e)}
+      }catch(e){console.error('Horarios desde 14/09 y 09/11',e)}
       w.__schedule1409Applied=true;
     }
 
